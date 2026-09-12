@@ -1,0 +1,28 @@
+name: Build & check site
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Build
+        run: python build.py
+      - name: Generated HTML must be committed
+        run: |
+          # sitemap lastmod and OWNER-TODO carry the build date, so they may legitimately differ.
+          changed="$(git status --porcelain -- . ':(exclude)_project/OWNER-TODO.md' ':(exclude)sitemap.xml')"
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            echo "Run python3 build.py and commit the output"
+            exit 1
+          fi
+      - name: Site checks
+        run: python tests/check_site.py

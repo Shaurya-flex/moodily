@@ -1,0 +1,46 @@
+{
+  "_readme": "Central site config. Empty strings/nulls are TODO placeholders — build.py lists every missing value in _project/OWNER-TODO.md. Never put secrets here (this repo is public).",
+  "name": "Moodily",
+  "alternate_names": ["Moodily.in", "Moodily Digital Saathi"],
+  "url": "https://moodily.in",
+  "disambiguation": "Moodily (moodily.in) is an Indian bilingual (Hindi + English) digital business, learning and services platform. Not related to Moody's or the English adverb 'moodily'.",
+  "tagline_hi": "सीखें. डिजिटल बनें. बढ़ें.",
+  "email": "hello@moodily.in",
+  "whatsapp": {
+    "number": "919354123255",
+    "confirmed": "2026-09-13 by owner"
+  },
+  "gtm_id": "GTM-MRNHLVC9",
+  "legal": {
+    "business_name": "",
+    "_todo_business_name": "TODO: legal entity name (proprietorship / LLP / Pvt Ltd) as registered",
+    "address_city": "",
+    "_todo_address_city": "TODO: city/state for Organization schema and legal pages",
+    "gstin": "",
+    "grievance_officer": "",
+    "_todo_grievance_officer": "TODO: name + email of grievance contact (DPDP Act / IT Rules)",
+    "jurisdiction": ""
+  },
+  "founder": {
+    "name": "",
+    "_todo": "TODO: founder full name, one-line role, short bio and LinkedIn URL (brief mentions 'Saurabh' — confirm before publishing)",
+    "role": "",
+    "bio": "",
+    "linkedin": ""
+  },
+  "same_as": [],
+  "_todo_same_as": "TODO: official profile URLs only (LinkedIn page, YouTube, Instagram, X). These feed Organization.sameAs.",
+  "form": {
+    "endpoint": "",
+    "_todo": "TODO: Google Apps Script web-app URL (see _project/03-forms-payments-analytics.md). Empty = submissions go to the thank-you page with a mandatory WhatsApp hand-off.",
+    "success_path": "/contact/thanks/"
+  },
+  "payments": {
+    "provider": null,
+    "_todo": "No payment provider approved. Products/services use enquiry or WhatsApp checkout until a provider (Razorpay/Cashfree/PhonePe/Stripe/Lemon Squeezy etc.) is approved and a hosted payment-link URL is added per product."
+  },
+  "free_audit": {
+    "promise_hi": "आपकी Google listing, WhatsApp, website और social profile देखकर 3 सबसे ज़रूरी सुधार — 2 working days में, WhatsApp पर।",
+    "_todo": "CONFIRM the owner can deliver this promise (2 working days, 3 suggestions)."
+  }
+}

@@ -1,0 +1,4 @@
+.DS_Store
+.claude/
+.claude-flow/
+__pycache__/
