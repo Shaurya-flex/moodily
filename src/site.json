@@ -8,7 +8,7 @@
   "email": "hello@moodily.in",
   "whatsapp": {
     "number": "919354123255",
-    "_todo": "CONFIRM: number recovered from owner commit 1a11158 (26 Aug 2026). Replace if it is not the current business WhatsApp."
+    "confirmed": "2026-09-13 by owner"
   },
   "gtm_id": "GTM-MRNHLVC9",
   "legal": {

@@ -3,7 +3,6 @@
 Values the site needs from the owner. Nothing here was invented — fill real data, then run `python3 build.py`.
 
 ## src/site.json
-- **whatsapp**: CONFIRM: number recovered from owner commit 1a11158 (26 Aug 2026). Replace if it is not the current business WhatsApp.
 - **legal**: TODO: legal entity name (proprietorship / LLP / Pvt Ltd) as registered
 - **legal**: TODO: city/state for Organization schema and legal pages
 - **legal**: TODO: name + email of grievance contact (DPDP Act / IT Rules)

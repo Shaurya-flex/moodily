@@ -13,6 +13,7 @@ and may contain component tokens:
     <!--@services ids="a,b" -->   <!--@faq set="home" -->
 See _project/05-content-editing.md for the full list.
 """
+import hashlib
 import html
 import json
 import re
@@ -725,7 +726,7 @@ def case_page(c):
 
 # ----------------------------------------------------------------- build
 META_RE = re.compile(r"\A\s*<!--meta\s*(\{.*?\})\s*-->", re.S)
-ASSET_VERSION = TODAY.replace("-", "")
+ASSET_VERSION = hashlib.sha1(b"".join((ROOT / "assets" / p).read_bytes() for p in ("css/site.css", "js/site.js"))).hexdigest()[:10]
 
 
 def route_for(path):
