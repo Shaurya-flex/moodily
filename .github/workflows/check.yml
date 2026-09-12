@@ -17,7 +17,12 @@ jobs:
         run: python build.py
       - name: Generated HTML must be committed
         run: |
-          git status --porcelain -- ':!_project/OWNER-TODO.md' ':!sitemap.xml'
-          test -z "$(git status --porcelain -- ':!_project/OWNER-TODO.md' ':!sitemap.xml' ':!.build-manifest.json')" || (echo "Run python3 build.py and commit the output" && exit 1)
+          # sitemap lastmod and OWNER-TODO carry the build date, so they may legitimately differ.
+          changed="$(git status --porcelain -- . ':(exclude)_project/OWNER-TODO.md' ':(exclude)sitemap.xml')"
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            echo "Run python3 build.py and commit the output"
+            exit 1
+          fi
       - name: Site checks
         run: python tests/check_site.py
