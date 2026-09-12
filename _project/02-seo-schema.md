@@ -50,12 +50,12 @@ Each article: direct answer box first (40–60 words), step-by-step H2s, mistake
 | 1 | दुकान को Google Maps पर कैसे लाएं? | **Published** | `/guides/dukan-google-maps-par-kaise-laye/` |
 | 2 | Google Business Profile बनवाने की cost कितनी है? | **Published** | `/guides/google-business-profile-cost/` |
 | 3 | WhatsApp से local orders कैसे लें? | **Published** | `/guides/whatsapp-se-local-orders/` |
-| 4 | Medical Store home delivery setup कैसे करें? | Planned (week 2) | `/guides/medical-store-home-delivery-setup/` — must cite applicable drug-sale rules; legal review |
-| 5 | कोचिंग के लिए digital study material कैसे बनता है? | Planned (week 3) | `/guides/coaching-digital-study-material/` |
-| 6 | PYQ analysis क्या है? | Planned (week 3) | `/guides/pyq-analysis-kya-hai/` — include a real sample table |
-| 7 | AI workflow automation क्या है? | Planned (week 2) | `/guides/ai-workflow-automation-kya-hai/` |
-| 8 | Small business website क्यों जरूरी है? | Planned (week 4) | `/guides/small-business-website-kyon-jaruri/` |
-| 9 | Research को ebook/course में कैसे बदलें? | Planned (week 4) | `/guides/research-ko-ebook-course-mein-badlen/` |
+| 4 | Medical Store home delivery setup कैसे करें? | **Published** | `/guides/medical-store-home-delivery-setup/` |
+| 5 | कोचिंग के लिए digital study material कैसे बनता है? | **Published** | `/guides/coaching-digital-study-material/` |
+| 6 | PYQ analysis क्या है? | **Published** | `/guides/pyq-analysis-kya-hai/` |
+| 7 | AI workflow automation क्या है? | **Published** | `/guides/ai-workflow-automation-kya-hai/` |
+| 8 | Small business website क्यों जरूरी है? | **Published** | `/guides/small-business-website-kyon-jaruri/` |
+| 9 | Research को ebook/course में कैसे बदलें? | **Published** | `/guides/research-ko-ebook-course-mein-badlen/` |
 
 To add a guide: copy an existing file in `src/pages/guides/`, change meta (`article.published`), add it to `guides/index.html`, build.
 
