@@ -1,0 +1,50 @@
+{
+  "_readme": "Moodily Learn curriculum, migrated from the original index.html STAGES array. Certificate labels were neutralised: certificates (where offered) are issued by the provider, not Moodily. TODO(owner): add verified provider URLs and confirm each course still exists and is free.",
+  "stages": [
+    {"id": "s1", "num": 1, "title": "AI Fundamentals", "time": "Week 1–2 · ~12 hrs",
+     "goal": "Understand what AI is and build the foundational literacy to talk about it with confidence.",
+     "courses": [
+       {"provider": "SWAYAM / NPTEL", "name": "AI foundations course", "url": null},
+       {"provider": "Google", "name": "Google AI Essentials", "url": null},
+       {"provider": "IBM SkillsBuild", "name": "AI Fundamentals", "url": null}
+     ],
+     "project": "Build a one-page \"Explain AI\" deck for a non-technical audience.",
+     "skill": "Explain AI clearly to anyone."},
+    {"id": "s2", "num": 2, "title": "Productive AI Tools", "time": "Week 3–4 · ~15 hrs",
+     "goal": "Use the top free AI tools to multiply your personal output.",
+     "courses": [
+       {"provider": "Moodily Guide", "name": "AI Writing Assistant basics", "url": null},
+       {"provider": "Google", "name": "NotebookLM for research", "url": null},
+       {"provider": "Canva Design School", "name": "Canva Magic Studio", "url": null}
+     ],
+     "project": "Put together your own AI toolkit workflow document.",
+     "skill": "Use AI tools to finish everyday work faster."},
+    {"id": "s3", "num": 3, "title": "AI Workflows", "time": "Week 5–7 · ~20 hrs",
+     "goal": "Automate repetitive work without writing code.",
+     "courses": [
+       {"provider": "n8n", "name": "Automation basics", "url": null},
+       {"provider": "Jio AI Classroom", "name": "Workflow design", "url": null},
+       {"provider": "Skill India Digital", "name": "Digital productivity tools", "url": null}
+     ],
+     "project": "Build one working automation for a real business task.",
+     "skill": "Build simple automations without code."},
+    {"id": "s4", "num": 4, "title": "AI Agents & Code", "time": "Week 8–10 · ~25 hrs",
+     "goal": "Build simple AI agents and ship them publicly.",
+     "courses": [
+       {"provider": "DeepLearning.AI", "name": "AI agents short course", "url": null},
+       {"provider": "Microsoft Learn", "name": "AI fundamentals", "url": null},
+       {"provider": "GitHub", "name": "GitHub for beginners", "url": null}
+     ],
+     "project": "Publish an AI agent project to your GitHub portfolio.",
+     "skill": "Create AI agents with a public GitHub portfolio."},
+    {"id": "s5", "num": 5, "title": "Earn — Project & Skill Based", "time": "Week 11–13",
+     "goal": "Turn what you have learned into client-ready skills.",
+     "courses": [
+       {"provider": "Moodily Guide", "name": "LinkedIn content writing for AI creators", "url": null},
+       {"provider": "YUVA AI for ALL", "name": "AI awareness programme", "url": null},
+       {"provider": "Skill India Digital", "name": "Digital entrepreneurship", "url": null}
+     ],
+     "project": "Pitch or deliver a small AI-related project for a real client.",
+     "skill": "Package your skills into a small, sellable service."}
+  ]
+}

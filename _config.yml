@@ -1,0 +1,10 @@
+# GitHub Pages (Jekyll, legacy build from main:/) — keeps source, docs and tooling OUT of the public site.
+# Folders starting with "_" (e.g. _project) are excluded by Jekyll automatically.
+exclude:
+  - src
+  - tests
+  - scripts
+  - build.py
+  - rebuild_site.py
+  - README.md
+  - LICENSE

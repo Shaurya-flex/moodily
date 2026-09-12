@@ -1,773 +1,150 @@
 <!DOCTYPE html>
-<html lang="en" data-lang="en" data-theme="dark">
+<html lang="hi" data-lang="hi" data-theme="dark">
 <head>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MRNHLVC9');</script>
-<!-- End Google Tag Manager -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Moodily.in — AI Seekho. Kamai Karo. India ka Future Bano.</title>
-<meta name="description" content="Free AI courses from IIT Madras, Google and Govt of India. LinkedIn writing and done-for-you AI workflows. In Hindi and English.">
-<meta name="keywords" content="AI skilling India, free AI courses Hindi, LinkedIn ghostwriter India, AI workflow setup, SWAYAM AI course, Moodily">
-<meta name="last-updated" content="2026-09-05">
-<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moodily — सीखें, डिजिटल बनें, बढ़ें | Digital Saathi, AI Learning &amp; Business Services</title>
+<meta name="description" content="Moodily.in: दुकान, medical store, कोचिंग, professionals, creators और startups के लिए Google, Website, WhatsApp, Content, Research और AI Workflows — साथ में free AI learning (Hindi + English).">
 <link rel="canonical" href="https://moodily.in/">
-<meta property="og:title" content="Moodily — AI Seekho. Kamai Karo.">
-<meta property="og:description" content="India's free Hindi-first AI skilling platform. LinkedIn writing. AI workflows. Government-backed certificates.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0A0B0F">
+<meta property="og:site_name" content="Moodily">
+<meta property="og:title" content="Moodily — सीखें, डिजिटल बनें, बढ़ें | Digital Saathi, AI Learning &amp; Business Services">
+<meta property="og:description" content="Moodily.in: दुकान, medical store, कोचिंग, professionals, creators और startups के लिए Google, Website, WhatsApp, Content, Research और AI Workflows — साथ में free AI learning (Hindi + English).">
 <meta property="og:url" content="https://moodily.in/">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="hi_IN">
+<meta property="og:image" content="https://moodily.in/assets/img/og-moodily.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Moodily","url":"https://moodily.in","description":"Free AI skilling platform for India — Hindi and English roadmap, LinkedIn writing, AI workflow automation.","areaServed":["IN","Global"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Moodily Services","itemListElement":[{"@type":"Offer","name":"AI Workflow Starter","price":"7500","priceCurrency":"INR"},{"@type":"Offer","name":"LinkedIn Writing Essential","price":"15000","priceCurrency":"INR"},{"@type":"Offer","name":"LinkedIn Writing Growth","price":"28000","priceCurrency":"INR"}]}}
-</script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Moodily?","acceptedAnswer":{"@type":"Answer","text":"Moodily.in is India's free AI skilling platform in Hindi and English. It maps certified courses from Google, IIT Madras, IBM and the Government of India into a 5-stage learning path with real projects."}},{"@type":"Question","name":"How much does LinkedIn writing cost on Moodily?","acceptedAnswer":{"@type":"Answer","text":"Moodily LinkedIn writing starts at Rs 15,000 per month, Rs 28,000 per month for the Growth package, and Rs 50,000 per month for the Authority package."}},{"@type":"Question","name":"Are the AI courses on Moodily free?","acceptedAnswer":{"@type":"Answer","text":"Yes. All 12+ courses curated on Moodily are free to access. Moodily itself charges nothing for the roadmap or course guide."}}]}
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<style>
-:root{
-  --bg:#0A0B0F;--primary:#7B2FFF;--primary-dim:rgba(123,47,255,0.12);--secondary:#FF6B35;--teal:#14B8A6;
-  --text:#F1F1F1;--muted:#8A8FA8;--surface:#13141F;--border:rgba(255,255,255,0.07);
-  --r-card:10px;--r-input:6px;--r-pill:100px;--shadow-hover:0 4px 24px rgba(123,47,255,0.12);
-}
-[data-theme="light"]{--bg:#F4F6FB;--surface:#FFFFFF;--text:#111827;--muted:#5B6480;--border:rgba(0,0,0,0.08);--primary-dim:rgba(123,47,255,0.08);}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;transition:background .3s ease,color .3s ease;overflow-x:hidden;}
-html[data-lang="en"] .hi{display:none !important;}
-html[data-lang="hi"] .en{display:none !important;}
-html[data-lang="hi"] body,html[data-lang="hi"] .hi{font-family:'Noto Sans Devanagari','Inter',sans-serif;}
-.container{max-width:1200px;margin:0 auto;padding:0 24px;}
-a{color:inherit;text-decoration:none;}
-ul{list-style:none;}
-img{max-width:100%;display:block;}
-h1,h2,h3,h4{font-weight:800;line-height:1.15;}
-.text-muted{color:var(--muted);}
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease;}
-.reveal.visible{opacity:1;transform:none;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15px;padding:14px 28px;border-radius:var(--r-pill);border:none;cursor:pointer;transition:all .25s ease;white-space:nowrap;}
-.btn-primary{background:var(--primary);color:#fff;}
-.btn-primary:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
-.btn-outline:hover{border-color:var(--primary);}
-.btn-secondary{background:var(--secondary);color:#fff;}
-.btn-teal{background:var(--teal);color:#04231f;}
-.btn-teal:hover{box-shadow:0 4px 24px rgba(20,184,166,0.25);transform:translateY(-2px);}
-.btn-ghost{background:transparent;color:var(--text);border:none;}
-.btn-block{width:100%;}
-.pill{border-radius:var(--r-pill);padding:6px 16px;font-size:13px;font-weight:600;border:1px solid var(--border);}
-header.nav{position:sticky;top:0;z-index:200;background:rgba(10,11,15,0.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
-[data-theme="light"] header.nav{background:rgba(244,246,251,0.96);}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1200px;margin:0 auto;}
-.logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:22px;}
-.logo .dot{width:8px;height:8px;border-radius:50%;background:var(--secondary);display:inline-block;}
-.nav-links{display:flex;gap:32px;font-size:14px;font-weight:500;}
-.nav-links a:hover{color:var(--primary);}
-.nav-right{display:flex;align-items:center;gap:12px;}
-.icon-btn{background:transparent;border:1px solid var(--border);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);}
-.lang-toggle{background:transparent;border:1px solid var(--border);border-radius:var(--r-pill);padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);}
-@media(max-width:960px){.nav-links{display:none;}}
-.hero{padding:64px 0;}
-.hero-grid{display:grid;grid-template-columns:60% 40%;gap:48px;align-items:start;}
-@media(max-width:960px){.hero-grid{grid-template-columns:1fr;}}
-.breadcrumb{font-size:13px;color:var(--muted);margin-bottom:16px;}
-.breadcrumb a:hover{color:var(--primary);}
-.tag-pill{display:inline-block;background:var(--primary-dim);color:var(--primary);border:1px solid var(--primary);font-size:13px;font-weight:600;padding:6px 16px;border-radius:var(--r-pill);margin-bottom:20px;}
-.hero h1{font-size:56px;margin-bottom:16px;}
-@media(max-width:600px){.hero h1{font-size:36px;}}
-.hero .sub{font-size:18px;color:var(--muted);margin-bottom:20px;max-width:600px;}
-.rating-row{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin-bottom:16px;flex-wrap:wrap;}
-.rating-row .stars-static{color:#FFB800;}
-.lang-badges{display:flex;gap:10px;margin-bottom:28px;}
-.lang-badges span{border:1px solid var(--border);border-radius:var(--r-pill);padding:6px 14px;font-size:13px;}
-.cta-stack{display:flex;flex-direction:column;gap:12px;max-width:320px;margin-bottom:36px;}
-.stats-strip{display:flex;flex-wrap:wrap;gap:24px;border-top:1px solid var(--border);padding-top:24px;}
-.stats-strip div{font-size:14px;}
-.stats-strip strong{display:block;font-size:20px;color:var(--secondary);}
-.course-card{position:sticky;top:100px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;}
-.course-card .preview{height:180px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;color:#fff;}
-.course-card .body{padding:24px;}
-.course-card .price{font-size:26px;font-weight:800;color:var(--secondary);}
-.course-card .price-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
-.course-card .divider-label{font-size:13px;font-weight:700;color:var(--muted);margin:20px 0 12px;text-transform:uppercase;letter-spacing:.5px;}
-.check-list li{display:flex;gap:10px;font-size:14px;margin-bottom:10px;align-items:flex-start;}
-.check-list i{color:var(--teal);margin-top:3px;}
-.course-card .body .btn{margin-bottom:10px;}
-.ticker{border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;padding:20px 0;background:var(--surface);}
-.ticker-track{display:flex;gap:56px;width:max-content;animation:scrollTicker 28s linear infinite;font-weight:700;color:var(--muted);font-size:15px;white-space:nowrap;}
-@keyframes scrollTicker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-section{padding:80px 0;}
-.section-head{text-align:center;max-width:680px;margin:0 auto 48px;}
-.section-head h2{font-size:36px;margin-bottom:12px;}
-.section-head p{color:var(--muted);}
-.learn-box{border:1px solid var(--border);border-radius:var(--r-card);padding:32px;}
-.learn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
-@media(max-width:900px){.learn-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:560px){.learn-grid{grid-template-columns:1fr;}}
-.learn-item{display:flex;gap:10px;font-size:14px;align-items:flex-start;}
-.learn-item i{color:var(--secondary);margin-top:3px;}
-.curriculum-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:32px;}
-.stage{border:1px solid var(--border);border-radius:var(--r-card);margin-bottom:16px;background:var(--surface);overflow:hidden;}
-.stage-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;cursor:pointer;gap:16px;}
-.stage-header-left{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.stage-num{background:var(--primary);color:#fff;font-weight:700;font-size:13px;border-radius:var(--r-pill);padding:4px 14px;}
-.stage-title{font-weight:700;font-size:17px;}
-.stage-time{color:var(--muted);font-size:13px;}
-.chevron{transition:transform .3s ease;}
-.stage.open .chevron{transform:rotate(180deg);}
-.stage-body{display:none;padding:0 24px 28px;}
-.stage.open .stage-body{display:block;}
-.goal-strip{border-left:3px solid var(--secondary);background:var(--primary-dim);padding:14px 18px;border-radius:6px;margin-bottom:20px;font-size:14px;}
-.course-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:20px;}
-.course-tile{border:1px solid var(--border);border-radius:8px;padding:14px;}
-.course-tile .badge{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block;}
-.course-tile .cname{font-weight:600;font-size:14px;margin-bottom:6px;}
-.course-tile .cert{font-size:12px;color:var(--teal);}
-.project-box{background:var(--primary-dim);border-radius:8px;padding:16px 18px;font-size:14px;margin-bottom:16px;}
-.skill-outcome{font-size:14px;color:var(--muted);margin-bottom:18px;}
-.stage-stars{display:flex;gap:6px;align-items:center;}
-.stage-stars i{cursor:pointer;color:#3a3d4d;font-size:18px;}
-.stage-stars i.filled{color:#FFB800;}
-.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-@media(max-width:900px){.pkg-grid{grid-template-columns:1fr;}}
-.pkg-card{border:1px solid var(--border);border-radius:var(--r-card);padding:32px 28px;background:var(--surface);position:relative;transition:.25s ease;}
-.pkg-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-4px);}
-.pkg-card.popular{border-color:var(--primary);}
-.badge-pop{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--secondary);color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:var(--r-pill);}
-.pkg-price{font-size:32px;font-weight:800;margin:6px 0;}
-.pkg-name{font-weight:700;font-size:18px;}
-.pkg-desc{color:var(--muted);font-size:14px;margin-bottom:18px;}
-.pkg-features li{font-size:14px;margin-bottom:10px;display:flex;gap:8px;}
-.pkg-features i{color:var(--teal);margin-top:3px;}
-.linkedin-band{background:linear-gradient(135deg,#0A0F2C,#122057);padding:80px 0;}
-.linkedin-band .section-head h2{color:#fff;}
-.payg-table{width:100%;border-collapse:collapse;margin-top:32px;background:var(--surface);border-radius:var(--r-card);overflow:hidden;}
-.payg-table th,.payg-table td{padding:16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px;}
-.payg-table th{color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;}
-.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-@media(max-width:900px){.why-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:560px){.why-grid{grid-template-columns:1fr;}}
-.why-card{border:1px solid var(--border);border-radius:var(--r-card);padding:28px;text-align:center;background:var(--surface);}
-.why-card .icon{font-size:34px;margin-bottom:14px;}
-.why-card h4{font-size:16px;margin-bottom:6px;}
-.why-card p{font-size:13px;color:var(--muted);}
-.form-wrap{max-width:680px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:36px;}
-.form-row{margin-bottom:18px;}
-.form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--muted);}
-.form-row input,.form-row select,.form-row textarea{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-input);color:var(--text);font-family:inherit;font-size:14px;}
-.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:560px){.checkbox-grid{grid-template-columns:1fr;}}
-.checkbox-grid label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:400;color:var(--text);}
-.form-note{text-align:center;color:var(--muted);font-size:13px;margin-top:16px;}
-.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-@media(max-width:900px){.tools-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:560px){.tools-grid{grid-template-columns:1fr;}}
-.tool-card{border:1px solid var(--border);border-radius:var(--r-card);padding:24px;background:var(--surface);}
-.tool-card i{color:var(--primary);font-size:26px;margin-bottom:10px;}
-.tool-card .tname{font-weight:700;font-size:16px;}
-.tool-card .ttype{font-size:12px;color:var(--secondary);font-weight:600;margin-bottom:8px;}
-.tool-card p{font-size:13px;color:var(--muted);margin-bottom:14px;}
-.weekly-tip-box{border:1px solid var(--border);border-radius:var(--r-card);padding:32px;background:var(--surface);display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;}
-.badge-teal{background:var(--teal);color:#04231f;font-weight:700;font-size:12px;padding:5px 14px;border-radius:var(--r-pill);}
-.quote-band{background:linear-gradient(135deg,var(--primary),#4a1791);padding:80px 0;text-align:center;}
-.quote-band blockquote{font-size:28px;font-weight:700;color:#fff;max-width:800px;margin:0 auto 16px;line-height:1.4;}
-.quote-band .sub{color:rgba(255,255,255,0.8);font-size:15px;}
-footer{border-top:1px solid var(--border);padding:64px 0 24px;}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:40px;}
-@media(max-width:800px){.footer-grid{grid-template-columns:1fr 1fr;}}
-.footer-grid h5{font-size:14px;margin-bottom:16px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-.footer-grid ul li{margin-bottom:10px;font-size:14px;}
-.footer-grid ul li a:hover{color:var(--primary);}
-.footer-bottom{border-top:1px solid var(--border);padding-top:20px;text-align:center;font-size:13px;color:var(--muted);}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:500;padding:20px;}
-.modal-overlay.active{display:flex;}
-.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:32px;max-width:440px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
-.modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
-.auth-tabs{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);}
-.auth-tab{flex:1;text-align:center;padding:12px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;}
-.auth-tab.active{color:var(--primary);border-color:var(--primary);}
-.auth-panel{display:none;}
-.auth-panel.active{display:block;}
-.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--r-input);background:transparent;color:var(--text);font-weight:600;cursor:pointer;margin-bottom:16px;}
-.or-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:16px 0;}
-.or-divider::before,.or-divider::after{content:"";flex:1;height:1px;background:var(--border);}
-.pay-price{font-size:30px;font-weight:800;color:var(--teal);margin:8px 0;}
-.pay-pills{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;}
-.pay-pills span{border:1px solid var(--border);border-radius:var(--r-pill);padding:5px 12px;font-size:12px;}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--teal);color:#04231f;padding:14px 22px;border-radius:8px;font-weight:600;font-size:14px;z-index:999;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-.toast.show{display:block;}
-</style>
+<link rel="icon" href="/assets/img/moodily-mark.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/moodily-logo-512.png">
+<script>(function(){try{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}catch(e){}document.documentElement.classList.add('js');})();</script>
+<script>window.dataLayer=window.dataLayer||[];(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-MRNHLVC9');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/css/site.css?v=20260913">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://moodily.in/#organization","name":"Moodily","alternateName":["Moodily.in","Moodily Digital Saathi"],"url":"https://moodily.in/","logo":{"@type":"ImageObject","url":"https://moodily.in/assets/img/moodily-logo-512.png","width":512,"height":512},"description":"Bilingual (Hindi + English) platform for free AI learning, digital business services, research and knowledge products in India.","disambiguatingDescription":"Moodily (moodily.in) is an Indian bilingual (Hindi + English) digital business, learning and services platform. Not related to Moody's or the English adverb 'moodily'.","email":"hello@moodily.in","areaServed":["IN","Worldwide"],"knowsLanguage":["hi","en"],"department":[{"@type":"Organization","name":"Moodily Learn"},{"@type":"Organization","name":"Moodily Digital Saathi"},{"@type":"Organization","name":"Moodily Intelligence Studio"},{"@type":"Organization","name":"Moodily Store"}],"contactPoint":{"@type":"ContactPoint","contactType":"sales","telephone":"+919354123255","availableLanguage":["Hindi","English"],"email":"hello@moodily.in"}},{"@type":"WebSite","@id":"https://moodily.in/#website","url":"https://moodily.in/","name":"Moodily","alternateName":["Moodily.in","Moodily Digital Saathi"],"inLanguage":["hi-IN","en-IN"],"publisher":{"@id":"https://moodily.in/#organization"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Moodily क्या है?","acceptedAnswer":{"@type":"Answer","text":"Moodily (moodily.in) एक Hindi-English platform है जहाँ आप AI और digital skills free में सीख सकते हैं (Moodily Learn), अपने business/profession का digital काम करवा सकते हैं (Moodily Digital Saathi और Intelligence Studio), और तैयार digital resources ले सकते हैं (Moodily Store)।"}},{"@type":"Question","name":"मुफ़्त Digital Audit में क्या मिलता है?","acceptedAnswer":{"@type":"Answer","text":"आप अपने business का नाम, Google/WhatsApp/website/social link भेजते हैं। हम देखकर 3 सबसे ज़रूरी सुधार WhatsApp पर बताते हैं। कोई payment या commitment नहीं।"}},{"@type":"Question","name":"क्या आप Google पर पहला rank दिलाने की guarantee देते हैं?","acceptedAnswer":{"@type":"Answer","text":"नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता, इसलिए ऐसी guarantee देना गलत है। हम listing, website और reviews की वे बुनियादी चीज़ें सही करते हैं जो Google की guidelines के अनुसार ज़रूरी हैं, और परिणाम मापते हैं।"}},{"@type":"Question","name":"Prices fixed हैं?","acceptedAnswer":{"@type":"Answer","text":"Website पर दिए prices शुरुआती (starting) prices हैं। आपके काम का scope देखकर लिखित quote मिलता है, जिसमें deliverables, समय, revisions और क्या शामिल नहीं है — सब साफ़ लिखा होता है।"}},{"@type":"Question","name":"क्या free AI learning बंद हो गई?","acceptedAnswer":{"@type":"Answer","text":"नहीं। Moodily Learn पर AI fundamentals से AI agents तक का free learning path पहले की तरह उपलब्ध है।"}},{"@type":"Question","name":"Payment कैसे होता है?","acceptedAnswer":{"@type":"Answer","text":"अभी हर project के लिए लिखित quote के बाद payment details WhatsApp/email पर भेजी जाती हैं। Website पर online checkout बाद में जोड़ा जाएगा।"}}]}]}</script>
+<script src="/assets/js/site.js?v=20260913" defer></script>
 </head>
 <body>
-<header class="nav">
-  <div class="nav-inner">
-    <div class="logo">Moodily<span class="dot"></span></div>
-    <nav class="nav-links">
-      <a href="#curriculum"><span class="en">Learn Free</span><span class="hi">Muft Seekhein</span></a>
-      <a href="#linkedin">LinkedIn Writing</a>
-      <a href="#services">AI Workflows</a>
-      <a href="#tools"><span class="en">Tools</span><span class="hi">Upkaran</span></a>
-      <a href="#intake"><span class="en">Get Started</span><span class="hi">Shuru Karein</span></a>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MRNHLVC9" height="0" width="0" style="display:none;visibility:hidden" title="GTM"></iframe></noscript>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="container nav">
+  <a class="logo" href="/" aria-label="Moodily home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="dot" aria-hidden="true"></span></a>
+  <nav aria-label="Primary" class="nav-main">
+    <ul class="nav-desktop"><li><a href="/learn/">Learn</a></li><li><a href="/digital-saathi/">Digital Saathi</a></li><li><a href="/case-studies/">Samples</a></li><li><a href="/store/">Store</a></li><li><a href="/tools/">Tools</a></li><li><a href="/services/">Services</a></li><li><a href="/contact/">Contact</a></li></ul>
+    <details class="menu"><summary aria-label="Menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
+      <div class="menu-panel">
+        <ul class="nav-links"><li><a href="/learn/">Learn</a></li><li><a href="/digital-saathi/">Digital Saathi</a></li><li><a href="/case-studies/">Samples</a></li><li><a href="/store/">Store</a></li><li><a href="/tools/">Tools</a></li><li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li></ul>
+        <p class="menu-heading">Services</p><ul class="nav-sub"><li><a href="/services/local-business/">दुकान / Local Business</a></li><li><a href="/services/medical-store/">Medical Store / Clinic</a></li><li><a href="/services/education/">School / Coaching</a></li><li><a href="/services/professionals/">Professionals &amp; LinkedIn</a></li><li><a href="/services/creators/">Creators</a></li><li><a href="/services/research/">Research &amp; Intelligence</a></li><li><a href="/services/knowledge-to-product/">Knowledge-to-Product</a></li><li><a href="/services/ai-workflows/">AI Workflows</a></li><li><a href="/services/">सभी services और prices</a></li></ul>
+      </div>
+    </details>
+  </nav>
+  <div class="nav-actions"><button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
+    <a class="btn btn-primary btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="hero_cta_click" data-label="nav-audit">Free Audit</a></div>
+</div></header>
+
+<main id="main">
+
+<section class="hero" aria-labelledby="hero-h">
+  <div class="container">
+    <p class="eyebrow">Moodily · Learn · Build · Digitize · Sell · Grow</p>
+    <h1 id="hero-h">सीखें. डिजिटल बनें. <span>बढ़ें.</span></h1>
+    <p class="lead">दुकान, मेडिकल स्टोर, कोचिंग, प्रोफेशनल, क्रिएटर या स्टार्टअप — Google, Website, WhatsApp, Content, Research और AI Workflows एक जगह।</p>
+    <div class="btn-row">
+      <a class="btn btn-primary btn-lg" href="/contact/?service=free-digital-audit" data-track="hero_cta_click" data-label="hero-audit">मुफ़्त Digital Audit लें</a>
+      <a class="btn btn-wa btn-lg" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20%5Brole%5D%20hoon.%0AMujhe%20%5Bservice%5D%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="whatsapp_click" data-label="hero"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg> अपनी जरूरत WhatsApp करें</a>
+      <a class="btn btn-outline btn-lg" href="/case-studies/" data-track="hero_cta_click" data-label="hero-samples">Samples देखें</a>
+    </div>
+    <p><a href="/learn/" data-track="hero_cta_click" data-label="hero-learn">AI सीखना चाहते हैं? Free Learning देखें →</a></p>
+    <nav class="paths" aria-label="Moodily के तीन रास्ते">
+      <a class="path" href="/learn/"><strong>सीखें</strong><span>Learn — free AI learning path</span></a>
+      <a class="path" href="/digital-saathi/"><strong>बनवाएँ</strong><span>Hire — done-for-you services</span></a>
+      <a class="path" href="/store/"><strong>खरीदें</strong><span>Buy — digital resources</span></a>
     </nav>
-    <div class="nav-right">
-      <button class="lang-toggle" id="langToggleBtn">हिं / EN</button>
-      <button class="icon-btn" id="themeToggleBtn">🌙</button>
-      <button class="btn-ghost" style="font-size:14px;font-weight:600;" onclick="openAuthModal('signin')"><span class="en">Sign In</span><span class="hi">Pravesh Karein</span></button>
-      <button class="btn btn-primary" style="padding:10px 20px;font-size:14px;" onclick="openAuthModal('register')"><span class="en">Start Free →</span><span class="hi">Muft Shuru Karein →</span></button>
-    </div>
-  </div>
-</header>
-
-<section class="hero">
-  <div class="container hero-grid">
-    <div class="reveal">
-      <div class="breadcrumb"><a href="#">Home</a> &gt; <a href="#">AI Skilling</a> &gt; <span class="text-muted">Free Path</span></div>
-      <span class="tag-pill">12+ Free Certified Courses · Updated Monthly</span>
-      <h1>AI Seekho. Kamai Karo.</h1>
-      <p class="sub">Free AI courses from IIT Madras, Google, and the Government of India. LinkedIn writing. Done-for-you workflows. In Hindi and English.</p>
-      <div class="rating-row"><span class="stars-static">★★★★★</span> 4.8 · 1,200+ learners · Last updated Sep 2026</div>
-      <div class="lang-badges"><span>🇮🇳 Hindi</span><span>🇬🇧 English</span></div>
-      <div class="cta-stack">
-        <button class="btn btn-primary" onclick="document.getElementById('curriculum').scrollIntoView({behavior:'smooth'})"><span class="en">Start Free Learning →</span><span class="hi">Muft Seekhna Shuru Karein →</span></button>
-        <button class="btn btn-secondary" onclick="document.getElementById('linkedin').scrollIntoView({behavior:'smooth'})">LinkedIn Writing ₹15k/mo</button>
-        <button class="btn btn-outline" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Hire for Workflows</button>
-      </div>
-      <div class="stats-strip">
-        <div><strong>12+</strong><span class="text-muted">Courses</span></div>
-        <div><strong>5</strong><span class="text-muted">Stages</span></div>
-        <div><strong>₹7,500</strong><span class="text-muted">Workflows</span></div>
-        <div><strong>3</strong><span class="text-muted">Govt Certificates</span></div>
-      </div>
-    </div>
-    <div class="reveal">
-      <div class="course-card">
-        <div class="preview">MOODILY</div>
-        <div class="body">
-          <div class="price">FREE to start</div>
-          <div class="price-sub">LinkedIn Writing from ₹15,000/mo</div>
-          <button class="btn btn-primary btn-block" onclick="openAuthModal('register')">Enroll Free →</button>
-          <button class="btn btn-outline btn-block" onclick="openWhatsApp('Hi Moodily team, I want to talk about your courses and services.')">Talk to us on WhatsApp →</button>
-          <div class="divider-label">Includes</div>
-          <ul class="check-list">
-            <li><i class="fa-solid fa-circle-check"></i> 12+ free certified courses</li>
-            <li><i class="fa-solid fa-circle-check"></i> Hindi + English guides</li>
-            <li><i class="fa-solid fa-circle-check"></i> Real project at every stage</li>
-            <li><i class="fa-solid fa-circle-check"></i> IIT Madras + Govt of India certificates</li>
-            <li><i class="fa-solid fa-circle-check"></i> 5-stage roadmap with earning guidance</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <ul class="trust-row">
+      <li>Hindi + English</li><li>Starting prices साफ़ लिखे</li><li>हर delivery में human review</li><li>कोई fake ranking guarantee नहीं</li>
+    </ul>
   </div>
 </section>
 
-<div class="ticker">
-  <div class="ticker-track">
-    <span>IIT Madras SWAYAM</span><span>Google AI Essentials</span><span>IBM SkillsBuild</span><span>Microsoft Learn</span><span>Anthropic Academy</span><span>Canva Design School</span><span>DeepLearning.AI</span><span>Jio AI Classroom</span><span>Skill India</span><span>YUVA AI for ALL</span>
-    <span>IIT Madras SWAYAM</span><span>Google AI Essentials</span><span>IBM SkillsBuild</span><span>Microsoft Learn</span><span>Anthropic Academy</span><span>Canva Design School</span><span>DeepLearning.AI</span><span>Jio AI Classroom</span><span>Skill India</span><span>YUVA AI for ALL</span>
-  </div>
-</div>
-
-<section id="learn">
+<section id="audience" aria-labelledby="aud-h">
   <div class="container">
-    <div class="section-head reveal"><h2>What You'll Learn</h2><p>A complete outcome-driven path — not just theory.</p></div>
-    <div class="learn-box reveal">
-      <div class="learn-grid">
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Understand AI and explain it to anyone</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Use 5 AI tools to work 3× faster</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Build automations without code</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Create AI agents with GitHub portfolio</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Get certified by IIT Madras and Google</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Write LinkedIn content that earns</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Deliver AI workflows to clients</div>
-        <div class="learn-item"><i class="fa-solid fa-check"></i> Earn from your first project in 90 days</div>
-      </div>
-    </div>
+    <div class="section-head"><h2 id="aud-h">आप कौन हैं?</h2><p class="muted">अपना कार्ड चुनिए — आपके काम के हिसाब से services, prices और examples दिखेंगे।</p></div>
+    <div class="router"><a class="router-card" href="/services/local-business/" data-track="audience_select" data-label="दुकान / Local Business"><span class="router-emoji" aria-hidden="true">🏪</span><span class="router-title">दुकान / Local Business</span><span class="router-sub">Google Maps, WhatsApp orders, reviews</span><span class="router-go" aria-hidden="true">→</span></a><a class="router-card" href="/services/medical-store/" data-track="audience_select" data-label="Medical Store / Clinic"><span class="router-emoji" aria-hidden="true">💊</span><span class="router-title">Medical Store / Clinic</span><span class="router-sub">WhatsApp enquiry से verified delivery तक</span><span class="router-go" aria-hidden="true">→</span></a><a class="router-card" href="/services/education/" data-track="audience_select" data-label="School / Coaching"><span class="router-emoji" aria-hidden="true">🏫</span><span class="router-title">School / Coaching</span><span class="router-sub">PYQ analysis, tests, worksheets, visual notes</span><span class="router-go" aria-hidden="true">→</span></a><a class="router-card" href="/services/professionals/" data-track="audience_select" data-label="Professional"><span class="router-emoji" aria-hidden="true">👔</span><span class="router-title">Professional</span><span class="router-sub">LinkedIn, bio और online credibility</span><span class="router-go" aria-hidden="true">→</span></a><a class="router-card" href="/services/creators/" data-track="audience_select" data-label="Creator"><span class="router-emoji" aria-hidden="true">🎥</span><span class="router-title">Creator</span><span class="router-sub">Content plan, scripts, repurposing</span><span class="router-go" aria-hidden="true">→</span></a><a class="router-card" href="/services/research/" data-track="audience_select" data-label="Founder / Startup"><span class="router-emoji" aria-hidden="true">🚀</span><span class="router-title">Founder / Startup</span><span class="router-sub">Research, competitor intelligence, AI workflows</span><span class="router-go" aria-hidden="true">→</span></a><a class="router-card" href="/learn/" data-track="audience_select" data-label="Student"><span class="router-emoji" aria-hidden="true">🎓</span><span class="router-title">Student</span><span class="router-sub">Free AI learning और study resources</span><span class="router-go" aria-hidden="true">→</span></a></div>
   </div>
 </section>
-<section id="curriculum">
+
+<section class="alt" id="services" aria-labelledby="svc-h">
   <div class="container">
-    <div class="curriculum-head">
-      <div class="reveal">
-        <h2 style="font-size:32px;">Course Content <span class="text-muted" style="font-size:16px;font-weight:500;">(5 Stages · 12+ Courses · 90 Days)</span></h2>
-      </div>
-      <div class="reveal">
-        <button class="btn btn-outline" style="padding:8px 16px;font-size:13px;margin-right:8px;" onclick="toggleAllStages(true)">Expand all</button>
-        <button class="btn btn-outline" style="padding:8px 16px;font-size:13px;" onclick="toggleAllStages(false)">Collapse all</button>
-      </div>
-    </div>
-    <div id="stagesWrap"></div>
+    <div class="section-head"><p class="eyebrow">Moodily Digital Saathi · Intelligence Studio</p><h2 id="svc-h">सबसे ज़्यादा पूछी जाने वाली services</h2>
+      <p class="muted">हर price <strong>starting price</strong> है। Final quote में deliverables, समय, revisions और "क्या शामिल नहीं" — सब लिखित मिलता है।</p></div>
+    <div class="grid grid-3"><article class="card svc-card"><p class="eyebrow">Moodily Digital Saathi</p><h3>Digital Business Starter</h3><p class="muted">Google पर दिखें, WhatsApp पर ऑर्डर/enquiry लें — एक हफ़्ते में शुरुआत।</p><p class="price"><span class="price-from">शुरुआत</span> <strong>₹4,999</strong> <span class="price-from">से</span></p><ul class="ticks"><li>Google Business Profile setup या optimization — category, समय, फ़ोटो, services, description (verification आपके नंबर/पते से आप करेंगे, हम guide करेंगे)</li><li>WhatsApp Business profile — catalogue में 15 items तक, greeting/away message, 5 quick replies</li><li>2 print-ready QR codes — WhatsApp chat QR और Google review QR</li></ul><div class="card-actions"><a class="btn btn-outline" href="/services/local-business/#digital-business-starter" data-track="price_click" data-label="digital-business-starter">पूरी जानकारी देखें</a></div></article><article class="card svc-card featured"><p class="eyebrow">Moodily Digital Saathi</p><h3>Business Growth Launch</h3><p class="muted">Website + Google + WhatsApp + reviews — एक जुड़ा हुआ enquiry system।</p><p class="price"><span class="price-from">शुरुआत</span> <strong>₹12,999</strong> <span class="price-from">से</span></p><ul class="ticks"><li>Digital Business Starter की सभी चीज़ें</li><li>1 mobile-first website/landing page (5 sections तक) — Google Maps embed, WhatsApp/call buttons, enquiry form</li><li>Service/product catalogue — 25 items तक (web page या PDF)</li></ul><div class="card-actions"><a class="btn btn-outline" href="/services/local-business/#business-growth-launch" data-track="price_click" data-label="business-growth-launch">पूरी जानकारी देखें</a></div></article><article class="card svc-card featured"><p class="eyebrow">Moodily Digital Saathi</p><h3>Medical Store Digital Desk</h3><p class="muted">Google से WhatsApp enquiry, pharmacist verification और delivery तक — एक साफ़ workflow।</p><p class="price"><span class="price-from">शुरुआत</span> <strong>₹9,999</strong> <span class="price-from">से</span></p><ul class="ticks"><li>Google Business Profile — pharmacy category, समय, delivery area, फ़ोटो</li><li>WhatsApp Business setup — labels: नया request / Prescription चाहिए / Pharmacist जाँच रहे हैं / Confirmed / Delivery पर / Delivered</li><li>12-step enquiry-to-delivery SOP (printable checklist) — pharmacist approval हर prescription दवा पर अनिवार्य</li></ul><div class="card-actions"><a class="btn btn-outline" href="/services/medical-store/#medical-store-digital-desk" data-track="price_click" data-label="medical-store-digital-desk">पूरी जानकारी देखें</a></div></article><article class="card svc-card featured"><p class="eyebrow">Moodily Intelligence Studio</p><h3>Professional Authority Pack</h3><p class="muted">LinkedIn और Google पर वह professional छवि जो आपके असली काम से मेल खाए।</p><p class="price"><span class="price-from">शुरुआत</span> <strong>₹14,999</strong> <span class="price-from">से</span></p><ul class="ticks"><li>LinkedIn profile rewrite — headline, About, Featured, 3 roles तक experience</li><li>Professional bio — 3 lengths (50/150/300 शब्द), Hindi और English</li><li>6 LinkedIn posts आपके असली काम/सीख पर (आपसे interview के आधार पर)</li></ul><div class="card-actions"><a class="btn btn-outline" href="/services/professionals/#professional-authority-pack" data-track="price_click" data-label="professional-authority-pack">पूरी जानकारी देखें</a></div></article><article class="card svc-card featured"><p class="eyebrow">Moodily Intelligence Studio</p><h3>Creator Content Sprint</h3><p class="muted">30 दिन का साफ़ content plan, scripts और repurposing system।</p><p class="price"><span class="price-from">शुरुआत</span> <strong>₹9,999</strong> <span class="price-from">से</span></p><ul class="ticks"><li>1 channel का content audit (पिछले 20–30 posts)</li><li>30-day content calendar</li><li>10 scripts/hook outlines (60–90 sec short-form या 5 long-form outlines)</li></ul><div class="card-actions"><a class="btn btn-outline" href="/services/creators/#creator-content-sprint" data-track="price_click" data-label="creator-content-sprint">पूरी जानकारी देखें</a></div></article><article class="card svc-card featured"><p class="eyebrow">Moodily Intelligence Studio</p><h3>Research Intelligence Sprint</h3><p class="muted">One decision question. Evidence-labelled answers in 7–10 working days.</p><p class="price"><span class="price-from">Starts at</span> <strong>₹14,999</strong> <span class="price-from"></span></p><ul class="ticks"><li>Scoping call to fix one decision question</li><li>Up to 5 competitors, channels or entities analysed</li><li>Source log with a citation for every factual claim</li></ul><div class="card-actions"><a class="btn btn-outline" href="/services/research/#research-intelligence-sprint" data-track="price_click" data-label="research-intelligence-sprint">See full details</a></div></article></div>
+    <p class="btn-row"><a class="btn btn-outline" href="/services/">सभी services और prices देखें →</a></p>
   </div>
 </section>
 
-<section id="services">
+<section id="samples" aria-labelledby="cs-h">
   <div class="container">
-    <div class="section-head reveal"><h2>Done-For-You Services</h2><p>Can't wait to learn? We'll build it for you.</p></div>
-    <div class="pkg-grid">
-      <div class="pkg-card reveal">
-        <div class="pkg-name">STARTER</div>
-        <div class="pkg-price">₹7,500</div>
-        <div class="pkg-desc">One AI automation to remove a repetitive task from your week.</div>
-        <ul class="pkg-features">
-          <li><i class="fa-solid fa-check"></i> 1 automated workflow (n8n/Zapier-style)</li>
-          <li><i class="fa-solid fa-check"></i> Setup on your existing tools</li>
-          <li><i class="fa-solid fa-check"></i> 1 revision round</li>
-          <li><i class="fa-solid fa-check"></i> Documentation handover</li>
-          <li><i class="fa-solid fa-check"></i> 7-day support window</li>
-        </ul>
-        <button class="btn btn-teal btn-block" onclick="openPayment('Starter Workflow',7500)">Book &amp; Pay</button>
-      </div>
-      <div class="pkg-card popular reveal">
-        <span class="badge-pop">Most Popular</span>
-        <div class="pkg-name">WORKFLOW</div>
-        <div class="pkg-price">₹18,000</div>
-        <div class="pkg-desc">A multi-step AI workflow connecting 3+ tools for your business.</div>
-        <ul class="pkg-features">
-          <li><i class="fa-solid fa-check"></i> Up to 3 connected automations</li>
-          <li><i class="fa-solid fa-check"></i> Custom AI prompts &amp; logic</li>
-          <li><i class="fa-solid fa-check"></i> 2 revision rounds</li>
-          <li><i class="fa-solid fa-check"></i> Team walkthrough call</li>
-          <li><i class="fa-solid fa-check"></i> 30-day support window</li>
-        </ul>
-        <button class="btn btn-teal btn-block" onclick="openPayment('Workflow Package',18000)">Book &amp; Pay</button>
-      </div>
-      <div class="pkg-card reveal">
-        <div class="pkg-name">CONTENT ENGINE</div>
-        <div class="pkg-price">₹35,000</div>
-        <div class="pkg-desc">A full AI-powered content and workflow system for your brand.</div>
-        <ul class="pkg-features">
-          <li><i class="fa-solid fa-check"></i> End-to-end content automation</li>
-          <li><i class="fa-solid fa-check"></i> Multi-platform publishing setup</li>
-          <li><i class="fa-solid fa-check"></i> Unlimited revisions (30 days)</li>
-          <li><i class="fa-solid fa-check"></i> Dedicated onboarding session</li>
-          <li><i class="fa-solid fa-check"></i> 60-day support window</li>
-        </ul>
-        <button class="btn btn-teal btn-block" onclick="openPayment('Content Engine',35000)">Book &amp; Pay</button>
-      </div>
-    </div>
+    <div class="section-head"><h2 id="cs-h">हमारे काम के samples</h2>
+      <p class="muted">ये Moodily के असली projects हैं। Screenshots और verified details के साथ पूरे case studies जोड़े जा रहे हैं — हम कोई result या testimonial बढ़ा-चढ़ाकर नहीं लिखते।</p></div>
+    <div class="grid grid-3"><article class="card case-card" id="rasra-library-digitization"><p class="eyebrow">Local business · Moodily Digital Saathi</p><h3>Rasra Library &amp; Study Point — digitization</h3><p class="muted small">Local business digitization</p><span class="badge">Detailed write-up in progress</span><p><a class="small" href="/services/local-business/#business-growth-launch">Business Growth Launch →</a></p></article><article class="card case-card" id="uppcs-intelligence-brief"><p class="eyebrow">Education · Moodily Intelligence Studio</p><h3>UPPCS Intelligence Brief</h3><p class="muted small">Exam research brief</p><span class="badge">Detailed write-up in progress</span><p><a class="small" href="/services/education/#education-content-pack">School / Coaching Content Pack →</a></p></article><article class="card case-card" id="nda-english-learning-module"><p class="eyebrow">Education · Moodily Intelligence Studio</p><h3>NDA English learning module</h3><p class="muted small">Exam learning module</p><span class="badge">Detailed write-up in progress</span><p><a class="small" href="/services/education/#education-content-pack">School / Coaching Content Pack →</a></p></article><article class="card case-card" id="ncert-respiratory-visual-learning"><p class="eyebrow">Education · Moodily Intelligence Studio</p><h3>NCERT respiratory system — visual learning</h3><p class="muted small">Visual learning PDF</p><span class="badge">Detailed write-up in progress</span><p><a class="small" href="/services/education/#education-content-pack">School / Coaching Content Pack →</a></p></article><article class="card case-card" id="grocery-competitive-gap-analysis"><p class="eyebrow">Research · Moodily Intelligence Studio</p><h3>Grocery competitive-gap analysis</h3><p class="muted small">Competitive intelligence</p><span class="badge">Detailed write-up in progress</span><p><a class="small" href="/services/research/#research-intelligence-sprint">Research Intelligence Sprint →</a></p></article><article class="card case-card" id="ayurveda-channel-strategy"><p class="eyebrow">Creators · Moodily Intelligence Studio</p><h3>Ayurveda channel strategy</h3><p class="muted small">Channel/content strategy</p><span class="badge">Detailed write-up in progress</span><p><a class="small" href="/services/creators/#creator-content-sprint">Creator Content Sprint →</a></p></article></div>
+    <p class="btn-row"><a class="btn btn-outline" href="/case-studies/">सभी samples देखें →</a></p>
   </div>
 </section>
 
-<section class="linkedin-band" id="linkedin">
+<section class="alt" id="store" aria-labelledby="st-h">
   <div class="container">
-    <div class="section-head reveal"><h2>LinkedIn Writing</h2><p class="text-muted">Content that builds authority and earns — written for you every week.</p></div>
-    <div class="pkg-grid">
-      <div class="pkg-card reveal">
-        <div class="pkg-name">Essential</div>
-        <div class="pkg-price">₹15,000<span style="font-size:14px;color:var(--muted);">/mo</span></div>
-        <div class="pkg-desc">8 posts per month, written and formatted for LinkedIn.</div>
-        <ul class="pkg-features">
-          <li><i class="fa-solid fa-check"></i> 8 posts/month</li>
-          <li><i class="fa-solid fa-check"></i> Profile audit</li>
-          <li><i class="fa-solid fa-check"></i> Content calendar</li>
-          <li><i class="fa-solid fa-check"></i> 1 revision per post</li>
-          <li><i class="fa-solid fa-check"></i> Monthly performance note</li>
-        </ul>
-        <button class="btn btn-teal btn-block" onclick="openPayment('LinkedIn Essential',15000)">Book &amp; Pay</button>
-      </div>
-      <div class="pkg-card popular reveal">
-        <span class="badge-pop">Most Popular</span>
-        <div class="pkg-name">Growth</div>
-        <div class="pkg-price">₹28,000<span style="font-size:14px;color:var(--muted);">/mo</span></div>
-        <div class="pkg-desc">12 posts + engagement strategy for consistent growth.</div>
-        <ul class="pkg-features">
-          <li><i class="fa-solid fa-check"></i> 12 posts/month</li>
-          <li><i class="fa-solid fa-check"></i> Comment &amp; engagement strategy</li>
-          <li><i class="fa-solid fa-check"></i> Personal brand positioning</li>
-          <li><i class="fa-solid fa-check"></i> 2 revisions per post</li>
-          <li><i class="fa-solid fa-check"></i> Bi-weekly strategy call</li>
-        </ul>
-        <button class="btn btn-teal btn-block" onclick="openPayment('LinkedIn Growth',28000)">Book &amp; Pay</button>
-      </div>
-      <div class="pkg-card reveal">
-        <div class="pkg-name">Authority</div>
-        <div class="pkg-price">₹50,000<span style="font-size:14px;color:var(--muted);">/mo</span></div>
-        <div class="pkg-desc">Daily presence, newsletter and full ghost-managed authority build.</div>
-        <ul class="pkg-features">
-          <li><i class="fa-solid fa-check"></i> 20+ posts/month</li>
-          <li><i class="fa-solid fa-check"></i> Weekly newsletter</li>
-          <li><i class="fa-solid fa-check"></i> Dedicated writer</li>
-          <li><i class="fa-solid fa-check"></i> Unlimited revisions</li>
-          <li><i class="fa-solid fa-check"></i> Weekly strategy call</li>
-        </ul>
-        <button class="btn btn-teal btn-block" onclick="openPayment('LinkedIn Authority',50000)">Book &amp; Pay</button>
-      </div>
-    </div>
-    <table class="payg-table reveal">
-      <thead><tr><th>Pack</th><th>Price</th><th>Posts</th><th></th></tr></thead>
-      <tbody>
-        <tr><td>Starter</td><td>₹5,000</td><td>3 posts</td><td><button class="btn btn-teal" style="padding:8px 16px;font-size:13px;" onclick="openPayment('PAYG Starter',5000)">Book &amp; Pay</button></td></tr>
-        <tr><td>Growth</td><td>₹12,000</td><td>8 posts</td><td><button class="btn btn-teal" style="padding:8px 16px;font-size:13px;" onclick="openPayment('PAYG Growth',12000)">Book &amp; Pay</button></td></tr>
-        <tr><td>Value</td><td>₹20,000</td><td>15 posts</td><td><button class="btn btn-teal" style="padding:8px 16px;font-size:13px;" onclick="openPayment('PAYG Value',20000)">Book &amp; Pay</button></td></tr>
-      </tbody>
-    </table>
+    <div class="section-head"><p class="eyebrow">Moodily Store</p><h2 id="st-h">Digital resources — खुद करना चाहते हैं?</h2>
+      <p class="muted">Exam notes, business kits और templates। Store जल्द खुल रहा है — waitlist में जुड़ें।</p></div>
+    <div class="grid grid-3"><article class="card product-card" id="uppcs-intelligence-brief" data-product="uppcs-intelligence-brief"><div class="thumb" aria-hidden="true">📘</div><p class="eyebrow">Exam preparation</p><h3>UPPCS Intelligence Brief</h3><dl class="facts compact"><div><dt>किसके लिए</dt><dd>UPPCS aspirants</dd></div><div><dt>समस्या</dt><dd>Syllabus, पिछले trends और sources बिखरे हुए हैं — revision की दिशा साफ़ नहीं।</dd></div></dl><p class="price"><span class="badge">जल्द आ रहा है · Coming soon</span></p><p class="small muted">Licence: Single-user personal licence. Schools/coaching institutes need a separate institutional licence. · <a href="/refund/">Digital goods refund policy</a></p><p class="small muted">UPPSC से कोई affiliation नहीं। Predicted questions की guarantee नहीं।</p><div class="card-actions"><a class="btn btn-outline" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20interested%20buyer%20hoon.%0AMujhe%20Store%3A%20UPPCS%20Intelligence%20Brief%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="checkout_click" data-label="waitlist-uppcs-intelligence-brief"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg> Waitlist में जुड़ें</a></div></article><article class="card product-card" id="nda-english-module" data-product="nda-english-module"><div class="thumb" aria-hidden="true">🎯</div><p class="eyebrow">Exam preparation</p><h3>NDA English Learning Module</h3><dl class="facts compact"><div><dt>किसके लिए</dt><dd>NDA aspirants</dd></div><div><dt>समस्या</dt><dd>English section के लिए structured practice और explanations।</dd></div></dl><p class="price"><span class="badge">जल्द आ रहा है · Coming soon</span></p><p class="small muted">Licence: Single-user personal licence. Schools/coaching institutes need a separate institutional licence. · <a href="/refund/">Digital goods refund policy</a></p><p class="small muted">UPSC से कोई affiliation नहीं।</p><div class="card-actions"><a class="btn btn-outline" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20interested%20buyer%20hoon.%0AMujhe%20Store%3A%20NDA%20English%20Learning%20Module%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="checkout_click" data-label="waitlist-nda-english-module"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg> Waitlist में जुड़ें</a></div></article><article class="card product-card" id="ncert-respiratory-visual-notes" data-product="ncert-respiratory-visual-notes"><div class="thumb" aria-hidden="true">🫁</div><p class="eyebrow">School learning</p><h3>NCERT Respiratory System — Visual Notes</h3><dl class="facts compact"><div><dt>किसके लिए</dt><dd>Students, teachers और parents</dd></div><div><dt>समस्या</dt><dd>Text-heavy chapter को diagrams के साथ जल्दी समझना और revise करना।</dd></div></dl><p class="price"><span class="badge">जल्द आ रहा है · Coming soon</span></p><p class="small muted">Licence: Single-user personal licence. Schools/coaching institutes need a separate institutional licence. · <a href="/refund/">Digital goods refund policy</a></p><p class="small muted">NCERT का official product नहीं; NCERT syllabus पर आधारित study aid।</p><div class="card-actions"><a class="btn btn-outline" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20interested%20buyer%20hoon.%0AMujhe%20Store%3A%20NCERT%20Respiratory%20System%20%E2%80%94%20Visual%20Notes%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="checkout_click" data-label="waitlist-ncert-respiratory-visual-notes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg> Waitlist में जुड़ें</a></div></article></div>
+    <p class="btn-row"><a class="btn btn-outline" href="/store/">Store देखें →</a></p>
   </div>
 </section>
 
-<section id="why">
+<section id="why" aria-labelledby="why-h">
   <div class="container">
-    <div class="section-head reveal"><h2>Why Moodily</h2><p>Built for India's learners — free-first, project-first.</p></div>
-    <div class="why-grid">
-      <div class="why-card reveal"><div class="icon">🆓</div><h4>Free to Learn</h4><p>Every core course is free, always.</p></div>
-      <div class="why-card reveal"><div class="icon">🇮🇳</div><h4>Hindi First</h4><p>Learn in the language you think in.</p></div>
-      <div class="why-card reveal"><div class="icon">📁</div><h4>Projects Every Stage</h4><p>Build a portfolio as you learn.</p></div>
-      <div class="why-card reveal"><div class="icon">🏛️</div><h4>Official Certs</h4><p>IIT Madras and Govt of India recognition.</p></div>
-      <div class="why-card reveal"><div class="icon">📊</div><h4>Skills That Scale</h4><p>From basics to agents and automation.</p></div>
-      <div class="why-card reveal"><div class="icon">🤝</div><h4>We Deliver Too</h4><p>Don't have time? We build your workflows.</p></div>
+    <div class="section-head"><h2 id="why-h">Moodily Digital Saathi Quality Workflow</h2>
+      <p class="muted">Moodily क्यों? क्योंकि हर काम एक तय process से गुज़रता है — और आपकी approval के बिना कुछ भी live नहीं होता।</p></div>
+    <ol class="quality"><li><span class="step-num">1</span><div><h3>समझें <span class="muted small">· Understand</span></h3><p>आपका business, ग्राहक और लक्ष्य — एक छोटी call या WhatsApp voice note से।</p></div></li><li><span class="step-num">2</span><div><h3>Research <span class="muted small">· Research</span></h3><p>आपके competitors, area और platform guidelines की जाँच।</p></div></li><li><span class="step-num">3</span><div><h3>बनाएँ <span class="muted small">· Build</span></h3><p>Listing, website, content या workflow — तय scope के अनुसार।</p></div></li><li><span class="step-num">4</span><div><h3>जाँचें <span class="muted small">· Verify</span></h3><p>Links, नंबर, तथ्य, spelling और mobile view की checklist।</p></div></li><li><span class="step-num">5</span><div><h3>Human review <span class="muted small">· Human Review</span></h3><p>AI से बना हर हिस्सा इंसान पढ़कर approve करता है।</p></div></li><li><span class="step-num">6</span><div><h3>आपकी approval <span class="muted small">· Client Approval</span></h3><p>आपकी हाँ के बिना कुछ भी live नहीं होता।</p></div></li><li><span class="step-num">7</span><div><h3>मापें और सुधारें <span class="muted small">· Measure &amp; Improve</span></h3><p>जो data उपलब्ध है (calls, clicks, enquiries) उसे देखकर अगला सुधार।</p></div></li></ol><div class="evidence-labels"><p><strong>Research और education projects में हर बात पर label:</strong></p><ul class="label-row"><li><span class="ev ev-fact">FACT</span> source से प्रमाणित</li><li><span class="ev ev-inf">INFERENCE</span> तथ्यों से निकाला निष्कर्ष</li><li><span class="ev ev-hyp">HYPOTHESIS</span> जाँचने लायक विचार</li><li><span class="ev ev-unv">UNVERIFIED</span> पुष्टि नहीं हो सकी</li></ul></div><p class="small muted">यह Moodily की अपनी internal working process है — किसी third-party संस्था का certification नहीं।</p>
+    <div class="grid grid-3" style="margin-top:24px">
+      <div class="card"><h3>आपका account, आपके नाम</h3><p class="muted">Google profile, domain, WhatsApp — सब आपके नाम पर। हम सिर्फ़ manager access लेते हैं।</p></div>
+      <div class="card"><h3>साफ़ scope</h3><p class="muted">Unlimited जैसे अस्पष्ट वादे नहीं। Revisions और support तय और लिखित।</p></div>
+      <div class="card"><h3>Hindi में बात</h3><p class="muted">Technical शब्दों के बिना — आप जिस भाषा में सोचते हैं, उसमें।</p></div>
     </div>
   </div>
 </section>
 
-<section id="intake">
+<section class="alt" id="faq" aria-labelledby="faq-h">
   <div class="container">
-    <div class="section-head reveal"><h2>Tell Us What You Need</h2><p>We'll route you to the right course or service.</p></div>
-    <form class="form-wrap reveal" id="intakeForm">
-      <div class="form-row"><label>Email</label><input type="email" id="intakeEmail" placeholder="hello@moodily.in" required></div>
-      <div class="form-row"><label>WhatsApp / Phone</label><input type="tel" id="intakePhone" placeholder="91XXXXXXXXXX" required></div>
-      <div class="form-row"><label>Role</label>
-        <select id="intakeRole">
-          <option>Student</option><option>Professional</option><option>Business Owner</option><option>Freelancer</option><option>Educator</option>
-        </select>
-      </div>
-      <div class="form-row"><label>What are you interested in?</label>
-        <div class="checkbox-grid">
-          <label><input type="checkbox" value="AI Fundamentals"> AI Fundamentals</label>
-          <label><input type="checkbox" value="AI Tools & Productivity"> AI Tools &amp; Productivity</label>
-          <label><input type="checkbox" value="AI Workflows/Automation"> AI Workflows/Automation</label>
-          <label><input type="checkbox" value="AI Agents & Coding"> AI Agents &amp; Coding</label>
-          <label><input type="checkbox" value="LinkedIn Writing"> LinkedIn Writing</label>
-          <label><input type="checkbox" value="Done-for-you Services"> Done-for-you Services</label>
-        </div>
-      </div>
-      <div class="form-row"><label>Your AI skill level</label>
-        <select id="intakeLevel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
-      </div>
-      <div class="form-row"><label>Message (optional)</label><textarea rows="3" id="intakeMessage" placeholder="Tell us a bit more..."></textarea></div>
-      <button type="submit" class="btn btn-primary btn-block">Submit</button>
-    </form>
-    <p class="form-note">No spam. We reply within 24 hours.</p>
+    <div class="section-head"><h2 id="faq-h">अक्सर पूछे जाने वाले सवाल</h2></div>
+    <div class="faq-list"><details class="faq"><summary>Moodily क्या है?</summary><p>Moodily (moodily.in) एक Hindi-English platform है जहाँ आप AI और digital skills free में सीख सकते हैं (Moodily Learn), अपने business/profession का digital काम करवा सकते हैं (Moodily Digital Saathi और Intelligence Studio), और तैयार digital resources ले सकते हैं (Moodily Store)।</p></details><details class="faq"><summary>मुफ़्त Digital Audit में क्या मिलता है?</summary><p>आप अपने business का नाम, Google/WhatsApp/website/social link भेजते हैं। हम देखकर 3 सबसे ज़रूरी सुधार WhatsApp पर बताते हैं। कोई payment या commitment नहीं।</p></details><details class="faq"><summary>क्या आप Google पर पहला rank दिलाने की guarantee देते हैं?</summary><p>नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता, इसलिए ऐसी guarantee देना गलत है। हम listing, website और reviews की वे बुनियादी चीज़ें सही करते हैं जो Google की guidelines के अनुसार ज़रूरी हैं, और परिणाम मापते हैं।</p></details><details class="faq"><summary>Prices fixed हैं?</summary><p>Website पर दिए prices शुरुआती (starting) prices हैं। आपके काम का scope देखकर लिखित quote मिलता है, जिसमें deliverables, समय, revisions और क्या शामिल नहीं है — सब साफ़ लिखा होता है।</p></details><details class="faq"><summary>क्या free AI learning बंद हो गई?</summary><p>नहीं। Moodily Learn पर AI fundamentals से AI agents तक का free learning path पहले की तरह उपलब्ध है।</p></details><details class="faq"><summary>Payment कैसे होता है?</summary><p>अभी हर project के लिए लिखित quote के बाद payment details WhatsApp/email पर भेजी जाती हैं। Website पर online checkout बाद में जोड़ा जाएगा।</p></details></div>
   </div>
 </section>
 
-<section id="tools">
-  <div class="container">
-    <div class="section-head reveal"><h2>12+ Tools &amp; Platforms — Growing Monthly</h2><p>Genuinely used, honestly reviewed.</p></div>
-    <div class="tools-grid">
-      <div class="tool-card reveal"><i class="fa-solid fa-pen-nib"></i><div class="tname">AI Writing Assistant</div><div class="ttype">Writing</div><p>Drafts, edits and rewrites content fast. Great for LinkedIn posts and course notes.</p><a href="https://www.coursera.org/courses?query=free" target="_blank">Try Free →</a></div>
-      <div class="tool-card reveal"><i class="fa-solid fa-server"></i><div class="tname">Hostinger</div><div class="ttype">Hosting</div><p>Affordable hosting to launch your own site or portfolio quickly.</p><a href="#" target="_blank">Try Free →</a></div>
-      <div class="tool-card reveal"><i class="fa-solid fa-microphone"></i><div class="tname">Wispr Flow</div><div class="ttype">Voice-to-text</div><p>Turns your speech into clean, formatted text in seconds.</p><a href="#" target="_blank">Try Free →</a></div>
-      <div class="tool-card reveal"><i class="fa-solid fa-book"></i><div class="tname">NotebookLM</div><div class="ttype">Research</div><p>Summarizes documents and answers questions from your own notes.</p><a href="#" target="_blank">Try Free →</a></div>
-      <div class="tool-card reveal"><i class="fa-solid fa-palette"></i><div class="tname">Canva</div><div class="ttype">Design</div><p>Quick, professional graphics for social posts and presentations.</p><a href="#" target="_blank">Try Free →</a></div>
-      <div class="tool-card reveal"><i class="fa-solid fa-diagram-project"></i><div class="tname">n8n</div><div class="ttype">Automation</div><p>Connects your apps into no-code workflows that run on autopilot.</p><a href="#" target="_blank">Try Free →</a></div>
+<section class="final-cta" aria-labelledby="final-cta-h"><div class="container final-cta-inner"><h2 id="final-cta-h">आपका अगला ग्राहक आपको online ढूँढ रहा है।</h2><p>5 मिनट में अपनी ज़रूरत बताइए। हम साफ़ बताएँगे कि क्या करना चाहिए — और क्या नहीं।</p><div class="btn-row"><a class="btn btn-primary btn-lg" href="/contact/?service=free-digital-audit" data-track="hero_cta_click" data-label="final-audit">मुफ़्त Digital Audit लें</a><a class="btn btn-wa btn-lg" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20%5Brole%5D%20hoon.%0AMujhe%20%5Bservice%5D%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="whatsapp_click" data-label="final-cta"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg> अपनी जरूरत WhatsApp करें</a></div><p class="small">या <a href="/learn/">AI सीखना चाहते हैं? Free Learning देखें →</a></p></div></section>
+
+</main>
+<footer class="site-footer"><div class="container">
+  <div class="footer-grid">
+    <div><a class="logo" href="/">Moodily<span class="dot" aria-hidden="true"></span></a>
+      <p class="muted small">Moodily.in — सीखें. डिजिटल बनें. बढ़ें.<br>Learn · Build · Digitize · Sell · Grow</p>
+      <p class="small"><a href="mailto:hello@moodily.in">hello@moodily.in</a></p>
+      <a class="btn btn-wa btn-sm" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20%5Brole%5D%20hoon.%0AMujhe%20%5Bservice%5D%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="whatsapp_click" data-label="footer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg> WhatsApp</a>
     </div>
-    <p class="text-muted" style="margin-top:24px;font-size:13px;text-align:center;">Some links may earn Moodily a small commission. Recommendations based on genuine use.</p>
+    <div><h2 class="footer-h">Moodily</h2><ul>
+      <li><a href="/learn/">Moodily Learn</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
+      <li><a href="/services/research/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
+      <li><a href="/case-studies/">Work samples</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
+    <div><h2 class="footer-h">Services</h2><ul><li><a href="/services/local-business/">दुकान / Local Business</a></li><li><a href="/services/medical-store/">Medical Store / Clinic</a></li><li><a href="/services/education/">School / Coaching</a></li><li><a href="/services/professionals/">Professionals &amp; LinkedIn</a></li><li><a href="/services/creators/">Creators</a></li><li><a href="/services/research/">Research &amp; Intelligence</a></li><li><a href="/services/knowledge-to-product/">Knowledge-to-Product</a></li><li><a href="/services/ai-workflows/">AI Workflows</a></li></ul></div>
+    <div><h2 class="footer-h">Company</h2><ul>
+      <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
+      <li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li><li><a href="/refund/">Refund policy</a></li></ul></div>
   </div>
-</section>
-
-<!-- AUTO-GENERATED: weekly tip 2026-09-07 -->
-<section id="weekly-tip">
-  <div class="container">
-    <div class="weekly-tip-box reveal visible">
-      <div>
-        <span class="badge-teal">Week 37</span>
-        <h3 style="margin:12px 0 8px;font-size:20px;">Publish your first project this week, not next month</h3>
-        <p class="text-muted" style="max-width:560px;">A small, finished GitHub project beats a big, unfinished one. Ship something small every week and let your portfolio compound.</p>
-      </div>
-      <button class="btn btn-teal" onclick="document.getElementById('curriculum').scrollIntoView({behavior:'smooth'})">View Curriculum →</button>
-    </div>
-  </div>
-</section>
-<!-- /AUTO-GENERATED -->
-
-<section class="quote-band">
-  <div class="container reveal">
-    <blockquote>"India has 1.4 billion people. AI skills will determine who leads in the coming decade. The difference is 90 days."</blockquote>
-    <p class="sub">The Moodily commitment — Free · Certified · Project-based · In Hindi</p>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="logo">Moodily<span class="dot"></span></div>
-        <p class="text-muted" style="margin-top:12px;font-size:14px;max-width:260px;">India's free AI skilling platform in Hindi and English.</p>
-      </div>
-      <div><h5>Learn</h5><ul>
-        <li><a href="#curriculum">Course Content</a></li>
-        <li><a href="#learn">What You'll Learn</a></li>
-        <li><a href="#tools">Tools</a></li>
-        <li><a href="https://www.coursera.org/courses?query=free" target="_blank">Free Courses</a></li>
-      </ul></div>
-      <div><h5>Services</h5><ul>
-        <li><a href="#services">AI Workflows</a></li>
-        <li><a href="#linkedin">LinkedIn Writing</a></li>
-        <li><a href="#intake">Get a Quote</a></li>
-      </ul></div>
-      <div><h5>Connect</h5><ul>
-        <li><a href="#" onclick="openWhatsApp('Hi Moodily team, I have a question.');return false;">WhatsApp</a></li>
-        <li><a href="mailto:hello@moodily.in">hello@moodily.in</a></li>
-        <li><a href="#" onclick="openAuthModal('register');return false;">Create Account</a></li>
-      </ul></div>
-    </div>
-    <div class="footer-bottom">© 2026 Moodily.in — A dedicated AI skilling initiative for India.</div>
-  </div>
-</footer>
-
-<div class="modal-overlay" id="authModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('authModal')">✕</button>
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tabSignin" onclick="switchAuthTab('signin')">Pravesh Karein</div>
-      <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Panjikaran</div>
-    </div>
-    <div class="auth-panel active" id="panelSignin">
-      <button class="google-btn"><i class="fa-brands fa-google"></i> Continue with Google</button>
-      <div class="or-divider">OR</div>
-      <div class="form-row"><label>Email</label><input type="email" placeholder="hello@moodily.in"></div>
-      <div class="form-row"><label>Password</label><input type="password"></div>
-      <button class="btn btn-primary btn-block">Pravesh Karein</button>
-    </div>
-    <div class="auth-panel" id="panelRegister">
-      <button class="google-btn"><i class="fa-brands fa-google"></i> Continue with Google</button>
-      <div class="or-divider">OR</div>
-      <div class="form-row"><label>Email</label><input type="email" placeholder="hello@moodily.in"></div>
-      <div class="form-row"><label>Password</label><input type="password"></div>
-      <div class="form-row"><label>Role</label>
-        <select><option>Student</option><option>Professional</option><option>Business Owner</option><option>Freelancer</option><option>Educator</option></select>
-      </div>
-      <button class="btn btn-primary btn-block">Panjikaran</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="paymentModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
-    <h3 id="payTitle">Service</h3>
-    <div class="pay-price" id="payPrice">₹0</div>
-    <p class="text-muted" id="payDesc" style="font-size:13px;margin-bottom:8px;">Secure checkout via Razorpay.</p>
-    <div class="pay-pills"><span>UPI</span><span>Cards</span><span>Net Banking</span><span>Wallets</span></div>
-    <div class="form-row"><label>Email</label><input type="email" id="payEmail" placeholder="hello@moodily.in" required></div>
-    <div class="form-row"><label>WhatsApp Number</label><input type="tel" id="payPhone" placeholder="91XXXXXXXXXX" required></div>
-    <button class="btn btn-teal btn-block" id="payButton" onclick="startRazorpay()">Pay Securely via Razorpay →</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-<script>
-var STAGES = [
-  {id:'s1', num:1, title:'AI Fundamentals', time:'Week 1–2 · 12 hrs',
-   goal:'Understand what AI is and build the foundational literacy to talk about it with confidence.',
-   courses:[
-     {badge:'IIT Madras (SWAYAM)', name:'AI Foundations', cert:'Bharat Sarkar Pramaanpatra'},
-     {badge:'Google', name:'Google AI Essentials', cert:'Certificate of Completion'},
-     {badge:'IBM SkillsBuild', name:'AI Fundamentals', cert:'Certificate of Completion'}
-   ],
-   project:'Project: Build a one-page "Explain AI" deck for a non-technical audience.',
-   skill:'Skill outcome: Confidently explain AI to anyone.'},
-  {id:'s2', num:2, title:'Productive AI Tools', time:'Week 3–4 · 15 hrs',
-   goal:'Use the top free AI tools to multiply your personal output.',
-   courses:[
-     {badge:'Moodily Guide', name:'AI Writing Assistant Mastery', cert:'Moodily Certificate'},
-     {badge:'Google', name:'NotebookLM for Research', cert:'Certificate of Completion'},
-     {badge:'Canva Design School', name:'Canva Magic Studio', cert:'Certificate of Completion'}
-   ],
-   project:'Project: Put together your own AI toolkit workflow document.',
-   skill:'Skill outcome: Work 3× faster using 5 AI tools.'},
-  {id:'s3', num:3, title:'AI Workflows', time:'Week 5–7 · 20 hrs',
-   goal:'Automate repetitive work without writing a single line of code.',
-   courses:[
-     {badge:'n8n', name:'Automation Basics', cert:'Certificate of Completion'},
-     {badge:'Jio AI Classroom', name:'Workflow Design', cert:'Certificate of Completion'},
-     {badge:'Skill India', name:'Digital Productivity Tools', cert:'Bharat Sarkar Pramaanpatra'}
-   ],
-   project:'Project: Build one working automation for a real business task.',
-   skill:'Skill outcome: Build automations without code.'},
-  {id:'s4', num:4, title:'AI Agents & Code', time:'Week 8–10 · 25 hrs',
-   goal:'Build simple AI agents and ship them publicly.',
-   courses:[
-     {badge:'DeepLearning.AI', name:'AI Agents Short Course', cert:'Certificate of Completion'},
-     {badge:'Microsoft Learn', name:'AI Fundamentals', cert:'Certificate of Completion'},
-     {badge:'GitHub', name:'GitHub for Beginners', cert:'Certificate of Completion'}
-   ],
-   project:'Project: Publish an AI agent project to your GitHub portfolio.',
-   skill:'Skill outcome: Create AI agents with a public GitHub portfolio.'},
-  {id:'s5', num:5, title:'Earn — Project & Skill Based', time:'Week 11–13',
-   goal:'Convert what you have learned into your first real income.',
-   courses:[
-     {badge:'Moodily Guide', name:'LinkedIn Content Writing for AI Creators', cert:'Moodily Certificate'},
-     {badge:'YUVA AI for ALL', name:'Freelancing on AI Project Marketplaces', cert:'Certificate of Completion'},
-     {badge:'Skill India', name:'Digital Entrepreneurship', cert:'Bharat Sarkar Pramaanpatra'}
-   ],
-   project:'Project: Land or deliver your first paid AI-related project.',
-   skill:'Skill outcome: Earn from your first project, on a skill and project basis.'}
-];
-
-function renderStages(){
-  var wrap = document.getElementById('stagesWrap');
-  var html = '';
-  for (var i=0;i<STAGES.length;i++){
-    var s = STAGES[i];
-    var tiles = '';
-    for (var j=0;j<s.courses.length;j++){
-      var c = s.courses[j];
-      tiles += '<div class="course-tile"><span class="badge">'+c.badge+'</span><div class="cname">'+c.name+'</div><div class="cert"><i class="fa-solid fa-award"></i> '+c.cert+'</div></div>';
-    }
-    var stars = '';
-    for (var k=1;k<=5;k++){
-      stars += '<i class="fa-solid fa-star" data-stage="'+s.id+'" data-value="'+k+'" onclick="setRating(\''+s.id+'\','+k+')"></i>';
-    }
-    html += '<div class="stage reveal visible" id="stage-'+s.id+'">'+
-      '<div class="stage-header" onclick="toggleStage(\''+s.id+'\')">'+
-        '<div class="stage-header-left"><span class="stage-num">Stage '+s.num+'</span><span class="stage-title">'+s.title+'</span><span class="stage-time">'+s.time+'</span></div>'+
-        '<i class="fa-solid fa-chevron-down chevron"></i>'+
-      '</div>'+
-      '<div class="stage-body">'+
-        '<div class="goal-strip">'+s.goal+'</div>'+
-        '<div class="course-tiles">'+tiles+'</div>'+
-        '<div class="project-box">'+s.project+'</div>'+
-        '<div class="skill-outcome">'+s.skill+'</div>'+
-        '<div class="stage-stars">'+stars+'<span class="text-muted" style="font-size:12px;" id="ratingLabel-'+s.id+'"></span></div>'+
-      '</div>'+
-    '</div>';
-  }
-  wrap.innerHTML = html;
-  for (var m=0;m<STAGES.length;m++){ paintStars(STAGES[m].id); }
-}
-
-function toggleStage(id){
-  document.getElementById('stage-'+id).classList.toggle('open');
-}
-function toggleAllStages(open){
-  var els = document.querySelectorAll('.stage');
-  for (var i=0;i<els.length;i++){ if(open) els[i].classList.add('open'); else els[i].classList.remove('open'); }
-}
-function setRating(id,val){
-  localStorage.setItem('moodily_rating_'+id, val);
-  paintStars(id);
-}
-function paintStars(id){
-  var val = parseInt(localStorage.getItem('moodily_rating_'+id) || '0', 10);
-  var stars = document.querySelectorAll('i[data-stage="'+id+'"]');
-  for (var i=0;i<stars.length;i++){
-    var v = parseInt(stars[i].getAttribute('data-value'),10);
-    if (v <= val) stars[i].classList.add('filled'); else stars[i].classList.remove('filled');
-  }
-  var label = document.getElementById('ratingLabel-'+id);
-  if (label) label.textContent = val ? ('Your rating: '+val+'/5') : '';
-}
-
-function openAuthModal(tab){ switchAuthTab(tab); document.getElementById('authModal').classList.add('active'); }
-function closeModal(id){ document.getElementById(id).classList.remove('active'); }
-function switchAuthTab(tab){
-  var isSignin = tab === 'signin';
-  document.getElementById('tabSignin').classList.toggle('active', isSignin);
-  document.getElementById('tabRegister').classList.toggle('active', !isSignin);
-  document.getElementById('panelSignin').classList.toggle('active', isSignin);
-  document.getElementById('panelRegister').classList.toggle('active', !isSignin);
-}
-
-var CURRENT_PLAN = {name:'', price:0};
-function openPayment(name, price){
-  CURRENT_PLAN = {name:name, price:price};
-  document.getElementById('payTitle').textContent = name;
-  document.getElementById('payPrice').textContent = '₹' + price.toLocaleString('en-IN');
-  document.getElementById('paymentModal').classList.add('active');
-}
-function startRazorpay(){
-  var email = document.getElementById('payEmail').value;
-  var phone = document.getElementById('payPhone').value;
-  if (!email || !phone){ showToast('Please fill in your email and WhatsApp number.'); return; }
-  var options = {
-    key: 'rzp_live_XXXXXXXXXXXXXXXX',
-    amount: CURRENT_PLAN.price * 100,
-    currency: 'INR',
-    name: 'Moodily',
-    description: CURRENT_PLAN.name,
-    prefill: { email: email, contact: phone },
-    handler: function(response){
-      showToast('Payment successful! Confirmation sent.');
-      closeModal('paymentModal');
-      openWhatsApp('Hi Moodily team, I just paid for ' + CURRENT_PLAN.name + '. Payment ID: ' + (response.razorpay_payment_id || ''));
-    },
-    theme: { color: '#7B2FFF' }
-  };
-  try {
-    var rzp = new Razorpay(options);
-    rzp.open();
-  } catch(e){
-    showToast('Payment gateway not yet configured. We will contact you on WhatsApp.');
-    openWhatsApp('Hi Moodily team, I want to book ' + CURRENT_PLAN.name + ' (₹' + CURRENT_PLAN.price + '). Email: ' + email + ', Phone: ' + phone);
-  }
-}
-
-function openWhatsApp(message){
-  var url = 'https://wa.me/91XXXXXXXXXX?text=' + encodeURIComponent(message);
-  window.open(url, '_blank');
-}
-function showToast(msg){
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 4000);
-}
-
-document.getElementById('langToggleBtn').addEventListener('click', function(){
-  var html = document.documentElement;
-  var next = html.getAttribute('data-lang') === 'en' ? 'hi' : 'en';
-  html.setAttribute('data-lang', next);
-  localStorage.setItem('moodily_lang', next);
-});
-document.getElementById('themeToggleBtn').addEventListener('click', function(){
-  var html = document.documentElement;
-  var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  document.getElementById('themeToggleBtn').textContent = next === 'dark' ? '🌙' : '☀️';
-  localStorage.setItem('moodily_theme', next);
-});
-(function initPrefs(){
-  var lang = localStorage.getItem('moodily_lang');
-  if (lang) document.documentElement.setAttribute('data-lang', lang);
-  var theme = localStorage.getItem('moodily_theme');
-  if (theme){
-    document.documentElement.setAttribute('data-theme', theme);
-    document.getElementById('themeToggleBtn').textContent = theme === 'dark' ? '🌙' : '☀️';
-  }
-})();
-
-document.getElementById('intakeForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  var email = document.getElementById('intakeEmail').value;
-  var phone = document.getElementById('intakePhone').value;
-  var role = document.getElementById('intakeRole').value;
-  var level = document.getElementById('intakeLevel').value;
-  var msg = document.getElementById('intakeMessage').value;
-  var interests = [];
-  document.querySelectorAll('#intakeForm .checkbox-grid input:checked').forEach(function(cb){ interests.push(cb.value); });
-  var text = 'Hi Moodily team, I would like to get started.\nEmail: ' + email + '\nRole: ' + role + '\nInterests: ' + interests.join(', ') + '\nSkill level: ' + level + (msg ? ('\nMessage: ' + msg) : '');
-  openWhatsApp(text);
-});
-
-document.querySelectorAll('.modal-overlay').forEach(function(m){
-  m.addEventListener('click', function(e){ if (e.target === m) m.classList.remove('active'); });
-});
-
-renderStages();
-
-var observer = new IntersectionObserver(function(entries){
-  entries.forEach(function(entry){
-    if (entry.isIntersecting) entry.target.classList.add('visible');
-  });
-}, {threshold:0.15});
-document.querySelectorAll('.reveal').forEach(function(el){ observer.observe(el); });
-</script>
+  <p class="footer-note small muted">Moodily curates learning paths using courses offered by recognised providers. Certificates, where applicable, are issued by the respective providers. Moodily has no official partnership with the providers listed unless stated. Some tool links may be affiliate links and are labelled.</p>
+  <p class="footer-bottom small muted">© 2026 Moodily · moodily.in</p>
+</div></footer>
+<a class="fab-wa" href="https://wa.me/919354123255?text=Namaste%20Moodily%2C%0AMain%20%5Brole%5D%20hoon.%0AMujhe%20%5Bservice%5D%20chahiye.%0AMera%20business/profession%20%5Btype%5D%20hai.%0ACity%20%5Bcity%5D%20hai.%0ABudget%20approx%20%5Bbudget%5D%20hai.%0ACurrent%20website/social%20link%20%5BURL%5D%20hai." target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg><span>WhatsApp</span></a>
 </body>
 </html>

@@ -1,0 +1,108 @@
+{
+  "_readme": "Store catalogue. status: 'waitlist' (no price, no Product schema) | 'available' (requires price, preview, checkout_url; emits Product schema). checkout_url = hosted payment link from the APPROVED provider (Razorpay Payment Page, Cashfree, Instamojo, Gumroad, Lemon Squeezy, Stripe Payment Link...). No SDK is hard-coded.",
+  "categories": {
+    "exam": "Exam preparation",
+    "school": "School learning",
+    "ai-productivity": "AI productivity",
+    "business": "Business kits",
+    "creator": "Creator templates",
+    "research": "Research templates",
+    "professional": "Professional resources"
+  },
+  "default_licence": "Single-user personal licence. Schools/coaching institutes need a separate institutional licence.",
+  "products": [
+    {
+      "slug": "uppcs-intelligence-brief",
+      "status": "waitlist",
+      "category": "exam",
+      "title": "UPPCS Intelligence Brief",
+      "emoji": "📘",
+      "buyer": "UPPCS aspirants",
+      "problem": "Syllabus, पिछले trends और sources बिखरे हुए हैं — revision की दिशा साफ़ नहीं।",
+      "contents": ["_todo: owner to list final contents"],
+      "preview": null,
+      "price": null,
+      "checkout_url": null,
+      "disclaimer": "UPPSC से कोई affiliation नहीं। Predicted questions की guarantee नहीं।"
+    },
+    {
+      "slug": "nda-english-module",
+      "status": "waitlist",
+      "category": "exam",
+      "title": "NDA English Learning Module",
+      "emoji": "🎯",
+      "buyer": "NDA aspirants",
+      "problem": "English section के लिए structured practice और explanations।",
+      "contents": ["_todo: owner to list final contents"],
+      "preview": null, "price": null, "checkout_url": null,
+      "disclaimer": "UPSC से कोई affiliation नहीं।"
+    },
+    {
+      "slug": "ncert-respiratory-visual-notes",
+      "status": "waitlist",
+      "category": "school",
+      "title": "NCERT Respiratory System — Visual Notes",
+      "emoji": "🫁",
+      "buyer": "Students, teachers और parents",
+      "problem": "Text-heavy chapter को diagrams के साथ जल्दी समझना और revise करना।",
+      "contents": ["_todo: owner to list final contents"],
+      "preview": null, "price": null, "checkout_url": null,
+      "disclaimer": "NCERT का official product नहीं; NCERT syllabus पर आधारित study aid।"
+    },
+    {
+      "slug": "ai-prompt-workbook-hindi",
+      "status": "waitlist",
+      "category": "ai-productivity",
+      "title": "AI Productivity Workbook (Hindi + English)",
+      "emoji": "⚡",
+      "buyer": "Students, office workers, shop owners",
+      "problem": "AI tools खोलते हैं पर समझ नहीं आता कि रोज़ के काम में क्या पूछें।",
+      "contents": ["_todo: owner to finalise"],
+      "preview": null, "price": null, "checkout_url": null
+    },
+    {
+      "slug": "local-business-digital-kit",
+      "status": "waitlist",
+      "category": "business",
+      "title": "Local Business Digital Kit",
+      "emoji": "🏪",
+      "buyer": "दुकान और local service owners (DIY)",
+      "problem": "Agency नहीं लेना, खुद Google/WhatsApp setup करना है — पर step-by-step checklist नहीं।",
+      "contents": ["_todo: owner to finalise"],
+      "preview": null, "price": null, "checkout_url": null
+    },
+    {
+      "slug": "mind-map-second-brain-templates",
+      "status": "waitlist",
+      "category": "creator",
+      "title": "Mind-Map & Second-Brain Templates",
+      "emoji": "🧠",
+      "buyer": "Creators, students, researchers",
+      "problem": "Notes और ideas बिखरे रहते हैं, content में नहीं बदलते।",
+      "contents": ["_todo: owner to finalise"],
+      "preview": null, "price": null, "checkout_url": null
+    },
+    {
+      "slug": "competitive-gap-analysis-template",
+      "status": "waitlist",
+      "category": "research",
+      "title": "Competitive Gap Analysis Template",
+      "emoji": "🔍",
+      "buyer": "Founders, marketers, students",
+      "problem": "Competitors को structured तरीके से compare करने और evidence label करने का framework।",
+      "contents": ["_todo: owner to finalise"],
+      "preview": null, "price": null, "checkout_url": null
+    },
+    {
+      "slug": "linkedin-profile-workbook",
+      "status": "waitlist",
+      "category": "professional",
+      "title": "LinkedIn Profile Rewrite Workbook",
+      "emoji": "💼",
+      "buyer": "Professionals, job seekers, consultants",
+      "problem": "Profile खुद rewrite करना है पर शुरुआत कहाँ से करें।",
+      "contents": ["_todo: owner to finalise"],
+      "preview": null, "price": null, "checkout_url": null
+    }
+  ]
+}

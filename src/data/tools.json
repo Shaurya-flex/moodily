@@ -1,0 +1,92 @@
+{
+  "_readme": "Tools & affiliate recommendations. affiliate_url null = plain link to the official site (no commission). Add affiliate_url ONLY for real programmes; links then get rel='sponsored'. moodily_use must describe genuine use — no fake reviews. Facts (pricing/limits) change often: re-check quarterly.",
+  "last_reviewed": "2026-09-13",
+  "tools": [
+    {
+      "slug": "google-business-profile",
+      "name": "Google Business Profile",
+      "type": "Local discovery",
+      "official_url": "https://www.google.com/business/",
+      "affiliate_url": null,
+      "what": "Google Search और Maps पर आपके business की free listing — पता, समय, फ़ोन, फ़ोटो, reviews।",
+      "moodily_use": "Digital Saathi के हर local-business project की शुरुआत यहीं से होती है।",
+      "use_case": "एक दुकान की listing में सही category, समय, WhatsApp नंबर और असली फ़ोटो जोड़कर 'directions' और 'call' requests को मापना।",
+      "pros": ["पूरी तरह free", "Maps पर directions, call और reviews एक जगह", "Insights में calls/directions data"],
+      "limitations": ["Verification में समय लग सकता है", "Ranking पर आपका पूरा नियंत्रण नहीं", "Guidelines तोड़ने (जैसे नाम में keywords) पर listing suspend हो सकती है"],
+      "alternatives": ["Apple Business Connect", "Bing Places for Business", "JustDial listing"],
+      "tutorial": ["Google Maps पर पहले देखें कि listing पहले से है या नहीं", "business.google.com पर listing बनाएँ या claim करें", "सबसे सटीक primary category चुनें", "Google जो verification तरीका दे, उससे verify करें", "समय, फ़ोटो, services और WhatsApp/phone जोड़ें"],
+      "guide": "/guides/dukan-google-maps-par-kaise-laye/"
+    },
+    {
+      "slug": "notebooklm",
+      "name": "NotebookLM",
+      "type": "Research",
+      "official_url": "https://notebooklm.google.com/",
+      "affiliate_url": null,
+      "what": "Google का research assistant जो आपके upload किए sources (PDF, docs, links) के आधार पर summary और जवाब देता है।",
+      "moodily_use": "Course notes और research sources को जल्दी समझने और सवालों की list बनाने के लिए।",
+      "use_case": "किसी course PDF को upload करके पहले summary और self-test questions बनाना, फिर पढ़ना।",
+      "pros": ["जवाब आपके sources पर आधारित, citations के साथ", "Free tier उपलब्ध", "Summaries और study guides जल्दी"],
+      "limitations": ["Sources के बाहर की जानकारी नहीं देता", "Notebook/source limits लागू होते हैं", "Hindi output की quality जाँचें"],
+      "alternatives": ["ChatGPT Projects", "Claude Projects", "Perplexity Spaces"],
+      "tutorial": ["नया notebook बनाएँ", "PDF/Google Doc/link sources जोड़ें", "पहले 'summary' और 'key questions' माँगें", "हर जवाब का citation खोलकर जाँचें"]
+    },
+    {
+      "slug": "canva",
+      "name": "Canva",
+      "type": "Design",
+      "official_url": "https://www.canva.com/",
+      "affiliate_url": null,
+      "what": "Social posts, visiting cards, posters और presentations के लिए browser/mobile design tool।",
+      "moodily_use": "Social creatives, thumbnails और project write-ups के visuals के लिए।",
+      "use_case": "दुकान के festival offer post और WhatsApp status image को 10 मिनट में बनाना।",
+      "pros": ["Free plan में बहुत templates", "Mobile app से भी काम", "Team sharing आसान"],
+      "limitations": ["कई premium elements और AI features paid plan में", "Templates generic दिख सकते हैं", "Logo trademark के लिए template-based logo ठीक नहीं"],
+      "alternatives": ["Adobe Express", "Figma", "Microsoft Designer"],
+      "tutorial": ["सही size (Instagram post/Story/A4) चुनें", "Brand colours और logo Brand Kit में रखें", "Template बदलें — सिर्फ़ text नहीं, layout भी", "PNG (social) या PDF Print (print) में download करें"]
+    },
+    {
+      "slug": "n8n",
+      "name": "n8n",
+      "type": "Automation",
+      "official_url": "https://n8n.io/",
+      "affiliate_url": null,
+      "what": "Apps को जोड़कर workflows automate करने वाला tool — self-host या cloud।",
+      "moodily_use": "AI Workflow services में leads, forms और content pipelines जोड़ने के लिए।",
+      "use_case": "Website form की enquiry को Google Sheet में डालना और टीम को WhatsApp/email alert भेजना।",
+      "pros": ["बड़ी template library", "Self-host करने का विकल्प", "AI/LLM nodes उपलब्ध"],
+      "limitations": ["शुरुआत में सीखने में समय", "Self-hosting में maintenance और security आपकी ज़िम्मेदारी", "Cloud plan paid है"],
+      "alternatives": ["Zapier", "Make", "Google Apps Script"],
+      "tutorial": ["Template library में पहले मौजूदा workflow खोजें", "Trigger (जैसे form submit) सेट करें", "Test data से हर node चलाएँ", "Error notifications चालू करके ही activate करें"]
+    },
+    {
+      "slug": "wispr-flow",
+      "name": "Wispr Flow",
+      "type": "Voice-to-text",
+      "official_url": "https://wisprflow.ai/",
+      "affiliate_url": null,
+      "what": "बोलकर किसी भी app में साफ़ formatted text लिखने वाला dictation tool।",
+      "moodily_use": "LinkedIn posts और notes का पहला draft बोलकर बनाने के लिए।",
+      "use_case": "Client interview के बाद 5 मिनट बोलकर post का पहला draft बनाना, फिर edit करना।",
+      "pros": ["Typing से तेज़ पहला draft", "कई apps में काम करता है", "Free tier उपलब्ध"],
+      "limitations": ["Free tier में usage limits", "Internet ज़रूरी", "Sensitive/confidential बातें dictate करने से पहले privacy policy पढ़ें"],
+      "alternatives": ["Google Docs Voice Typing", "Windows/macOS built-in dictation", "Gboard voice typing"],
+      "tutorial": ["App install करके microphone permission दें", "पहले छोटे paragraphs में बोलें", "Punctuation/format बाद में AI assistant से सुधारें"]
+    },
+    {
+      "slug": "hostinger",
+      "name": "Hostinger",
+      "type": "Hosting",
+      "official_url": "https://www.hostinger.in/",
+      "affiliate_url": null,
+      "_todo": "OWNER: add real affiliate URL if Moodily is in Hostinger's affiliate programme.",
+      "what": "Domain और web hosting provider — छोटे business websites और portfolios के लिए।",
+      "moodily_use": "Clients के लिए domain/hosting विकल्प के रूप में।",
+      "use_case": "Business Growth Launch website के लिए client के नाम पर domain और hosting लेना।",
+      "pros": ["Beginner-friendly panel", "Domain + email + hosting एक जगह", "Indian payment options"],
+      "limitations": ["Renewal price शुरुआती offer से ज़्यादा हो सकता है", "Shared hosting के resources सीमित", "Checkout पर add-ons ध्यान से हटाएँ"],
+      "alternatives": ["GitHub Pages / Netlify (static sites, free tier)", "GoDaddy", "Cloudflare Registrar (domain)"],
+      "tutorial": ["Domain और hosting हमेशा अपने (business owner के) नाम/email पर लें", "Renewal price पढ़कर plan चुनें", "SSL (https) चालू करें", "Login details किसी agency के पास स्थायी रूप से न छोड़ें"]
+    }
+  ]
+}

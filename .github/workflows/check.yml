@@ -1,0 +1,23 @@
+name: Build & check site
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Build
+        run: python build.py
+      - name: Generated HTML must be committed
+        run: |
+          git status --porcelain -- ':!_project/OWNER-TODO.md' ':!sitemap.xml'
+          test -z "$(git status --porcelain -- ':!_project/OWNER-TODO.md' ':!sitemap.xml' ':!.build-manifest.json')" || (echo "Run python3 build.py and commit the output" && exit 1)
+      - name: Site checks
+        run: python tests/check_site.py

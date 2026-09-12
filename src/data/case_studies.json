@@ -1,0 +1,116 @@
+{
+  "_readme": "Case-study template. status 'draft' = shown on the hub as a work sample WITHOUT a detail page and excluded from sitemap. Set status 'published' ONLY after filling every field with real evidence (screenshots in /assets/img/case-studies/<slug>/, owner-verified result). Never invent results, testimonials or numbers. result may stay null — the page then says no measured result is claimed.",
+  "fields": ["problem", "input", "method", "built", "screenshots", "verification", "result"],
+  "case_studies": [
+    {
+      "slug": "rasra-library-digitization",
+      "status": "draft",
+      "title": "Rasra Library & Study Point — digitization",
+      "category": "Local business",
+      "division": "digital-saathi",
+      "work_type": "Local business digitization",
+      "service": "business-growth-launch",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "uppcs-intelligence-brief",
+      "status": "draft",
+      "title": "UPPCS Intelligence Brief",
+      "category": "Education",
+      "division": "studio",
+      "work_type": "Exam research brief",
+      "service": "education-content-pack",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "nda-english-learning-module",
+      "status": "draft",
+      "title": "NDA English learning module",
+      "category": "Education",
+      "division": "studio",
+      "work_type": "Exam learning module",
+      "service": "education-content-pack",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "ncert-respiratory-visual-learning",
+      "status": "draft",
+      "title": "NCERT respiratory system — visual learning",
+      "category": "Education",
+      "division": "studio",
+      "work_type": "Visual learning PDF",
+      "service": "education-content-pack",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "grocery-competitive-gap-analysis",
+      "status": "draft",
+      "title": "Grocery competitive-gap analysis",
+      "category": "Research",
+      "division": "studio",
+      "work_type": "Competitive intelligence",
+      "service": "research-intelligence-sprint",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "ayurveda-channel-strategy",
+      "status": "draft",
+      "title": "Ayurveda channel strategy",
+      "category": "Creators",
+      "division": "studio",
+      "work_type": "Channel/content strategy",
+      "service": "creator-content-sprint",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "patientsaathi-research",
+      "status": "draft",
+      "title": "PatientSaathi research",
+      "category": "Research",
+      "division": "studio",
+      "work_type": "Health-workflow research",
+      "service": "research-intelligence-sprint",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "teleprompter-creator-project",
+      "status": "draft",
+      "title": "Teleprompter creator project",
+      "category": "Creators",
+      "division": "studio",
+      "work_type": "Creator tooling",
+      "service": "creator-content-sprint",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "gemini-student-creator-project",
+      "status": "draft",
+      "title": "Gemini / student creator project",
+      "category": "Creators",
+      "division": "studio",
+      "work_type": "Student creator content",
+      "service": "creator-content-sprint",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "missile-man-educational-video",
+      "status": "draft",
+      "title": "Missile Man educational video",
+      "category": "Education",
+      "division": "studio",
+      "work_type": "Educational video",
+      "service": "creator-content-sprint",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    },
+    {
+      "slug": "mind-map-second-brain",
+      "status": "draft",
+      "title": "Mind-map / second-brain system",
+      "category": "Knowledge-to-product",
+      "division": "studio",
+      "work_type": "Knowledge system",
+      "service": "knowledge-to-product",
+      "problem": null, "input": null, "method": null, "built": null, "screenshots": [], "verification": null, "result": null
+    }
+  ]
+}
