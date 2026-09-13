@@ -58,7 +58,7 @@ function doPost(e) {
     });
     sh.appendRow(row);
     // Optional alert:
-    // MailApp.sendEmail('hello@moodily.in', 'New lead: ' + p.service + ' / ' + p.budget, row.join('\n'));
+    // MailApp.sendEmail('onlinedesk120@gmail.com', 'New lead: ' + p.service + ' / ' + p.budget, row.join('\n'));
     return ContentService.createTextOutput('ok');
   } finally {
     lock.releaseLock();
