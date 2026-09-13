@@ -272,3 +272,20 @@ legend{font-weight:800;font-size:1.1rem;margin-bottom:12px}
 .fab-wa{position:fixed;right:16px;bottom:16px;z-index:90;display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px;border-radius:var(--r-pill);background:var(--wa);color:#fff!important;font-weight:800;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.35);font-family:var(--font)}
 .fab-wa .ico{width:24px;height:24px}
 @media (max-width:480px){.fab-wa span{display:none}.fab-wa{padding:0 14px}}
+
+/* founding offer */
+html:not(.offer-ended) .regular-only{display:none!important}
+html.offer-ended .offer-only{display:none!important}
+.offer-banner{background:linear-gradient(90deg,#C2410C,#7B2FFF);color:#fff}
+.offer-inner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 20px}
+.offer-banner p{margin:0;color:#fff;font-size:.93rem}
+.offer-banner .badge-offer{background:#fff;color:#C2410C}
+.offer-btn{background:#fff;color:#3B0F8C!important;margin-left:auto}
+.badge-offer{background:#C2410C;color:#fff;border-color:transparent;margin:0 6px 0 0}
+.price-was{color:var(--muted);font-size:1rem;font-weight:600}
+.offer-note{font-size:.9rem;color:var(--muted);margin:6px 0 0}
+[data-countdown]{font-variant-numeric:tabular-nums;font-weight:800}
+.offer-section{background:radial-gradient(700px 300px at 10% 0%,rgba(255,107,53,.12),transparent),var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.offer-section .countdown{color:var(--secondary)}
+.terms-list li{margin-bottom:.6em}
+@media (max-width:640px){.offer-btn{margin-left:0}}

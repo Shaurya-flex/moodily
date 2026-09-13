@@ -9,7 +9,6 @@ Values the site needs from the owner. Nothing here was invented — fill real da
 - **founder**: TODO: founder full name, one-line role, short bio and LinkedIn URL (brief mentions 'Saurabh' — confirm before publishing)
 - **site**: TODO: official profile URLs only (LinkedIn page, YouTube, Instagram, X). These feed Organization.sameAs.
 - **form**: TODO: Google Apps Script web-app URL (see _project/03-forms-payments-analytics.md). Empty = submissions go to the thank-you page with a mandatory WhatsApp hand-off.
-- **payments**: No payment provider approved. Products/services use enquiry or WhatsApp checkout until a provider (Razorpay/Cashfree/PhonePe/Stripe/Lemon Squeezy etc.) is approved and a hosted payment-link URL is added per product.
 - **free_audit**: CONFIRM the owner can deliver this promise (2 working days, 3 suggestions).
 
 ## src/data/services.json

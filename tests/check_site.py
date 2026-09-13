@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Static checks for the generated site. Run after build.py:  python3 tests/check_site.py"""
+import html as html_lib
 import json
 import re
 import sys
@@ -93,6 +94,40 @@ def resolve(href):
     return target
 
 
+def check_prices(pages):
+    """One price per service: no hard-coded amounts in sources, and every rendered 'Service name … ₹X' must match services.json."""
+    site = json.loads((ROOT / "src/site.json").read_text(encoding="utf-8"))
+    services = json.loads((ROOT / "src/data/services.json").read_text(encoding="utf-8"))["services"]
+    offer = site.get("offer") or {}
+
+    for f in sorted((ROOT / "src/pages").rglob("*.html")) + [ROOT / "src/data/faqs.json"]:
+        text = f.read_text(encoding="utf-8")
+        for m in re.finditer(r"₹\s?\d[\d,]*", text):
+            fail(str(f.relative_to(ROOT)), "hard-coded price {} — use {{{{price:<service-id>}}}}".format(m.group(0)))
+
+    allowed = {}
+    for s in services:
+        if not s.get("price_from") or len(s["name"]) < 12:
+            continue
+        ok = {s["price_from"]}
+        if s["id"] in offer.get("services", []):
+            ok.add(s["price_from"] * (100 - int(offer["discount_pct"])) // 100)
+        allowed[s["name"]] = ok
+    name_re = re.compile("|".join(re.escape(n) for n in sorted(allowed, key=len, reverse=True)))
+    price_re = re.compile(r"₹\s?([0-9][0-9,]*)")
+    for rel, (_, text) in pages.items():
+        plain = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style|svg)\b.*?</\1>", "", text, flags=re.S))
+        plain = re.sub(r"\s+", " ", html_lib.unescape(plain))
+        found = [(m.end(), m.group(0), m.start()) for m in name_re.finditer(plain)]
+        for i, (end, name, _) in enumerate(found):
+            stop = min(found[i + 1][2] if i + 1 < len(found) else len(plain), end + 90)
+            pm = price_re.search(plain, end, stop)
+            if pm and int(pm.group(1).replace(",", "")) not in allowed[name]:
+                fail(rel, "price mismatch: '{}' shown with ₹{} (allowed {})".format(name, pm.group(1), sorted(allowed[name])))
+        if (site.get("payments") or {}).get("mode") != "live" and re.search(r'href="[^"]*(razorpay\.com|rzp\.io|razorpay\.me)', text):
+            fail(rel, "Razorpay link rendered while payments.mode is not 'live' (test links must never reach production)")
+
+
 def main():
     files = json.loads((ROOT / ".build-manifest.json").read_text())
     pages, titles = {}, {}
@@ -162,6 +197,8 @@ def main():
         rel = str(target.relative_to(ROOT))
         if 'content="noindex' in pages[rel][1]:
             fail("sitemap.xml", "noindex page listed: " + url)
+
+    check_prices(pages)
 
     robots = (ROOT / "robots.txt").read_text()
     if "Sitemap: https://moodily.in/sitemap.xml" not in robots or "Disallow: /\n" in robots:

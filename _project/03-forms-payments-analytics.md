@@ -41,7 +41,7 @@ Covers deliverable **G** and sections 14–16, 23.
 ```js
 const SHEET = 'Leads';
 const FIELDS = ['submitted_at','name','whatsapp','email','city','role','language','service','budget',
-  'deadline','link','goal','message','attachment_link','consent','page'];
+  'deadline','link','goal','message','attachment_link','consent','offer','page'];
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
