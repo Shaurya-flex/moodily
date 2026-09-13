@@ -289,3 +289,8 @@ html.offer-ended .offer-only{display:none!important}
 .offer-section .countdown{color:var(--secondary)}
 .terms-list li{margin-bottom:.6em}
 @media (max-width:640px){.offer-btn{margin-left:0}}
+
+/* checkout */
+.pay-msg{flex-basis:100%;margin:6px 0 0;font-weight:600;color:var(--danger)}
+.pay-msg:empty{display:none}
+button.btn[disabled]{opacity:.7;cursor:progress;transform:none}

@@ -83,6 +83,117 @@
     }
   }
 
+  // ---------- Razorpay Standard Checkout (buttons exist only when payments are enabled — see _project/06)
+  var checkoutButtons = document.querySelectorAll('[data-checkout]');
+  if (checkoutButtons.length) {
+    var loadCheckout = function () {
+      return new Promise(function (resolve, reject) {
+        if (window.Razorpay) return resolve();
+        var s = document.createElement('script');
+        s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        s.onload = resolve;
+        s.onerror = function () { reject(new Error('Razorpay checkout load नहीं हुआ')); };
+        document.head.appendChild(s);
+      });
+    };
+    var postJSON = function (url, data) {
+      return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (b) {
+            if (!r.ok) throw new Error(b.error || 'Server error (' + r.status + ')');
+            return b;
+          });
+        });
+    };
+    checkoutButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var api = btn.getAttribute('data-api') || '';
+        var base = api === '/' ? '' : api.replace(/\/$/, '');
+        var serviceId = btn.getAttribute('data-checkout');
+        var label = btn.textContent;
+        var msg = btn.parentNode.querySelector('.pay-msg[data-for="' + serviceId + '"]');
+        if (!msg) {
+          msg = document.createElement('p');
+          msg.className = 'pay-msg';
+          msg.setAttribute('role', 'alert');
+          msg.setAttribute('data-for', serviceId);
+          btn.parentNode.appendChild(msg);
+        }
+        var failed = false;
+        var show = function (text) { msg.textContent = text; };
+        var reset = function () { btn.disabled = false; btn.textContent = label; };
+        btn.disabled = true;
+        btn.textContent = 'Checkout खुल रहा है…';
+        show('');
+        Promise.all([loadCheckout(), postJSON(base + '/api/create-order', { service_id: serviceId })])
+          .then(function (res) {
+            var order = res[1];
+            var rzp = new window.Razorpay({
+              key: order.key_id,
+              amount: order.amount,
+              currency: order.currency,
+              order_id: order.order_id,
+              name: order.name || 'Moodily',
+              description: order.description,
+              notes: { service_id: serviceId },
+              theme: { color: '#7B2FFF' },
+              handler: function (resp) {
+                btn.textContent = 'Payment verify हो रहा है…';
+                postJSON(base + '/api/verify-payment', {
+                  razorpay_order_id: resp.razorpay_order_id,
+                  razorpay_payment_id: resp.razorpay_payment_id,
+                  razorpay_signature: resp.razorpay_signature
+                }).then(function (v) {
+                  track('payment_success', { label: serviceId });
+                  try { sessionStorage.setItem('moodily_payment', JSON.stringify({ service: order.description, order_id: v.order_id, payment_id: v.payment_id })); } catch (e) {}
+                  location.href = '/payment/success/';
+                }).catch(function (err) {
+                  track('payment_verify_failed', { label: serviceId });
+                  reset();
+                  show('Payment verify नहीं हो सका (' + err.message + ')। कृपया Payment ID ' + resp.razorpay_payment_id + ' के साथ WhatsApp करें — हम dashboard में जाँच करेंगे।');
+                });
+              },
+              modal: {
+                ondismiss: function () {
+                  track('payment_dismissed', { label: serviceId });
+                  reset();
+                  if (!failed) show('Payment cancel हो गया। आप दोबारा कोशिश कर सकते हैं या WhatsApp पर पूछ सकते हैं।');
+                }
+              }
+            });
+            rzp.on('payment.failed', function (r) {
+              failed = true;
+              track('payment_failed', { label: serviceId, reason: (r.error && r.error.reason) || '' });
+              show('Payment fail हुआ: ' + ((r.error && r.error.description) || 'कृपया दोबारा कोशिश करें') + '। पैसा कटा हो तो bank उसे अपने-आप लौटा देता है।');
+            });
+            rzp.open();
+            btn.textContent = label;
+          })
+          .catch(function (err) {
+            reset();
+            show('Checkout शुरू नहीं हो सका: ' + err.message);
+          });
+      });
+    });
+  }
+
+  // ---------- payment success page (details from sessionStorage, never from URL)
+  var payOk = document.getElementById('payOk');
+  if (payOk) {
+    var pay = null;
+    try { pay = JSON.parse(sessionStorage.getItem('moodily_payment') || 'null'); } catch (e) {}
+    if (pay && pay.payment_id) {
+      payOk.hidden = false;
+      document.getElementById('payUnknown').hidden = true;
+      document.getElementById('payService').textContent = pay.service || '';
+      document.getElementById('payOrder').textContent = pay.order_id;
+      document.getElementById('payId').textContent = pay.payment_id;
+      var payWa = document.getElementById('payWa');
+      payWa.setAttribute('href', payWa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent(
+        'Namaste Moodily,\nMaine ' + (pay.service || '') + ' ka payment kar diya hai.\nOrder ID: ' + pay.order_id + '\nPayment ID: ' + pay.payment_id + '\nOnboarding shuru karein.'));
+    }
+  }
+
   // ---------- learn: expand/collapse + private star rating (kept from original site)
   document.querySelectorAll('[data-stages]').forEach(function (btn) {
     btn.addEventListener('click', function () {

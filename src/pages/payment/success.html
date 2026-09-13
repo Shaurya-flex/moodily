@@ -1,0 +1,26 @@
+<!--meta {
+  "title": "Payment status — Moodily",
+  "description": "Moodily payment की स्थिति और अगला step — WhatsApp पर onboarding शुरू करें।",
+  "lang": "hi",
+  "noindex": true
+} -->
+<section class="page-hero">
+  <div class="container narrow">
+    <p class="eyebrow">Payment</p>
+    <h1>Payment की स्थिति</h1>
+    <div id="payOk" hidden>
+      <p class="lead">✅ Payment verify हो गया। आपका <strong id="payService"></strong> slot book हो गया है।</p>
+      <dl class="facts compact">
+        <div><dt>Order ID</dt><dd id="payOrder"></dd></div>
+        <div><dt>Payment ID</dt><dd id="payId"></dd></div>
+      </dl>
+      <p>अगला step: WhatsApp पर onboarding शुरू करें। हम 1 working day में जवाब देंगे। Receipt Razorpay की ओर से आपके email/SMS पर आती है।</p>
+      <p class="btn-row"><a id="payWa" class="btn btn-wa btn-lg" href="https://wa.me/{{site.whatsapp.number}}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="payment-success">WhatsApp पर onboarding शुरू करें</a></p>
+    </div>
+    <div id="payUnknown">
+      <p class="lead">इस page पर payment की जानकारी नहीं मिली। अगर पैसा कट गया है तो Payment ID (Razorpay SMS/email में) के साथ हमसे संपर्क करें — हम Razorpay dashboard में जाँचकर पुष्टि करेंगे।</p>
+      <p class="btn-row"><a class="btn btn-wa" href="https://wa.me/{{site.whatsapp.number}}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="payment-unknown">WhatsApp करें</a>
+        <a class="btn btn-outline" href="mailto:{{site.email}}">Email करें</a></p>
+    </div>
+  </div>
+</section>

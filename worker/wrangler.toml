@@ -1,0 +1,11 @@
+name = "moodily-payments"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://moodily.in,https://www.moodily.in"
+CATALOG_URL = "https://moodily.in/assets/data/checkout-prices.json"
+
+# Secrets are NOT stored here. Set them once from this folder:
+#   npx wrangler secret put RAZORPAY_KEY_ID
+#   npx wrangler secret put RAZORPAY_KEY_SECRET

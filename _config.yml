@@ -4,6 +4,7 @@ exclude:
   - src
   - tests
   - scripts
+  - worker
   - build.py
   - rebuild_site.py
   - README.md

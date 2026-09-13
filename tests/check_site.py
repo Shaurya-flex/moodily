@@ -124,8 +124,41 @@ def check_prices(pages):
             pm = price_re.search(plain, end, stop)
             if pm and int(pm.group(1).replace(",", "")) not in allowed[name]:
                 fail(rel, "price mismatch: '{}' shown with ₹{} (allowed {})".format(name, pm.group(1), sorted(allowed[name])))
-        if (site.get("payments") or {}).get("mode") != "live" and re.search(r'href="[^"]*(razorpay\.com|rzp\.io|razorpay\.me)', text):
-            fail(rel, "Razorpay link rendered while payments.mode is not 'live' (test links must never reach production)")
+        if (site.get("payments") or {}).get("mode") != "live":
+            if re.search(r'href="[^"]*(razorpay\.com|rzp\.io|razorpay\.me)', text):
+                fail(rel, "Razorpay link rendered while payments.mode is not 'live' (test links must never reach production)")
+            if "data-checkout=" in text:
+                fail(rel, "checkout button rendered while payments.mode is not 'live' (rebuild without MOODILY_SHOW_TEST_PAYMENTS)")
+
+
+def check_no_secrets():
+    """Razorpay keys must never be committed: only .env (gitignored) may hold them."""
+    env = ROOT / ".env"
+    secret_values = []
+    if env.exists():
+        for line in env.read_text(encoding="utf-8").splitlines():
+            if "=" in line and not line.strip().startswith("#"):
+                value = line.split("=", 1)[1].strip()
+                if len(value) >= 12:
+                    secret_values.append(value)
+    ignore = {".git", "node_modules", ".wrangler", "__pycache__", ".claude", ".claude-flow"}
+    key_re = re.compile(r"rzp_(test|live)_[A-Za-z0-9]{10,}")
+    for path in ROOT.rglob("*"):
+        if path.is_dir() or any(part in ignore for part in path.parts) or path.name in (".env", ".dev.vars"):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        rel = str(path.relative_to(ROOT))
+        if key_re.search(text):
+            fail(rel, "Razorpay key id found in a committed file — keys belong in .env / Worker secrets only")
+        for value in secret_values:
+            if value in text:
+                fail(rel, "a value from .env appears in this file — never commit secrets")
+    gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    if ".env" not in gitignore.split():
+        fail(".gitignore", ".env must be gitignored")
 
 
 def main():
@@ -199,6 +232,7 @@ def main():
             fail("sitemap.xml", "noindex page listed: " + url)
 
     check_prices(pages)
+    check_no_secrets()
 
     robots = (ROOT / "robots.txt").read_text()
     if "Sitemap: https://moodily.in/sitemap.xml" not in robots or "Disallow: /\n" in robots:
