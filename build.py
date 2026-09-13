@@ -67,7 +67,7 @@ def _offer_state():
 
 
 OFFER_STATE = _offer_state()
-NO_BANNER = {"/privacy/", "/terms/", "/refund/", "/contact/thanks/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
+NO_BANNER = {"/privacy/", "/terms/", "/refund/", "/contact/thanks/", "/payment/success/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
 
 
 def offer_deadline_hi():
@@ -89,6 +89,11 @@ def offer_pay_button(svc, cls="btn btn-primary"):
     price = inr(offer_price(svc))
     link = (OFFER.get("payment_links") or {}).get(svc["id"]) or ""
     allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
+    if api and allowed:
+        test = ' <span class="badge">TEST MODE</span>' if PAYMENTS.get("mode") != "live" else ""
+        return '<button type="button" class="{} offer-only" data-checkout="{}" data-api="{}" data-track="checkout_click" data-label="{}-{}">₹{} अभी pay करें</button>{}'.format(
+            cls, svc["id"], e(api), OFFER["id"], svc["id"], price, test)
     if link and allowed:
         test = ' <span class="badge">TEST MODE</span>' if PAYMENTS.get("mode") != "live" else ""
         return '<a class="{} offer-only" href="{}" target="_blank" rel="noopener" data-track="checkout_click" data-label="{}-{}">₹{} में slot book करें</a>{}'.format(
@@ -930,6 +935,20 @@ def owner_todo():
     (ROOT / "_project" / "OWNER-TODO.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def write_checkout_catalog():
+    """Server-side price list for the payments API (worker/ and scripts/dev_server.py). Browsers never choose the amount."""
+    items = {}
+    for sid in OFFER.get("services", []):
+        s = SERVICES[sid]
+        items[sid] = {"name": "{} — {}".format(OFFER["name"], s["name"]), "amount_paise": offer_price(s) * 100}
+    data = {"currency": "INR", "items": items,
+            "offer": {"id": OFFER.get("id"), "active": bool(OFFER_STATE), "ends_at": OFFER.get("ends_at"),
+                      "slots_left": OFFER_STATE["left"] if OFFER_STATE else 0}}
+    out = ROOT / "assets" / "data" / "checkout-prices.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def validate_offer():
     if not OFFER:
         return
@@ -991,8 +1010,9 @@ def main():
 
     urls = "".join("<url><loc>{}{}</loc><lastmod>{}</lastmod><priority>{}</priority></url>".format(BASE, r, TODAY, p) for r, p in sitemap)
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{}</urlset>\n'.format(urls), encoding="utf-8")
-    (ROOT / "robots.txt").write_text("User-agent: *\nAllow: /\nDisallow: /contact/thanks/\n\nSitemap: {}/sitemap.xml\n".format(BASE), encoding="utf-8")
+    (ROOT / "robots.txt").write_text("User-agent: *\nAllow: /\nDisallow: /contact/thanks/\nDisallow: /payment/\n\nSitemap: {}/sitemap.xml\n".format(BASE), encoding="utf-8")
     MANIFEST.write_text(json.dumps(sorted(written), indent=0))
+    write_checkout_catalog()
     owner_todo()
     print("Built {} pages, {} in sitemap. Owner TODOs: _project/OWNER-TODO.md".format(len(written), len(sitemap)))
     for w in WARNINGS:

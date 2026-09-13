@@ -1,7 +1,10 @@
 {
   "_readme": "Central site config. Empty strings/nulls are TODO placeholders — build.py lists every missing value in _project/OWNER-TODO.md. Never put secrets here (this repo is public).",
   "name": "Moodily",
-  "alternate_names": ["Moodily.in", "Moodily Digital Saathi"],
+  "alternate_names": [
+    "Moodily.in",
+    "Moodily Digital Saathi"
+  ],
   "url": "https://moodily.in",
   "disambiguation": "Moodily (moodily.in) is an Indian bilingual (Hindi + English) digital business, learning and services platform. Not related to Moody's or the English adverb 'moodily'.",
   "tagline_hi": "सीखें. डिजिटल बनें. बढ़ें.",
@@ -38,7 +41,8 @@
   "payments": {
     "provider": "razorpay",
     "mode": "test",
-    "_readme": "NEVER put the Razorpay Key Secret in this repo (it is public). Payment Pages need no keys on the site: create one Payment Page per offer service in the Razorpay Dashboard and paste its URL into offer.payment_links below. While mode is 'test', payment buttons are hidden from the production build; preview them locally with MOODILY_SHOW_TEST_PAYMENTS=1 python3 build.py. Switch mode to 'live' only with LIVE payment-page URLs."
+    "_readme": "Razorpay Standard Checkout. NO keys in this file or repo (public). Keys live in the Cloudflare Worker secrets (worker/) and, for local testing only, in the gitignored .env. api_base = deployed Worker URL, e.g. https://moodily-payments.<account>.workers.dev. Pay buttons render only when api_base is set AND mode is 'live'; preview test mode locally with MOODILY_SHOW_TEST_PAYMENTS=1 MOODILY_CHECKOUT_API=/ python3 build.py + python3 scripts/dev_server.py (do not commit that build). Fallback when api_base is empty: offer.payment_links (Razorpay Payment Pages), else offer-tagged enquiry.",
+    "api_base": ""
   },
   "offer": {
     "id": "founding-10",
@@ -50,7 +54,11 @@
     "slots_total": 10,
     "slots_taken": 0,
     "_slots_readme": "Update slots_taken after every confirmed paid booking, then rebuild and push. The counter must always be true (CCPA dark-patterns guidelines prohibit false urgency/scarcity).",
-    "services": ["digital-business-starter", "medical-store-digital-desk", "professional-authority-pack"],
+    "services": [
+      "digital-business-starter",
+      "medical-store-digital-desk",
+      "professional-authority-pack"
+    ],
     "payment_links": {
       "digital-business-starter": "",
       "medical-store-digital-desk": "",

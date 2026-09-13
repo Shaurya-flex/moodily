@@ -1,4 +1,4 @@
-# 06 — Founding 10 offer & Razorpay setup
+# 06 — Founding 10 offer & Razorpay Standard Checkout
 
 ## Decision: where the 70% discount applies
 
@@ -10,82 +10,108 @@
 | Medical Store Digital Desk | ₹9,999 | ₹2,999 |
 | Professional Authority Pack | ₹14,999 | ₹4,499 |
 
-Why these three (validated against Indian market rates, see `07-india-market-rates.md`):
-- **Digital Business Starter:** the highest-demand, easiest-to-explain problem for Hindi-first SMBs (Google Maps + WhatsApp). Template-driven delivery in 5–7 days, and GBP before/after data makes a clear case study.
-- **Medical Store Digital Desk:** a clear niche. The SOP and message templates are reusable for every chemist.
-- **Professional Authority Pack:** writing-only (no tool costs), and the client's LinkedIn profile is a public showcase that attracts other professionals.
-- All three are sold as one-time packages at or within market range, so the struck-through price is credible. Customers can upgrade to Business Growth Launch, Digital Saathi Monthly or LinkedIn retainers.
+These three are validated against Indian market rates (see `07-india-market-rates.md`):
+- **Digital Business Starter:** the highest-demand, easiest-to-explain problem for Hindi-first SMBs (Google Maps + WhatsApp). Template delivery takes 5–7 days, and GBP before/after data makes a clear case study.
+- **Medical Store Digital Desk:** a clear niche with an SOP and templates that can be reused for every chemist.
+- **Professional Authority Pack:** writing only, with no tool costs, and the client's LinkedIn profile is a public showcase.
 
-**AI Automation Starter was considered and excluded.** Its ₹7,500 is already well below Indian market rates (₹15k+ per workflow), so 70% off would attract the wrong buyers.
-
-Excluded, and why:
-- **Monthly retainers** (Digital Saathi Monthly, LinkedIn): the discount would repeat every month or anchor a price the client expects to keep.
-- **High-ticket projects** (Growth Launch, Research, Knowledge-to-Product, Content Engine): the absolute loss is too large, and those buyers are less price-driven.
-- **Education**: custom quote.
+AI Automation Starter is excluded because it is already below market (₹15k+ per workflow). Retainers, high-ticket services and education are excluded as well.
 
 ## Urgency that is legal and honest
 
-The Consumer Protection Act 2019, the CCPA misleading-advertisement guidelines (2022) and the CCPA dark-patterns guidelines (2023, which list "false urgency") mean the offer must follow these rules:
+The Consumer Protection Act 2019, the CCPA misleading-ads guidelines (2022) and the CCPA dark-patterns guidelines (2023), which cover "false urgency", apply:
+- Keep one fixed `offer.ends_at` for every visitor.
+- Keep `slots_taken` true.
+- The struck-through price must be the already-published regular price.
+- Deliver the same scope as the regular package.
+- Never trade the discount for Google reviews.
 
-- **Real deadline.** `offer.ends_at` in `src/site.json` is one fixed moment for everyone. The countdown never resets per visitor.
-- **Real scarcity.** `slots_total` / `slots_taken` must be true. Update `slots_taken` after every confirmed paid booking.
-- **Genuine reference price.** The struck-through price is the regular starting price already published on the site. Don't raise regular prices just before or during the offer.
-- **Same scope.** Founding customers get exactly the regular deliverables.
-- **No review-for-discount.** Incentivised Google reviews break Google's policy. Case-study use needs written permission and is not a condition of the discount.
+This is not legal advice.
 
-This is not legal advice; confirm with your advisor if unsure.
+The site hides the offer automatically after the deadline (JS instantly; the next build removes it entirely) or when `slots_taken == slots_total`. Analytics events: `offer_view`, `offer_cta_click`, `checkout_click`, `payment_success`, `payment_failed`, `payment_dismissed`, `payment_verify_failed`.
 
-## How the site behaves (automatic)
+---
 
-| State | What visitors see |
-|---|---|
-| Active, inside window, slots left | Offer section on home. Slim banner on all pages except legal, thanks, 404 and the offer page. Struck price + founding price on the 3 packages. Live countdown and "X/10 slots बाकी". `/offers/founding-10/` terms page (noindex). |
-| Deadline passes (visitor already on page) | JS hides all offer UI and shows regular prices instantly. |
-| Next build after deadline, or `slots_taken == slots_total` | Offer markup is not generated at all. The weekly Monday workflow rebuilds automatically. |
+## Razorpay Standard Checkout (implemented)
 
-Analytics events: `offer_view`, `offer_cta_click` and `checkout_click` (label = offer-service). Enquiries arriving through the offer carry `offer=founding-10` in the form data and the WhatsApp message.
+The site is static (GitHub Pages), so the secret-holding backend runs separately:
 
-## Razorpay: where the keys go
+```
+Browser (moodily.in)                      Payments API (Cloudflare Worker / local dev server)          Razorpay
+  click "₹1,499 अभी pay करें" ──POST /api/create-order {service_id}──▶ price from checkout-prices.json
+                                                                        (never from the browser)
+                                                                        checks deadline + slots ──POST /v1/orders (Basic auth)──▶
+  ◀── {order_id, amount, currency, key_id} ─────────────────────────────────────────────────────────────── order_xxx
+  checkout.js modal (order_id) ─────────────────────────────── payment ─────────────────────────────────────▶
+  handler(resp) ──POST /api/verify-payment {order_id, payment_id, signature}──▶ HMAC-SHA256(order|payment, SECRET)
+  ◀── 200 {verified:true} → /payment/success/     or 400 (not paid)
+```
 
-**Short answer: no key goes into this repository. It is public on GitHub, so anyone can read it.**
+### Where the keys live
 
-| Credential | Needed now? | Where it goes |
+| Where | Key ID | Key Secret |
 |---|---|---|
-| Key ID (`rzp_test_…` / `rzp_live_…`) | No, Payment Pages don't need it | Later, only if we build custom Checkout: `src/site.json → payments.razorpay_key_id` (public by design) |
-| **Key Secret** | No | **Never** in the repo, chat, email or WhatsApp. Only in a server-side secret store (Google Apps Script Script Properties, Cloudflare Worker secret, Vercel/Netlify env var) when a backend that creates orders and verifies signatures exists. |
-| Webhook secret | No | Same as Key Secret |
+| GitHub repo / website HTML / JS | ❌ never | ❌ never |
+| `.env` (repo root, gitignored) — local testing only | ✅ | ✅ |
+| Cloudflare Worker secrets — production | ✅ `wrangler secret put RAZORPAY_KEY_ID` | ✅ `wrangler secret put RAZORPAY_KEY_SECRET` |
+| Browser | only via the create-order response | ❌ never |
 
-If a secret has been pasted anywhere public, regenerate it: Razorpay Dashboard → Account & Settings → API Keys.
+`tests/check_site.py` fails if any committed file contains a Razorpay key or any value from `.env`.
 
-### Recommended now: Razorpay Payment Pages (no code, no keys on the site)
+### Files
+| File | Role |
+|---|---|
+| `worker/src/index.js`, `worker/wrangler.toml`, `worker/package.json` | Production API: `POST /api/create-order` and `POST /api/verify-payment`, with CORS for moodily.in |
+| `scripts/dev_server.py` | Local site and the same API, reading `.env`. Never serves dotfiles or source folders. |
+| `assets/data/checkout-prices.json` | Generated by `build.py`: server-side amounts in paise, plus offer state |
+| `assets/js/site.js` (checkout section) | Loads checkout.js on click, opens the modal, verifies, and handles dismiss, failure and errors |
+| `src/pages/payment/success.html` | Confirmation page and WhatsApp onboarding (noindex, disallowed in robots) |
+| `tests/test_payments.py`, `tests/worker.test.mjs` | Unit tests: amounts, minimum 100 paise, 401/500 mapping, 409 after deadline or sold out, signature ok/mismatch/missing, CORS |
 
-1. Razorpay Dashboard → switch to **Test Mode**.
-2. **Payment Pages → Create**, one page per package:
-   - Title: e.g. "Founding 10 — Digital Business Starter"
-   - Fixed amount: ₹1,499 / ₹2,999 / ₹2,250
-   - Customer fields: Name, Phone, Email, Business name, City
-   - Description: copy the package deliverables and link to `https://moodily.in/offers/founding-10/`
-   - Success message: "Payment मिल गया — 1 working day में WhatsApp पर onboarding शुरू होगी।"
-   - If Razorpay offers an expiry or stock limit for the page, set it to the offer deadline / 10.
-3. Copy each page URL into `src/site.json → offer.payment_links` for the matching service id.
-4. Preview locally with the buttons visible (do **not** commit this build):
-   ```bash
-   MOODILY_SHOW_TEST_PAYMENTS=1 python3 build.py
-   python3 -m http.server 8123
-   ```
-   Pay with Razorpay test cards/UPI and confirm the success flow.
-5. Rebuild normally (`python3 build.py`) before committing. While `payments.mode` is `"test"`, the production build never shows Razorpay buttons (the test suite enforces it). Visitors see "₹X वाला slot पाएँ", which opens the enquiry form tagged with the offer.
-6. **Go live:** complete Razorpay KYC and activation, recreate the 3 pages in **Live Mode**, replace the URLs, set `payments.mode` to `"live"`, then build, test and push.
+### Error handling
+- **Create order:**
+  - Unknown service or amount below 100 paise → 400.
+  - Offer ended or sold out → 409.
+  - Razorpay auth failure → 401.
+  - Any other Razorpay or network error → 500.
+  - Secrets not configured → 500.
+- **Verify:** missing fields → 400; signature mismatch → 400 `{verified:false}`, and the payment is not treated as paid.
+- **Frontend:**
+  - Modal dismissed → "Payment cancel हो गया".
+  - `payment.failed` → shows Razorpay's error description.
+  - Verification failure → asks the customer to WhatsApp their Payment ID.
+  - Server or network errors → shown inline.
 
-### After every paid booking (2 minutes)
-1. Confirm the payment in Razorpay Dashboard → Payments.
-2. `src/site.json → offer.slots_taken` += 1.
-3. `python3 build.py && python3 tests/check_site.py`, then commit and push.
-4. If two payments race past slot 10, refund the extra one within 7 working days (promised in the terms).
+### Test locally now (test keys)
+```bash
+python3 tests/test_payments.py && node --test tests/worker.test.mjs
+MOODILY_SHOW_TEST_PAYMENTS=1 MOODILY_CHECKOUT_API=/ python3 build.py   # preview build with pay buttons
+python3 scripts/dev_server.py                                           # http://localhost:8124
+```
+1. Open http://localhost:8124/offers/founding-10/ and click **"₹1,499 अभी pay करें"**.
+2. In the Razorpay test modal, pay with a test method from https://razorpay.com/docs/payments/payments/test-card-details/ (e.g. UPI `success@razorpay`).
+3. You should land on `/payment/success/` with Order ID and Payment ID. The payment appears in Dashboard (Test Mode) → Payments.
+4. Try cancelling the modal and a failing test method to see the error messages.
+5. **Before committing, rebuild normally:** `python3 build.py`. The tests fail if checkout buttons are left in a test-mode build.
 
-### Later (optional): custom Checkout with Orders API
-Needed only for an in-page popup, automatic slot counting or instant confirmations. Add a small backend (Apps Script or Cloudflare Worker) that holds the Key Secret, creates orders, verifies `razorpay_signature` and receives the `payment.captured` webhook to increment slots in a Google Sheet. The site then needs only the Key ID.
+### Deploy to production (one-time, ~10 minutes, needs your Cloudflare account)
+```bash
+cd worker
+npx wrangler login                          # opens browser; free Cloudflare account
+npx wrangler secret put RAZORPAY_KEY_ID     # paste key id when prompted
+npx wrangler secret put RAZORPAY_KEY_SECRET # paste secret when prompted (never shown or stored in files)
+npx wrangler deploy                         # prints https://moodily-payments.<account>.workers.dev
+```
+Then:
+1. `src/site.json → payments.api_base` = the Worker URL. Optionally add a custom domain such as `api.moodily.in` in Cloudflare.
+2. **Going live:** complete Razorpay KYC/activation and generate **live** keys. Run `wrangler secret put` again with the live keys, set `payments.mode` to `"live"`, then `python3 build.py && python3 tests/check_site.py`, commit and push.
+3. Make one small real payment and refund it from the dashboard.
 
-## Ending or reusing the offer
-- **End early:** set `offer.active` to `false`, then build and push.
-- **New campaign:** change `id`, `name`, dates, `services`, `payment_links`, and reset `slots_taken` to 0.
+Until `api_base` is set **and** mode is `live`, production shows the offer-tagged enquiry button (or Payment Page links if configured), so test checkout never reaches real visitors.
+
+### Recommended next (not yet built)
+- **Webhook** `payment.captured` → Worker: confirms payments even if the browser closes before verification. Store in a Google Sheet and count slots automatically.
+- Until then, after every paid booking: confirm in Dashboard → Payments, set `offer.slots_taken` += 1, build and push.
+
+### If a secret is exposed
+Razorpay Dashboard → Account & Settings → API Keys → **Regenerate**, then update `.env` and the Worker secrets. The test Key Secret for this project was shared in a chat, so regenerate it once testing is done.

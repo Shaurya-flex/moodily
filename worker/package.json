@@ -1,0 +1,10 @@
+{
+  "name": "moodily-payments",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test ../tests/worker.test.mjs",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy"
+  }
+}

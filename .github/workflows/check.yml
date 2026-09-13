@@ -13,6 +13,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Build
         run: python build.py
       - name: Generated HTML must be committed
@@ -26,3 +29,7 @@ jobs:
           fi
       - name: Site checks
         run: python tests/check_site.py
+      - name: Payments API tests (Python dev server)
+        run: python tests/test_payments.py
+      - name: Payments API tests (Cloudflare Worker)
+        run: node --test tests/worker.test.mjs

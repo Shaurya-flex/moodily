@@ -2,3 +2,10 @@
 .claude/
 .claude-flow/
 __pycache__/
+# secrets — never commit
+.env
+.env.*
+!.env.example
+.dev.vars
+worker/.wrangler/
+node_modules/
