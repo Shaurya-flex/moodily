@@ -62,6 +62,27 @@
   var legacy = { '#curriculum': '/learn/#curriculum', '#learn': '/learn/', '#services': '/services/ai-workflows/', '#linkedin': '/services/professionals/#linkedin', '#tools': '/tools/', '#intake': '/contact/', '#weekly-tip': '/learn/#weekly-tip', '#why': '/about/' };
   if (location.pathname === '/' && legacy[location.hash]) location.replace(legacy[location.hash]);
 
+  // ---------- founding offer countdown (fixed deadline from src/site.json — never resets per visitor)
+  var offerEnds = root.getAttribute('data-offer-ends');
+  if (offerEnds) {
+    var endAt = Date.parse(offerEnds);
+    var countdowns = document.querySelectorAll('[data-countdown]');
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var timer;
+    var tick = function () {
+      var ms = endAt - Date.now();
+      if (ms <= 0) { root.classList.add('offer-ended'); clearInterval(timer); return; }
+      var d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4), s = Math.floor(ms % 6e4 / 1e3);
+      var txt = (d ? d + ' दिन ' : '') + pad(h) + ':' + pad(m) + ':' + pad(s);
+      countdowns.forEach(function (c) { c.textContent = txt; });
+    };
+    timer = setInterval(tick, 1000);
+    tick();
+    if (!root.classList.contains('offer-ended') && document.querySelector('.offer-banner, .offer-section, .offer-note')) {
+      track('offer_view', { label: root.getAttribute('data-offer-id') || '' });
+    }
+  }
+
   // ---------- learn: expand/collapse + private star rating (kept from original site)
   document.querySelectorAll('[data-stages]').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -96,6 +117,11 @@
     var svc = params.get('service');
     var sel = form.querySelector('#f-service');
     if (svc && sel && sel.querySelector('option[value="' + CSS.escape(svc) + '"]')) sel.value = svc;
+    var offerId = form.getAttribute('data-offer-id');
+    if (offerId && params.get('offer') === offerId) {
+      form.querySelector('#f-offer').value = offerId;
+      document.getElementById('offerNote').hidden = false;
+    }
 
     var started = false;
     form.addEventListener('input', function () {
@@ -160,7 +186,7 @@
     if (lead) {
       var msg = 'Namaste Moodily,\nMain ' + (lead.name || '') + ' (' + (lead.role || '') + ') hoon.\nMujhe ' + (lead.service_label || lead.service || '') + ' chahiye.\nGoal: ' + (lead.goal || '') +
         '\nCity: ' + (lead.city || '') + '\nBudget approx: ' + (lead.budget || '') + '\nDeadline: ' + (lead.deadline || '') +
-        '\nCurrent website/social link: ' + (lead.link || '-') + '\nLanguage: ' + (lead.language || '') + (lead.message ? '\nMessage: ' + lead.message : '');
+        '\nCurrent website/social link: ' + (lead.link || '-') + (lead.offer ? '\nOffer: ' + lead.offer : '') + '\nLanguage: ' + (lead.language || '') + (lead.message ? '\nMessage: ' + lead.message : '');
       var base = thanks.getAttribute('href').split('?')[0];
       thanks.setAttribute('href', base + '?text=' + encodeURIComponent(msg));
     }

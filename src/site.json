@@ -36,8 +36,26 @@
     "success_path": "/contact/thanks/"
   },
   "payments": {
-    "provider": null,
-    "_todo": "No payment provider approved. Products/services use enquiry or WhatsApp checkout until a provider (Razorpay/Cashfree/PhonePe/Stripe/Lemon Squeezy etc.) is approved and a hosted payment-link URL is added per product."
+    "provider": "razorpay",
+    "mode": "test",
+    "_readme": "NEVER put the Razorpay Key Secret in this repo (it is public). Payment Pages need no keys on the site: create one Payment Page per offer service in the Razorpay Dashboard and paste its URL into offer.payment_links below. While mode is 'test', payment buttons are hidden from the production build; preview them locally with MOODILY_SHOW_TEST_PAYMENTS=1 python3 build.py. Switch mode to 'live' only with LIVE payment-page URLs."
+  },
+  "offer": {
+    "id": "founding-10",
+    "active": true,
+    "name": "Founding 10",
+    "discount_pct": 70,
+    "starts_at": "2026-09-13T00:00:00+05:30",
+    "ends_at": "2026-09-20T23:59:59+05:30",
+    "slots_total": 10,
+    "slots_taken": 0,
+    "_slots_readme": "Update slots_taken after every confirmed paid booking, then rebuild and push. The counter must always be true (CCPA dark-patterns guidelines prohibit false urgency/scarcity).",
+    "services": ["digital-business-starter", "medical-store-digital-desk", "professional-authority-pack"],
+    "payment_links": {
+      "digital-business-starter": "",
+      "medical-store-digital-desk": "",
+      "professional-authority-pack": ""
+    }
   },
   "free_audit": {
     "promise_hi": "आपकी Google listing, WhatsApp, website और social profile देखकर 3 सबसे ज़रूरी सुधार — 2 working days में, WhatsApp पर।",

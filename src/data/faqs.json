@@ -9,7 +9,7 @@
     {"q": "Payment कैसे होता है?", "a": "अभी हर project के लिए लिखित quote के बाद payment details WhatsApp/email पर भेजी जाती हैं। Website पर online checkout बाद में जोड़ा जाएगा।"}
   ],
   "local-business": [
-    {"q": "Google Business Profile बनाने की fees कितनी है?", "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Business Starter ₹4,999 से शुरू।"},
+    {"q": "Google Business Profile बनाने की fees कितनी है?", "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Business Starter {{price:digital-business-starter}} से शुरू।"},
     {"q": "Verification कौन करेगा?", "a": "Verification Google आपके business के नाम/नंबर/पते पर करता है, इसलिए वह step आप करते हैं। हम पहले से सब तैयार रखते हैं और हर step पर guide करते हैं।"},
     {"q": "Listing मेरे नाम पर रहेगी या आपके?", "a": "आपके। Google profile, domain, hosting और WhatsApp — सब आपके account/नाम पर। हम सिर्फ़ manager access लेते हैं जिसे आप कभी भी हटा सकते हैं।"},
     {"q": "Reviews खरीदकर या लिखकर देंगे?", "a": "नहीं। Fake या incentivized reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का आसान system (QR + message) बनाते हैं।"}

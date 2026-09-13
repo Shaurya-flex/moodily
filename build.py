@@ -16,9 +16,10 @@ See _project/05-content-editing.md for the full list.
 import hashlib
 import html
 import json
+import os
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -45,6 +46,71 @@ LEARN = load("data/learn.json")
 BASE = SITE["url"].rstrip("/")
 ORG_ID = BASE + "/#organization"
 WARNINGS = []
+
+# ---------------------------------------------------------------- offer
+OFFER = SITE.get("offer") or {}
+PAYMENTS = SITE.get("payments") or {}
+HI_MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
+HI_DAYS = ["सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार", "रविवार"]
+
+
+def _offer_state():
+    """Offer is shown only while active, inside its window and with real slots left. Re-evaluated on every build."""
+    if not OFFER.get("active"):
+        return None
+    now = datetime.now(timezone.utc)
+    start, end = datetime.fromisoformat(OFFER["starts_at"]), datetime.fromisoformat(OFFER["ends_at"])
+    left = int(OFFER["slots_total"]) - int(OFFER["slots_taken"])
+    if now < start or now > end or left <= 0:
+        return None
+    return {"left": left, "end": end}
+
+
+OFFER_STATE = _offer_state()
+NO_BANNER = {"/privacy/", "/terms/", "/refund/", "/contact/thanks/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
+
+
+def offer_deadline_hi():
+    d = OFFER_STATE["end"]
+    return "{}, {} {} {}, {}:{:02d} {} IST".format(HI_DAYS[d.weekday()], d.day, HI_MONTHS[d.month - 1], d.year,
+                                                  d.hour % 12 or 12, d.minute, "PM" if d.hour >= 12 else "AM")
+
+
+def in_offer(svc):
+    return bool(OFFER_STATE and svc["id"] in OFFER["services"] and svc.get("price_from"))
+
+
+def offer_price(svc):
+    return svc["price_from"] * (100 - int(OFFER["discount_pct"])) // 100
+
+
+def offer_pay_button(svc, cls="btn btn-primary"):
+    """Razorpay Payment Page link when allowed; otherwise an offer-tagged enquiry. Test links never reach production."""
+    price = inr(offer_price(svc))
+    link = (OFFER.get("payment_links") or {}).get(svc["id"]) or ""
+    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    if link and allowed:
+        test = ' <span class="badge">TEST MODE</span>' if PAYMENTS.get("mode") != "live" else ""
+        return '<a class="{} offer-only" href="{}" target="_blank" rel="noopener" data-track="checkout_click" data-label="{}-{}">₹{} में slot book करें</a>{}'.format(
+            cls, e(link), OFFER["id"], svc["id"], price, test)
+    return '<a class="{} offer-only" href="/contact/?service={}&amp;offer={}" data-track="offer_cta_click" data-label="{}">₹{} वाला slot पाएँ</a>'.format(
+        cls, svc["id"], OFFER["id"], svc["id"], price)
+
+
+def offer_meta_html():
+    return ('<p class="offer-note offer-only"><strong>{left}/{total}</strong> founding slots बाकी · समय बाकी: <span data-countdown>{deadline} तक</span> · '
+            '<a href="/offers/{id}/">शर्तें</a></p>').format(left=OFFER_STATE["left"], total=OFFER["slots_total"], deadline=e(offer_deadline_hi()), id=OFFER["id"])
+
+
+def offer_banner(route):
+    if not OFFER_STATE or route in NO_BANNER:
+        return ""
+    return ('<aside class="offer-banner offer-only" aria-label="{name} offer"><div class="container offer-inner">'
+            '<p><span class="badge badge-offer">{pct}% OFF</span> <strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर {pct}% छूट</p>'
+            '<p class="offer-meta"><strong>{left}/{total}</strong> slots बाकी · समय बाकी: <span data-countdown>{deadline} तक</span></p>'
+            '<a class="btn btn-sm offer-btn" href="/offers/{id}/" data-track="offer_cta_click" data-label="banner">Offer देखें →</a></div></aside>').format(
+        name=e(OFFER["name"]), pct=OFFER["discount_pct"], total=OFFER["slots_total"], left=OFFER_STATE["left"],
+        deadline=e(offer_deadline_hi()), id=OFFER["id"])
 
 
 def e(value):
@@ -126,8 +192,15 @@ def price_html(svc):
     if svc.get("price_from") is None:
         return '<p class="price"><strong>{}</strong></p>'.format(lab["custom"])
     unit = lab["month"] if svc["price_unit"] == "month" else ""
-    return '<p class="price"><span class="price-from">{}</span> <strong>₹{}</strong>{} <span class="price-from">{}</span></p>'.format(
-        lab["from"], inr(svc["price_from"]), '<span class="price-unit">{}</span>'.format(unit) if unit else "", lab["from_suffix"])
+    offer = in_offer(svc)
+    regular = '<p class="price{}"><span class="price-from">{}</span> <strong>₹{}</strong>{} <span class="price-from">{}</span></p>'.format(
+        " regular-only" if offer else "", lab["from"], inr(svc["price_from"]),
+        '<span class="price-unit">{}</span>'.format(unit) if unit else "", lab["from_suffix"])
+    if not offer:
+        return regular
+    return ('<p class="price offer-only"><span class="badge badge-offer">{pct}% OFF · {name}</span> <strong>₹{op}</strong> '
+            '<s class="price-was"><span class="sr-only">Regular starting price </span>₹{reg}</s></p>').format(
+        pct=OFFER["discount_pct"], name=e(OFFER["name"]), op=inr(offer_price(svc)), reg=inr(svc["price_from"])) + regular
 
 
 def service_card(svc, ctx):
@@ -138,10 +211,11 @@ def service_card(svc, ctx):
         '<article class="card svc-card{feat}">'
         '<p class="eyebrow">{div}</p><h3>{name}</h3><p class="muted">{tag}</p>{price}'
         '<ul class="ticks">{items}</ul>'
-        '<div class="card-actions"><a class="btn btn-outline" href="{page}#{id}" data-track="price_click" data-label="{id}">{details}</a></div>'
+        '<div class="card-actions">{offer_btn}<a class="btn btn-outline" href="{page}#{id}" data-track="price_click" data-label="{id}">{details}</a></div>'
         '</article>'
     ).format(feat=" featured" if svc.get("featured") else "", div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
-             tag=e(svc["tagline"]), price=price_html(svc), items=items, page=svc["page"], id=svc["id"], details=lab["details"])
+             tag=e(svc["tagline"]), price=price_html(svc), items=items, page=svc["page"], id=svc["id"], details=lab["details"],
+             offer_btn=offer_pay_button(svc) if in_offer(svc) else "")
 
 
 def service_detail(svc, ctx):
@@ -161,6 +235,8 @@ def service_detail(svc, ctx):
     if svc.get("compliance_note"):
         compliance = '<p class="notice">{}</p>'.format(e(svc["compliance_note"]))
     role = ROLE_LABELS.get(svc["category"], "[role]")
+    offer = in_offer(svc)
+    wa_service = "{} offer — {} (₹{})".format(OFFER["name"], svc["name"], inr(offer_price(svc))) if offer else svc["name"]
     return (
         '<article class="svc-detail{feat}" id="{id}" data-service-id="{id}">'
         '<header class="svc-head"><div><p class="eyebrow">{div}</p><h3>{name}</h3><p class="muted">{tag}</p></div>'
@@ -170,8 +246,8 @@ def service_detail(svc, ctx):
         '<h4>{l_get}</h4><ul class="ticks">{deliver}</ul>'
         '<details class="not-included"><summary>{l_not}</summary><ul class="crosses">{excluded}</ul></details>'
         '{compliance}{case}'
-        '<div class="card-actions">'
-        '<a class="btn btn-primary" href="/contact/?service={id}" data-track="price_click" data-label="{id}">{enquire}</a>'
+        '{offer_meta}<div class="card-actions">{offer_btn}'
+        '<a class="btn btn-primary{reg_cls}" href="/contact/?service={id}" data-track="price_click" data-label="{id}">{enquire}</a>'
         '{wa}</div></article>'
     ).format(
         feat=" featured" if svc.get("featured") else "", id=svc["id"], div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
@@ -179,7 +255,9 @@ def service_detail(svc, ctx):
         l_problem=lab["problem"], problem=e(svc["problem"]), l_time=lab["timeline"], timeline=e(svc["timeline"]),
         l_scope=lab["scope"], rev=e(svc["revisions"]), sup=e(svc["support"]), l_get=lab["get"], deliver=deliver,
         l_not=lab["not"], excluded=excluded, compliance=compliance, case=case_html, enquire=lab["enquire"],
-        wa=wa_button(lab["wa"], role, svc["name"], "btn btn-wa", svc["id"]))
+        wa=wa_button(lab["wa"], role, wa_service, "btn btn-wa", svc["id"]),
+        offer_meta=offer_meta_html() if offer else "", offer_btn=offer_pay_button(svc) if offer else "",
+        reg_cls=" regular-only" if offer else "")
 
 
 def c_services(args, ctx):
@@ -325,7 +403,7 @@ def c_tools(args, ctx):
 
 
 def c_faq(args, ctx):
-    items = FAQS[args["set"]]
+    items = [{"q": render_prices(i["q"]), "a": render_prices(i["a"])} for i in FAQS[args["set"]]]
     ctx["faqs"].extend(items)
     return '<div class="faq-list">{}</div>'.format("".join(
         '<details class="faq"><summary>{}</summary><p>{}</p></details>'.format(e(i["q"]), e(i["a"])) for i in items))
@@ -409,12 +487,16 @@ def c_lead_form(args, ctx):
         '<option value="linkedin-payg">LinkedIn pay-as-you-go pack</option><option value="store-product">Store / digital product</option><option value="not-sure">पता नहीं — सुझाव चाहिए</option>'
     endpoint = SITE["form"].get("endpoint") or ""
     return FORM_TEMPLATE.format(endpoint=e(endpoint), success=e(SITE["form"]["success_path"]), roles=opt(roles),
-                                budgets=opt(budgets), services=service_opts)
+                                budgets=opt(budgets), services=service_opts, offer_id=e(OFFER["id"]) if OFFER_STATE else "",
+                                offer_note=e("आप {} offer ({}% छूट) के लिए enquiry कर रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।".format(
+                                    OFFER.get("name", ""), OFFER.get("discount_pct", ""))))
 
 
 FORM_TEMPLATE = """
-<form class="lead-form" id="leadForm" data-endpoint="{endpoint}" data-success="{success}" novalidate>
+<form class="lead-form" id="leadForm" data-endpoint="{endpoint}" data-success="{success}" data-offer-id="{offer_id}" novalidate>
   <p class="small muted">* ज़रूरी fields. आपकी जानकारी केवल आपकी enquiry का जवाब देने के लिए — <a href="/privacy/">Privacy Policy</a>.</p>
+  <input type="hidden" id="f-offer" name="offer" value="">
+  <p class="notice small" id="offerNote" hidden>{offer_note}</p>
   <fieldset><legend>आपके बारे में</legend>
     <div class="form-grid">
       <div class="field"><label for="f-name">नाम / Name *</label><input id="f-name" name="name" autocomplete="name" required></div>
@@ -444,6 +526,50 @@ FORM_TEMPLATE = """
 """
 
 
+def c_offer_details(args, ctx):
+    if not OFFER_STATE:
+        if args.get("ended") == "hide":
+            return ""
+        return ('<div class="container"><p class="notice">{} offer अभी उपलब्ध नहीं है — समय समाप्त हो गया या सभी slots भर गए। '
+                'Regular starting prices <a href="/services/">यहाँ देखें</a>।</p></div>').format(e(OFFER.get("name", "यह")))
+    cards = []
+    for sid in OFFER["services"]:
+        s = SERVICES[sid]
+        if s not in ctx["services"]:
+            ctx["services"].append(s)
+        items = "".join("<li>{}</li>".format(e(d)) for d in s["deliverables"][:3])
+        cards.append('<article class="card offer-card featured"><p class="eyebrow">{div}</p><h3>{name}</h3><p class="muted small">{for_}</p>{price}'
+                     '<ul class="ticks small">{items}</ul><div class="card-actions">{btn}<a class="btn btn-outline" href="{page}#{id}">पूरी जानकारी</a></div></article>'.format(
+                         div=e(DIVISIONS[s["division"]]), name=e(s["name"]), for_=e(s["for"]), price=price_html(s), items=items,
+                         btn=offer_pay_button(s), page=s["page"], id=s["id"]))
+    return ('<section class="offer-section offer-only" id="offer-{id}" aria-labelledby="offer-h"><div class="container">'
+            '<div class="section-head"><p class="eyebrow">{name} · सिर्फ़ पहले {total} ग्राहक</p>'
+            '<h2 id="offer-h">{n} starter packages पर {pct}% छूट</h2>'
+            '<p class="lead"><strong>{left}/{total}</strong> slots बाकी · समय बाकी: <span class="countdown" data-countdown>{deadline} तक</span></p>'
+            '<p class="muted small">Scope वही जो regular package में है — सिर्फ़ दाम कम। Slot पूरा payment मिलने पर पक्का होता है। <a href="/offers/{id}/">पूरी शर्तें</a></p></div>'
+            '<div class="grid grid-3">{cards}</div></div></section>').format(
+        id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]), pct=OFFER["discount_pct"],
+        left=OFFER_STATE["left"], deadline=e(offer_deadline_hi()), cards="".join(cards))
+
+
+def c_offer_terms(args, ctx):
+    names = ", ".join(e(SERVICES[s]["name"]) for s in OFFER.get("services", []))
+    deadline = e(offer_deadline_hi()) if OFFER_STATE else e(OFFER.get("ends_at", ""))
+    total, pct = OFFER.get("slots_total"), OFFER.get("discount_pct")
+    items = [
+        "{} offer: {} पर regular starting price से {}% छूट।".format(e(OFFER.get("name")), names, pct),
+        "कुल {} founding slots — इन packages को मिलाकर। Offer {} तक या सभी slots भरने तक, जो पहले हो।".format(total, deadline),
+        "Slot तभी पक्का होता है जब founding price का पूरा payment मिल जाए। सिर्फ़ enquiry या WhatsApp message से slot reserve नहीं होता।",
+        "हर business के लिए एक founding slot।",
+        "Scope, deliverables, timeline और revisions वही हैं जो service page पर regular package में लिखे हैं। Extra काम regular rates पर।",
+        "यह offer किसी दूसरे discount के साथ नहीं जुड़ता।",
+        "अगर एक साथ payments आने से {} से ज़्यादा bookings हो जाएँ, तो अतिरिक्त bookings का पूरा पैसा 7 working days में लौटाया जाएगा, या आप regular price पर जारी रख सकते हैं।".format(total),
+        "काम के बाद हम feedback माँगेंगे। आपका project case study में सिर्फ़ आपकी लिखित अनुमति से दिखेगा — यह offer की शर्त नहीं है। Discount के बदले Google review नहीं माँगा जाता।",
+        "Slots का counter हर confirmed booking के बाद update होता है। <a href=\"/refund/\">Refund policy</a> लागू है।",
+    ]
+    return '<ol class="terms-list">{}</ol>'.format("".join("<li>{}</li>".format(i) for i in items))
+
+
 def c_founder(args, ctx):
     f = SITE["founder"]
     if not f.get("name"):
@@ -460,11 +586,23 @@ COMPONENTS = {
     "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "founder": c_founder,
+    "offer-details": c_offer_details, "offer-terms": c_offer_terms,
 }
 
 TOKEN_RE = re.compile(r"<!--@([\w-]+)(.*?)-->", re.S)
 ARG_RE = re.compile(r'(\w+)=(?:"([^"]*)"|(\S+))')
 VAR_RE = re.compile(r"\{\{\s*([\w.]+)\s*\}\}")
+PRICE_RE = re.compile(r"\{\{\s*price:([\w-]+)\s*\}\}")
+
+
+def render_prices(text):
+    """{{price:<service-id>}} -> regular starting price from services.json (single source of truth)."""
+    def sub(m):
+        s = SERVICES.get(m.group(1))
+        if not s or not s.get("price_from"):
+            raise SystemExit("Unknown or unpriced service in {{price:%s}}" % m.group(1))
+        return "₹" + inr(s["price_from"])
+    return PRICE_RE.sub(sub, text)
 
 
 def render_tokens(body, ctx):
@@ -475,7 +613,7 @@ def render_tokens(body, ctx):
         args = {k: (q if q else u) for k, q, u in ARG_RE.findall(m.group(2))}
         return COMPONENTS[name](args, ctx)
 
-    body = TOKEN_RE.sub(sub, body)
+    body = TOKEN_RE.sub(sub, render_prices(body))
 
     def var(m):
         cur = {"site": SITE, "today": TODAY}
@@ -536,6 +674,10 @@ def page_schema(meta, route, ctx):
             if s["price_unit"] == "month":
                 spec = {"@type": "UnitPriceSpecification", "minPrice": s["price_from"], "priceCurrency": "INR", "unitCode": "MON"}
             node["offers"] = {"@type": "Offer", "priceSpecification": spec, "url": BASE + "/contact/?service=" + s["id"]}
+            if in_offer(s):
+                node["offers"] = [node["offers"], {"@type": "Offer", "name": OFFER["name"], "price": offer_price(s), "priceCurrency": "INR",
+                                                   "priceValidUntil": OFFER["ends_at"][:10], "availability": "https://schema.org/LimitedAvailability",
+                                                   "url": BASE + "/offers/" + OFFER["id"] + "/"}]
         graph.append(node)
     for p in ctx["products"]:
         graph.append({"@type": "Product", "name": p["title"], "description": p["problem"], "brand": {"@type": "Brand", "name": "Moodily"},
@@ -658,7 +800,7 @@ def layout(meta, body, route, ctx):
     view = meta.get("track_view")
     view_attr = ' data-view-event="{}" data-view-label="{}"'.format(e(view[0]), e(view[1])) if view else ""
     return """<!DOCTYPE html>
-<html lang="{lang}" data-lang="{dlang}" data-theme="dark">
+<html lang="{lang}" data-lang="{dlang}" data-theme="dark"{offer_attr}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -678,7 +820,7 @@ def layout(meta, body, route, ctx):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/img/moodily-mark.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/moodily-logo-512.png">
-<script>(function(){{try{{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}}catch(e){{}}document.documentElement.classList.add('js');}})();</script>
+<script>(function(){{try{{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}}catch(e){{}}var oe=document.documentElement.getAttribute('data-offer-ends');if(oe&&Date.now()>Date.parse(oe))document.documentElement.classList.add('offer-ended');document.documentElement.classList.add('js');}})();</script>
 {gtm}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
@@ -689,6 +831,7 @@ def layout(meta, body, route, ctx):
 <body{view}>
 {gtm_body}
 {header}
+{banner}
 {crumbs}
 <main id="main">
 {body}
@@ -699,7 +842,8 @@ def layout(meta, body, route, ctx):
 """.format(lang=lang, dlang="en" if lang == "en" else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical,
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_IN" if lang == "en" else "hi_IN",
            og_img=og_img, gtm=gtm_head(), ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body(),
-           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer()).replace(
+           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(), banner=offer_banner(route),
+           offer_attr=' data-offer-ends="{}" data-offer-id="{}"'.format(OFFER["ends_at"], OFFER["id"]) if OFFER_STATE else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
 
 
@@ -786,8 +930,21 @@ def owner_todo():
     (ROOT / "_project" / "OWNER-TODO.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def validate_offer():
+    if not OFFER:
+        return
+    if int(OFFER["slots_taken"]) > int(OFFER["slots_total"]):
+        raise SystemExit("offer.slots_taken cannot exceed offer.slots_total")
+    for sid in OFFER["services"]:
+        if sid not in SERVICES or not SERVICES[sid].get("price_from"):
+            raise SystemExit("offer service {} is missing or has no price".format(sid))
+    if OFFER.get("active") and not OFFER_STATE:
+        WARNINGS.append("offer '{}' is active in site.json but outside its window or sold out — not shown".format(OFFER["id"]))
+
+
 def main():
     validate_services()
+    validate_offer()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 
@@ -807,6 +964,7 @@ def main():
 
     titles = {}
     for meta, body, route, out, src in jobs:
+        meta["title"], meta["description"] = render_prices(meta.get("title", "")), render_prices(meta.get("description", ""))
         for key in ("title", "description"):
             if not meta.get(key):
                 raise SystemExit("{} missing meta '{}'".format(src, key))
