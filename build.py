@@ -43,6 +43,16 @@ PRODUCT_DATA = load("data/products.json")
 TOOLS = load("data/tools.json")
 FAQS = load("data/faqs.json")
 LEARN = load("data/learn.json")
+ROUTERS = load("data/routers.json")
+ESTIMATOR = load("data/estimator.json")
+REDIRECTS = {k: v for k, v in load("data/redirects.json").items() if not k.startswith("_")}
+SAMPLES = {x["id"]: x for x in load("data/samples.json")["samples"]}
+SCOPE_NOTE = SVC_DATA["scope_note"]
+TPC_LABELS = SVC_DATA["third_party_cost_labels"]
+FILTER_LABELS = SVC_DATA["filter_labels"]
+CUSTOMER_TYPES = {c["id"]: c for c in ROUTERS["customer_types"]}
+ACTIVE = [x for x in SVC_DATA["services"] if x.get("active", True)]
+LOCAL_CATS = {"local-business", "google-whatsapp", "medical-store", "education-business", "websites"}
 BASE = SITE["url"].rstrip("/")
 ORG_ID = BASE + "/#organization"
 WARNINGS = []
@@ -140,26 +150,27 @@ def inr(n):
 L = {
     "hi": {
         "for": "किसके लिए", "problem": "कौन-सी समस्या हल होती है", "get": "आपको क्या मिलेगा",
-        "timeline": "समय", "not": "क्या शामिल नहीं है", "scope": "Revisions और support",
+        "timeline": "समय", "not": "क्या शामिल नहीं है", "scope": "Revisions और support", "format": "Delivery format",
         "from": "शुरुआत", "from_suffix": "से", "month": "/महीना", "custom": "Scope के अनुसार quote",
         "enquire": "इस package की enquiry करें", "wa": "WhatsApp पर पूछें", "details": "पूरी जानकारी देखें",
-        "sample": "जुड़ा हुआ work sample", "price_note": "Starting price है। Final quote scope देखकर लिखित में मिलता है।",
-        "home": "Home",
+        "sample": "जुड़ा हुआ work sample", "quote": "Quote लें", "sample_btn": "Sample देखें", "estimate": "Estimate करें",
+        "audit": "मुफ़्त Digital Audit", "third": "Third-party खर्च (शामिल नहीं)", "home": "Home",
     },
     "en": {
         "for": "Who it is for", "problem": "Problem solved", "get": "Exact deliverables",
-        "timeline": "Timeline", "not": "What is not included", "scope": "Revisions & support",
+        "timeline": "Timeline", "not": "What is not included", "scope": "Revisions & support", "format": "Delivery format",
         "from": "Starts at", "from_suffix": "", "month": "/month", "custom": "Custom quote",
         "enquire": "Enquire about this package", "wa": "Ask on WhatsApp", "details": "See full details",
-        "sample": "Related work sample", "price_note": "Starting price. You get a written quote after scoping.",
-        "home": "Home",
+        "sample": "Related work sample", "quote": "Get a quote", "sample_btn": "See samples", "estimate": "Estimate",
+        "audit": "Free digital audit", "third": "Third-party costs (not included)", "home": "Home",
     },
 }
 
 ROLE_LABELS = {
-    "local-business": "Business owner", "medical-store": "Medical store owner", "education": "School/Coaching",
-    "professionals": "Professional", "creators": "Creator", "research": "Founder/Researcher",
-    "knowledge-to-product": "Expert/Author", "ai-workflows": "Business owner",
+    "local-business": "Business owner", "google-whatsapp": "Business owner", "medical-store": "Medical store owner",
+    "education": "School/Coaching", "education-content": "Teacher/Institute", "education-business": "Coaching/Library owner",
+    "professionals": "Professional", "creators": "Creator", "research": "Founder/Researcher", "knowledge-to-product": "Expert/Author",
+    "ai-workflows": "Business owner", "websites": "[role]", "design": "[role]", "b2b": "Manufacturer/B2B business",
     "presentations": "[role]", "invitations": "[role]", "business-documents": "Business owner", "social-media": "[role]",
 }
 
@@ -193,8 +204,32 @@ def wa_button(label, role="[role]", service="[service]", cls="btn btn-wa", track
 
 
 # ------------------------------------------------------------ components
+TIER_LABEL = {"starter": "STARTER", "growth": "GROWTH", "premium": "PREMIUM"}
+KIND_LABEL = {"self-initiated": "Self-initiated · Moodily का अपना project", "client": "Client project",
+              "concept": "Concept / demo — client project नहीं"}
+
+
+def split_ids(value):
+    return [i.strip() for i in (value or "").split(",") if i.strip()]
+
+
+def price_text(svc):
+    lab = L[svc["lang"]]
+    if svc.get("price_unit") == "free":
+        return "FREE"
+    if svc.get("price_from") is None:
+        return lab["custom"]
+    return "₹{}{}".format(inr(svc["price_from"]), lab["month"] if svc.get("price_unit") == "month" else "")
+
+
+def scope_note_html():
+    return '<p class="scope-note small muted">{}<br><span lang="en">{}</span></p>'.format(e(SCOPE_NOTE["hi"]), e(SCOPE_NOTE["en"]))
+
+
 def price_html(svc):
     lab = L[svc["lang"]]
+    if svc.get("price_unit") == "free":
+        return '<p class="price"><strong>FREE</strong></p>'
     if svc.get("price_from") is None:
         return '<p class="price"><strong>{}</strong></p>'.format(lab["custom"])
     unit = lab["month"] if svc["price_unit"] == "month" else ""
@@ -209,19 +244,67 @@ def price_html(svc):
         pct=OFFER["discount_pct"], name=e(OFFER["name"]), op=inr(offer_price(svc)), reg=inr(svc["price_from"])) + regular
 
 
+def card_attrs(svc):
+    return ' data-pricing{}'.format(' data-retainer="{}"'.format(svc["id"]) if svc.get("price_unit") == "month" else "")
+
+
 def service_card(svc, ctx):
     """Compact overview card linking to the service page."""
     lab = L[svc["lang"]]
     items = "".join("<li>{}</li>".format(e(d)) for d in svc["deliverables"][:3])
     return (
-        '<article class="card svc-card{feat}">'
+        '<article class="card svc-card{feat}"{attrs}>'
         '<p class="eyebrow">{div}</p><h3>{name}</h3><p class="muted">{tag}</p>{price}'
-        '<ul class="ticks">{items}</ul>'
+        '<ul class="ticks">{items}</ul><p class="small muted">⏱ {timeline}</p>'
         '<div class="card-actions">{offer_btn}<a class="btn btn-outline" href="{page}#{id}" data-track="service_card_click" data-label="{id}">{details}</a></div>'
         '</article>'
-    ).format(feat=" featured" if svc.get("featured") else "", div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
-             tag=e(svc["tagline"]), price=price_html(svc), items=items, page=svc["page"], id=svc["id"], details=lab["details"],
-             offer_btn=offer_pay_button(svc) if in_offer(svc) else "")
+    ).format(feat=" featured" if svc.get("featured") else "", attrs=card_attrs(svc), div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
+             tag=e(svc["tagline"]), price=price_html(svc), items=items, timeline=e(svc["timeline"]), page=svc["page"], id=svc["id"],
+             details=lab["details"], offer_btn=offer_pay_button(svc) if in_offer(svc) else "")
+
+
+def service_wa(svc, label, cls, track):
+    if svc.get("whatsapp_message"):
+        return '<a class="{}" href="{}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="{}">{} {}</a>'.format(
+            cls, e(wa_href(svc["whatsapp_message"])), e(track), WA_ICON, e(label))
+    name = "{} offer — {} (₹{})".format(OFFER["name"], svc["name"], inr(offer_price(svc))) if in_offer(svc) else svc["name"]
+    return wa_button(label, ROLE_LABELS.get(svc["category"], "[role]"), name, cls, track)
+
+
+def service_ctas(svc):
+    lab = L[svc["lang"]]
+    offer = in_offer(svc)
+    out = [offer_pay_button(svc) if offer else "",
+           '<a class="btn btn-primary{}" href="/contact/?service={}" data-track="pricing_click" data-label="{}">{}</a>'.format(
+               " regular-only" if offer else "", svc["id"], svc["id"],
+               "मुफ़्त Audit माँगें" if svc.get("price_unit") == "free" else lab["quote"]),
+           service_wa(svc, lab["wa"], "btn btn-wa", svc["id"]),
+           '<a class="btn btn-outline btn-sm" href="#samples" data-track="portfolio_open" data-label="{}">{}</a>'.format(svc["id"], lab["sample_btn"])]
+    if svc.get("price_unit") not in ESTIMATOR["excluded_price_units"]:
+        out.append('<a class="btn btn-outline btn-sm" href="/services/estimator/?service={0}" data-track="pricing_click" data-label="estimate:{0}">{1}</a>'.format(
+            svc["id"], lab["estimate"]))
+    if svc["category"] in LOCAL_CATS and svc["id"] != "free-digital-audit":
+        out.append('<a class="btn btn-outline btn-sm" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="{}">{}</a>'.format(
+            svc["id"], lab["audit"]))
+    return "".join(out)
+
+
+def delivery_html(svc):
+    parts = []
+    if svc.get("formats"):
+        parts.append(format_chips(svc["formats"]))
+    if svc.get("editable_source"):
+        parts.append('<span class="small">{}</span>'.format(e(svc["editable_source"])))
+    return "".join(parts) or "—"
+
+
+def third_party_html(svc):
+    codes = svc.get("third_party_costs") or []
+    if not codes:
+        return ""
+    return ('<details class="not-included third-party"><summary>{}</summary><ul class="crosses">{}</ul>'
+            '<p class="small muted">Accounts और bills आपके नाम पर रहना बेहतर है।</p></details>').format(
+        L[svc["lang"]]["third"], "".join("<li>{}</li>".format(e(TPC_LABELS[c])) for c in codes))
 
 
 def service_detail(svc, ctx):
@@ -230,65 +313,55 @@ def service_detail(svc, ctx):
     deliver = "".join("<li>{}</li>".format(e(d)) for d in svc["deliverables"])
     excluded = "".join("<li>{}</li>".format(e(d)) for d in svc["not_included"])
     case_html = ""
-    cs = CASES_BY_SLUG.get(svc.get("case_study") or "")
+    case_ids = svc.get("case_study_ids") or ([svc["case_study"]] if svc.get("case_study") else [])
+    cs = CASES_BY_SLUG.get(case_ids[0]) if case_ids else None
     if cs:
-        if cs["status"] == "published":
-            case_html = '<p class="case-link">{}: <a href="/case-studies/{}/" data-track="case_study_open" data-label="{}">{}</a></p>'.format(
-                lab["sample"], cs["slug"], cs["slug"], e(cs["title"]))
-        else:
-            case_html = '<p class="case-link">{}: <a href="/case-studies/#{}">{}</a></p>'.format(lab["sample"], cs["slug"], e(cs["title"]))
-    compliance = ""
-    if svc.get("compliance_note"):
-        compliance = '<p class="notice">{}</p>'.format(e(svc["compliance_note"]))
-    role = ROLE_LABELS.get(svc["category"], "[role]")
-    offer = in_offer(svc)
-    wa_service = "{} offer — {} (₹{})".format(OFFER["name"], svc["name"], inr(offer_price(svc))) if offer else svc["name"]
+        href = "/case-studies/{}/".format(cs["slug"]) if cs["status"] == "published" else "/case-studies/#{}".format(cs["slug"])
+        case_html = '<p class="case-link">{}: <a href="{}" data-track="portfolio_open" data-label="{}">{}</a></p>'.format(
+            lab["sample"], href, cs["slug"], e(cs["title"]))
+    compliance = '<p class="notice">{}</p>'.format(e(svc["compliance_note"])) if svc.get("compliance_note") else ""
+    tier = TIER_LABEL.get(svc.get("tier") or "")
     return (
-        '<article class="svc-detail{feat}" id="{id}" data-service-id="{id}">'
-        '<header class="svc-head"><div><p class="eyebrow">{div}</p><h3>{name}</h3><p class="muted">{tag}</p></div>'
-        '<div class="svc-price">{price}<p class="small muted">{note}</p></div></header>'
+        '<article class="svc-detail{feat}" id="{id}" data-service-id="{id}"{attrs}>'
+        '<header class="svc-head"><div><p class="eyebrow">{tier}{div}</p><h3>{name}</h3><p class="muted">{tag}</p></div>'
+        '<div class="svc-price">{price}{scope}</div></header>'
         '<dl class="facts"><div><dt>{l_for}</dt><dd>{for_}</dd></div><div><dt>{l_problem}</dt><dd>{problem}</dd></div>'
-        '<div><dt>{l_time}</dt><dd>{timeline}</dd></div><div><dt>{l_scope}</dt><dd>{rev} · {sup}</dd></div></dl>'
+        '<div><dt>{l_time}</dt><dd>{timeline}</dd></div><div><dt>{l_scope}</dt><dd>{rev} · {sup}</dd></div>'
+        '<div class="facts-full"><dt>{l_format}</dt><dd>{delivery}</dd></div></dl>'
         '<h4>{l_get}</h4><ul class="ticks">{deliver}</ul>'
         '<details class="not-included"><summary>{l_not}</summary><ul class="crosses">{excluded}</ul></details>'
-        '{compliance}{case}'
-        '{offer_meta}<div class="card-actions">{offer_btn}'
-        '<a class="btn btn-primary{reg_cls}" href="/contact/?service={id}" data-track="pricing_click" data-label="{id}">{enquire}</a>'
-        '{wa}</div></article>'
+        '{third}{compliance}{case}{offer_meta}<div class="card-actions">{ctas}</div></article>'
     ).format(
-        feat=" featured" if svc.get("featured") else "", id=svc["id"], div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
-        tag=e(svc["tagline"]), price=price_html(svc), note=lab["price_note"], l_for=lab["for"], for_=e(svc["for"]),
-        l_problem=lab["problem"], problem=e(svc["problem"]), l_time=lab["timeline"], timeline=e(svc["timeline"]),
-        l_scope=lab["scope"], rev=e(svc["revisions"]), sup=e(svc["support"]), l_get=lab["get"], deliver=deliver,
-        l_not=lab["not"], excluded=excluded, compliance=compliance, case=case_html, enquire=lab["enquire"],
-        wa=wa_button(lab["wa"], role, wa_service, "btn btn-wa", svc["id"]),
-        offer_meta=offer_meta_html() if offer else "", offer_btn=offer_pay_button(svc) if offer else "",
-        reg_cls=" regular-only" if offer else "")
+        feat=" featured" if svc.get("featured") else "", id=svc["id"], attrs=card_attrs(svc),
+        tier="{} · ".format(tier) if tier else "", div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]), tag=e(svc["tagline"]),
+        price=price_html(svc), scope=scope_note_html(), l_for=lab["for"], for_=e(svc["for"]), l_problem=lab["problem"],
+        problem=e(svc["problem"]), l_time=lab["timeline"], timeline=e(svc["timeline"]), l_scope=lab["scope"], rev=e(svc["revisions"]),
+        sup=e(svc["support"]), l_format=lab["format"], delivery=delivery_html(svc), l_get=lab["get"], deliver=deliver,
+        l_not=lab["not"], excluded=excluded, third=third_party_html(svc), compliance=compliance, case=case_html,
+        offer_meta=offer_meta_html() if in_offer(svc) else "", ctas=service_ctas(svc))
 
 
 def c_services(args, ctx):
-    ids = [i.strip() for i in args.get("ids", "").split(",") if i.strip()]
+    ids = split_ids(args.get("ids"))
     if args.get("category"):
-        ids = [s["id"] for s in SVC_DATA["services"] if s["category"] == args["category"]]
+        ids = [x["id"] for x in ACTIVE if x["category"] == args["category"]]
     if args.get("featured"):
-        ids = [s["id"] for s in SVC_DATA["services"] if s.get("featured")]
+        ids = [x["id"] for x in ACTIVE if x.get("featured")]
     missing = [i for i in ids if i not in SERVICES]
     if missing:
-        raise SystemExit("Unknown service ids: {}".format(missing))
+        raise SystemExit("Unknown service ids: {} in {}".format(missing, ctx["file"]))
+    ids = [i for i in ids if SERVICES[i].get("active", True)]
     if args.get("style") == "detail":
         return '<div class="svc-list">{}</div>'.format("".join(service_detail(SERVICES[i], ctx) for i in ids))
-    return '<div class="grid grid-3">{}</div>'.format("".join(service_card(SERVICES[i], ctx) for i in ids))
+    return '<div class="grid grid-3">{}</div>{}'.format("".join(service_card(SERVICES[i], ctx) for i in ids), scope_note_html())
 
 
 def c_price_table(args, ctx):
-    rows = []
-    for s in SVC_DATA["services"]:
-        price = "₹{}{}".format(inr(s["price_from"]), " /month" if s["price_unit"] == "month" else "") if s["price_from"] else "Custom quote"
-        rows.append('<tr><th scope="row"><a href="{}#{}">{}</a></th><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
-            s["page"], s["id"], e(s["name"]), e(DIVISIONS[s["division"]]), e(price), e(s["timeline"])))
+    rows = "".join('<tr><th scope="row"><a href="{}#{}">{}</a></th><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+        x["page"], x["id"], e(x["name"]), e(DIVISIONS[x["division"]]), e(price_text(x)), e(x["timeline"])) for x in ACTIVE)
     return ('<div class="table-wrap"><table class="price-table"><caption>सभी prices starting prices हैं · All prices are starting prices (INR)</caption>'
             '<thead><tr><th scope="col">Service</th><th scope="col">Division</th><th scope="col">Starts at</th><th scope="col">Timeline</th></tr></thead>'
-            '<tbody>{}</tbody></table></div>').format("".join(rows))
+            '<tbody>{}</tbody></table></div>{}').format(rows, scope_note_html())
 
 
 def c_payg(args, ctx):
@@ -298,25 +371,6 @@ def c_payg(args, ctx):
     return ('<div class="table-wrap"><table class="price-table"><caption>LinkedIn pay-as-you-go packs (one-time, starting prices)</caption>'
             '<thead><tr><th scope="col">Pack</th><th scope="col">Starts at</th><th scope="col">Posts</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>'
             '<tbody>{}</tbody></table></div>').format(rows)
-
-
-ROUTER = [
-    ("🏪", "दुकान / Local Business", "Google Maps, WhatsApp orders, reviews", "/services/local-business/"),
-    ("💊", "Medical Store / Clinic", "WhatsApp enquiry से verified delivery तक", "/services/medical-store/"),
-    ("🏫", "School / Coaching", "PYQ analysis, tests, worksheets, visual notes", "/services/education/"),
-    ("👔", "Professional", "LinkedIn, bio और online credibility", "/services/professionals/"),
-    ("🎥", "Creator", "Content plan, scripts, repurposing", "/services/creators/"),
-    ("🚀", "Founder / Startup", "Research, competitor intelligence, AI workflows", "/services/research/"),
-    ("🎓", "Student", "Free AI learning और study resources", "/learn/"),
-]
-
-
-def c_audience_router(args, ctx):
-    cards = "".join(
-        '<a class="router-card" href="{}" data-track="audience_select" data-label="{}"><span class="router-emoji" aria-hidden="true">{}</span>'
-        '<span class="router-title">{}</span><span class="router-sub">{}</span><span class="router-go" aria-hidden="true">→</span></a>'.format(
-            href, e(title), emo, e(title), e(sub)) for emo, title, sub, href in ROUTER)
-    return '<div class="router">{}</div>'.format(cards)
 
 
 def c_cases(args, ctx):
@@ -591,7 +645,6 @@ def c_founder(args, ctx):
 CATALOGUE = load("data/catalogue.json")
 INTAKE = load("data/intake.json")
 GROUPS = CATALOGUE["groups"]
-OUTCOMES = {o["id"]: o for o in CATALOGUE["outcomes"]}
 FORMATS = CATALOGUE["formats"]
 
 
@@ -604,19 +657,12 @@ def _validate_catalogue_intake():
         if x["category"] not in cats:
             raise SystemExit("intake.json extra service '{}' has unknown category".format(sid))
     for g in GROUPS:
-        if g["outcome"] not in OUTCOMES and g["outcome"] != "custom":
-            raise SystemExit("catalogue group {} has unknown outcome".format(g["id"]))
         for key in ("price_service", "quote_service"):
             if g.get(key) and g[key] not in SERVICES and g[key] not in extras:
                 raise SystemExit("catalogue group {}: {} '{}' is not a known service".format(g["id"], key, g[key]))
         for f in g["formats"]:
             if f not in FORMATS:
                 raise SystemExit("catalogue group {}: unknown format '{}'".format(g["id"], f))
-        for smp in g.get("samples", []):
-            if smp["type"] == "case" and smp["slug"] not in CASES_BY_SLUG:
-                raise SystemExit("catalogue group {}: unknown case study '{}'".format(g["id"], smp["slug"]))
-            if smp["type"] == "image" and not (ROOT / smp["src"].lstrip("/")).exists():
-                raise SystemExit("catalogue group {}: sample image missing {}".format(g["id"], smp["src"]))
     url = INTAKE.get("form_url") or ""
     if url and not url.startswith("https://docs.google.com/forms/"):
         raise SystemExit("intake.json form_url must be a full https://docs.google.com/forms/... link (forms.gle short links drop prefill values)")
@@ -630,41 +676,48 @@ def _validate_catalogue_intake():
 _validate_catalogue_intake()
 
 
+def validate_commerce():
+    tiers, units = {None, "starter", "growth", "premium"}, {"one-time", "month", "free", "custom"}
+    required = ("slug", "customer_types", "filters", "keywords", "third_party_costs", "formats", "sample_ids", "case_study_ids",
+                "revision_rounds", "active", "editable_source", "form_prefill_url", "whatsapp_message", "recommended_price")
+    for x in SVC_DATA["services"]:
+        for key in required:
+            if key not in x:
+                raise SystemExit("services.json: {} missing '{}'".format(x["id"], key))
+        checks = [
+            (x["price_unit"] in units, "price_unit"), (x.get("tier") in tiers, "tier"),
+            (x["price_unit"] != "free" or x["price_from"] == 0, "free packages need price_from 0"),
+            (x["price_unit"] != "custom" or x["price_from"] is None, "custom packages need price_from null"),
+            (isinstance(x["revision_rounds"], int) and 0 <= x["revision_rounds"] <= 3, "revision_rounds must be 0–3 (never unlimited)"),
+            (all(t in CUSTOMER_TYPES for t in x["customer_types"]), "customer_types"),
+            (bool(x["filters"]) and all(f in FILTER_LABELS for f in x["filters"]), "filters"),
+            (all(c in TPC_LABELS for c in x["third_party_costs"]), "third_party_costs"),
+            (all(f in FORMATS for f in x["formats"]), "formats"),
+            (all(i in SAMPLES for i in x["sample_ids"]), "sample_ids"),
+            (all(c in CASES_BY_SLUG for c in x["case_study_ids"]), "case_study_ids"),
+            (not x["form_prefill_url"] or x["form_prefill_url"].startswith("https://docs.google.com/forms/"), "form_prefill_url"),
+        ]
+        for ok, what in checks:
+            if not ok:
+                raise SystemExit("services.json: {} — invalid {}".format(x["id"], what))
+    for smp in SAMPLES.values():
+        if smp.get("kind") not in KIND_LABEL:
+            raise SystemExit("samples.json: {} needs kind self-initiated|client|concept".format(smp["id"]))
+        if not (ROOT / smp["image"].lstrip("/")).exists():
+            raise SystemExit("samples.json: image missing for {}".format(smp["id"]))
+        for sid in smp.get("services", []):
+            if sid not in SERVICES:
+                raise SystemExit("samples.json: {} references unknown service {}".format(smp["id"], sid))
+    for n in ROUTERS["needs"]:
+        if n.get("price_service") and n["price_service"] not in SERVICES:
+            raise SystemExit("routers.json need {} has unknown price_service".format(n["id"]))
+
+
 def intake_service(sid):
     if sid in SERVICES:
         return SERVICES[sid]["name"], INTAKE["service_map"][sid]
     x = INTAKE["extra_services"][sid]
     return x["name"], x["category"]
-
-
-def group_price_html(g):
-    s = SERVICES.get(g.get("price_service") or "")
-    if s and s.get("price_from"):
-        return price_html(s)
-    return '<p class="price"><strong>Requirement के अनुसार quote</strong></p>'
-
-
-PAGES_WITH_SAMPLES = {("/" + str(p.relative_to(SRC / "pages").with_suffix("")) + "/").replace("/index/", "/")
-                      for p in (SRC / "pages").rglob("*.html") if "<!--@catalogue-group" in p.read_text(encoding="utf-8")}
-
-
-def group_ctas(g):
-    s = SERVICES.get(g.get("price_service") or "")
-    cases = [x for x in g.get("samples", []) if x["type"] == "case"]
-    if cases:
-        sample_href = "/case-studies/#" + cases[0]["slug"]
-    elif g.get("page") in PAGES_WITH_SAMPLES:
-        sample_href = g["page"] + "#samples"
-    else:
-        sample_href = "/case-studies/"
-    price_href = "{}#{}".format(s["page"], s["id"]) if s else "/services/#prices"
-    quote = g.get("quote_service") or "custom-digital-work"
-    return ('<div class="cta-row">'
-            '<a class="btn btn-outline btn-sm" href="{sample}" data-track="sample_click" data-label="{id}">Sample देखें</a>'
-            '<a class="btn btn-outline btn-sm" href="{price_href}" data-track="pricing_click" data-label="{id}">Starting price</a>'
-            '<a class="btn btn-primary btn-sm" href="/contact/?service={quote}" data-track="service_card_click" data-label="quote:{id}">Quote माँगें</a>'
-            '{wa}</div>').format(sample=e(sample_href), price_href=e(price_href), id=g["id"], quote=e(quote),
-                                 wa=wa_button("WhatsApp Requirement", "[role]", g["title"], "btn btn-wa btn-sm", "cat-" + g["id"]))
 
 
 def chip_list(values, cls="chips"):
@@ -675,84 +728,19 @@ def format_chips(codes):
     return '<ul class="chips fmt-chips" aria-label="Delivery formats">{}</ul>'.format("".join('<li>{}</li>'.format(e(FORMATS[c])) for c in codes))
 
 
-def catalogue_card(g):
-    if g["outcome"] == "custom":
-        return ('<article class="card cat-card cat-custom" id="cat-{id}" data-outcome="custom" data-always>'
-                '<div class="cat-head"><span class="cat-emoji" aria-hidden="true">{emoji}</span><div><p class="eyebrow">Custom</p><h3>{title}</h3></div></div>'
-                '<p>{summary}</p><div class="cta-row"><a class="btn btn-primary btn-sm" href="/contact/?service=custom-digital-work" data-track="service_card_click" data-label="quote:custom">Requirement भेजें</a>{wa}</div></article>').format(
-            id=g["id"], emoji=g["emoji"], title=e(g["title"]), summary=e(g["summary"]),
-            wa=wa_button("WhatsApp Requirement", "[role]", "Custom digital work", "btn btn-wa btn-sm", "cat-custom"))
-    first, rest = g["items"][:6], g["items"][6:]
-    more = '<details class="more"><summary>+ {} और</summary>{}</details>'.format(len(rest), chip_list(rest)) if rest else ""
-    cases = [CASES_BY_SLUG[x["slug"]] for x in g.get("samples", []) if x["type"] == "case"]
-    samples = ('<p class="small sample-line"><strong>Real work:</strong> {}</p>'.format(" · ".join(
-        '<a href="/case-studies/#{0}" data-track="sample_click" data-label="{0}">{1}</a>'.format(c["slug"], e(c["title"])) for c in cases))
-               if cases else '<p class="small muted sample-line">Samples जल्द जोड़े जा रहे हैं — WhatsApp पर पिछले काम के examples माँगें।</p>')
-    title = '<a class="stretched-title" href="{}" data-track="service_card_click" data-label="{}">{}</a>'.format(g["page"], g["id"], e(g["title"])) if g.get("page") else e(g["title"])
-    return ('<article class="card cat-card" id="cat-{id}" data-outcome="{outcome}" data-formats="{formats}">'
-            '<div class="cat-head"><span class="cat-emoji" aria-hidden="true">{emoji}</span><div><p class="eyebrow">{otitle}</p><h3>{title}</h3></div></div>'
-            '<p class="muted small">{summary}</p>{chips}{more}{fmts}{price}{samples}{ctas}</article>').format(
-        id=g["id"], outcome=g["outcome"], formats=" ".join(g["formats"]), emoji=g["emoji"], otitle=e(OUTCOMES[g["outcome"]]["title"]),
-        title=title, summary=e(g["summary"]), chips=chip_list(first), more=more, fmts=format_chips(g["formats"]),
-        price=group_price_html(g), samples=samples, ctas=group_ctas(g))
-
-
-def c_catalogue(args, ctx):
-    outcome_btns = '<button type="button" class="chip-btn" data-filter-outcome="" aria-pressed="true">सभी</button>' + "".join(
-        '<button type="button" class="chip-btn" data-filter-outcome="{}" aria-pressed="false">{} {}</button>'.format(o["id"], o["emoji"], e(o["title"]))
-        for o in CATALOGUE["outcomes"])
-    format_btns = '<button type="button" class="chip-btn" data-filter-format="" aria-pressed="true">सभी formats</button>' + "".join(
-        '<button type="button" class="chip-btn" data-filter-format="{}" aria-pressed="false">{}</button>'.format(k, e(v)) for k, v in FORMATS.items())
-    return ('<div class="filters" data-filter-root>'
-            '<div class="chip-row" role="group" aria-label="Category filter">{o}</div>'
-            '<details class="format-filter"><summary>Output format से filter करें</summary><div class="chip-row" role="group" aria-label="Format filter">{f}</div></details>'
-            '<p class="small muted" data-filter-count aria-live="polite"></p></div>'
-            '<div class="grid grid-3 cat-grid">{cards}</div><p class="small muted">{note}</p>').format(
-        o=outcome_btns, f=format_btns, cards="".join(catalogue_card(g) for g in GROUPS), note=e(CATALOGUE["formats_note"]))
-
-
-def c_outcomes(args, ctx):
-    cards = []
-    for o in CATALOGUE["outcomes"]:
-        prices = [SERVICES[g["price_service"]]["price_from"] for g in GROUPS
-                  if g["outcome"] == o["id"] and g.get("price_service") and SERVICES[g["price_service"]].get("price_from")]
-        price = "शुरुआत ₹{} से".format(inr(min(prices))) if prices else "Requirement के अनुसार quote"
-        examples = ", ".join(i for g in GROUPS if g["outcome"] == o["id"] for i in g["items"][:2])
-        cards.append('<a class="outcome-card" href="/services/?cat={id}#catalogue" data-track="service_card_click" data-label="outcome:{id}">'
-                     '<span class="outcome-emoji" aria-hidden="true">{emoji}</span><span class="outcome-title">{title}</span>'
-                     '<span class="outcome-sub">{sub}</span><span class="outcome-examples">{ex}</span><span class="outcome-price">{price} →</span></a>'.format(
-                         id=o["id"], emoji=o["emoji"], title=e(o["title"]), sub=e(o["sub"]), ex=e(examples), price=e(price)))
-    return ('<div class="outcome-grid">{}</div><p class="btn-row"><a class="btn btn-outline" href="/services/#catalogue" data-track="service_card_click" data-label="outcome:all">पूरा catalogue देखें</a>'
-            '<a class="btn btn-primary" href="/contact/?service=custom-digital-work" data-track="service_card_click" data-label="quote:custom">जो नहीं दिखा, वह भी पूछें →</a></p>').format("".join(cards))
-
-
 def c_catalogue_group(args, ctx):
     g = next((x for x in GROUPS if x["id"] == args["id"]), None)
     if not g:
         raise SystemExit("Unknown catalogue group {} in {}".format(args.get("id"), ctx["file"]))
-    shots = []
-    for smp in g.get("samples", []):
-        if smp["type"] == "image":
-            shots.append('<figure class="mock mock-{frame}"><div class="mock-screen"><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></div>'
-                         '<figcaption>{title}</figcaption></figure>'.format(frame=e(smp.get("frame", "screen")), src=e(smp["src"]), alt=e(smp["alt"]), title=e(smp.get("title", ""))))
-        else:
-            c = CASES_BY_SLUG[smp["slug"]]
-            shots.append('<article class="card"><p class="eyebrow">{}</p><h4>{}</h4><p class="small muted">Detailed write-up in progress</p>'
-                         '<a class="small" href="/case-studies/#{}" data-track="sample_click" data-label="{}">Sample देखें →</a></article>'.format(
-                             e(c["work_type"]), e(c["title"]), c["slug"], c["slug"]))
-    samples = ('<div class="grid grid-3">{}</div>'.format("".join(shots)) if shots else
-               '<p class="notice small">इस category के real samples जल्द यहाँ जोड़े जाएँगे। हम नकली या किसी और का काम sample के रूप में नहीं दिखाते — '
-               'तब तक WhatsApp पर पिछले काम के examples माँग लें।</p><p>{}</p>'.format(wa_button("WhatsApp पर samples माँगें", "[role]", g["title"] + " samples", "btn btn-wa", "samples-" + g["id"])))
     return ('<div class="grid grid-2 cat-detail"><div><h3>हम क्या बनाते हैं</h3>{items}</div>'
-            '<div><h3>Delivery formats</h3>{fmts}<p class="small muted">{note}</p></div></div>'
-            '<section class="sub-section" id="samples" aria-labelledby="samples-h"><h3 id="samples-h">Samples</h3>{samples}</section>').format(
-        items=chip_list(g["items"]), fmts=format_chips(g["formats"]), note=e(CATALOGUE["formats_note"]), samples=samples)
+            '<div><h3>Delivery formats</h3>{fmts}<p class="small muted">{note}</p></div></div>').format(
+        items=chip_list(g["items"]), fmts=format_chips(g["formats"]), note=e(CATALOGUE["formats_note"]))
 
 
 def c_revision_policy(args, ctx):
-    tiers = [("Basic", "1 revision round", "Digital invitation, single template/flyer, design-only presentation"),
-             ("Standard", "2 revision rounds", "Print-ready suites, identity kits, social packs, content + design"),
-             ("Premium", "3 revision rounds / तय optimization period", "Campaign kits, research + content + design, बड़े projects")]
+    tiers = [("Basic", "1 revision round", "Digital invitation, visiting card, single creative/poster, design-only PPT"),
+             ("Standard", "2 revision rounds", "Brochure, catalogue, logo, websites, content + design"),
+             ("Premium", "3 revision rounds या लिखित support period", "Brand kit, lead/booking website, B2B kit, research + strategy")]
     cards = "".join('<div class="card"><p class="eyebrow">{}</p><h3>{}</h3><p class="muted small">{}</p></div>'.format(e(a), e(b), e(c)) for a, b, c in tiers)
     return ('<div class="grid grid-3">{}</div><p class="small muted">एक revision round = एक बार में भेजे गए सभी बदलाव। Revisions की संख्या तय है, असीमित नहीं। '
             'नई requirement, नया content या scope से बाहर के बदलाव का अलग quote होता है।</p>').format(cards)
@@ -772,28 +760,27 @@ def c_intake(args, ctx):
     services = {}
     for sid in list(SERVICES) + list(INTAKE["extra_services"]):
         name, cat = intake_service(sid)
-        s = SERVICES.get(sid)
+        x = SERVICES.get(sid)
         price = ""
-        if s:
-            price = "Scope के अनुसार quote"
-            if s.get("price_from"):
-                price = "शुरुआत ₹{}{} से".format(inr(s["price_from"]), "/महीना" if s["price_unit"] == "month" else "")
+        if x:
+            price = price_text(x) if x.get("price_unit") in ("free", "custom") else "शुरुआत {} से".format(price_text(x))
         services[sid] = {"name": name, "category": INTAKE["categories"][cat]["label"], "price": price,
-                         "offer_price": "₹" + inr(offer_price(s)) if s and in_offer(s) else "",
-                         "prefill_url": INTAKE.get("service_prefill_urls", {}).get(sid) or INTAKE["categories"][cat].get("prefill_url") or "",
-                         "page": "{}#{}".format(s["page"], sid) if s else ""}
+                         "offer_price": "₹" + inr(offer_price(x)) if x and in_offer(x) else "",
+                         "prefill_url": (x.get("form_prefill_url") if x else "") or INTAKE.get("service_prefill_urls", {}).get(sid)
+                         or INTAKE["categories"][cat].get("prefill_url") or "",
+                         "page": "{}#{}".format(x["page"], sid) if x else ""}
     cfg = {"form_url": form_url, "entry_ids": {k: v for k, v in INTAKE.get("entry_ids", {}).items() if not k.startswith("_")},
            "offer": {"id": OFFER.get("id"), "name": OFFER.get("name"), "pct": OFFER.get("discount_pct"), "active": bool(OFFER_STATE)},
            "services": services}
     cfg_json = json.dumps(cfg, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     context = ('<div class="card intake-context" id="intakeContext" hidden><p class="eyebrow">आपने चुना</p>'
                '<h2 class="intake-service" id="intakeService"></h2><p class="muted small" id="intakeCategory"></p>'
-               '<p class="price" id="intakePrice"></p><p class="notice small" id="intakeOffer" hidden></p>'
-               '<p class="small"><a id="intakeDetails" href="/services/">Package details</a> · <a href="/services/#catalogue">दूसरी service चुनें</a></p></div>')
+               '<p class="price" id="intakePrice"></p><p class="notice small" id="intakeOffer" hidden></p><p class="notice small" id="intakeEstimate" hidden></p>'
+               '<p class="small"><a id="intakeDetails" href="/services/">Package details</a> · <a href="/services/#finder">दूसरी service चुनें</a></p></div>')
     if form_url:
         main = ('<div class="card intake-cta featured"><p class="eyebrow">3–5 मिनट · कोई login नहीं</p><h2>Requirement form भरें</h2>'
                 '<p>Google Form आपकी चुनी service के हिसाब से सिर्फ़ ज़रूरी सवाल पूछेगा। आपकी जानकारी सीधे Moodily तक पहुँचती है।</p>'
-                '<a class="btn btn-primary btn-lg btn-block" id="gformBtn" href="{url}" target="_blank" rel="noopener" data-track="google_form_click" data-label="contact">Continue Requirement Form →</a>'
+                '<a class="btn btn-primary btn-lg btn-block" id="gformBtn" href="{url}" target="_blank" rel="noopener" data-track="google_form_open" data-label="contact">Continue Requirement Form →</a>'
                 '<p class="small muted">Form नई tab में खुलेगा। भेजने के बाद 1 working day में WhatsApp या email पर जवाब।</p>'
                 '<details class="not-included"><summary>Form भरने से पहले तैयार रखें</summary><ul class="ticks small">'
                 '<li>आपका मुख्य goal और deadline</li><li>Budget का अंदाज़ा (या "Need recommendation")</li>'
@@ -807,19 +794,214 @@ def c_intake(args, ctx):
             '<aside class="intake-side"><div class="card"><h2 class="side-h">WhatsApp पर तुरंत</h2><p class="small muted">Form नहीं भरना? अपनी ज़रूरत सीधे WhatsApp करें — voice note भी चलेगा।</p>{wa}'
             '<p class="small muted">या email: <a href="mailto:{email}">{email}</a></p></div>'
             '<div class="card"><h2 class="side-h">आगे क्या होगा</h2><ol class="steps-list small"><li>हम आपकी requirement पढ़ते हैं और ज़रूरत हो तो 1–2 सवाल पूछते हैं।</li>'
-            '<li>लिखित scope, timeline, revisions और quote भेजते हैं।</li><li>आप हाँ कहें, तभी काम शुरू होता है।</li></ol></div></aside></div></div>').format(
+            '<li>लिखित scope, timeline, revisions, third-party खर्च और quote भेजते हैं।</li><li>आप हाँ कहें, तभी काम शुरू होता है।</li></ol></div></aside></div></div>').format(
         mode="google-form" if form_url else "fallback", cfg=cfg_json, context=context, main=main, wa=wa, email=e(SITE["email"]))
 
 
+# ------------------------------------------------------ commerce components
+def c_hero_ctas(args, ctx):
+    svc = SERVICES[args["service"]]
+    lab = L[svc["lang"]]
+    parts = ['<a class="btn btn-primary btn-lg" href="/contact/?service={0}" data-track="pricing_click" data-label="hero:{0}">{1}</a>'.format(svc["id"], lab["quote"]),
+             service_wa(svc, "WhatsApp Requirement" if svc["lang"] == "hi" else "WhatsApp us", "btn btn-wa btn-lg", "hero-" + svc["id"]),
+             '<a class="btn btn-outline btn-lg" href="#samples" data-track="portfolio_open" data-label="hero:{}">{}</a>'.format(svc["id"], lab["sample_btn"])]
+    if svc.get("price_unit") not in ESTIMATOR["excluded_price_units"]:
+        parts.append('<a class="btn btn-outline btn-lg" href="/services/estimator/?service={0}" data-track="pricing_click" data-label="hero-estimate:{0}">{1}</a>'.format(
+            svc["id"], lab["estimate"]))
+    audit = ""
+    if args.get("audit") == "yes":
+        audit = '<p class="small"><a href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="hero:{}">पहले {} लें →</a></p>'.format(
+            svc["id"], lab["audit"])
+    return '<div class="btn-row">{}</div>{}'.format("".join(parts), audit)
+
+
+def c_samples(args, ctx):
+    wanted = split_ids(args.get("services"))
+    ids = split_ids(args.get("ids"))
+    for sid in wanted:
+        if sid not in SERVICES:
+            raise SystemExit("@samples: unknown service {} in {}".format(sid, ctx["file"]))
+        ids += SERVICES[sid].get("sample_ids", [])
+    ids += [k for k, v in SAMPLES.items() if set(v.get("services", [])) & set(wanted)]
+    items, seen = [], set()
+    for i in ids:
+        if i not in SAMPLES:
+            raise SystemExit("@samples: unknown sample {} in {}".format(i, ctx["file"]))
+        if i not in seen and SAMPLES[i].get("status") == "published":
+            seen.add(i)
+            items.append(SAMPLES[i])
+    cases = []
+    for sid in wanted:
+        for c in SERVICES[sid].get("case_study_ids", []):
+            if c not in cases:
+                cases.append(c)
+    cards = []
+    for smp in items:
+        fmts = ", ".join(FORMATS[f] for f in smp.get("formats", []))
+        cards.append('<figure class="card sample-card" data-sample="{id}"><div class="mock mock-{frame}"><div class="mock-screen">'
+                     '<img src="{img}" alt="{alt}" width="{w}" height="{h}" loading="lazy" decoding="async"></div></div>'
+                     '<figcaption><span class="badge badge-kind">{kind}</span><strong>{title}</strong><span class="small muted">{desc}</span>{fmts}</figcaption></figure>'.format(
+                         id=smp["id"], frame=e(smp["frame"]), img=e(smp["image"]), alt=e(smp["alt"]), w=smp["width"], h=smp["height"],
+                         kind=e(KIND_LABEL[smp["kind"]]), title=e(smp["title"]), desc=e(smp["description"]),
+                         fmts='<span class="small">Format: {}</span>'.format(e(fmts)) if fmts else ""))
+    for slug in cases:
+        c = CASES_BY_SLUG[slug]
+        cards.append('<article class="card sample-card sample-case"><span class="badge">Real project · detailed write-up in progress</span><h3>{t}</h3>'
+                     '<p class="small muted">{w}</p><a class="small" href="/case-studies/#{s}" data-track="portfolio_open" data-label="{s}">Portfolio में देखें →</a></article>'.format(
+                         t=e(c["title"]), w=e(c["work_type"]), s=slug))
+    if cards:
+        body = '<div class="grid grid-3 samples-grid">{}</div>'.format("".join(cards))
+    else:
+        body = '<p class="notice small">इस service के published samples जल्द जोड़े जाएँगे। हम नकली या किसी और का काम sample नहीं बनाते।</p>'
+    note = ('<p class="small muted sample-note">हर sample पर साफ़ लिखा है कि वह client project है, Moodily का self-initiated project या concept। '
+            'और examples चाहिए? {}</p>').format(wa_button("WhatsApp पर samples माँगें", track_label="samples-more", cls="btn btn-wa btn-sm"))
+    return '<div id="samples" data-sample-section>{}{}</div>'.format(body, note)
+
+
+def c_before_after(args, ctx):
+    c = ROUTERS["before_after"][args["id"]]
+
+    def col(side, cls):
+        return '<div class="ba-col {}"><p class="ba-h">{}</p><ul>{}</ul></div>'.format(cls, e(side["heading"]), "".join("<li>{}</li>".format(e(i)) for i in side["items"]))
+    return ('<figure class="before-after"><figcaption><span class="badge">Concept illustration — client project नहीं</span> <strong>{}</strong></figcaption>'
+            '<div class="ba-grid">{}<div class="ba-arrow" aria-hidden="true">→</div>{}</div></figure>').format(
+        e(c["title"]), col(c["before"], "ba-before"), col(c["after"], "ba-after"))
+
+
+def c_tiers(args, ctx):
+    ids, rec = split_ids(args["ids"]), args.get("recommended")
+    fallback = ["STARTER", "GROWTH", "PREMIUM"]
+    cards = []
+    for i, sid in enumerate(ids):
+        if sid not in SERVICES:
+            raise SystemExit("@tiers: unknown service {} in {}".format(sid, ctx["file"]))
+        x = SERVICES[sid]
+        lab = L[x["lang"]]
+        label = "MONTHLY" if x.get("price_unit") == "month" else TIER_LABEL.get(x.get("tier") or "", fallback[min(i, 2)])
+        is_rec = sid == rec
+        cards.append(
+            '<article class="card tier-card{rc}"{attrs}>{badge}<p class="eyebrow">{label}</p><h3>{name}</h3>{price}<p class="small muted">{tag}</p>'
+            '<ul class="ticks small">{items}</ul><p class="small"><strong>⏱</strong> {timeline}<br><strong>↻</strong> {rev}</p>'
+            '<div class="card-actions"><a class="btn btn-primary btn-sm" href="/contact/?service={id}" data-track="pricing_click" data-label="tier:{id}">{quote}</a>'
+            '<a class="btn btn-outline btn-sm" href="{page}#{id}" data-track="service_card_click" data-label="tier-details:{id}">{details}</a></div></article>'.format(
+                rc=" recommended" if is_rec else "", attrs=card_attrs(x), badge='<span class="badge badge-rec">RECOMMENDED</span>' if is_rec else "",
+                label=label, name=e(x["name"]), price=price_html(x), tag=e(x["tagline"]),
+                items="".join("<li>{}</li>".format(e(d)) for d in x["deliverables"][:6]), timeline=e(x["timeline"]), rev=e(x["revisions"]),
+                id=sid, quote=lab["quote"], page=x["page"], details=lab["details"]))
+    return '<div class="grid grid-3 tiers">{}</div>{}'.format("".join(cards), scope_note_html())
+
+
+def c_third_party_note(args, ctx):
+    return ('<div class="card third-party-card"><h3>Third-party खर्च अलग हैं</h3>'
+            '<p class="small">नीचे दिए खर्च किसी package में अपने-आप शामिल नहीं होते — जब तक उस package में साफ़ न लिखा हो:</p>{}'
+            '<p class="small muted">हम सलाह देते हैं कि domain, hosting, Google, WhatsApp, ads और software accounts सीधे आपके नाम पर हों — Moodily सिर्फ़ manager/admin access लेता है।</p></div>').format(
+        chip_list(TPC_LABELS.values()))
+
+
+def c_how_it_works(args, ctx):
+    steps = "".join('<li><span class="step-num">{}</span><div><h3>{}</h3><p>{}</p></div></li>'.format(i + 1, e(t), e(d))
+                    for i, (t, d) in enumerate(ROUTERS["how_it_works"]))
+    return '<ol class="quality how-steps">{}</ol>'.format(steps)
+
+
+def c_need_router(args, ctx):
+    cards = []
+    for n in ROUTERS["needs"]:
+        x = SERVICES.get(n.get("price_service") or "")
+        price = "शुरुआत {} से".format(price_text(x)) if x and x.get("price_from") else "Requirement के अनुसार quote"
+        sub = ""
+        if n.get("sublinks"):
+            sub = '<p class="need-sublinks small">{}</p>'.format(" · ".join(
+                '<a href="{}" data-track="service_card_click" data-label="need:{}:{}">{}</a>'.format(h, n["id"], e(t), e(t)) for t, h in n["sublinks"]))
+        cards.append('<div class="need-card"><a class="need-main" href="{href}" data-track="service_card_click" data-label="need:{id}">'
+                     '<span class="need-emoji" aria-hidden="true">{emoji}</span><span class="need-title">{title}</span><span class="need-sub">{sub}</span>'
+                     '<span class="need-price">{price} →</span></a>{links}</div>'.format(
+                         href=e(n["href"]), id=n["id"], emoji=n["emoji"], title=e(n["title"]), sub=e(n["sub"]), price=e(price), links=sub))
+    return '<div class="need-grid">{}</div>{}'.format("".join(cards), scope_note_html())
+
+
+def c_customer_router(args, ctx):
+    visible = int(ROUTERS.get("mobile_visible_types", 4))
+    types = ROUTERS["customer_types"]
+    cards = "".join(
+        '<a class="router-card{more}" href="{href}" data-track="service_card_click" data-label="type:{id}"><span class="router-emoji" aria-hidden="true">{emoji}</span>'
+        '<span class="router-title">{title}</span><span class="router-sub">{sub}</span><span class="router-go" aria-hidden="true">→</span></a>'.format(
+            more=" more-type" if i >= visible else "", href=e(c["href"]), id=c["id"], emoji=c["emoji"], title=e(c["title"]), sub=e(c["sub"]))
+        for i, c in enumerate(types))
+    closed = "सभी customer types देखें ({} और)".format(len(types) - visible)
+    return ('<div class="router types" data-types>{}</div>'
+            '<button type="button" class="btn btn-outline types-toggle" data-types-toggle data-label-closed="{}" aria-expanded="false">{}</button>').format(
+        cards, e(closed), e(closed))
+
+
+def c_finder(args, ctx):
+    chips = '<button type="button" class="chip-btn" data-filter="" aria-pressed="true">सभी</button>' + "".join(
+        '<button type="button" class="chip-btn" data-filter="{}" aria-pressed="false">{}</button>'.format(k, e(v)) for k, v in FILTER_LABELS.items())
+    cards = []
+    for x in ACTIVE:
+        search = " ".join([x["name"], x["tagline"], x["category"], " ".join(x["keywords"]), " ".join(x["deliverables"])]).lower()
+        cards.append('<article class="card finder-card" data-tags="{tags}" data-types="{types}" data-search="{search}"{attrs}>'
+                     '<p class="eyebrow">{filters}</p><h3><a href="{page}#{id}" data-track="service_card_click" data-label="finder:{id}">{name}</a></h3>'
+                     '<p class="muted small">{tag}</p>{price}<p class="small muted">⏱ {timeline}</p>'
+                     '<div class="card-actions"><a class="btn btn-primary btn-sm" href="/contact/?service={id}" data-track="pricing_click" data-label="finder:{id}">Quote लें</a></div></article>'.format(
+                         tags=" ".join(x["filters"]), types=" ".join(x["customer_types"]), search=e(search), attrs=card_attrs(x),
+                         filters=e(" · ".join(FILTER_LABELS[f] for f in x["filters"])), page=x["page"], id=x["id"], name=e(x["name"]),
+                         tag=e(x["tagline"]), price=price_html(x), timeline=e(x["timeline"])))
+    cards.append('<article class="card finder-card cat-custom" data-always><p class="eyebrow">Custom</p><h3>Something else?</h3>'
+                 '<p class="muted small">Need something not listed? Send your requirement — हम साफ़ बताएँगे कि कर सकते हैं या नहीं।</p>'
+                 '<div class="card-actions"><a class="btn btn-primary btn-sm" href="/contact/?service=custom-digital-work" data-track="service_card_click" data-label="finder:custom">Requirement भेजें</a></div></article>')
+    types = "".join('<option value="{}">{}</option>'.format(c["id"], e(c["title"])) for c in ROUTERS["customer_types"])
+    return ('<div class="finder" data-finder><div class="finder-bar"><label class="sr-only" for="finderSearch">Service खोजें</label>'
+            '<input id="finderSearch" class="finder-search" type="search" placeholder="खोजें: invoice, PPT, invitation, website, brochure, PDF, thumbnail…" autocomplete="off">'
+            '<label class="sr-only" for="finderType">Customer type</label><select id="finderType" class="finder-type"><option value="">सभी customer types</option>{types}</select></div>'
+            '<div class="chip-row" role="group" aria-label="Category filter">{chips}</div><p class="small muted" data-finder-count aria-live="polite"></p></div>'
+            '<div class="grid grid-3 finder-grid">{cards}</div>'
+            '<p class="notice small" data-finder-empty hidden>कोई package नहीं मिला — <a href="/contact/?service=custom-digital-work">अपनी requirement भेजें</a>।</p>{scope}').format(
+        types=types, chips=chips, cards="".join(cards), scope=scope_note_html())
+
+
+def c_estimator(args, ctx):
+    rules = {k: v for k, v in ESTIMATOR.items() if not k.startswith("_")}
+    svcs = {x["id"]: {"name": x["name"], "price": x["price_from"], "unit": x["price_unit"], "page": "{}#{}".format(x["page"], x["id"])}
+            for x in ACTIVE if x["price_unit"] not in rules["excluded_price_units"]}
+    opts = "".join('<option value="{}">{} — {} से</option>'.format(sid, e(v["name"]), e(price_text(SERVICES[sid]))) for sid, v in svcs.items())
+
+    def radios(group, legend, default):
+        items = "".join(
+            '<div class="radio"><input type="radio" id="est-{g}-{k}" name="{g}" value="{k}"{chk}><label for="est-{g}-{k}">{lab}{hint}</label></div>'.format(
+                g=group, k=k, chk=" checked" if k == default else "", lab=e(v["label"]),
+                hint=' <span class="small muted">— {}</span>'.format(e(v["hint"])) if v.get("hint") else "") for k, v in rules[group].items())
+        return '<fieldset class="field-full est-group" data-group="{}"><legend>{}</legend><div class="radio-row">{}</div></fieldset>'.format(group, legend, items)
+
+    extras = "".join('<div class="radio"><input type="checkbox" id="est-x-{0}" name="extras" value="{0}"><label for="est-x-{0}">{1}</label></div>'.format(k, e(v["label"]))
+                     for k, v in rules["extras"].items())
+    cfg = json.dumps({"rules": rules, "services": svcs}, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    wa = wa_button("WhatsApp पर भेजें", cls="btn btn-wa", track_label="estimator").replace("<a class=", '<a id="estWa" class=', 1)
+    return ('<form class="estimator card" id="estimator" novalidate><script type="application/json" id="estimatorConfig">{cfg}</script>'
+            '<div class="form-grid"><div class="field field-full"><label for="est-service">Service *</label><select id="est-service" name="service">'
+            '<option value="">Service चुनें</option>{opts}</select></div>{scope}{content}{turn}'
+            '<fieldset class="field-full est-group"><legend>Extras</legend><div class="radio-row">{extras}</div></fieldset></div>'
+            '<p class="small muted" id="estHint">Service चुनें — indicative range तुरंत दिखेगी।</p>'
+            '<div class="est-result" id="estResult" aria-live="polite" hidden><p class="eyebrow">Indicative estimate</p><p class="est-range" id="estRange"></p>'
+            '<p class="small muted" id="estBase"></p><p class="notice small"><strong>Final quote after reviewing requirement.</strong> '
+            'यह केवल अनुमान है; इस estimate के आधार पर payment नहीं लिया जाता।</p>'
+            '<div class="card-actions"><a class="btn btn-primary" id="estQuote" href="/contact/" data-track="pricing_click" data-label="estimator-quote">इस estimate के साथ Quote लें</a>'
+            '{wa}<a class="btn btn-outline" id="estDetails" href="/services/">Package details</a></div></div></form>').format(
+        cfg=cfg, opts=opts, scope=radios("scope", "Scope", "basic"), content=radios("content", "Content readiness", "ready"),
+        turn=radios("turnaround", "Turnaround", "normal"), extras=extras, wa=wa)
+
+
 COMPONENTS = {
-    "services": c_services, "price-table": c_price_table, "payg": c_payg, "audience-router": c_audience_router,
+    "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
     "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "founder": c_founder,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
-    "catalogue": c_catalogue, "outcomes": c_outcomes, "catalogue-group": c_catalogue_group,
-    "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
+    "catalogue-group": c_catalogue_group, "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
+    "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
+    "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "need-router": c_need_router,
+    "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
 TOKEN_RE = re.compile(r"<!--@([\w-]+)(.*?)-->", re.S)
@@ -937,12 +1119,15 @@ NAV = [
     ("/store/", "Store", "खरीदें"), ("/tools/", "Tools", "Tools"),
 ]
 SERVICE_NAV = [
-    ("/services/local-business/", "दुकान / Local Business"), ("/services/medical-store/", "Medical Store / Clinic"),
-    ("/services/education/", "School / Coaching"), ("/services/professionals/", "Professionals & LinkedIn"),
-    ("/services/creators/", "Creators"), ("/services/research/", "Research & Intelligence"),
+    ("/services/local-business/", "Local Business"), ("/services/google-whatsapp/", "Google + WhatsApp"),
+    ("/services/websites/", "Websites / Lead system"), ("/services/design/", "Design · Brochure · Logo"),
+    ("/services/social-media/", "Social Media"), ("/services/presentations/", "Presentations / PPT"),
+    ("/services/invitations/", "Invitations"), ("/services/education-business/", "Coaching / Library"),
+    ("/services/education-content/", "Education Material"), ("/services/wedding-event/", "Wedding / Event vendors"),
+    ("/services/b2b/", "Manufacturer / B2B"), ("/services/research/", "Research & Intelligence"),
     ("/services/knowledge-to-product/", "Knowledge-to-Product"), ("/services/ai-workflows/", "AI Workflows"),
-    ("/services/presentation-design/", "Presentations / PPT"), ("/services/invitation-design/", "Invitations"),
-    ("/services/business-documents/", "Business Documents & Print"), ("/services/social-media-design/", "Social Media Design"),
+    ("/services/medical-store/", "Medical Store / Clinic"), ("/services/professionals/", "Professionals & LinkedIn"),
+    ("/services/creators/", "Creators"), ("/services/estimator/", "Price estimator"),
     ("/services/", "सभी services और prices"),
 ]
 
@@ -1193,9 +1378,28 @@ def validate_offer():
         WARNINGS.append("offer '{}' is active in site.json but outside its window or sold out — not shown".format(OFFER["id"]))
 
 
+REDIRECT_TEMPLATE = """<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moved — {path} | Moodily</title>
+<meta name="description" content="यह Moodily page अब नए पते पर है: {path}। Page अपने-आप खुल जाएगा; न खुले तो link पर click करें।">
+<link rel="canonical" href="{url}">
+<meta name="robots" content="noindex, follow">
+<meta name="moodily-redirect" content="{path}">
+<meta http-equiv="refresh" content="0; url={path}">
+<script>location.replace("{path}" + location.search + location.hash);</script>
+</head>
+<body><h1>यह page अब <a href="{path}">{path}</a> पर है</h1></body>
+</html>
+"""
+
+
 def main():
     validate_services()
     validate_offer()
+    validate_commerce()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 
@@ -1229,6 +1433,12 @@ def main():
         written.append(str(out.relative_to(ROOT)))
         if not meta.get("noindex") and route != "/404.html":
             sitemap.append((route, meta.get("priority", "0.7")))
+
+    for old_route, new_route in REDIRECTS.items():
+        target = ROOT.joinpath(*old_route.strip("/").split("/"), "index.html")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(REDIRECT_TEMPLATE.format(path=e(new_route), url=e(BASE + new_route)), encoding="utf-8")
+        written.append(str(target.relative_to(ROOT)))
 
     for stale in sorted(old - set(written)):
         p = ROOT / stale

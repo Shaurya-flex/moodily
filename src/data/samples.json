@@ -1,0 +1,111 @@
+{
+  "_readme": "Real work samples only. kind: self-initiated | client | concept. Web derivatives (webp, ≤300 KB) live in /assets/img/samples/; high-resolution originals stay outside the repository in the owner's content folders. Client work needs written permission before status 'published'. Private files (emails, IDs, startup blueprints, third-party study material) must never be added.",
+  "samples": [
+    {
+      "id": "moodily-website",
+      "title": "moodily.in — यही website",
+      "kind": "self-initiated",
+      "frame": "laptop",
+      "alt": "moodily.in homepage का desktop screenshot",
+      "formats": [
+        "website"
+      ],
+      "description": "Bilingual, तेज़ static website + requirement intake — Moodily ने अपने लिए खुद बनाई और चलाती है।",
+      "services": [
+        "landing-page",
+        "business-website",
+        "lead-booking-website",
+        "local-business-complete",
+        "coaching-growth",
+        "b2b-digital-sales-kit",
+        "business-growth-launch"
+      ],
+      "status": "published",
+      "image": "/assets/img/samples/moodily-website-desktop.webp",
+      "width": 1000,
+      "height": 659
+    },
+    {
+      "id": "moodily-website-mobile",
+      "title": "moodily.in — mobile view",
+      "kind": "self-initiated",
+      "frame": "phone",
+      "alt": "moodily.in local business service page का mobile screenshot",
+      "formats": [
+        "website"
+      ],
+      "description": "Mobile-first service page: packages, starting price, WhatsApp और requirement CTA।",
+      "services": [
+        "landing-page",
+        "business-website",
+        "lead-booking-website"
+      ],
+      "status": "published",
+      "image": "/assets/img/samples/moodily-website-mobile.webp",
+      "width": 400,
+      "height": 800
+    },
+    {
+      "id": "ncert-how-we-breathe",
+      "title": "How we breathe — NCERT-based kid lesson (PDF)",
+      "kind": "self-initiated",
+      "frame": "pdf",
+      "alt": "'How we breathe' learning PDF का पहला page — lungs को balloon की तरह समझाते illustrations",
+      "formats": [
+        "pdf"
+      ],
+      "description": "5-page learning PDF: आसान भाषा, visuals, sources और disclaimer। Illustrations AI-assisted; NCERT का official product नहीं।",
+      "services": [
+        "educational-pdf-module",
+        "education-content-pack",
+        "knowledge-to-product"
+      ],
+      "status": "published",
+      "image": "/assets/img/samples/ncert-how-we-breathe.webp",
+      "width": 640,
+      "height": 906
+    },
+    {
+      "id": "ai-with-saurabh-channel-art",
+      "title": "AI with Saurabh — YouTube channel art",
+      "kind": "self-initiated",
+      "frame": "screen",
+      "alt": "'AI with Saurabh — Practical AI for India' YouTube channel banner",
+      "formats": [
+        "png"
+      ],
+      "description": "Founder के अपने YouTube channel का branding banner — AI-assisted design।",
+      "services": [
+        "social-creative-single",
+        "social-post-pack",
+        "social-carousel-thumbnail-pack",
+        "creator-content-sprint",
+        "content-growth-retainer"
+      ],
+      "status": "published",
+      "image": "/assets/img/samples/ai-with-saurabh-channel-art.webp",
+      "width": 1000,
+      "height": 563
+    },
+    {
+      "id": "short-one-book-five-study-tools",
+      "title": "YouTube Short — 'One book, five study tools'",
+      "kind": "self-initiated",
+      "frame": "phone",
+      "alt": "'One book, five study tools' Hinglish YouTube Short का एक frame",
+      "formats": [
+        "mp4"
+      ],
+      "description": "Hinglish short: script, edit और captions — founder का अपना channel।",
+      "services": [
+        "creator-content-sprint",
+        "content-growth-retainer",
+        "ai-content-engine"
+      ],
+      "status": "published",
+      "image": "/assets/img/samples/short-one-book-five-study-tools.webp",
+      "width": 360,
+      "height": 640
+    }
+  ]
+}

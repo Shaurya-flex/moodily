@@ -1,5 +1,5 @@
 {
-  "_readme": "Single source of truth for every service card, Service schema, price CTA and WhatsApp prefill. Prices are STARTING prices; scope/deliverables are a DRAFT for owner approval. price_from null = custom quote.",
+  "_readme": "Central package configuration (single source of truth). Brief field mapping: id/slug=id, category, customerTypes=customer_types, title=name, shortDescription=tagline, problemSolved=problem, deliverables, startingPrice=price_from (0 = FREE, null = custom quote), recommendedPrice=recommended_price, priceType=price_unit (one-time|month|free|custom), timeline, revisionRounds=revision_rounds (+ revisions text), editableSource=editable_source, thirdPartyCosts=third_party_costs (codes → third_party_cost_labels), sampleIds=sample_ids, caseStudyIds=case_study_ids, formPrefillURL=form_prefill_url, whatsappMessage=whatsapp_message, featured, active, tier (starter|growth|premium), filters (search filter tags), keywords (search). Owner-approved starting prices 2026-09-14; packages still carrying _todo_price are drafts.",
   "divisions": {
     "learn": "Moodily Learn",
     "digital-saathi": "Moodily Digital Saathi",
@@ -13,8 +13,8 @@
       "division": "digital-saathi",
       "category": "local-business",
       "page": "/services/local-business/",
-      "name": "Digital Business Starter",
-      "tagline": "Google पर दिखें, WhatsApp पर ऑर्डर/enquiry लें — एक हफ़्ते में शुरुआत।",
+      "name": "Google + WhatsApp Starter",
+      "tagline": "Google पर सही दिखें, WhatsApp पर enquiry लें — basics एक हफ़्ते में।",
       "price_from": 4999,
       "price_unit": "one-time",
       "for": "दुकान, सैलून, रेस्टोरेंट, repair shop, tuition या कोई भी local business जो अभी Google/WhatsApp पर ठीक से नहीं दिखता।",
@@ -36,7 +36,45 @@
         "Google verification में होने वाली देरी",
         "Printing, paid ads या ongoing posting"
       ],
-      "case_study": "rasra-library-digitization"
+      "case_study": "rasra-library-digitization",
+      "slug": "digital-business-starter",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business"
+      ],
+      "keywords": [
+        "google business profile",
+        "google maps",
+        "whatsapp business",
+        "qr",
+        "visiting card"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "सभी accounts आपके नाम पर; creatives PNG/PDF",
+      "third_party_costs": [
+        "printing"
+      ],
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "rasra-library-digitization"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "business-growth-launch",
@@ -44,7 +82,7 @@
       "division": "digital-saathi",
       "category": "local-business",
       "page": "/services/local-business/",
-      "name": "Business Growth Launch",
+      "name": "Local Business Growth",
       "tagline": "Website + Google + WhatsApp + reviews — एक जुड़ा हुआ enquiry system।",
       "price_from": 12999,
       "price_unit": "one-time",
@@ -52,7 +90,7 @@
       "for": "वे businesses जो सिर्फ़ दिखना नहीं, नियमित enquiries और reviews चाहते हैं — showroom, clinic front-desk, coaching, service providers।",
       "problem": "Listing है पर भरोसा नहीं बनता: website नहीं, reviews कम, catalogue बिखरा हुआ, और पता नहीं चलता कि enquiries कहाँ से आ रही हैं।",
       "deliverables": [
-        "Digital Business Starter की सभी चीज़ें",
+        "Google + WhatsApp Starter की सभी चीज़ें",
         "1 mobile-first website/landing page (5 sections तक) — Google Maps embed, WhatsApp/call buttons, enquiry form",
         "Service/product catalogue — 25 items तक (web page या PDF)",
         "Logo refresh — 1 concept (नया brand identity नहीं)",
@@ -71,7 +109,50 @@
         "Paid ads budget",
         "Ranking या sales की guarantee"
       ],
-      "case_study": "rasra-library-digitization"
+      "case_study": "rasra-library-digitization",
+      "slug": "business-growth-launch",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business",
+        "website"
+      ],
+      "keywords": [
+        "website",
+        "landing page",
+        "catalogue",
+        "reviews",
+        "local seo"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "Website files/admin access आपके पास",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "ad_spend",
+        "printing"
+      ],
+      "formats": [
+        "website",
+        "png",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "rasra-library-digitization"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "digital-saathi-monthly",
@@ -79,19 +160,19 @@
       "division": "digital-saathi",
       "category": "local-business",
       "page": "/services/local-business/",
-      "name": "Digital Saathi Monthly",
-      "tagline": "हर महीने आपका digital काम — posting, reviews, updates और report।",
-      "price_from": 4999,
+      "name": "Digital Saathi Care",
+      "tagline": "हर महीने Google, WhatsApp और reviews की देखभाल।",
+      "price_from": 3999,
       "price_unit": "month",
       "for": "जिन businesses का setup हो चुका है पर रोज़ Google/WhatsApp/social संभालने का समय नहीं है।",
       "problem": "Setup के बाद listing पुरानी हो जाती है, reviews का जवाब नहीं जाता, offers update नहीं होते।",
       "deliverables": [
         "4 Google Business Profile posts/month",
-        "8 social media creatives/month",
-        "Reviews के जवाब के drafts (20/month तक) — आपकी approval के बाद ही post",
+        "4 social media creatives/month",
+        "Reviews के जवाब के drafts (15/month तक) — आपकी approval के बाद ही post",
         "Catalogue/price/timing updates — 10 changes/month तक",
-        "Monthly 1-page report — calls, direction requests, website clicks (Google जो data देता है)",
-        "Working hours में WhatsApp support + 1 monthly call (30 मिनट)"
+        "Monthly 1-page report — calls, directions, website clicks (Google जो data देता है)",
+        "Working days में WhatsApp support"
       ],
       "timeline": "पहला महीना onboarding से शुरू; उसके बाद हर महीने",
       "revisions": "हर creative पर 1 revision",
@@ -103,7 +184,42 @@
         "Video shoot/editing",
         "Fake reviews — हम कभी fake या paid reviews नहीं लिखते/खरीदते"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "digital-saathi-monthly",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business"
+      ],
+      "keywords": [
+        "monthly",
+        "google posts",
+        "reviews",
+        "retainer"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "सभी accounts आपके नाम पर",
+      "third_party_costs": [
+        "ad_spend",
+        "printing"
+      ],
+      "formats": [
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "medical-store-digital-desk",
@@ -138,7 +254,40 @@
         "Legal certification — ज़रूरत हो तो अपने legal/CA advisor से पुष्टि करें"
       ],
       "compliance_note": "यह system human-approval-first है: कोई भी prescription दवा बिना valid prescription और pharmacist verification के confirm नहीं होती। Moodily किसी pharmacist या doctor की जगह नहीं लेता।",
-      "case_study": "patientsaathi-research"
+      "case_study": "patientsaathi-research",
+      "slug": "medical-store-digital-desk",
+      "customer_types": [
+        "medical-store"
+      ],
+      "filters": [
+        "business"
+      ],
+      "keywords": [
+        "pharmacy",
+        "chemist",
+        "medical store",
+        "delivery",
+        "whatsapp"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "SOP और templates — PDF/Docs",
+      "third_party_costs": [
+        "printing",
+        "whatsapp_api"
+      ],
+      "formats": [
+        "pdf",
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "patientsaathi-research"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "professional-authority-pack",
@@ -169,7 +318,35 @@
         "Fake engagement/pods",
         "Regulated professions के नियमों के विरुद्ध solicitation या misleading claims"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "professional-authority-pack",
+      "customer_types": [
+        "professional"
+      ],
+      "filters": [
+        "professional"
+      ],
+      "keywords": [
+        "linkedin",
+        "bio",
+        "profile",
+        "consultant",
+        "ca"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "Docs + PNG",
+      "third_party_costs": [],
+      "formats": [
+        "docs",
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "linkedin-essential",
@@ -197,7 +374,35 @@
         "Engagement/followers की guarantee",
         "Paid promotion"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "linkedin-essential",
+      "customer_types": [
+        "professional",
+        "startup"
+      ],
+      "filters": [
+        "professional",
+        "creator"
+      ],
+      "keywords": [
+        "linkedin",
+        "ghostwriting",
+        "posts",
+        "retainer"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "Google Docs",
+      "third_party_costs": [],
+      "formats": [
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "linkedin-growth",
@@ -226,7 +431,34 @@
         "Followers/leads की guarantee",
         "Paid promotion"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "linkedin-growth",
+      "customer_types": [
+        "professional",
+        "startup"
+      ],
+      "filters": [
+        "professional",
+        "creator"
+      ],
+      "keywords": [
+        "linkedin",
+        "ghostwriting",
+        "retainer"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "Google Docs",
+      "third_party_costs": [],
+      "formats": [
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "linkedin-authority",
@@ -254,7 +486,35 @@
         "Results की guarantee",
         "Paid promotion"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "linkedin-authority",
+      "customer_types": [
+        "professional",
+        "startup"
+      ],
+      "filters": [
+        "professional",
+        "creator"
+      ],
+      "keywords": [
+        "linkedin",
+        "newsletter",
+        "retainer"
+      ],
+      "tier": null,
+      "revision_rounds": 3,
+      "editable_source": "Google Docs",
+      "third_party_costs": [],
+      "formats": [
+        "docs",
+        "html-email"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "creator-content-sprint",
@@ -285,7 +545,39 @@
         "Views/subscribers की guarantee",
         "Paid promotion"
       ],
-      "case_study": "teleprompter-creator-project"
+      "case_study": "teleprompter-creator-project",
+      "slug": "creator-content-sprint",
+      "customer_types": [
+        "creator"
+      ],
+      "filters": [
+        "creator"
+      ],
+      "keywords": [
+        "youtube",
+        "instagram",
+        "scripts",
+        "thumbnail",
+        "content calendar"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "Docs + PNG",
+      "third_party_costs": [
+        "paid_stock"
+      ],
+      "formats": [
+        "docs",
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "teleprompter-creator-project"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "research-intelligence-sprint",
@@ -293,20 +585,20 @@
       "division": "studio",
       "category": "research",
       "page": "/services/research/",
-      "name": "Research Intelligence Sprint",
-      "tagline": "One decision question. Evidence-labelled answers in 7–10 working days.",
-      "price_from": 14999,
+      "name": "Research Intelligence Brief",
+      "tagline": "One decision question. An evidence-labelled brief in 7–10 working days.",
+      "price_from": 9999,
       "price_unit": "one-time",
       "featured": true,
       "for": "Founders, product teams, investors, agencies, researchers and creators who need a decision, not a data dump.",
       "problem": "Information is scattered across websites, reports, channels and papers — and most summaries mix facts with guesses.",
       "deliverables": [
         "Scoping call to fix one decision question",
-        "Up to 5 competitors, channels or entities analysed",
+        "Up to 3 competitors, channels or entities analysed",
         "Source log with a citation for every factual claim",
         "Every finding labelled FACT / INFERENCE / HYPOTHESIS / UNVERIFIED",
-        "10–15 page decision brief + 1-page executive summary",
-        "45-minute readout call"
+        "8–10 page decision brief + 1-page executive summary",
+        "30-minute readout call"
       ],
       "timeline": "7–10 working days after scoping",
       "revisions": "1 revision round on the brief",
@@ -316,7 +608,40 @@
         "Paid database subscriptions unless agreed in writing",
         "Legal, medical, financial or investment advice"
       ],
-      "case_study": "grocery-competitive-gap-analysis"
+      "case_study": "grocery-competitive-gap-analysis",
+      "slug": "research-intelligence-sprint",
+      "customer_types": [
+        "startup",
+        "b2b",
+        "professional"
+      ],
+      "filters": [
+        "research"
+      ],
+      "keywords": [
+        "competitor",
+        "market research",
+        "report",
+        "brief"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "PDF + Google Docs/Sheets",
+      "third_party_costs": [
+        "paid_api"
+      ],
+      "formats": [
+        "pdf",
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "grocery-competitive-gap-analysis"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "knowledge-to-product",
@@ -326,7 +651,7 @@
       "page": "/services/knowledge-to-product/",
       "name": "Knowledge-to-Product",
       "tagline": "Turn books, notes, recordings and courses into products people can buy and use.",
-      "price_from": 19999,
+      "price_from": 14999,
       "price_unit": "one-time",
       "featured": true,
       "for": "Authors, teachers, coaches, doctors, researchers, trainers and institutions — in India and internationally.",
@@ -347,14 +672,51 @@
         "Video production",
         "Clearing rights for third-party material you do not own"
       ],
-      "case_study": "mind-map-second-brain"
+      "case_study": "mind-map-second-brain",
+      "slug": "knowledge-to-product",
+      "customer_types": [
+        "professional",
+        "student-educator",
+        "creator"
+      ],
+      "filters": [
+        "education",
+        "research"
+      ],
+      "keywords": [
+        "ebook",
+        "course",
+        "quiz",
+        "flashcards",
+        "book"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "Editable Docs/PPTX",
+      "third_party_costs": [
+        "premium_software",
+        "paid_stock"
+      ],
+      "formats": [
+        "pdf",
+        "pptx",
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "mind-map-second-brain"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "education-content-pack",
       "lang": "hi",
       "division": "studio",
       "category": "education",
-      "page": "/services/education/",
+      "page": "/services/education-content/",
       "name": "School / Coaching Content Pack",
       "tagline": "PYQ analysis, practice tests, worksheets और visual notes — आपके brand के साथ।",
       "price_from": null,
@@ -379,7 +741,41 @@
         "'Guaranteed/predicted questions' — PYQ analysis trends दिखाता है, भविष्य के प्रश्न नहीं",
         "Copyrighted किताबों की copy"
       ],
-      "case_study": "ncert-respiratory-visual-learning"
+      "case_study": "ncert-respiratory-visual-learning",
+      "slug": "education-content-pack",
+      "customer_types": [
+        "coaching-library",
+        "student-educator"
+      ],
+      "filters": [
+        "education"
+      ],
+      "keywords": [
+        "pyq",
+        "test",
+        "worksheet",
+        "question bank",
+        "white-label"
+      ],
+      "tier": "premium",
+      "revision_rounds": 2,
+      "editable_source": "Editable Docs/PPTX",
+      "third_party_costs": [
+        "printing"
+      ],
+      "formats": [
+        "pdf",
+        "docs",
+        "pptx"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "ncert-respiratory-visual-learning"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "ai-automation-starter",
@@ -407,7 +803,41 @@
         "Custom software development",
         "Sensitive/health data वाले workflows (अलग review के बिना)"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "ai-automation-starter",
+      "customer_types": [
+        "local-business",
+        "startup",
+        "b2b",
+        "professional"
+      ],
+      "filters": [
+        "ai"
+      ],
+      "keywords": [
+        "automation",
+        "n8n",
+        "zapier",
+        "google sheets",
+        "workflow"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "Workflow export + documentation",
+      "third_party_costs": [
+        "premium_software",
+        "paid_api"
+      ],
+      "formats": [
+        "other",
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "ai-workflow-package",
@@ -436,7 +866,40 @@
         "Custom app development",
         "Paid API usage charges"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "ai-workflow-package",
+      "customer_types": [
+        "local-business",
+        "startup",
+        "b2b",
+        "professional"
+      ],
+      "filters": [
+        "ai"
+      ],
+      "keywords": [
+        "automation",
+        "workflow",
+        "crm",
+        "leads"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "Workflow export + documentation",
+      "third_party_costs": [
+        "premium_software",
+        "paid_api"
+      ],
+      "formats": [
+        "other",
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "ai-content-engine",
@@ -464,17 +927,49 @@
         "बिना human review के auto-publishing",
         "Reach/engagement की guarantee"
       ],
-      "case_study": null
+      "case_study": null,
+      "slug": "ai-content-engine",
+      "customer_types": [
+        "creator",
+        "startup",
+        "b2b"
+      ],
+      "filters": [
+        "ai",
+        "creator"
+      ],
+      "keywords": [
+        "content automation",
+        "ai content",
+        "publishing"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "Workflow export + SOP",
+      "third_party_costs": [
+        "premium_software",
+        "paid_api"
+      ],
+      "formats": [
+        "other",
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "presentation-design-only",
       "lang": "hi",
       "division": "studio",
       "category": "presentations",
-      "page": "/services/presentation-design/",
-      "name": "Presentation — Design Only",
+      "page": "/services/presentations/",
+      "name": "10-slide PPT Design",
       "tagline": "आपका content, हमारा design — साफ़, readable slides।",
-      "price_from": 1499,
+      "price_from": 4999,
       "price_unit": "one-time",
       "for": "Students, teachers, professionals और teams जिनके पास content तैयार है।",
       "problem": "Content अच्छा है पर slides भीड़-भरी, अलग-अलग fonts और पढ़ने में मुश्किल हैं।",
@@ -495,17 +990,50 @@
         "10 से ज़्यादा slides (अलग per-slide quote)"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "slug": "presentation-design-only",
+      "customer_types": [
+        "student-educator",
+        "professional",
+        "startup",
+        "b2b"
+      ],
+      "filters": [
+        "design",
+        "education",
+        "professional"
+      ],
+      "keywords": [
+        "ppt",
+        "slides",
+        "deck",
+        "presentation"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "Editable PPTX + PDF",
+      "third_party_costs": [
+        "paid_stock"
+      ],
+      "formats": [
+        "pptx",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "presentation-content-design",
       "lang": "hi",
       "division": "studio",
       "category": "presentations",
-      "page": "/services/presentation-design/",
-      "name": "Presentation — Content + Design",
+      "page": "/services/presentations/",
+      "name": "PPT Content + Design",
       "tagline": "आपके notes से कहानी जैसी structured presentation।",
-      "price_from": 2999,
+      "price_from": 8999,
       "price_unit": "one-time",
       "for": "जिनके पास notes, document या रूपरेखा है पर slides का flow और शब्द तय नहीं।",
       "problem": "सारी जानकारी है, पर क्या पहले दिखाएँ, क्या छोड़ें और हर slide पर क्या लिखें — तय नहीं।",
@@ -525,24 +1053,57 @@
         "Grades, funding या deal की guarantee"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
       "featured": true,
-      "compliance_note": "Academic use: हम learning और presentation support देते हैं। Graded assignment पर अपने institution के academic integrity नियम आप follow करें।"
+      "compliance_note": "Academic use: हम learning और presentation support देते हैं। Graded assignment पर अपने institution के academic integrity नियम आप follow करें।",
+      "slug": "presentation-content-design",
+      "customer_types": [
+        "student-educator",
+        "professional",
+        "startup",
+        "b2b"
+      ],
+      "filters": [
+        "design",
+        "professional"
+      ],
+      "keywords": [
+        "ppt",
+        "slides",
+        "pitch deck",
+        "sales deck"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "Editable PPTX + PDF",
+      "third_party_costs": [
+        "paid_stock"
+      ],
+      "formats": [
+        "pptx",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "presentation-research-content-design",
       "lang": "hi",
       "division": "studio",
       "category": "presentations",
-      "page": "/services/presentation-design/",
-      "name": "Presentation — Research + Content + Design",
-      "tagline": "Topic से शुरू — cited research, script-ready slides और design।",
-      "price_from": 5999,
+      "page": "/services/presentations/",
+      "name": "Research + Strategy Presentation",
+      "tagline": "Topic से शुरू — cited research, strategy recommendation, script-ready slides और design।",
+      "price_from": 14999,
       "price_unit": "one-time",
       "for": "Pitch/investor decks, research presentations, conference और training decks।",
       "problem": "सिर्फ़ topic या idea है; data, structure और design सब बनाना है।",
       "deliverables": [
-        "Public sources से topic research — sources slide के साथ",
+        "Public sources से topic/market research — sources slide के साथ",
+        "Strategy recommendation और next-steps slides",
         "15 slides तक",
         "Data charts और comparison visuals",
         "Speaker notes",
@@ -557,18 +1118,50 @@
         "Fundraising/grades की guarantee"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
-      "compliance_note": "Research में हर तथ्य का source दिया जाता है; जिन बातों की पुष्टि नहीं हो सकी, उन्हें साफ़ UNVERIFIED लिखा जाता है।"
+      "compliance_note": "Research में हर तथ्य का source दिया जाता है; जिन बातों की पुष्टि नहीं हो सकी, उन्हें साफ़ UNVERIFIED लिखा जाता है।",
+      "slug": "presentation-research-content-design",
+      "customer_types": [
+        "startup",
+        "b2b",
+        "professional"
+      ],
+      "filters": [
+        "design",
+        "research"
+      ],
+      "keywords": [
+        "ppt",
+        "investor deck",
+        "research",
+        "strategy"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "Editable PPTX + PDF",
+      "third_party_costs": [
+        "paid_stock",
+        "paid_api"
+      ],
+      "formats": [
+        "pptx",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "invitation-digital",
       "lang": "hi",
       "division": "studio",
       "category": "invitations",
-      "page": "/services/invitation-design/",
-      "name": "Digital Invitation Card",
+      "page": "/services/invitations/",
+      "name": "Static Invitation",
       "tagline": "WhatsApp और Instagram पर भेजने लायक सुंदर invitation।",
-      "price_from": 499,
+      "price_from": 799,
       "price_unit": "one-time",
       "for": "शादी, जन्मदिन, गृह प्रवेश, anniversary, baby shower, पूजा या त्योहार।",
       "problem": "Template apps में सब एक जैसे दिखते हैं और Hindi text ठीक से नहीं बैठता।",
@@ -588,47 +1181,48 @@
         "अतिरिक्त sizes या variants"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
-      "featured": true
-    },
-    {
-      "id": "invitation-print-ready",
-      "lang": "hi",
-      "division": "studio",
-      "category": "invitations",
-      "page": "/services/invitation-design/",
-      "name": "Print-ready Invitation Suite",
-      "tagline": "Printer को देने लायक files — card, insert और RSVP।",
-      "price_from": 1499,
-      "price_unit": "one-time",
-      "for": "जो invitation छपवाना चाहते हैं — शादी, बड़े कार्यक्रम, corporate events।",
-      "problem": "Digital design print में धुंधला या कटा हुआ आता है; printer सही file माँगता है।",
-      "deliverables": [
-        "Card front/back या 4 panels तक",
-        "Print-ready PDF (bleed/margins के साथ)",
-        "RSVP या insert card design",
-        "WhatsApp के लिए digital version"
+      "featured": true,
+      "slug": "invitation-digital",
+      "customer_types": [
+        "wedding-event"
       ],
-      "timeline": "3–5 working days",
-      "revisions": "Standard — 2 revision rounds",
-      "support": "Delivery के बाद 5 दिन",
-      "not_included": [
-        "Printing और delivery खर्च",
-        "Printer के colour matching/press proof",
-        "Envelope/box printing"
+      "filters": [
+        "personal",
+        "design"
       ],
-      "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "keywords": [
+        "invitation",
+        "wedding card",
+        "birthday",
+        "whatsapp invite"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "PNG/JPG/PDF; Canva जहाँ licence अनुमति दे",
+      "third_party_costs": [
+        "printing"
+      ],
+      "formats": [
+        "png",
+        "jpg",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "invitation-animated",
       "lang": "hi",
       "division": "studio",
       "category": "invitations",
-      "page": "/services/invitation-design/",
+      "page": "/services/invitations/",
       "name": "Animated / Video Invitation",
       "tagline": "15–30 सेकंड की WhatsApp-friendly invitation video।",
-      "price_from": 2499,
+      "price_from": 1999,
       "price_unit": "one-time",
       "for": "जो invitation को यादगार और share करने लायक बनाना चाहते हैं।",
       "problem": "Static card जल्दी scroll हो जाता है; video बनाने का समय या tool नहीं।",
@@ -648,14 +1242,43 @@
         "30 सेकंड से लंबा video"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "slug": "invitation-animated",
+      "customer_types": [
+        "wedding-event"
+      ],
+      "filters": [
+        "personal",
+        "design"
+      ],
+      "keywords": [
+        "animated invitation",
+        "video invitation",
+        "gif"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "MP4/GIF + static poster",
+      "third_party_costs": [
+        "paid_stock"
+      ],
+      "formats": [
+        "mp4",
+        "gif",
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "business-document-template",
       "lang": "hi",
       "division": "studio",
       "category": "business-documents",
-      "page": "/services/business-documents/",
+      "page": "/services/design/",
       "name": "Business Document Template",
       "tagline": "Invoice, quotation या letterhead — आपके brand में, editable।",
       "price_from": 799,
@@ -678,79 +1301,121 @@
       ],
       "case_study": null,
       "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
-      "compliance_note": "Invoice/quotation template एक design service है। GSTIN, tax rates और कानूनी रूप से ज़रूरी जानकारी client देता है; Moodily accounting या tax compliance advice नहीं देता।"
+      "compliance_note": "Invoice/quotation template एक design service है। GSTIN, tax rates और कानूनी रूप से ज़रूरी जानकारी client देता है; Moodily accounting या tax compliance advice नहीं देता।",
+      "slug": "business-document-template",
+      "customer_types": [
+        "local-business",
+        "b2b",
+        "professional"
+      ],
+      "filters": [
+        "design",
+        "business"
+      ],
+      "keywords": [
+        "invoice",
+        "quotation",
+        "bill",
+        "receipt",
+        "letterhead",
+        "rate card"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "Editable Word/Docs/Sheets या Canva",
+      "third_party_costs": [],
+      "formats": [
+        "docs",
+        "pdf",
+        "canva"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "business-identity-kit",
       "lang": "hi",
       "division": "studio",
       "category": "business-documents",
-      "page": "/services/business-documents/",
-      "name": "Business Identity Kit",
-      "tagline": "Visiting card से email signature तक — हर जगह एक जैसा professional brand।",
-      "price_from": 2499,
+      "page": "/services/design/",
+      "name": "Logo + Mini Brand Kit",
+      "tagline": "Original logo, रंग-font और हर जगह इस्तेमाल होने वाले brand assets।",
+      "price_from": 7999,
       "price_unit": "one-time",
-      "for": "नए business, consultants और service providers।",
+      "for": "नए businesses, coaching, clinics, consultants और creators।",
       "problem": "हर document अलग दिखता है — visiting card, letterhead, WhatsApp और email में brand एक जैसा नहीं।",
       "deliverables": [
-        "Business card (print-ready)",
-        "Digital visiting card",
+        "Logo Starter की सभी चीज़ें — 3 original concepts तक",
+        "Colour palette + font pairing sheet",
+        "Business card (print-ready) + digital visiting card",
+        "Letterhead + invoice/quotation template",
         "HTML email signature",
-        "Letterhead",
-        "QR card",
-        "Invoice + quotation templates"
+        "Social profile kit — DP, cover/banner, 3 post templates"
       ],
-      "timeline": "5–7 working days",
-      "revisions": "Standard — 2 revision rounds",
-      "support": "Delivery के बाद 7 दिन",
+      "timeline": "10–14 working days",
+      "revisions": "Premium — 3 revision rounds",
+      "support": "Delivery के बाद 14 दिन",
       "not_included": [
-        "Logo design from scratch या trademark search",
+        "Trademark search या registration",
         "Printing",
-        "GST/tax compliance"
+        "Website",
+        "Mascot/illustration"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
       "featured": true,
-      "compliance_note": "Template/stock elements से बना design exclusive या trademark-ready logo नहीं कहा जाता। Trademark के लिए original logo का अलग quote होता है।"
-    },
-    {
-      "id": "business-marketing-collateral",
-      "lang": "hi",
-      "division": "studio",
-      "category": "business-documents",
-      "page": "/services/business-documents/",
-      "name": "Brochure / Company Profile / Catalogue",
-      "tagline": "आपके business को एक नज़र में समझाने वाला document।",
-      "price_from": 3999,
-      "price_unit": "one-time",
-      "for": "Manufacturers, suppliers, clinics, institutes और B2B businesses।",
-      "problem": "ग्राहक पूछते हैं 'details भेजिए' और भेजने लायक कोई साफ़ document नहीं है।",
-      "deliverables": [
-        "8 pages तक brochure या company profile — या 30 products तक catalogue",
-        "आपके content का polish और layout",
-        "Print-ready PDF + WhatsApp/email-friendly PDF"
+      "compliance_note": "Template/stock elements से बना design exclusive या trademark-ready logo नहीं कहा जाता। Trademark के लिए original logo का अलग quote होता है।",
+      "slug": "business-identity-kit",
+      "customer_types": [
+        "local-business",
+        "professional",
+        "coaching-library",
+        "startup",
+        "creator"
       ],
-      "timeline": "5–10 working days",
-      "revisions": "Standard — 2 revision rounds",
-      "support": "Delivery के बाद 7 दिन",
-      "not_included": [
-        "Product photography",
-        "Printing",
-        "शुरू से पूरा content writing (अलग quote)",
-        "ऐसे claims जिनका प्रमाण न हो"
+      "filters": [
+        "design",
+        "business"
       ],
-      "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "keywords": [
+        "logo",
+        "brand kit",
+        "business card",
+        "letterhead",
+        "email signature"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "Logo PNG/SVG/PDF + editable templates",
+      "third_party_costs": [
+        "printing",
+        "paid_stock"
+      ],
+      "formats": [
+        "png",
+        "pdf",
+        "print-pdf",
+        "html-email"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "print-design-single",
       "lang": "hi",
       "division": "studio",
       "category": "business-documents",
-      "page": "/services/business-documents/",
-      "name": "Flyer, Poster or Menu Design",
-      "tagline": "एक असरदार print design — printer और social दोनों के लिए।",
-      "price_from": 999,
+      "page": "/services/design/",
+      "name": "Poster / Flyer Design",
+      "tagline": "Poster, flyer, pamphlet या menu — print और social दोनों के लिए।",
+      "price_from": 799,
       "price_unit": "one-time",
       "for": "Shops, restaurants, coaching, events और local campaigns।",
       "problem": "Offer या menu छपवाना है पर design साफ़ और पढ़ने लायक नहीं बन रहा।",
@@ -769,14 +1434,50 @@
         "Packaging dieline/structural engineering"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "slug": "print-design-single",
+      "customer_types": [
+        "local-business",
+        "restaurant",
+        "coaching-library",
+        "wedding-event",
+        "salon-gym"
+      ],
+      "filters": [
+        "design",
+        "business"
+      ],
+      "keywords": [
+        "poster",
+        "flyer",
+        "pamphlet",
+        "menu",
+        "banner"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "Print-ready PDF + PNG",
+      "third_party_costs": [
+        "printing",
+        "paid_stock"
+      ],
+      "formats": [
+        "print-pdf",
+        "png",
+        "jpg"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "social-post-pack",
       "lang": "hi",
       "division": "studio",
       "category": "social-media",
-      "page": "/services/social-media-design/",
+      "page": "/services/social-media/",
       "name": "Social Media Post Pack",
       "tagline": "10 brand-consistent posts — Instagram, Facebook, LinkedIn।",
       "price_from": 2499,
@@ -800,14 +1501,50 @@
       ],
       "case_study": null,
       "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
-      "featured": true
+      "featured": true,
+      "slug": "social-post-pack",
+      "customer_types": [
+        "local-business",
+        "professional",
+        "creator",
+        "salon-gym",
+        "restaurant"
+      ],
+      "filters": [
+        "design",
+        "creator",
+        "business"
+      ],
+      "keywords": [
+        "instagram",
+        "social media posts",
+        "facebook"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "PNG + reusable template",
+      "third_party_costs": [
+        "paid_stock",
+        "ad_spend"
+      ],
+      "formats": [
+        "png",
+        "jpg",
+        "canva"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "social-carousel-thumbnail-pack",
       "lang": "hi",
       "division": "studio",
       "category": "social-media",
-      "page": "/services/social-media-design/",
+      "page": "/services/social-media/",
       "name": "Carousels & Thumbnails Pack",
       "tagline": "Save और click होने लायक carousels और thumbnails।",
       "price_from": 3499,
@@ -829,14 +1566,46 @@
         "Stock footage licences"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "slug": "social-carousel-thumbnail-pack",
+      "customer_types": [
+        "creator",
+        "professional",
+        "student-educator"
+      ],
+      "filters": [
+        "design",
+        "creator"
+      ],
+      "keywords": [
+        "carousel",
+        "thumbnail",
+        "youtube",
+        "reel cover"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "PNG + template",
+      "third_party_costs": [
+        "paid_stock"
+      ],
+      "formats": [
+        "png",
+        "jpg"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     },
     {
       "id": "social-campaign-kit",
       "lang": "hi",
       "division": "studio",
       "category": "social-media",
-      "page": "/services/social-media-design/",
+      "page": "/services/social-media/",
       "name": "Social Campaign Kit",
       "tagline": "Launch, sale या त्योहार campaign के लिए हर platform का creative set।",
       "price_from": 6999,
@@ -858,7 +1627,1461 @@
         "Photoshoot"
       ],
       "case_study": null,
-      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "slug": "social-campaign-kit",
+      "customer_types": [
+        "local-business",
+        "b2b",
+        "startup",
+        "coaching-library"
+      ],
+      "filters": [
+        "design",
+        "business",
+        "creator"
+      ],
+      "keywords": [
+        "campaign",
+        "ads",
+        "launch",
+        "festival sale"
+      ],
+      "tier": null,
+      "revision_rounds": 3,
+      "editable_source": "PNG/JPG + copy doc",
+      "third_party_costs": [
+        "ad_spend",
+        "paid_stock"
+      ],
+      "formats": [
+        "png",
+        "jpg",
+        "mp4"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "free-digital-audit",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "local-business",
+      "page": "/services/google-whatsapp/",
+      "name": "मुफ़्त Digital Audit",
+      "tagline": "Google, WhatsApp, website और social — पहले जानिए कि सबसे पहले क्या सुधारें।",
+      "price_from": 0,
+      "price_unit": "free",
+      "for": "कोई भी business, institute या professional जो online presence सुधारना चाहता है।",
+      "problem": "पता नहीं कि Google listing, WhatsApp, website या social में सबसे पहले क्या ठीक करें।",
+      "deliverables": [
+        "Google Business Profile, WhatsApp, website और social profile की जाँच",
+        "3 सबसे ज़रूरी सुधार — प्राथमिकता के साथ",
+        "WhatsApp पर voice note या छोटा written summary"
+      ],
+      "timeline": "2 working days",
+      "revisions": "लागू नहीं",
+      "support": "Audit पर सवालों के जवाब WhatsApp पर",
+      "not_included": [
+        "सुधार करके देना (अलग package)",
+        "Ranking, leads या sales की guarantee"
+      ],
+      "case_study": null,
+      "slug": "free-digital-audit",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional",
+        "b2b",
+        "startup",
+        "creator"
+      ],
+      "filters": [
+        "business",
+        "website"
+      ],
+      "keywords": [
+        "audit",
+        "free",
+        "review",
+        "google",
+        "website check"
+      ],
+      "tier": null,
+      "revision_rounds": 0,
+      "editable_source": "",
+      "third_party_costs": [],
+      "formats": [
+        "other"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "google-business-fix",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "google-whatsapp",
+      "page": "/services/google-whatsapp/",
+      "name": "Google Business Fix / Optimization",
+      "tagline": "पहले से बनी Google listing को सही, पूरा और भरोसेमंद बनाइए।",
+      "price_from": 2499,
+      "price_unit": "one-time",
+      "for": "जिनकी Google listing है पर अधूरी, गलत या पुरानी है — दुकान, clinic, coaching, salon, restaurant।",
+      "problem": "गलत category/समय/नंबर, कम फ़ोटो, reviews का जवाब नहीं — ग्राहक भरोसा नहीं करते या गलत जगह पहुँचते हैं।",
+      "deliverables": [
+        "मौजूदा Google Business Profile की पूरी जाँच",
+        "Category, services, description, समय और attributes सुधार",
+        "आपकी दी हुई 10 फ़ोटो तक upload और arrange",
+        "Call, WhatsApp और website links ठीक करना",
+        "Google review QR code",
+        "Duplicate या गलत जानकारी के लिए Google को suggestion (जहाँ संभव हो)"
+      ],
+      "timeline": "3–5 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "नई listing की verification में Google की देरी",
+        "Suspended listing वापस आने की guarantee",
+        "Ranking की guarantee",
+        "Photoshoot"
+      ],
+      "case_study": null,
+      "slug": "google-business-fix",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business"
+      ],
+      "keywords": [
+        "google business profile",
+        "google maps",
+        "listing",
+        "gmb",
+        "reviews"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "Listing आपके Google account में",
+      "third_party_costs": [],
+      "formats": [
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "local-business-digital-starter",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "local-business",
+      "page": "/services/local-business/",
+      "name": "Local Business Digital Starter",
+      "tagline": "Google + WhatsApp के साथ digital catalogue, enquiry form और creatives।",
+      "price_from": 6999,
+      "price_unit": "one-time",
+      "for": "दुकान, salon, gym, restaurant और service businesses जो basics के साथ catalogue और enquiry form भी चाहते हैं।",
+      "problem": "ग्राहक price list/catalogue माँगते हैं और enquiries WhatsApp-call में बिखरी रहती हैं।",
+      "deliverables": [
+        "Google + WhatsApp Starter की सभी चीज़ें",
+        "Digital catalogue / rate card — 25 items तक (PDF + WhatsApp catalogue)",
+        "Enquiry form (Google Form) — responses आपकी Google Sheet में",
+        "Link-in-bio page/QR — call, WhatsApp, directions, catalogue",
+        "5 social creatives (offer/intro/festival)",
+        "Review QR stand design (print-ready)"
+      ],
+      "timeline": "7–10 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 10 दिन",
+      "not_included": [
+        "Website (Local Business Growth में)",
+        "Printing",
+        "Paid ads",
+        "Ranking या sales की guarantee"
+      ],
+      "case_study": null,
+      "slug": "local-business-digital-starter",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business",
+        "design"
+      ],
+      "keywords": [
+        "catalogue",
+        "rate card",
+        "enquiry form",
+        "qr",
+        "local business"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "Canva/PDF जहाँ licence अनुमति दे",
+      "third_party_costs": [
+        "printing"
+      ],
+      "formats": [
+        "png",
+        "pdf",
+        "print-pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "local-business-complete",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "local-business",
+      "page": "/services/local-business/",
+      "name": "Local Business Complete",
+      "tagline": "Google से website, enquiry tracking और follow-up तक पूरा system।",
+      "price_from": 24999,
+      "price_unit": "one-time",
+      "for": "Showrooms, clinics, institutes और multi-service businesses जो पूरा digital system चाहते हैं।",
+      "problem": "Enquiries आती हैं पर website, content, follow-up और measurement का कोई जुड़ा हुआ system नहीं।",
+      "deliverables": [
+        "Local Business Growth की सभी चीज़ें",
+        "Business website — 5–7 pages तक",
+        "Website content writing — Hindi/English",
+        "Enquiry/booking form → Google Sheet + WhatsApp/email alert",
+        "Analytics — GA4, Search Console और calls/WhatsApp/form events",
+        "Follow-up message templates + lead tracker sheet",
+        "10 social creatives + 4 Google post drafts",
+        "30 दिन बाद review call और सुधार सूची"
+      ],
+      "timeline": "20–30 working days",
+      "revisions": "Premium — website पर 3 revision rounds, बाकी पर 2",
+      "support": "Launch के बाद 30 दिन",
+      "not_included": [
+        "Domain, hosting और paid tools",
+        "Ad spend",
+        "Photoshoot",
+        "Leads, sales या ranking की guarantee"
+      ],
+      "case_study": null,
+      "slug": "local-business-complete",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business",
+        "website"
+      ],
+      "keywords": [
+        "website",
+        "complete",
+        "lead tracking",
+        "analytics"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "Website files/admin access आपके पास",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "ad_spend",
+        "premium_software",
+        "paid_stock",
+        "printing"
+      ],
+      "formats": [
+        "website",
+        "png",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "landing-page",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "websites",
+      "page": "/services/websites/",
+      "name": "Landing Page",
+      "tagline": "एक service, offer, admission या event के लिए enquiries जुटाने वाला page।",
+      "price_from": 6999,
+      "price_unit": "one-time",
+      "for": "Coaching admissions, launches, events, vendors और single-service businesses।",
+      "problem": "जानकारी Instagram/WhatsApp पर बिखरी है और ads या links के लिए भेजने लायक एक साफ़ page नहीं।",
+      "deliverables": [
+        "1 mobile-first landing page — 6 sections तक",
+        "Enquiry form + WhatsApp/call buttons",
+        "Basic SEO — title, description, schema",
+        "GA4 + Search Console setup (आपके account में)",
+        "आपके domain या free subdomain पर publish"
+      ],
+      "timeline": "5–7 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Launch के बाद 14 दिन",
+      "not_included": [
+        "Domain और hosting खर्च",
+        "शुरू से पूरा copywriting (आपके content का सुधार शामिल)",
+        "Payment gateway",
+        "Ads management",
+        "Leads की guarantee"
+      ],
+      "case_study": null,
+      "slug": "landing-page",
+      "customer_types": [
+        "local-business",
+        "coaching-library",
+        "wedding-event",
+        "salon-gym",
+        "restaurant",
+        "professional",
+        "startup"
+      ],
+      "filters": [
+        "website",
+        "business"
+      ],
+      "keywords": [
+        "landing page",
+        "website",
+        "one page",
+        "enquiry"
+      ],
+      "tier": "starter",
+      "revision_rounds": 2,
+      "editable_source": "HTML source files या builder access आपके पास",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "paid_stock"
+      ],
+      "formats": [
+        "website"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "business-website",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "websites",
+      "page": "/services/websites/",
+      "name": "Business Website",
+      "tagline": "Services, products और भरोसा दिखाने वाली पूरी website।",
+      "price_from": 14999,
+      "price_unit": "one-time",
+      "for": "Businesses, clinics, institutes, consultants और manufacturers।",
+      "problem": "सिर्फ़ social/Google पर निर्भर हैं; details भेजने के लिए professional website नहीं।",
+      "deliverables": [
+        "5–8 pages तक — Home, About, Services/Products, Gallery, FAQ, Contact",
+        "Mobile-first, fast-loading design",
+        "Enquiry form + WhatsApp/call/maps",
+        "On-page SEO foundations + sitemap",
+        "GA4 + Search Console setup",
+        "आपके content का editing और structuring",
+        "1 घंटा handover training"
+      ],
+      "timeline": "12–20 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Launch के बाद 30 दिन",
+      "not_included": [
+        "Domain और hosting",
+        "E-commerce/online payments",
+        "Photoshoot",
+        "Ranking या leads की guarantee"
+      ],
+      "case_study": null,
+      "featured": true,
+      "slug": "business-website",
+      "customer_types": [
+        "local-business",
+        "coaching-library",
+        "b2b",
+        "professional",
+        "salon-gym",
+        "restaurant",
+        "startup"
+      ],
+      "filters": [
+        "website",
+        "business"
+      ],
+      "keywords": [
+        "website",
+        "business website",
+        "company website",
+        "seo"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "Website files/admin access आपके पास",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "premium_software",
+        "paid_stock"
+      ],
+      "formats": [
+        "website"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "lead-booking-website",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "websites",
+      "page": "/services/websites/",
+      "name": "Lead / Booking Website",
+      "tagline": "Enquiries और bookings को एक system में लाने वाली website।",
+      "price_from": 24999,
+      "price_unit": "one-time",
+      "for": "Coaching, clinics, salons, venues, wedding vendors और consultants जिन्हें booking/enquiry flow चाहिए।",
+      "problem": "Enquiries और bookings calls-WhatsApp में खो जाती हैं; कौन-सी lead कहाँ से आई, पता नहीं।",
+      "deliverables": [
+        "Business Website की सभी चीज़ें",
+        "Booking/appointment या qualified multi-step enquiry form",
+        "Leads → Google Sheet + email/WhatsApp alert",
+        "Thank-you page + conversion tracking (form, WhatsApp, call clicks)",
+        "Status और follow-up columns वाली lead tracker sheet",
+        "Booking tool integration (Calendly/Google Calendar जैसा — आपके account में)",
+        "Launch checklist + 30 दिन monitoring"
+      ],
+      "timeline": "20–30 working days",
+      "revisions": "Premium — 3 revision rounds",
+      "support": "Launch के बाद 30 दिन",
+      "not_included": [
+        "Booking/CRM software subscription",
+        "WhatsApp Business API charges",
+        "Payment gateway fees",
+        "Ad spend",
+        "Leads या bookings की guarantee"
+      ],
+      "case_study": null,
+      "slug": "lead-booking-website",
+      "customer_types": [
+        "coaching-library",
+        "wedding-event",
+        "salon-gym",
+        "professional",
+        "medical-store",
+        "restaurant"
+      ],
+      "filters": [
+        "website",
+        "business"
+      ],
+      "keywords": [
+        "booking website",
+        "lead generation",
+        "appointment",
+        "crm"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "Website files, forms और sheets आपके accounts में",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "premium_software",
+        "whatsapp_api",
+        "paid_api",
+        "ad_spend"
+      ],
+      "formats": [
+        "website"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "business-brochure",
+      "lang": "hi",
+      "division": "studio",
+      "category": "design",
+      "page": "/services/design/",
+      "name": "Business Brochure",
+      "tagline": "आपके business को एक नज़र में समझाने वाला brochure, profile या rate card।",
+      "price_from": 2499,
+      "price_unit": "one-time",
+      "for": "Manufacturers, clinics, institutes, service businesses और wedding vendors।",
+      "problem": "ग्राहक 'details भेजिए' कहते हैं और भेजने लायक साफ़ document नहीं।",
+      "deliverables": [
+        "4 pages तक brochure / company profile / rate card",
+        "आपके content का layout और polish",
+        "WhatsApp/email-friendly PDF + print-ready PDF"
+      ],
+      "timeline": "3–5 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "Printing",
+        "Product photography",
+        "शुरू से content writing (अलग quote)",
+        "ऐसे claims जिनका प्रमाण न हो"
+      ],
+      "case_study": null,
+      "slug": "business-brochure",
+      "customer_types": [
+        "local-business",
+        "b2b",
+        "coaching-library",
+        "wedding-event",
+        "professional",
+        "medical-store"
+      ],
+      "filters": [
+        "design",
+        "business"
+      ],
+      "keywords": [
+        "brochure",
+        "company profile",
+        "rate card",
+        "pdf",
+        "portfolio"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "Print-ready PDF; editable Canva जहाँ licence अनुमति दे",
+      "third_party_costs": [
+        "printing",
+        "paid_stock"
+      ],
+      "formats": [
+        "pdf",
+        "print-pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "product-catalogue",
+      "lang": "hi",
+      "division": "studio",
+      "category": "design",
+      "page": "/services/design/",
+      "name": "Catalogue",
+      "tagline": "Products, codes और prices का व्यवस्थित catalogue — dealers और ग्राहकों के लिए।",
+      "price_from": 4999,
+      "price_unit": "one-time",
+      "for": "Manufacturers, wholesalers, boutiques, restaurants (menu) और retailers।",
+      "problem": "Products की photos और prices बिखरी हैं; भेजने लायक व्यवस्थित catalogue नहीं।",
+      "deliverables": [
+        "40 products तक catalogue (PDF)",
+        "Category-wise layout — codes, specs, prices",
+        "WhatsApp-share version + print-ready version",
+        "आगे prices बदलने के लिए updatable template"
+      ],
+      "timeline": "5–8 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "Product photography",
+        "Printing",
+        "Prices/specs की सटीकता की जाँच — जानकारी आप देते हैं"
+      ],
+      "case_study": null,
+      "slug": "product-catalogue",
+      "customer_types": [
+        "b2b",
+        "restaurant",
+        "local-business",
+        "wedding-event"
+      ],
+      "filters": [
+        "design",
+        "business"
+      ],
+      "keywords": [
+        "catalogue",
+        "product catalogue",
+        "menu",
+        "price list",
+        "pdf"
+      ],
+      "tier": null,
+      "revision_rounds": 2,
+      "editable_source": "Updatable template + PDF",
+      "third_party_costs": [
+        "printing",
+        "paid_stock"
+      ],
+      "formats": [
+        "pdf",
+        "print-pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "digital-visiting-card",
+      "lang": "hi",
+      "division": "studio",
+      "category": "design",
+      "page": "/services/design/",
+      "name": "Digital Visiting Card",
+      "tagline": "WhatsApp पर भेजने लायक clickable visiting card।",
+      "price_from": 799,
+      "price_unit": "one-time",
+      "for": "हर business owner, professional और vendor।",
+      "problem": "Paper cards खत्म हो जाते हैं; WhatsApp पर भेजने लायक card नहीं।",
+      "deliverables": [
+        "1 digital visiting card (WhatsApp/Instagram size)",
+        "Clickable PDF — call, WhatsApp, maps, website links",
+        "QR code (WhatsApp या website)"
+      ],
+      "timeline": "1–2 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 3 दिन",
+      "not_included": [
+        "Printing",
+        "Logo design",
+        "NFC/smart card hardware"
+      ],
+      "case_study": null,
+      "slug": "digital-visiting-card",
+      "customer_types": [
+        "local-business",
+        "professional",
+        "wedding-event",
+        "salon-gym",
+        "b2b",
+        "creator"
+      ],
+      "filters": [
+        "design",
+        "business",
+        "professional"
+      ],
+      "keywords": [
+        "visiting card",
+        "business card",
+        "digital card",
+        "qr"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "PNG + clickable PDF",
+      "third_party_costs": [
+        "printing"
+      ],
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "social-creative-single",
+      "lang": "hi",
+      "division": "studio",
+      "category": "social-media",
+      "page": "/services/social-media/",
+      "name": "Social Creative",
+      "tagline": "Offer, festival, admission या announcement के लिए एक साफ़ post।",
+      "price_from": 499,
+      "price_unit": "one-time",
+      "for": "Local businesses, coaching, creators, vendors और professionals।",
+      "problem": "आखिरी समय पर post चाहिए और template साफ़ नहीं दिखता।",
+      "deliverables": [
+        "1 static creative — Instagram/Facebook/LinkedIn/WhatsApp Status size",
+        "Caption draft",
+        "PNG/JPG"
+      ],
+      "timeline": "1–2 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 2 दिन",
+      "not_included": [
+        "Posting/scheduling",
+        "Paid ads",
+        "Reel या video"
+      ],
+      "case_study": null,
+      "slug": "social-creative-single",
+      "customer_types": [
+        "local-business",
+        "coaching-library",
+        "creator",
+        "wedding-event",
+        "professional",
+        "salon-gym",
+        "restaurant"
+      ],
+      "filters": [
+        "design",
+        "creator",
+        "business"
+      ],
+      "keywords": [
+        "social media post",
+        "instagram post",
+        "creative",
+        "festival post",
+        "whatsapp status"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "PNG/JPG; Canva जहाँ licence अनुमति दे",
+      "third_party_costs": [
+        "paid_stock",
+        "ad_spend"
+      ],
+      "formats": [
+        "png",
+        "jpg"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "logo-starter",
+      "lang": "hi",
+      "division": "studio",
+      "category": "design",
+      "page": "/services/design/",
+      "name": "Logo Starter",
+      "tagline": "आपके business की पहचान — original logo concepts के साथ।",
+      "price_from": 3499,
+      "price_unit": "one-time",
+      "for": "नए businesses, creators, coaching और shops।",
+      "problem": "कोई पहचान वाला logo नहीं, या पुराना logo हर जगह धुंधला दिखता है।",
+      "deliverables": [
+        "2 original logo concepts",
+        "चुने गए concept पर refinement",
+        "PNG (transparent), JPG, PDF/SVG files",
+        "Light और dark versions",
+        "Basic usage sheet — colours और fonts"
+      ],
+      "timeline": "5–7 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "Trademark search या registration",
+        "पूरी brand guidelines",
+        "Mascot/illustration"
+      ],
+      "case_study": null,
+      "compliance_note": "Logo original बनाया जाता है; template/stock artwork को exclusive या trademark-ready नहीं कहा जाता। Trademark registration से पहले अपने IP advisor से पुष्टि करें।",
+      "slug": "logo-starter",
+      "customer_types": [
+        "local-business",
+        "creator",
+        "coaching-library",
+        "startup",
+        "salon-gym",
+        "restaurant",
+        "professional"
+      ],
+      "filters": [
+        "design",
+        "business"
+      ],
+      "keywords": [
+        "logo",
+        "logo design",
+        "brand",
+        "identity"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "PNG/SVG/PDF source files",
+      "third_party_costs": [
+        "paid_stock"
+      ],
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "wedding-digital-suite",
+      "lang": "hi",
+      "division": "studio",
+      "category": "invitations",
+      "page": "/services/invitations/",
+      "name": "Wedding Digital Suite",
+      "tagline": "Save-the-date से reception तक — सारे cards एक जैसे design में।",
+      "price_from": 4999,
+      "price_unit": "one-time",
+      "for": "शादी और बड़े family functions।",
+      "problem": "Save-the-date, main card, function-wise cards और RSVP अलग-अलग बनवाने पड़ते हैं और एक जैसे नहीं दिखते।",
+      "deliverables": [
+        "Save-the-date",
+        "Main invitation — digital + print-ready PDF",
+        "Function-wise cards — हल्दी/मेहंदी/संगीत/reception, 3 तक",
+        "RSVP / venue-map card with QR",
+        "सभी cards के WhatsApp-ready versions",
+        "Hindi, English या दोनों"
+      ],
+      "timeline": "5–7 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "Printing",
+        "Animated video (Animated Invitation से जोड़ें)",
+        "Copyrighted film songs",
+        "Photoshoot"
+      ],
+      "case_study": null,
+      "featured": true,
+      "slug": "wedding-digital-suite",
+      "customer_types": [
+        "wedding-event"
+      ],
+      "filters": [
+        "personal",
+        "design"
+      ],
+      "keywords": [
+        "wedding invitation",
+        "wedding card",
+        "save the date",
+        "rsvp",
+        "shaadi card"
+      ],
+      "tier": "premium",
+      "revision_rounds": 2,
+      "editable_source": "PNG/PDF; Canva जहाँ licence अनुमति दे",
+      "third_party_costs": [
+        "printing",
+        "paid_stock"
+      ],
+      "formats": [
+        "png",
+        "jpg",
+        "pdf",
+        "print-pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "educational-pdf-module",
+      "lang": "hi",
+      "division": "studio",
+      "category": "education-content",
+      "page": "/services/education-content/",
+      "name": "Educational PDF / Module",
+      "tagline": "एक chapter को आसान भाषा, visuals और practice के साथ समझाने वाला PDF।",
+      "price_from": 4999,
+      "price_unit": "one-time",
+      "for": "Teachers, coaching institutes, schools, education creators और parents।",
+      "problem": "Chapter को आसान explanations, visuals और practice के साथ समझाने वाला material बनाने का समय नहीं।",
+      "deliverables": [
+        "8–12 page learning PDF — एक chapter/topic",
+        "आसान explanations और diagrams/visuals",
+        "Summary box + 10 practice questions with answers",
+        "Sources/syllabus reference",
+        "Hindi या English (दोनों भाषाएँ अलग quote)",
+        "Accuracy review checklist"
+      ],
+      "timeline": "5–7 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "किसी exam body, board या NCERT से affiliation",
+        "Guaranteed/predicted questions",
+        "Copyrighted किताबों की copy",
+        "Printing"
+      ],
+      "case_study": null,
+      "compliance_note": "Material स्वतंत्र study aid है — किसी board या exam body का official product नहीं। Illustrations AI-assisted हो सकते हैं और हर तथ्य source से जाँचा जाता है।",
+      "featured": true,
+      "slug": "educational-pdf-module",
+      "customer_types": [
+        "student-educator",
+        "coaching-library",
+        "creator"
+      ],
+      "filters": [
+        "education"
+      ],
+      "keywords": [
+        "pdf",
+        "notes",
+        "study material",
+        "module",
+        "worksheet",
+        "ncert"
+      ],
+      "tier": "starter",
+      "revision_rounds": 2,
+      "editable_source": "PDF + editable Docs",
+      "third_party_costs": [
+        "printing",
+        "paid_stock"
+      ],
+      "formats": [
+        "pdf",
+        "docs"
+      ],
+      "sample_ids": [
+        "ncert-how-we-breathe"
+      ],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "research-dossier",
+      "lang": "en",
+      "division": "studio",
+      "category": "research",
+      "page": "/services/research/",
+      "name": "Deep Competitive / Research Dossier",
+      "tagline": "Multi-competitor, multi-source intelligence for a high-stakes decision.",
+      "price_from": 24999,
+      "price_unit": "one-time",
+      "for": "Founders, investors, agencies and B2B teams preparing a launch, fundraise, market entry or partnership.",
+      "problem": "A big decision needs more than a quick scan: pricing, positioning, channels, customer sentiment and risks across many players.",
+      "deliverables": [
+        "60-minute scoping workshop and research plan",
+        "Up to 10 competitors or entities",
+        "Pricing, positioning, channel and review-sentiment analysis",
+        "Every finding labelled FACT / INFERENCE / HYPOTHESIS / UNVERIFIED with citations",
+        "25–35 page dossier + 2-page executive summary + comparison sheet",
+        "60-minute readout"
+      ],
+      "timeline": "15–20 working days",
+      "revisions": "Premium — 2 revision rounds plus 14 days of follow-up questions",
+      "support": "14 days after delivery",
+      "not_included": [
+        "Paid databases or reports unless agreed in writing",
+        "Primary surveys or interviews at scale",
+        "Legal, medical, financial or investment advice"
+      ],
+      "case_study": "grocery-competitive-gap-analysis",
+      "slug": "research-dossier",
+      "customer_types": [
+        "startup",
+        "b2b",
+        "professional"
+      ],
+      "filters": [
+        "research"
+      ],
+      "keywords": [
+        "competitor analysis",
+        "market research",
+        "dossier",
+        "report"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "PDF + Google Docs/Sheets",
+      "third_party_costs": [
+        "paid_api",
+        "premium_software"
+      ],
+      "formats": [
+        "pdf",
+        "docs",
+        "pptx"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "grocery-competitive-gap-analysis"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "b2b-digital-sales-kit",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "b2b",
+      "page": "/services/b2b/",
+      "name": "B2B Digital Sales Kit",
+      "tagline": "Website, company profile, catalogue, quotation और presentation — buyers को भेजने लायक पूरा kit।",
+      "price_from": 24999,
+      "price_unit": "one-time",
+      "for": "Manufacturers, exporters, wholesalers, industrial suppliers और B2B service companies।",
+      "problem": "Buyers और dealers website, company profile, catalogue और quotation माँगते हैं — और हर बार अलग-अलग files भेजी जाती हैं।",
+      "deliverables": [
+        "Business website — 5–8 pages (products, capabilities, contact)",
+        "Company profile — 8–12 pages (PDF)",
+        "Product catalogue — 60 products तक",
+        "Editable quotation template",
+        "Product presentation — 12–15 slides",
+        "Lead/RFQ form → Google Sheet + email/WhatsApp alert",
+        "WhatsApp Business setup + enquiry quick replies",
+        "LinkedIn company page banner + 5 post creatives"
+      ],
+      "timeline": "25–35 working days",
+      "revisions": "Premium — 3 revision rounds",
+      "support": "Launch के बाद 30 दिन",
+      "not_included": [
+        "Leads, orders या export sales की guarantee",
+        "Certifications/capacity claims की जाँच — documents आप देते हैं",
+        "Domain, hosting और ad spend",
+        "Product photography और printing",
+        "Quotation पर GST/legal content"
+      ],
+      "case_study": null,
+      "compliance_note": "Certifications, capacity, clients और export claims केवल वही लिखे जाते हैं जिनका प्रमाण आप देते हैं।",
+      "featured": true,
+      "slug": "b2b-digital-sales-kit",
+      "customer_types": [
+        "b2b",
+        "startup"
+      ],
+      "filters": [
+        "business",
+        "website",
+        "design"
+      ],
+      "keywords": [
+        "manufacturer",
+        "b2b",
+        "company profile",
+        "catalogue",
+        "quotation",
+        "exporter"
+      ],
+      "tier": "premium",
+      "revision_rounds": 3,
+      "editable_source": "Website access + editable PDF/PPTX/Docs",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "printing",
+        "ad_spend",
+        "paid_stock",
+        "whatsapp_api"
+      ],
+      "formats": [
+        "website",
+        "pdf",
+        "pptx",
+        "docs"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "local-growth-monthly",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "local-business",
+      "page": "/services/local-business/",
+      "name": "Local Growth",
+      "tagline": "हर महीने Google, social, website updates और enquiry follow-up।",
+      "price_from": 7999,
+      "price_unit": "month",
+      "for": "जो हर महीने सक्रिय digital काम चाहते हैं — salons, gyms, restaurants, clinics, vendors।",
+      "problem": "Listing और social चलते तो हैं पर नियमित content, offers और enquiry follow-up नहीं होता।",
+      "deliverables": [
+        "Digital Saathi Care की सभी चीज़ें",
+        "12 social creatives/month + captions",
+        "2 carousels या reel covers/month",
+        "Website/landing page पर 5 छोटे updates/month",
+        "Enquiry sheet review + follow-up message templates",
+        "Monthly report + 30-min strategy call"
+      ],
+      "timeline": "महीने-दर-महीने; पहला महीना onboarding से",
+      "revisions": "हर creative पर 1 revision",
+      "support": "Working days में WhatsApp support",
+      "not_included": [
+        "Ad spend या ads management",
+        "Video shooting",
+        "Leads या sales की guarantee"
+      ],
+      "case_study": null,
+      "slug": "local-growth-monthly",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "coaching-library",
+        "medical-store",
+        "wedding-event",
+        "professional"
+      ],
+      "filters": [
+        "business",
+        "design"
+      ],
+      "keywords": [
+        "monthly",
+        "retainer",
+        "social media management",
+        "google posts"
+      ],
+      "tier": "growth",
+      "revision_rounds": 1,
+      "editable_source": "सभी accounts आपके नाम पर",
+      "third_party_costs": [
+        "ad_spend",
+        "premium_software",
+        "paid_stock"
+      ],
+      "formats": [
+        "png",
+        "jpg"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "content-growth-retainer",
+      "lang": "hi",
+      "division": "studio",
+      "category": "social-media",
+      "page": "/services/social-media/",
+      "name": "Content / Growth Retainer",
+      "tagline": "हर हफ़्ते planned content — creatives, carousels और short videos।",
+      "price_from": 14999,
+      "price_unit": "month",
+      "for": "Brands, creators, coaching institutes और professionals जिन्हें नियमित content चाहिए।",
+      "problem": "Content बीच-बीच में रुक जाता है; planning, design और repurposing के लिए टीम नहीं।",
+      "deliverables": [
+        "Monthly content plan",
+        "16 creatives/carousels per month",
+        "4 short-form video edits (आपकी footage से, 60 sec तक)",
+        "8 captions/scripts",
+        "LinkedIn/Instagram/YouTube repurposing",
+        "Monthly performance note + planning call"
+      ],
+      "timeline": "महीने-दर-महीने; पहला महीना onboarding से",
+      "revisions": "हर asset पर 2 revisions",
+      "support": "Working days में support",
+      "not_included": [
+        "Shooting",
+        "Ad spend",
+        "Account access के बिना publishing",
+        "Followers या sales की guarantee"
+      ],
+      "case_study": null,
+      "slug": "content-growth-retainer",
+      "customer_types": [
+        "creator",
+        "coaching-library",
+        "professional",
+        "local-business",
+        "wedding-event",
+        "startup"
+      ],
+      "filters": [
+        "creator",
+        "design",
+        "business",
+        "professional"
+      ],
+      "keywords": [
+        "retainer",
+        "content",
+        "reels",
+        "carousel",
+        "monthly social media"
+      ],
+      "tier": "premium",
+      "revision_rounds": 2,
+      "editable_source": "PNG/MP4 + editable templates",
+      "third_party_costs": [
+        "ad_spend",
+        "paid_stock",
+        "premium_software"
+      ],
+      "formats": [
+        "png",
+        "jpg",
+        "mp4"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "coaching-digital-starter",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "education-business",
+      "page": "/services/education-business/",
+      "name": "Coaching Digital Starter",
+      "tagline": "Google, WhatsApp enquiry, brochure और admission creative — एक साथ।",
+      "price_from": 6999,
+      "price_unit": "one-time",
+      "for": "Coaching institutes, libraries/study points और tuition centres।",
+      "problem": "Students और parents Google पर ढूँढते हैं, fees और batch पूछते हैं — पर listing अधूरी है और भेजने लायक brochure नहीं।",
+      "deliverables": [
+        "Google Business Profile optimization — category, समय, photos, courses",
+        "WhatsApp Business — enquiry quick replies और labels",
+        "Course/batch brochure — 2 pages (PDF)",
+        "Review QR (print-ready)",
+        "1 admission creative",
+        "Enquiry form (Google Form → आपकी Sheet)"
+      ],
+      "timeline": "7–10 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 10 दिन",
+      "not_included": [
+        "Website (Coaching Growth में)",
+        "Printing",
+        "Ad spend",
+        "Admissions या ranking की guarantee"
+      ],
+      "case_study": "rasra-library-digitization",
+      "featured": true,
+      "slug": "coaching-digital-starter",
+      "customer_types": [
+        "coaching-library",
+        "student-educator"
+      ],
+      "filters": [
+        "business",
+        "education"
+      ],
+      "keywords": [
+        "coaching",
+        "library",
+        "tuition",
+        "admission",
+        "google business"
+      ],
+      "tier": "starter",
+      "revision_rounds": 1,
+      "editable_source": "सभी accounts आपके नाम पर; PDF/PNG",
+      "third_party_costs": [
+        "printing",
+        "ad_spend"
+      ],
+      "formats": [
+        "png",
+        "pdf",
+        "print-pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "rasra-library-digitization"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "coaching-growth",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "education-business",
+      "page": "/services/education-business/",
+      "name": "Coaching Growth",
+      "tagline": "Starter के साथ landing website, courses/fees, creatives और lead tracking।",
+      "price_from": 14999,
+      "price_unit": "one-time",
+      "for": "Coaching institutes और libraries जो admissions season के लिए पूरा enquiry system चाहते हैं।",
+      "problem": "Enquiries आती हैं पर courses/fees दिखाने वाली website, tracking और follow-up नहीं।",
+      "deliverables": [
+        "Coaching Digital Starter की सभी चीज़ें",
+        "Landing website — courses, faculty, fees/batches, contact",
+        "Courses/fees section — batch timings के साथ",
+        "5 promotional creatives",
+        "GA4 + conversion tracking (form, WhatsApp, call)",
+        "Lead form → Google Sheet + WhatsApp/email alert"
+      ],
+      "timeline": "15–20 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Launch के बाद 30 दिन",
+      "not_included": [
+        "Domain और hosting",
+        "Ad spend",
+        "ऐसे result/topper claims जिनका प्रमाण न हो",
+        "Admissions की guarantee"
+      ],
+      "case_study": "rasra-library-digitization",
+      "compliance_note": "Results और toppers सिर्फ़ वही दिखाए जाते हैं जिनका written consent और प्रमाण institute देता है।",
+      "slug": "coaching-growth",
+      "customer_types": [
+        "coaching-library",
+        "student-educator"
+      ],
+      "filters": [
+        "business",
+        "education",
+        "website"
+      ],
+      "keywords": [
+        "coaching website",
+        "library website",
+        "admission",
+        "lead form"
+      ],
+      "tier": "growth",
+      "revision_rounds": 2,
+      "editable_source": "Website files/admin access आपके पास",
+      "third_party_costs": [
+        "domain",
+        "hosting",
+        "ad_spend",
+        "printing"
+      ],
+      "formats": [
+        "website",
+        "png",
+        "pdf"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [
+        "rasra-library-digitization"
+      ],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
+    },
+    {
+      "id": "coaching-monthly-saathi",
+      "lang": "hi",
+      "division": "digital-saathi",
+      "category": "education-business",
+      "page": "/services/education-business/",
+      "name": "Monthly Digital Saathi (Coaching)",
+      "tagline": "हर महीने batch creatives, Google और website updates।",
+      "price_from": 4999,
+      "price_unit": "month",
+      "for": "जिन institutes का setup हो चुका है पर हर महीने updates का समय नहीं।",
+      "problem": "नए batches, fees और results की जानकारी Google, website और social पर समय पर update नहीं होती।",
+      "deliverables": [
+        "8 batch/admission creatives per month",
+        "Google Business Profile updates — posts, timings, photos",
+        "Website पर batch/fees updates — 5 changes/month",
+        "Review reply drafts — आपकी approval के बाद",
+        "Basic monthly report — calls, directions, enquiries"
+      ],
+      "timeline": "महीने-दर-महीने; पहला महीना onboarding से",
+      "revisions": "हर creative पर 1 revision",
+      "support": "Working days में WhatsApp support",
+      "not_included": [
+        "Ad spend",
+        "Video shooting",
+        "Admissions की guarantee"
+      ],
+      "case_study": null,
+      "slug": "coaching-monthly-saathi",
+      "customer_types": [
+        "coaching-library"
+      ],
+      "filters": [
+        "business",
+        "education"
+      ],
+      "keywords": [
+        "coaching monthly",
+        "retainer",
+        "batch creatives"
+      ],
+      "tier": null,
+      "revision_rounds": 1,
+      "editable_source": "सभी accounts आपके नाम पर",
+      "third_party_costs": [
+        "ad_spend",
+        "printing"
+      ],
+      "formats": [
+        "png"
+      ],
+      "sample_ids": [],
+      "case_study_ids": [],
+      "recommended_price": null,
+      "form_prefill_url": "",
+      "whatsapp_message": "",
+      "active": true
     }
   ],
   "payg_linkedin": [
@@ -877,5 +3100,31 @@
       "price": 20000,
       "posts": "15 posts"
     }
-  ]
+  ],
+  "scope_note": {
+    "en": "Final quote depends on scope, content readiness, integrations, timeline and revision requirements.",
+    "hi": "Final quote scope, content की तैयारी, integrations, timeline और revisions के अनुसार तय होता है।"
+  },
+  "third_party_cost_labels": {
+    "domain": "Domain",
+    "hosting": "Hosting",
+    "ad_spend": "Ad spend",
+    "printing": "Printing",
+    "paid_api": "Paid API usage",
+    "premium_software": "Premium software / subscriptions",
+    "paid_stock": "Paid stock assets / fonts",
+    "whatsapp_api": "WhatsApp Business API",
+    "infrastructure": "Other external infrastructure"
+  },
+  "filter_labels": {
+    "business": "Business",
+    "personal": "Personal",
+    "education": "Education",
+    "creator": "Creator",
+    "professional": "Professional",
+    "design": "Design",
+    "website": "Website",
+    "research": "Research",
+    "ai": "AI"
+  }
 }

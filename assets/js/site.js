@@ -289,7 +289,7 @@
     var a = ev.target.closest('a[href]');
     if (!a || a.hasAttribute('data-track') || a.closest('[data-track]')) return;
     var href = a.getAttribute('href');
-    if (href.indexOf('/case-studies/') === 0) track('sample_click', { label: href, link_url: href });
+    if (href.indexOf('/case-studies/') === 0) track('portfolio_open', { label: href, link_url: href });
     else if (href.indexOf('/store/') === 0) track('store_click', { label: href, link_url: href });
   });
 
@@ -297,7 +297,7 @@
   var intake = document.getElementById('intake');
   if (intake) initIntake(intake);
 
-  function formUrlFor(cfg, svc, offerOn) {
+  function formUrlFor(cfg, svc, offerOn, estimate) {
     var base = (svc && svc.prefill_url) || cfg.form_url || '';
     if (!base) return '';
     var ids = cfg.entry_ids || {};
@@ -308,6 +308,7 @@
     };
     if (svc) { add(ids.service_category, svc.category); add(ids.sub_service, svc.name); }
     if (offerOn) add(ids.offer_code, cfg.offer.id);
+    add(ids.estimate, estimate);
     if (!params.length) return base;
     if (base.indexOf('usp=pp_url') === -1) params.unshift('usp=pp_url');
     return base + (base.indexOf('?') === -1 ? '?' : '&') + params.join('&');
@@ -320,6 +321,8 @@
     var sid = q.get('service') || '';
     var svc = (cfg.services || {})[sid];
     var offerOn = !!(svc && svc.offer_price && cfg.offer && cfg.offer.active && q.get('offer') === cfg.offer.id && !root.classList.contains('offer-ended'));
+    var est = (q.get('estimate') || '').match(/^(\d{3,7})-(\d{3,7})$/);
+    var estText = est ? '₹' + Number(est[1]).toLocaleString('en-IN') + '–₹' + Number(est[2]).toLocaleString('en-IN') : '';
     if (svc) {
       document.getElementById('intakeContext').hidden = false;
       document.getElementById('intakeService').textContent = svc.name;
@@ -333,9 +336,15 @@
         note.textContent = 'आप ' + cfg.offer.name + ' offer के लिए requirement भेज रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।';
       }
     }
+    if (estText) {
+      var estNote = document.getElementById('intakeEstimate');
+      estNote.hidden = false;
+      estNote.textContent = 'Indicative estimate: ' + estText + ' — final quote आपकी requirement देखकर मिलेगा।';
+      document.getElementById('intakeContext').hidden = false;
+    }
     var gbtn = document.getElementById('gformBtn');
     if (gbtn) {
-      var url = formUrlFor(cfg, svc, offerOn);
+      var url = formUrlFor(cfg, svc, offerOn, estText);
       if (url) gbtn.setAttribute('href', url);
       gbtn.setAttribute('data-label', sid || 'none');
       track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'google-form' });
@@ -344,42 +353,138 @@
     }
     var wa = document.getElementById('intakeWa');
     if (wa && svc) {
-      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' +
+      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' + (estText ? 'Website estimate: ' + estText + '\n' : '') +
         'Main [role] hoon.\nCity [city] hai.\nDeadline [deadline] hai.\nBudget approx [budget] hai.\nReference/website link [URL] hai.';
       wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent(text));
       wa.setAttribute('data-label', 'intake-' + sid);
     }
   }
 
-  // ---------- services catalogue filters (all cards visible without JS)
-  var froot = document.querySelector('[data-filter-root]');
-  if (froot) {
-    var catCards = document.querySelectorAll('.cat-card');
-    var fstate = { outcome: new URLSearchParams(location.search).get('cat') || '', format: '' };
-    var applyFilters = function () {
-      var shown = 0;
-      catCards.forEach(function (c) {
-        var always = c.hasAttribute('data-always');
-        var okOutcome = !fstate.outcome || c.getAttribute('data-outcome') === fstate.outcome;
-        var okFormat = !fstate.format || (' ' + (c.getAttribute('data-formats') || '') + ' ').indexOf(' ' + fstate.format + ' ') !== -1;
-        var ok = always || (okOutcome && okFormat);
-        c.hidden = !ok;
-        if (ok && !always) shown++;
-      });
-      froot.querySelectorAll('[data-filter-outcome]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter-outcome') === fstate.outcome ? 'true' : 'false'); });
-      froot.querySelectorAll('[data-filter-format]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter-format') === fstate.format ? 'true' : 'false'); });
-      froot.querySelector('[data-filter-count]').textContent = shown + ' categories दिख रही हैं';
+  // ---------- impression events, once per page (labels only — never form data)
+  if ('IntersectionObserver' in window) {
+    var onceSeen = {};
+    var watch = function (selector, event, labelFn) {
+      var els = document.querySelectorAll(selector);
+      if (!els.length) return;
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var label = labelFn(en.target);
+          if (!onceSeen[event + ':' + label]) { onceSeen[event + ':' + label] = 1; track(event, { label: label }); }
+          obs.unobserve(en.target);
+        });
+      }, { threshold: 0.4 });
+      els.forEach(function (el) { obs.observe(el); });
     };
-    froot.addEventListener('click', function (ev) {
-      var b = ev.target.closest('button');
-      if (!b) return;
-      if (b.hasAttribute('data-filter-outcome')) fstate.outcome = b.getAttribute('data-filter-outcome');
-      else if (b.hasAttribute('data-filter-format')) fstate.format = b.getAttribute('data-filter-format');
-      else return;
-      applyFilters();
-      track('catalogue_filter', { label: (fstate.outcome || 'all') + '|' + (fstate.format || 'all') });
+    watch('[data-pricing]', 'pricing_view', function () { return location.pathname; });
+    watch('[data-retainer]', 'retainer_view', function (el) { return el.getAttribute('data-retainer'); });
+    watch('[data-sample-section]', 'service_sample_view', function () { return location.pathname; });
+  }
+
+  // ---------- customer-type router: progressive disclosure on mobile
+  document.querySelectorAll('[data-types-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.previousElementSibling;
+      var open = !box.classList.contains('expanded');
+      box.classList.toggle('expanded', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.textContent = open ? 'कम दिखाएँ' : btn.getAttribute('data-label-closed');
     });
-    applyFilters();
+  });
+
+  // ---------- service finder: filter chips, customer type and search (all cards visible without JS)
+  var finder = document.querySelector('[data-finder]');
+  if (finder) {
+    var fcards = document.querySelectorAll('.finder-card');
+    var fq = new URLSearchParams(location.search);
+    var fs = { tag: fq.get('filter') || '', text: fq.get('q') || '', type: fq.get('type') || '' };
+    var fInput = document.getElementById('finderSearch');
+    var fType = document.getElementById('finderType');
+    fInput.value = fs.text;
+    if (fs.type && fType.querySelector('option[value="' + CSS.escape(fs.type) + '"]')) fType.value = fs.type; else fs.type = '';
+    var applyFinder = function () {
+      var shown = 0;
+      var words = fs.text.toLowerCase().split(/\s+/).filter(Boolean);
+      fcards.forEach(function (c) {
+        if (c.hasAttribute('data-always')) return;
+        var tags = ' ' + (c.getAttribute('data-tags') || '') + ' ';
+        var types = ' ' + (c.getAttribute('data-types') || '') + ' ';
+        var hay = c.getAttribute('data-search') || '';
+        var ok = (!fs.tag || tags.indexOf(' ' + fs.tag + ' ') !== -1) && (!fs.type || types.indexOf(' ' + fs.type + ' ') !== -1) &&
+          words.every(function (w) { return hay.indexOf(w) !== -1; });
+        c.hidden = !ok;
+        if (ok) shown++;
+      });
+      finder.querySelectorAll('[data-filter]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter') === fs.tag ? 'true' : 'false'); });
+      finder.querySelector('[data-finder-count]').textContent = shown + ' packages';
+      document.querySelector('[data-finder-empty]').hidden = shown > 0;
+      return shown;
+    };
+    var searchTimer;
+    fInput.addEventListener('input', function () {
+      fs.text = fInput.value;
+      var shown = applyFinder();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { if (fs.text.trim()) track('service_search', { label: shown ? 'has-results' : 'no-results' }); }, 900);
+    });
+    fType.addEventListener('change', function () { fs.type = fType.value; applyFinder(); track('service_filter', { label: 'type:' + (fs.type || 'all') }); });
+    finder.addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-filter]');
+      if (!b) return;
+      fs.tag = b.getAttribute('data-filter');
+      applyFinder();
+      track('service_filter', { label: fs.tag || 'all' });
+    });
+    applyFinder();
+  }
+
+  // ---------- quote estimator (indicative only — never used for payment)
+  var estForm = document.getElementById('estimator');
+  if (estForm) {
+    var ecfg = JSON.parse(document.getElementById('estimatorConfig').textContent);
+    var R = ecfg.rules;
+    var eSel = document.getElementById('est-service');
+    var estStarted = false, estCompleted = false;
+    var preSvc = new URLSearchParams(location.search).get('service');
+    if (preSvc && ecfg.services[preSvc]) eSel.value = preSvc;
+    var picked = function (name) { var el = estForm.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; };
+    var rupees = function (n) { return '₹' + n.toLocaleString('en-IN'); };
+    var calc = function () {
+      var sid = eSel.value, sv = ecfg.services[sid];
+      var result = document.getElementById('estResult'), hint = document.getElementById('estHint');
+      if (!sv) { result.hidden = true; hint.hidden = false; return; }
+      var monthly = sv.unit === 'month';
+      estForm.querySelector('[data-group="turnaround"]').hidden = monthly;
+      var rush = document.getElementById('est-turnaround-rush');
+      rush.disabled = sv.price > R.rush_max_starting_price;
+      if (rush.disabled && rush.checked) document.getElementById('est-turnaround-normal').checked = true;
+      var sc = R.scope[picked('scope')], ct = R.content[picked('content')];
+      var tr = monthly ? { min: 1, max: 1 } : R.turnaround[picked('turnaround')];
+      var pmin = 0, pmax = 0;
+      estForm.querySelectorAll('input[name="extras"]:checked').forEach(function (x) { pmin += R.extras[x.value].min_pct; pmax += R.extras[x.value].max_pct; });
+      var r = R.round_to;
+      var low = Math.max(sv.price, Math.floor(sv.price * sc.min * ct.min * tr.min * (1 + pmin / 100) / r) * r);
+      var high = Math.max(low + r, Math.ceil(sv.price * sc.max * ct.max * tr.max * (1 + pmax / 100) / r) * r);
+      var unit = monthly ? '/महीना' : '';
+      document.getElementById('estRange').textContent = 'Estimated ' + rupees(low) + '–' + rupees(high) + unit;
+      document.getElementById('estBase').textContent = sv.name + ' की starting price ' + rupees(sv.price) + unit + ' है।' +
+        (rush.disabled && !monthly ? ' इस package के लिए 24–48h delivery उपलब्ध नहीं।' : '');
+      result.hidden = false;
+      hint.hidden = true;
+      document.getElementById('estQuote').setAttribute('href', '/contact/?service=' + encodeURIComponent(sid) + '&estimate=' + low + '-' + high);
+      document.getElementById('estDetails').setAttribute('href', sv.page);
+      var wa = document.getElementById('estWa');
+      wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent('Namaste Moodily,\nMujhe ' + sv.name + ' chahiye.\nWebsite estimator: ' +
+        rupees(low) + '–' + rupees(high) + unit + ' (scope: ' + picked('scope') + ', content: ' + picked('content') + (monthly ? '' : ', turnaround: ' + picked('turnaround')) +
+        ').\nKripya final quote bhejiye.'));
+      if (estStarted && !estCompleted) { estCompleted = true; track('quote_estimator_complete', { label: sid, scope: picked('scope') }); }
+    };
+    estForm.addEventListener('change', function () {
+      if (!estStarted) { estStarted = true; track('quote_estimator_start', { label: eSel.value || 'none' }); }
+      calc();
+    });
+    estForm.addEventListener('submit', function (ev) { ev.preventDefault(); });
+    calc();
   }
 
   // ---------- thank-you page: WhatsApp fallback built from sessionStorage (never from URL)

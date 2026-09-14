@@ -161,6 +161,36 @@ def check_no_secrets():
         fail(".gitignore", ".env must be gitignored")
 
 
+def check_commerce(pages):
+    """Sample-first service pages: scope note with prices, samples next to package details, honest concept labels, estimator disclaimer."""
+    services = json.loads((ROOT / "src/data/services.json").read_text(encoding="utf-8"))
+    note = services["scope_note"]["en"]
+    for rel, (_, text) in pages.items():
+        if 'name="moodily-redirect"' in text:
+            continue
+        if "data-pricing" in text and note not in text:
+            fail(rel, "prices shown without the scope note")
+        if 'class="svc-detail' in text and 'id="samples"' not in text:
+            fail(rel, "package details without a samples section")
+        if text.count('class="before-after"') > text.count("Concept illustration"):
+            fail(rel, "before/after without a concept label")
+        if 'id="estimator"' in text and "Final quote after reviewing requirement" not in text:
+            fail(rel, "estimator without the final-quote disclaimer")
+    for smp in json.loads((ROOT / "src/data/samples.json").read_text(encoding="utf-8"))["samples"]:
+        f = ROOT / smp["image"].lstrip("/")
+        if not f.exists():
+            fail("samples.json", "missing image " + smp["image"])
+        elif f.stat().st_size > 300000:
+            fail("samples.json", "{} is {} KB — publish an optimized derivative".format(smp["image"], f.stat().st_size // 1024))
+    redirects = json.loads((ROOT / "src/data/redirects.json").read_text(encoding="utf-8"))
+    for old, new in redirects.items():
+        if old.startswith("_"):
+            continue
+        target = resolve(new)
+        if not target or not target.exists():
+            fail("redirects.json", "redirect target missing: " + new)
+
+
 def main():
     files = json.loads((ROOT / ".build-manifest.json").read_text())
     pages, titles = {}, {}
@@ -170,6 +200,7 @@ def main():
         p.feed(text)
         pages[rel] = (p, text)
         route = route_of(rel)
+        is_redirect = 'name="moodily-redirect"' in text
         title = "".join(p.title).strip()
         if not title:
             fail(rel, "missing title")
@@ -177,9 +208,9 @@ def main():
             fail(rel, "duplicate title with " + titles[title])
         titles[title] = rel
         desc = p.meta.get("description", "")
-        if not 50 <= len(desc) <= 300:
+        if not is_redirect and not 50 <= len(desc) <= 300:
             fail(rel, "description length {}".format(len(desc)))
-        if p.canonical != BASE + route and route != "/404.html":
+        if p.canonical != BASE + route and route != "/404.html" and not is_redirect:
             fail(rel, "canonical {} != {}".format(p.canonical, BASE + route))
         if p.h1 != 1:
             fail(rel, "h1 count {}".format(p.h1))
@@ -232,6 +263,7 @@ def main():
             fail("sitemap.xml", "noindex page listed: " + url)
 
     check_prices(pages)
+    check_commerce(pages)
     check_no_secrets()
 
     robots = (ROOT / "robots.txt").read_text()
