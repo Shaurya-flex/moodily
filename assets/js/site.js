@@ -378,7 +378,7 @@
     };
     watch('[data-pricing]', 'pricing_view', function () { return location.pathname; });
     watch('[data-retainer]', 'retainer_view', function (el) { return el.getAttribute('data-retainer'); });
-    watch('[data-sample-section]', 'service_sample_view', function () { return location.pathname; });
+    watch('[data-sample-section]', 'sample_view', function () { return location.pathname; });
   }
 
   // ---------- customer-type router: progressive disclosure on mobile
@@ -454,17 +454,22 @@
       var result = document.getElementById('estResult'), hint = document.getElementById('estHint');
       if (!sv) { result.hidden = true; hint.hidden = false; return; }
       var monthly = sv.unit === 'month';
-      estForm.querySelector('[data-group="turnaround"]').hidden = monthly;
+      var skip = { turnaround: monthly, integrations: !sv.integrations };
+      R.groups.forEach(function (g) { estForm.querySelector('[data-group="' + g.key + '"]').hidden = !!skip[g.key]; });
       var rush = document.getElementById('est-turnaround-rush');
       rush.disabled = sv.price > R.rush_max_starting_price;
       if (rush.disabled && rush.checked) document.getElementById('est-turnaround-normal').checked = true;
-      var sc = R.scope[picked('scope')], ct = R.content[picked('content')];
-      var tr = monthly ? { min: 1, max: 1 } : R.turnaround[picked('turnaround')];
+      // multipliers describe scope/complexity only — never the customer
+      var mmin = 1, mmax = 1;
+      R.groups.forEach(function (g) {
+        var v = skip[g.key] ? null : R[g.key][picked(g.key)];
+        if (v) { mmin *= v.min; mmax *= v.max; }
+      });
       var pmin = 0, pmax = 0;
       estForm.querySelectorAll('input[name="extras"]:checked').forEach(function (x) { pmin += R.extras[x.value].min_pct; pmax += R.extras[x.value].max_pct; });
       var r = R.round_to;
-      var low = Math.max(sv.price, Math.floor(sv.price * sc.min * ct.min * tr.min * (1 + pmin / 100) / r) * r);
-      var high = Math.max(low + r, Math.ceil(sv.price * sc.max * ct.max * tr.max * (1 + pmax / 100) / r) * r);
+      var low = Math.max(sv.price, Math.floor(sv.price * mmin * (1 + pmin / 100) / r) * r);
+      var high = Math.max(low + r, Math.ceil(sv.price * mmax * (1 + pmax / 100) / r) * r);
       var unit = monthly ? '/महीना' : '';
       document.getElementById('estRange').textContent = 'Estimated ' + rupees(low) + '–' + rupees(high) + unit;
       document.getElementById('estBase').textContent = sv.name + ' की starting price ' + rupees(sv.price) + unit + ' है।' +
@@ -477,10 +482,10 @@
       wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent('Namaste Moodily,\nMujhe ' + sv.name + ' chahiye.\nWebsite estimator: ' +
         rupees(low) + '–' + rupees(high) + unit + ' (scope: ' + picked('scope') + ', content: ' + picked('content') + (monthly ? '' : ', turnaround: ' + picked('turnaround')) +
         ').\nKripya final quote bhejiye.'));
-      if (estStarted && !estCompleted) { estCompleted = true; track('quote_estimator_complete', { label: sid, scope: picked('scope') }); }
+      if (estStarted && !estCompleted) { estCompleted = true; track('quote_complete', { label: 'estimator:' + sid, scope: picked('scope') }); }
     };
     estForm.addEventListener('change', function () {
-      if (!estStarted) { estStarted = true; track('quote_estimator_start', { label: eSel.value || 'none' }); }
+      if (!estStarted) { estStarted = true; track('quote_start', { label: 'estimator:' + (eSel.value || 'none') }); }
       calc();
     });
     estForm.addEventListener('submit', function (ev) { ev.preventDefault(); });

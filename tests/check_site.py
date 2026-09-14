@@ -116,13 +116,15 @@ def check_prices(pages):
     name_re = re.compile("|".join(re.escape(n) for n in sorted(allowed, key=len, reverse=True)))
     price_re = re.compile(r"₹\s?([0-9][0-9,]*)")
     for rel, (_, text) in pages.items():
-        plain = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style|svg)\b.*?</\1>", "", text, flags=re.S))
+        plain = re.sub(r"<(script|style|svg)\b.*?</\1>", "", text, flags=re.S)
+        plain = re.sub(r"</(p|h[1-6]|li|dt|dd|div|td|th)>", " ¦ ", plain)  # names must not match across block boundaries
+        plain = re.sub(r"<[^>]+>", " ", plain)
         plain = re.sub(r"\s+", " ", html_lib.unescape(plain))
         found = [(m.end(), m.group(0), m.start()) for m in name_re.finditer(plain)]
         for i, (end, name, _) in enumerate(found):
             stop = min(found[i + 1][2] if i + 1 < len(found) else len(plain), end + 90)
-            pm = price_re.search(plain, end, stop)
-            if pm and int(pm.group(1).replace(",", "")) not in allowed[name]:
+            pm = price_re.search(plain, end, min(len(plain), stop + 16))  # let a number that starts inside the window finish
+            if pm and pm.start() < stop and int(pm.group(1).rstrip(",").replace(",", "")) not in allowed[name]:
                 fail(rel, "price mismatch: '{}' shown with ₹{} (allowed {})".format(name, pm.group(1), sorted(allowed[name])))
         if (site.get("payments") or {}).get("mode") != "live":
             if re.search(r'href="[^"]*(razorpay\.com|rzp\.io|razorpay\.me)', text):
@@ -189,6 +191,26 @@ def check_commerce(pages):
         target = resolve(new)
         if not target or not target.exists():
             fail("redirects.json", "redirect target missing: " + new)
+        elif new in redirects or 'name="moodily-redirect"' in target.read_text(encoding="utf-8"):
+            fail("redirects.json", "redirect chain: {} → {} is itself a redirect".format(old, new))
+
+    # Every quick-answer card needs a samples section for its "Sample देखें" button, and internal cost data must never ship.
+    internal = re.compile(r"(?i)targetPriceInternal|estimatedHoursInternal|cashCostInternal|pricing-internal\.json\"|hourly_floors")
+    for rel, (_, text) in pages.items():
+        if 'class="answer-box card"' in text and 'id="samples"' not in text:
+            fail(rel, "answer box without a samples section")
+        if internal.search(text):
+            fail(rel, "internal pricing data leaked into a public page")
+    for data_file in (ROOT / "src/data").glob("*.json"):
+        if re.search(r"(?i)\"(targetPriceInternal|estimatedHoursInternal|cashCostInternal)\"", data_file.read_text(encoding="utf-8")):
+            fail(str(data_file.relative_to(ROOT)), "internal pricing fields belong in private/pricing-internal.json (gitignored)")
+    if "private/" not in (ROOT / ".gitignore").read_text(encoding="utf-8").split():
+        fail(".gitignore", "private/ (internal pricing) must be gitignored")
+
+    # Price type must be visible: exact prices never say "से", custom quotes never show a rupee amount next to the name.
+    for s in services["services"]:
+        if s.get("active", True) and s.get("price_mode") not in ("exact", "starts_at", "custom_quote", "free"):
+            fail("services.json", "{} has no valid price_mode".format(s["id"]))
 
 
 def main():

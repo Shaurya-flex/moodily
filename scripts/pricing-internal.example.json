@@ -1,0 +1,9 @@
+{
+  "_readme": "TEMPLATE ONLY. Copy to private/pricing-internal.json (gitignored) and fill real numbers. Never commit real hours, costs or margins — this repository is public.",
+  "hourly_floors": [750, 1250, 2000],
+  "revision_allowance": 0.15,
+  "pm_buffer": 0.15,
+  "services": {
+    "example-service-id": {"estimatedHoursInternal": 0, "cashCostInternal": 0, "targetPriceInternal": null, "notes": ""}
+  }
+}

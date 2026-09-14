@@ -1,8 +1,15 @@
 {
-  "_readme": "Old route → new route. build.py writes a noindex redirect page (meta refresh + JS + link, canonical to the new URL) at each old route.",
-  "/services/presentation-design/": "/services/presentations/",
-  "/services/invitation-design/": "/services/invitations/",
+  "_readme": "Old route → new route. build.py writes a noindex redirect page (meta refresh + JS + link, canonical to the new URL) at each old route. Targets must be final pages (no chains).",
+  "/services/local-business/": "/services/local-business-digitalization/",
+  "/services/websites/": "/services/business-website/",
+  "/services/google-whatsapp/": "/services/google-business-profile/",
+  "/services/presentations/": "/services/presentation-design/",
+  "/services/social-media/": "/services/social-media-design/",
+  "/services/invitations/": "/services/digital-invitation/",
+  "/services/education-business/": "/services/coaching-digital-services/",
+  "/services/research/": "/services/research-intelligence/",
+  "/services/b2b/": "/services/b2b-digital-sales/",
+  "/services/invitation-design/": "/services/digital-invitation/",
   "/services/business-documents/": "/services/design/",
-  "/services/social-media-design/": "/services/social-media/",
   "/services/education/": "/services/education-content/"
 }
