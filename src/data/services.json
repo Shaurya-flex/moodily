@@ -183,11 +183,20 @@
       "price_unit": "month",
       "for": "Professionals और founders जो LinkedIn पर नियमित रहना चाहते हैं।",
       "problem": "लिखने का समय नहीं, और महीनों तक profile शांत रहता है।",
-      "deliverables": ["8 posts/month", "Profile audit", "Content calendar", "Monthly performance note"],
+      "deliverables": [
+        "8 posts/month",
+        "Profile audit",
+        "Content calendar",
+        "Monthly performance note"
+      ],
       "timeline": "पहले posts onboarding के 7 working days में",
       "revisions": "हर post पर 1 revision",
       "support": "Monthly",
-      "not_included": ["Posting आपके account से आप करेंगे (या scheduling access दें)", "Engagement/followers की guarantee", "Paid promotion"],
+      "not_included": [
+        "Posting आपके account से आप करेंगे (या scheduling access दें)",
+        "Engagement/followers की guarantee",
+        "Paid promotion"
+      ],
       "case_study": null
     },
     {
@@ -203,11 +212,20 @@
       "featured": true,
       "for": "जो LinkedIn को नियमित inbound opportunities का channel बनाना चाहते हैं।",
       "problem": "Posts तो जाते हैं, पर positioning साफ़ नहीं और comments/network से बात आगे नहीं बढ़ती।",
-      "deliverables": ["12 posts/month", "Comment और engagement strategy", "Personal brand positioning", "Bi-weekly strategy call"],
+      "deliverables": [
+        "12 posts/month",
+        "Comment और engagement strategy",
+        "Personal brand positioning",
+        "Bi-weekly strategy call"
+      ],
       "timeline": "पहले posts onboarding के 7 working days में",
       "revisions": "हर post पर 2 revisions",
       "support": "Bi-weekly call",
-      "not_included": ["आपकी ओर से comments/DMs करना", "Followers/leads की guarantee", "Paid promotion"],
+      "not_included": [
+        "आपकी ओर से comments/DMs करना",
+        "Followers/leads की guarantee",
+        "Paid promotion"
+      ],
       "case_study": null
     },
     {
@@ -222,11 +240,20 @@
       "price_unit": "month",
       "for": "Founders और industry leaders जिन्हें रोज़ की presence और newsletter चाहिए।",
       "problem": "Thought leadership के लिए लगातार, गहरा content चाहिए — पर समय नहीं।",
-      "deliverables": ["20 posts/month", "Weekly LinkedIn newsletter", "Dedicated writer", "Weekly strategy call"],
+      "deliverables": [
+        "20 posts/month",
+        "Weekly LinkedIn newsletter",
+        "Dedicated writer",
+        "Weekly strategy call"
+      ],
       "timeline": "पहले posts onboarding के 7 working days में",
       "revisions": "हर post/newsletter पर 3 revisions",
       "support": "Weekly call",
-      "not_included": ["Ghost engagement/DMs", "Results की guarantee", "Paid promotion"],
+      "not_included": [
+        "Ghost engagement/DMs",
+        "Results की guarantee",
+        "Paid promotion"
+      ],
       "case_study": null
     },
     {
@@ -253,7 +280,11 @@
       "timeline": "7–10 working days",
       "revisions": "Calendar और scripts पर 1 revision round",
       "support": "7 दिन",
-      "not_included": ["Shooting या video editing", "Views/subscribers की guarantee", "Paid promotion"],
+      "not_included": [
+        "Shooting या video editing",
+        "Views/subscribers की guarantee",
+        "Paid promotion"
+      ],
       "case_study": "teleprompter-creator-project"
     },
     {
@@ -371,7 +402,11 @@
       "timeline": "5–7 working days",
       "revisions": "1 revision round",
       "support": "7 दिन support",
-      "not_included": ["Tool subscription का खर्च", "Custom software development", "Sensitive/health data वाले workflows (अलग review के बिना)"],
+      "not_included": [
+        "Tool subscription का खर्च",
+        "Custom software development",
+        "Sensitive/health data वाले workflows (अलग review के बिना)"
+      ],
       "case_study": null
     },
     {
@@ -387,11 +422,20 @@
       "featured": true,
       "for": "Businesses जिनकी leads, orders या content कई tools से गुज़रती है।",
       "problem": "Tools अलग-अलग हैं, data बार-बार copy होता है और गलतियाँ होती हैं।",
-      "deliverables": ["3 connected automations तक", "Custom AI prompts और logic", "Team walkthrough call", "Documentation"],
+      "deliverables": [
+        "3 connected automations तक",
+        "Custom AI prompts और logic",
+        "Team walkthrough call",
+        "Documentation"
+      ],
       "timeline": "10–15 working days",
       "revisions": "2 revision rounds",
       "support": "30 दिन support",
-      "not_included": ["Tool subscriptions", "Custom app development", "Paid API usage charges"],
+      "not_included": [
+        "Tool subscriptions",
+        "Custom app development",
+        "Paid API usage charges"
+      ],
       "case_study": null
     },
     {
@@ -406,17 +450,432 @@
       "price_unit": "one-time",
       "for": "Brands और creators जिन्हें हर हफ़्ते कई platforms पर content चाहिए।",
       "problem": "Idea से publish तक का process हर बार शुरू से होता है।",
-      "deliverables": ["End-to-end content workflow (idea → draft → human review → publish)", "Multi-platform publishing setup", "Dedicated onboarding session", "Prompt library और SOP"],
+      "deliverables": [
+        "End-to-end content workflow (idea → draft → human review → publish)",
+        "Multi-platform publishing setup",
+        "Dedicated onboarding session",
+        "Prompt library और SOP"
+      ],
       "timeline": "15–25 working days",
       "revisions": "30 दिनों में 3 revision rounds",
       "support": "60 दिन support",
-      "not_included": ["Tool/API subscriptions", "बिना human review के auto-publishing", "Reach/engagement की guarantee"],
+      "not_included": [
+        "Tool/API subscriptions",
+        "बिना human review के auto-publishing",
+        "Reach/engagement की guarantee"
+      ],
       "case_study": null
+    },
+    {
+      "id": "presentation-design-only",
+      "lang": "hi",
+      "division": "studio",
+      "category": "presentations",
+      "page": "/services/presentation-design/",
+      "name": "Presentation — Design Only",
+      "tagline": "आपका content, हमारा design — साफ़, readable slides।",
+      "price_from": 1499,
+      "price_unit": "one-time",
+      "for": "Students, teachers, professionals और teams जिनके पास content तैयार है।",
+      "problem": "Content अच्छा है पर slides भीड़-भरी, अलग-अलग fonts और पढ़ने में मुश्किल हैं।",
+      "deliverables": [
+        "10 slides तक आपके content पर design",
+        "एक consistent theme — fonts, colours, icons",
+        "Charts/tables को साफ़ visual में बदलना",
+        "Editable PPTX + PDF",
+        "Speaker notes जैसे हैं वैसे carry-over"
+      ],
+      "timeline": "Content मिलने के बाद 2–3 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 3 दिन छोटे fixes",
+      "not_included": [
+        "Content writing या research",
+        "Paid stock images/fonts के licence",
+        "Animations या video",
+        "10 से ज़्यादा slides (अलग per-slide quote)"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+    },
+    {
+      "id": "presentation-content-design",
+      "lang": "hi",
+      "division": "studio",
+      "category": "presentations",
+      "page": "/services/presentation-design/",
+      "name": "Presentation — Content + Design",
+      "tagline": "आपके notes से कहानी जैसी structured presentation।",
+      "price_from": 2999,
+      "price_unit": "one-time",
+      "for": "जिनके पास notes, document या रूपरेखा है पर slides का flow और शब्द तय नहीं।",
+      "problem": "सारी जानकारी है, पर क्या पहले दिखाएँ, क्या छोड़ें और हर slide पर क्या लिखें — तय नहीं।",
+      "deliverables": [
+        "12 slides तक",
+        "आपके material से structure, headlines और छोटे bullet points",
+        "Design — theme, icons, charts",
+        "छोटे speaker notes",
+        "Editable PPTX + PDF"
+      ],
+      "timeline": "Material मिलने के बाद 3–5 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 5 दिन छोटे fixes",
+      "not_included": [
+        "आपके material से बाहर नई research",
+        "किसी और का content copy करना",
+        "Grades, funding या deal की guarantee"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "featured": true,
+      "compliance_note": "Academic use: हम learning और presentation support देते हैं। Graded assignment पर अपने institution के academic integrity नियम आप follow करें।"
+    },
+    {
+      "id": "presentation-research-content-design",
+      "lang": "hi",
+      "division": "studio",
+      "category": "presentations",
+      "page": "/services/presentation-design/",
+      "name": "Presentation — Research + Content + Design",
+      "tagline": "Topic से शुरू — cited research, script-ready slides और design।",
+      "price_from": 5999,
+      "price_unit": "one-time",
+      "for": "Pitch/investor decks, research presentations, conference और training decks।",
+      "problem": "सिर्फ़ topic या idea है; data, structure और design सब बनाना है।",
+      "deliverables": [
+        "Public sources से topic research — sources slide के साथ",
+        "15 slides तक",
+        "Data charts और comparison visuals",
+        "Speaker notes",
+        "Editable PPTX + PDF"
+      ],
+      "timeline": "Scope call के बाद 5–7 working days",
+      "revisions": "Premium — 3 revision rounds",
+      "support": "Delivery के बाद 7 दिन छोटे fixes",
+      "not_included": [
+        "Paid databases या primary surveys",
+        "Financial model audit या investment advice",
+        "Fundraising/grades की guarantee"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "compliance_note": "Research में हर तथ्य का source दिया जाता है; जिन बातों की पुष्टि नहीं हो सकी, उन्हें साफ़ UNVERIFIED लिखा जाता है।"
+    },
+    {
+      "id": "invitation-digital",
+      "lang": "hi",
+      "division": "studio",
+      "category": "invitations",
+      "page": "/services/invitation-design/",
+      "name": "Digital Invitation Card",
+      "tagline": "WhatsApp और Instagram पर भेजने लायक सुंदर invitation।",
+      "price_from": 499,
+      "price_unit": "one-time",
+      "for": "शादी, जन्मदिन, गृह प्रवेश, anniversary, baby shower, पूजा या त्योहार।",
+      "problem": "Template apps में सब एक जैसे दिखते हैं और Hindi text ठीक से नहीं बैठता।",
+      "deliverables": [
+        "1 static invitation design",
+        "WhatsApp/Instagram size PNG/JPG + PDF",
+        "Hindi, English या दोनों में text",
+        "1 layout variant"
+      ],
+      "timeline": "जानकारी मिलने के बाद 24–48 घंटे",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 2 दिन text fixes",
+      "not_included": [
+        "Printing",
+        "Animation या video",
+        "Custom illustration/caricature",
+        "अतिरिक्त sizes या variants"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "featured": true
+    },
+    {
+      "id": "invitation-print-ready",
+      "lang": "hi",
+      "division": "studio",
+      "category": "invitations",
+      "page": "/services/invitation-design/",
+      "name": "Print-ready Invitation Suite",
+      "tagline": "Printer को देने लायक files — card, insert और RSVP।",
+      "price_from": 1499,
+      "price_unit": "one-time",
+      "for": "जो invitation छपवाना चाहते हैं — शादी, बड़े कार्यक्रम, corporate events।",
+      "problem": "Digital design print में धुंधला या कटा हुआ आता है; printer सही file माँगता है।",
+      "deliverables": [
+        "Card front/back या 4 panels तक",
+        "Print-ready PDF (bleed/margins के साथ)",
+        "RSVP या insert card design",
+        "WhatsApp के लिए digital version"
+      ],
+      "timeline": "3–5 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 5 दिन",
+      "not_included": [
+        "Printing और delivery खर्च",
+        "Printer के colour matching/press proof",
+        "Envelope/box printing"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+    },
+    {
+      "id": "invitation-animated",
+      "lang": "hi",
+      "division": "studio",
+      "category": "invitations",
+      "page": "/services/invitation-design/",
+      "name": "Animated / Video Invitation",
+      "tagline": "15–30 सेकंड की WhatsApp-friendly invitation video।",
+      "price_from": 2499,
+      "price_unit": "one-time",
+      "for": "जो invitation को यादगार और share करने लायक बनाना चाहते हैं।",
+      "problem": "Static card जल्दी scroll हो जाता है; video बनाने का समय या tool नहीं।",
+      "deliverables": [
+        "15–30 सेकंड MP4 (WhatsApp-friendly)",
+        "GIF या static poster version",
+        "Royalty-free/licensed music",
+        "6 photos तक"
+      ],
+      "timeline": "3–5 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 5 दिन",
+      "not_included": [
+        "Copyrighted film songs",
+        "Photoshoot या videography",
+        "Voice-over recording (अलग quote)",
+        "30 सेकंड से लंबा video"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+    },
+    {
+      "id": "business-document-template",
+      "lang": "hi",
+      "division": "studio",
+      "category": "business-documents",
+      "page": "/services/business-documents/",
+      "name": "Business Document Template",
+      "tagline": "Invoice, quotation या letterhead — आपके brand में, editable।",
+      "price_from": 799,
+      "price_unit": "one-time",
+      "for": "Shops, freelancers, consultants और छोटे businesses।",
+      "problem": "Handwritten या बेतरतीब bills/quotes से भरोसा कम होता है और हर बार नया बनाना पड़ता है।",
+      "deliverables": [
+        "1 template — invoice, quotation, estimate, receipt, letterhead या rate card",
+        "आपका logo और brand colours",
+        "Editable Word/Google Docs/Sheets या Canva (जहाँ licence अनुमति दे)",
+        "PDF version"
+      ],
+      "timeline": "2–3 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 3 दिन",
+      "not_included": [
+        "GST/tax/legal content की जाँच — ज़रूरी details आप देते हैं",
+        "Accounting/billing software setup",
+        "नया logo design"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "compliance_note": "Invoice/quotation template एक design service है। GSTIN, tax rates और कानूनी रूप से ज़रूरी जानकारी client देता है; Moodily accounting या tax compliance advice नहीं देता।"
+    },
+    {
+      "id": "business-identity-kit",
+      "lang": "hi",
+      "division": "studio",
+      "category": "business-documents",
+      "page": "/services/business-documents/",
+      "name": "Business Identity Kit",
+      "tagline": "Visiting card से email signature तक — हर जगह एक जैसा professional brand।",
+      "price_from": 2499,
+      "price_unit": "one-time",
+      "for": "नए business, consultants और service providers।",
+      "problem": "हर document अलग दिखता है — visiting card, letterhead, WhatsApp और email में brand एक जैसा नहीं।",
+      "deliverables": [
+        "Business card (print-ready)",
+        "Digital visiting card",
+        "HTML email signature",
+        "Letterhead",
+        "QR card",
+        "Invoice + quotation templates"
+      ],
+      "timeline": "5–7 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "Logo design from scratch या trademark search",
+        "Printing",
+        "GST/tax compliance"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "featured": true,
+      "compliance_note": "Template/stock elements से बना design exclusive या trademark-ready logo नहीं कहा जाता। Trademark के लिए original logo का अलग quote होता है।"
+    },
+    {
+      "id": "business-marketing-collateral",
+      "lang": "hi",
+      "division": "studio",
+      "category": "business-documents",
+      "page": "/services/business-documents/",
+      "name": "Brochure / Company Profile / Catalogue",
+      "tagline": "आपके business को एक नज़र में समझाने वाला document।",
+      "price_from": 3999,
+      "price_unit": "one-time",
+      "for": "Manufacturers, suppliers, clinics, institutes और B2B businesses।",
+      "problem": "ग्राहक पूछते हैं 'details भेजिए' और भेजने लायक कोई साफ़ document नहीं है।",
+      "deliverables": [
+        "8 pages तक brochure या company profile — या 30 products तक catalogue",
+        "आपके content का polish और layout",
+        "Print-ready PDF + WhatsApp/email-friendly PDF"
+      ],
+      "timeline": "5–10 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 7 दिन",
+      "not_included": [
+        "Product photography",
+        "Printing",
+        "शुरू से पूरा content writing (अलग quote)",
+        "ऐसे claims जिनका प्रमाण न हो"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+    },
+    {
+      "id": "print-design-single",
+      "lang": "hi",
+      "division": "studio",
+      "category": "business-documents",
+      "page": "/services/business-documents/",
+      "name": "Flyer, Poster or Menu Design",
+      "tagline": "एक असरदार print design — printer और social दोनों के लिए।",
+      "price_from": 999,
+      "price_unit": "one-time",
+      "for": "Shops, restaurants, coaching, events और local campaigns।",
+      "problem": "Offer या menu छपवाना है पर design साफ़ और पढ़ने लायक नहीं बन रहा।",
+      "deliverables": [
+        "1 design — flyer, poster, pamphlet, menu, banner, sticker/label या certificate",
+        "Print-ready PDF",
+        "Social media size version",
+        "2 sizes तक"
+      ],
+      "timeline": "2–3 working days",
+      "revisions": "Basic — 1 revision round",
+      "support": "Delivery के बाद 3 दिन",
+      "not_included": [
+        "Printing",
+        "Paid stock photo licences",
+        "Packaging dieline/structural engineering"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+    },
+    {
+      "id": "social-post-pack",
+      "lang": "hi",
+      "division": "studio",
+      "category": "social-media",
+      "page": "/services/social-media-design/",
+      "name": "Social Media Post Pack",
+      "tagline": "10 brand-consistent posts — Instagram, Facebook, LinkedIn।",
+      "price_from": 2499,
+      "price_unit": "one-time",
+      "for": "Local businesses, professionals, coaches और creators।",
+      "problem": "Posting irregular है और हर post अलग style में — page professional नहीं दिखता।",
+      "deliverables": [
+        "10 static posts (platform sizes)",
+        "Caption drafts और hashtags",
+        "Reusable brand template",
+        "WhatsApp Status versions"
+      ],
+      "timeline": "4–6 working days",
+      "revisions": "Standard — 2 revision rounds (पूरे set पर)",
+      "support": "Delivery के बाद 5 दिन",
+      "not_included": [
+        "Posting/scheduling",
+        "Paid ads management या ad budget",
+        "Reel shooting/editing (अलग quote)",
+        "Followers/reach की guarantee"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)",
+      "featured": true
+    },
+    {
+      "id": "social-carousel-thumbnail-pack",
+      "lang": "hi",
+      "division": "studio",
+      "category": "social-media",
+      "page": "/services/social-media-design/",
+      "name": "Carousels & Thumbnails Pack",
+      "tagline": "Save और click होने लायक carousels और thumbnails।",
+      "price_from": 3499,
+      "price_unit": "one-time",
+      "for": "Educators, creators, LinkedIn professionals और YouTube channels।",
+      "problem": "अच्छा content है पर thumbnails/covers ध्यान नहीं खींचते और carousels बनाने में समय जाता है।",
+      "deliverables": [
+        "3 carousels (8 slides तक हर एक)",
+        "5 YouTube thumbnails या reel/shorts covers",
+        "Title/hook सुझाव",
+        "PNG files + template"
+      ],
+      "timeline": "5–7 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "support": "Delivery के बाद 5 दिन",
+      "not_included": [
+        "Video editing",
+        "Views/CTR की guarantee",
+        "Stock footage licences"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
+    },
+    {
+      "id": "social-campaign-kit",
+      "lang": "hi",
+      "division": "studio",
+      "category": "social-media",
+      "page": "/services/social-media-design/",
+      "name": "Social Campaign Kit",
+      "tagline": "Launch, sale या त्योहार campaign के लिए हर platform का creative set।",
+      "price_from": 6999,
+      "price_unit": "one-time",
+      "for": "Product launches, admissions, festive sales और events।",
+      "problem": "Campaign के लिए posts, stories, banners और ads अलग-अलग जगह से बनवाने पड़ते हैं।",
+      "deliverables": [
+        "15 creatives — posts, stories, WhatsApp Status",
+        "3 ad creative variants",
+        "LinkedIn/YouTube/Facebook banner set",
+        "Campaign copy और CTA lines"
+      ],
+      "timeline": "7–10 working days",
+      "revisions": "Premium — 3 revision rounds",
+      "support": "Campaign के दौरान 14 दिन छोटे बदलाव",
+      "not_included": [
+        "Ad spend या ad account management",
+        "Sales/leads की guarantee",
+        "Photoshoot"
+      ],
+      "case_study": null,
+      "_todo_price": "DRAFT starting price for owner approval (set 2026-09-14)"
     }
   ],
   "payg_linkedin": [
-    {"name": "Starter Pack", "price": 5000, "posts": "3 posts"},
-    {"name": "Growth Pack", "price": 12000, "posts": "8 posts"},
-    {"name": "Value Pack", "price": 20000, "posts": "15 posts"}
+    {
+      "name": "Starter Pack",
+      "price": 5000,
+      "posts": "3 posts"
+    },
+    {
+      "name": "Growth Pack",
+      "price": 12000,
+      "posts": "8 posts"
+    },
+    {
+      "name": "Value Pack",
+      "price": 20000,
+      "posts": "15 posts"
+    }
   ]
 }

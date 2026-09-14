@@ -1,0 +1,117 @@
+{
+  "_readme": "Digital Assets & Services catalogue. Prices come ONLY from services.json via price_service (single source of truth). samples: {type:'case', slug} for real case studies, or {type:'image', src, alt, frame:'phone|laptop|poster|screen|grid|thumb|pdf', title} for owner-supplied work in /assets/img/samples/. Never add invented client work.",
+  "formats": {
+    "png": "PNG", "jpg": "JPG", "pdf": "PDF", "print-pdf": "Print-ready PDF", "pptx": "PPT / Presentation",
+    "mp4": "MP4", "gif": "GIF", "canva": "Editable Canva*", "docs": "Word / Google Docs / Sheets",
+    "html-email": "HTML email", "website": "Live website / link", "other": "Other agreed formats"
+  },
+  "formats_note": "*Editable Canva version only where the elements' licences permit sharing. Stock/template artwork is not sold as exclusive or trademark-ready.",
+  "outcomes": [
+    {"id": "business-digitalization", "emoji": "🏪", "title": "Business Digitalization", "sub": "Google, WhatsApp, website — ग्राहक आपको ढूँढें और तुरंत पूछें"},
+    {"id": "design-print", "emoji": "🎨", "title": "Design & Print", "sub": "Invitations, business documents, flyers, menus, brochures"},
+    {"id": "social-creator", "emoji": "📱", "title": "Social & Creator", "sub": "Posts, carousels, thumbnails, scripts, LinkedIn authority"},
+    {"id": "education", "emoji": "📚", "title": "Education", "sub": "Notes, tests, PYQ analysis, worksheets, mind maps"},
+    {"id": "presentations", "emoji": "📊", "title": "Presentations", "sub": "School, college, business, sales और pitch decks"},
+    {"id": "research", "emoji": "🔍", "title": "Research", "sub": "Competitor, market, industry और tool comparison reports"},
+    {"id": "knowledge-products", "emoji": "🧠", "title": "Knowledge Products", "sub": "Notes/books/recordings → ebook, course, quiz, newsletter"},
+    {"id": "ai-workflows", "emoji": "⚙️", "title": "AI Workflows", "sub": "Leads, content, Sheets और research के काम automatic"}
+  ],
+  "groups": [
+    {
+      "id": "invitations", "emoji": "💌", "outcome": "design-print", "title": "Invitations & Personal",
+      "summary": "शादी, जन्मदिन, गृह प्रवेश या त्योहार — WhatsApp पर भेजने लायक या print-ready, Hindi/English में।",
+      "items": ["Wedding invitations", "Birthday cards", "Anniversary cards", "Baby shower", "Housewarming (गृह प्रवेश)", "Save-the-date", "RSVP cards", "WhatsApp invitation", "Animated invitations", "Invitation videos", "Festival / greeting cards"],
+      "formats": ["png", "jpg", "pdf", "print-pdf", "mp4", "gif", "canva"],
+      "page": "/services/invitation-design/", "price_service": "invitation-digital", "quote_service": "invitation-digital", "samples": []
+    },
+    {
+      "id": "business-documents", "emoji": "🧾", "outcome": "design-print", "title": "Business Documents",
+      "summary": "Invoice, quotation, letterhead से company profile तक — आपके brand में, editable। Tax/GST details आप देते हैं।",
+      "items": ["Invoice template", "Quotation", "Estimate", "Receipt", "Letterhead", "Proposal", "Company profile", "Rate card", "Price list", "Brochure", "Catalogue", "Digital visiting card", "Business card", "Email signature", "Certificate", "QR card"],
+      "formats": ["pdf", "print-pdf", "docs", "png", "canva", "html-email"],
+      "page": "/services/business-documents/", "price_service": "business-document-template", "quote_service": "business-document-template", "samples": []
+    },
+    {
+      "id": "presentations", "emoji": "📊", "outcome": "presentations", "title": "Presentations",
+      "summary": "तीन levels: सिर्फ़ design, content + design, या research + content + design।",
+      "items": ["School PPT", "College PPT", "Research presentation", "Business deck", "Sales deck", "Pitch deck", "Investor deck", "Training deck", "Webinar deck", "Conference deck", "Product presentation", "Thesis / dissertation presentation", "Company profile deck"],
+      "formats": ["pptx", "pdf", "canva"],
+      "page": "/services/presentation-design/", "price_service": "presentation-design-only", "quote_service": "presentation-content-design", "samples": []
+    },
+    {
+      "id": "print-design", "emoji": "🖨️", "outcome": "design-print", "title": "Print & Digital Design",
+      "summary": "Flyer, poster, menu, banner या packaging concept — printer को देने लायक files।",
+      "items": ["Flyer", "Poster", "Pamphlet", "Brochure", "Menu", "Rate card", "Catalogue", "Banner", "Standee concept", "Sticker", "Label", "Packaging concept", "Certificate", "Calendar", "Book cover", "eBook cover", "QR poster", "Print-ready artwork"],
+      "formats": ["print-pdf", "pdf", "png", "jpg", "canva"],
+      "page": "/services/business-documents/", "page_anchor": "print-design-single", "price_service": "print-design-single", "quote_service": "print-design-single", "samples": []
+    },
+    {
+      "id": "social-media", "emoji": "📱", "outcome": "social-creator", "title": "Social Media",
+      "summary": "Instagram, Facebook, LinkedIn, YouTube और WhatsApp Status के लिए brand-consistent creatives।",
+      "items": ["Instagram posts", "Carousels", "Stories", "Reel covers", "Reel editing (quote)", "Facebook creatives", "LinkedIn posts / carousels", "LinkedIn banners", "YouTube thumbnails", "YouTube banners", "Shorts covers", "WhatsApp Status", "Advertising creatives", "Campaign kits"],
+      "formats": ["png", "jpg", "mp4", "gif", "canva"],
+      "page": "/services/social-media-design/", "price_service": "social-post-pack", "quote_service": "social-post-pack", "samples": []
+    },
+    {
+      "id": "creator-studio", "emoji": "🎥", "outcome": "social-creator", "title": "Creator Studio",
+      "summary": "Research से script, thumbnail और brand deal proposal तक — creators के लिए पूरा system।",
+      "items": ["Research", "Scripts", "Thumbnails", "Storyboards", "B-roll plans", "Short-form repurposing", "Captions", "Media kit", "Rate card", "Brand partnership proposal", "Podcast graphics"],
+      "formats": ["docs", "pdf", "png", "jpg"],
+      "page": "/services/creators/", "price_service": "creator-content-sprint", "quote_service": "creator-content-sprint",
+      "samples": [{"type": "case", "slug": "teleprompter-creator-project"}, {"type": "case", "slug": "ayurveda-channel-strategy"}, {"type": "case", "slug": "missile-man-educational-video"}]
+    },
+    {
+      "id": "education", "emoji": "📚", "outcome": "education", "title": "Education",
+      "summary": "Students, teachers और institutes के लिए accuracy-reviewed study material। किसी exam body से affiliation नहीं।",
+      "items": ["Study notes", "PDF modules", "PPT", "Worksheets", "Tests", "Question banks", "PYQ analysis", "Mock tests", "Answer explanations", "Flashcards", "Quizzes", "Mind maps", "Revision plans", "Teacher resources", "Lesson plans", "Infographics"],
+      "formats": ["pdf", "pptx", "docs", "png"],
+      "page": "/services/education/", "price_service": "education-content-pack", "quote_service": "education-content-pack",
+      "samples": [{"type": "case", "slug": "ncert-respiratory-visual-learning"}, {"type": "case", "slug": "uppcs-intelligence-brief"}, {"type": "case", "slug": "nda-english-learning-module"}]
+    },
+    {
+      "id": "research", "emoji": "🔍", "outcome": "research", "title": "Research & Intelligence",
+      "summary": "Decision-ready reports — हर तथ्य पर source और FACT / INFERENCE / HYPOTHESIS / UNVERIFIED label।",
+      "items": ["Competitive research", "Market research", "Channel audits", "Industry briefs", "Startup research", "Opportunity analysis", "Tool comparison", "White papers", "Executive reports"],
+      "formats": ["pdf", "pptx", "docs"],
+      "page": "/services/research/", "price_service": "research-intelligence-sprint", "quote_service": "research-intelligence-sprint",
+      "samples": [{"type": "case", "slug": "grocery-competitive-gap-analysis"}, {"type": "case", "slug": "patientsaathi-research"}]
+    },
+    {
+      "id": "knowledge-to-product", "emoji": "🧠", "outcome": "knowledge-products", "title": "Knowledge-to-Product",
+      "summary": "आपकी किताब, notes, recordings या research से बिकने और सिखाने लायक products।",
+      "items": ["eBook", "Course", "Presentation", "Mind map", "Worksheet", "Quiz", "Flashcards", "Video scripts", "Social posts", "Newsletter", "FAQ library", "Lead magnet", "Training manual"],
+      "formats": ["pdf", "pptx", "docs", "png", "html-email"],
+      "page": "/services/knowledge-to-product/", "price_service": "knowledge-to-product", "quote_service": "knowledge-to-product",
+      "samples": [{"type": "case", "slug": "mind-map-second-brain"}]
+    },
+    {
+      "id": "digital-business", "emoji": "🏪", "outcome": "business-digitalization", "title": "Digital Business",
+      "summary": "Google Maps, WhatsApp Business, website और enquiry system — ग्राहक आपको ढूँढें और आसानी से संपर्क करें।",
+      "items": ["Google Business Profile", "Google Maps presence", "WhatsApp Business", "Digital catalogue", "QR", "Website", "Landing page", "Portfolio website", "Local SEO foundations", "Analytics", "Business enquiry system"],
+      "formats": ["website", "png", "pdf"],
+      "page": "/services/local-business/", "price_service": "digital-business-starter", "quote_service": "digital-business-starter",
+      "samples": [{"type": "case", "slug": "rasra-library-digitization"}]
+    },
+    {
+      "id": "ai-automation", "emoji": "⚙️", "outcome": "ai-workflows", "title": "AI & Automation",
+      "summary": "रोज़ के दोहराए जाने वाले काम automatic — ज़रूरी जगह पर human approval के साथ।",
+      "items": ["AI workflow", "Email workflow", "Content workflow", "Research workflow", "Lead workflow", "Google Sheets automation", "n8n / Zapier-style workflows", "AI SOPs", "Knowledge-base workflows"],
+      "formats": ["other", "docs"],
+      "page": "/services/ai-workflows/", "price_service": "ai-automation-starter", "quote_service": "ai-automation-starter", "samples": []
+    },
+    {
+      "id": "professional-authority", "emoji": "👔", "outcome": "social-creator", "title": "Professional Authority",
+      "summary": "CA, consultant, coach, educator, architect, researcher और (नियमों के भीतर) clinics के लिए credibility assets।",
+      "items": ["Website", "Professional profile", "Brochure", "LinkedIn assets", "Lead magnet", "Presentation", "FAQ", "Newsletter", "Proposal", "Case study"],
+      "formats": ["website", "pdf", "pptx", "png", "html-email", "docs"],
+      "page": "/services/professionals/", "price_service": "professional-authority-pack", "quote_service": "professional-authority-pack", "samples": []
+    },
+    {
+      "id": "custom", "emoji": "✨", "outcome": "custom", "title": "Custom Digital Work",
+      "summary": "Need something not listed? Send your requirement. जो यहाँ नहीं है, वह भी पूछें — हम साफ़ बताएँगे कि कर सकते हैं या नहीं।",
+      "items": [],
+      "formats": ["other"],
+      "page": "", "price_service": null, "quote_service": "custom-digital-work", "samples": []
+    }
+  ]
+}
