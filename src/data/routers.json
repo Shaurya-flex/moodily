@@ -4,61 +4,376 @@
     "en": "Digital solutions for businesses, professionals, educators, creators and institutions.",
     "hi": "Businesses, professionals, educators, creators और institutions के लिए digital solutions।"
   },
-  "needs": [
-    {"id": "digitize-business", "emoji": "🏪", "title": "Business को Digital बनाना है", "sub": "Google, WhatsApp, catalogue, reviews", "href": "/services/local-business/", "price_service": "google-business-fix"},
-    {"id": "website-lead-system", "emoji": "🌐", "title": "Website / Lead System चाहिए", "sub": "Landing page, business website, booking", "href": "/services/websites/", "price_service": "landing-page"},
-    {"id": "design-content", "emoji": "🎨", "title": "Design / Digital Content चाहिए", "sub": "Brochure, catalogue, logo, posts", "href": "/services/design/", "price_service": "social-creative-single"},
-    {"id": "education-material", "emoji": "📚", "title": "Education Material चाहिए", "sub": "PDF modules, tests, PYQ, worksheets", "href": "/services/education-content/", "price_service": "educational-pdf-module"},
-    {"id": "research-presentation", "emoji": "📊", "title": "Research / Presentation चाहिए", "sub": "Decks, research briefs, dossiers", "href": "/services/presentations/", "price_service": "presentation-design-only",
-     "sublinks": [["Presentations", "/services/presentations/"], ["Research", "/services/research/"]]},
-    {"id": "ai-workflow", "emoji": "⚙️", "title": "AI Workflow चाहिए", "sub": "Leads, Sheets, content automation", "href": "/services/ai-workflows/", "price_service": "ai-automation-starter"},
-    {"id": "invitation-personal", "emoji": "💌", "title": "Invitation / Personal Design चाहिए", "sub": "Wedding, birthday, animated invites", "href": "/services/invitations/", "price_service": "invitation-digital"},
-    {"id": "something-else", "emoji": "✨", "title": "Something Else", "sub": "जो list में नहीं — वह भी पूछें", "href": "/contact/?service=custom-digital-work", "price_service": null}
+  "paths": [
+    {
+      "id": "business-online",
+      "emoji": "🏪",
+      "title": "Business को ONLINE लाना है",
+      "sub": "ग्राहक Google पर ढूँढें, WhatsApp पर पूछें, website पर भरोसा करें।",
+      "href": "/services/local-business-digitalization/",
+      "cta": "Business online लाएँ",
+      "items": [
+        [
+          "Google",
+          "/services/google-business-profile/"
+        ],
+        [
+          "Website",
+          "/services/business-website/"
+        ],
+        [
+          "WhatsApp",
+          "/services/whatsapp-business/"
+        ],
+        [
+          "Catalogue",
+          "/services/brochure-catalogue/"
+        ],
+        [
+          "Branding",
+          "/services/design/"
+        ],
+        [
+          "Lead system",
+          "/services/?q=lead#finder"
+        ]
+      ],
+      "price_services": [
+        "google-business-fix",
+        "whatsapp-business-setup",
+        "landing-page",
+        "business-website"
+      ]
+    },
+    {
+      "id": "digital-asset",
+      "emoji": "🎨",
+      "title": "DIGITAL चीज़ बनवानी है",
+      "sub": "PPT, brochure, poster, invitation, invoice या social post — तय price पर।",
+      "href": "/services/?filter=design#finder",
+      "cta": "Design services देखें",
+      "items": [
+        [
+          "PPT",
+          "/services/presentation-design/"
+        ],
+        [
+          "Brochure",
+          "/services/brochure-catalogue/"
+        ],
+        [
+          "Poster",
+          "/services/design/"
+        ],
+        [
+          "Invitation",
+          "/services/digital-invitation/"
+        ],
+        [
+          "Invoice template",
+          "/services/?q=invoice#finder"
+        ],
+        [
+          "Catalogue",
+          "/services/brochure-catalogue/"
+        ],
+        [
+          "Social media",
+          "/services/social-media-design/"
+        ],
+        [
+          "Video / Reel",
+          "/services/?q=reel#finder"
+        ],
+        [
+          "Digital card",
+          "/services/design/"
+        ]
+      ],
+      "price_services": [
+        "digital-visiting-card",
+        "social-creative-single",
+        "print-design-single",
+        "invitation-digital",
+        "presentation-design-only"
+      ]
+    },
+    {
+      "id": "education-knowledge",
+      "emoji": "📚",
+      "title": "EDUCATION / KNOWLEDGE WORK",
+      "sub": "Coaching, school, teacher या creator के लिए पढ़ाई का material।",
+      "href": "/services/education-content/",
+      "cta": "Education services देखें",
+      "items": [
+        [
+          "PDF",
+          "/services/education-content/"
+        ],
+        [
+          "Study material",
+          "/services/education-content/"
+        ],
+        [
+          "Test",
+          "/services/?q=test#finder"
+        ],
+        [
+          "PYQ",
+          "/services/?q=pyq#finder"
+        ],
+        [
+          "Mind map",
+          "/services/?q=mind#finder"
+        ],
+        [
+          "Worksheet",
+          "/services/?q=worksheet#finder"
+        ],
+        [
+          "Flashcards",
+          "/services/?q=flashcard#finder"
+        ],
+        [
+          "Research",
+          "/services/research-intelligence/"
+        ]
+      ],
+      "price_services": [
+        "educational-pdf-module",
+        "education-content-pack"
+      ]
+    },
+    {
+      "id": "advanced",
+      "emoji": "🧠",
+      "title": "ADVANCED SOLUTION",
+      "sub": "Research, knowledge products, AI workflows और authority building।",
+      "href": "/services/research-intelligence/",
+      "cta": "Advanced solutions देखें",
+      "items": [
+        [
+          "Competitive intelligence",
+          "/services/research-intelligence/"
+        ],
+        [
+          "Knowledge-to-product",
+          "/services/knowledge-to-product/"
+        ],
+        [
+          "AI workflows",
+          "/services/ai-workflows/"
+        ],
+        [
+          "Content systems",
+          "/services/social-media-design/"
+        ],
+        [
+          "Research",
+          "/services/research-intelligence/"
+        ],
+        [
+          "Professional authority",
+          "/services/professionals/"
+        ]
+      ],
+      "price_services": [
+        "research-intelligence-sprint",
+        "ai-automation-starter",
+        "competitive-intelligence"
+      ]
+    }
   ],
   "customer_types": [
-    {"id": "local-business", "emoji": "🏪", "title": "Local Business", "sub": "दुकान, showroom, service", "href": "/services/local-business/"},
-    {"id": "coaching-library", "emoji": "🏫", "title": "Coaching / Library", "sub": "Institutes, study points, tuition", "href": "/services/education-business/"},
-    {"id": "wedding-event", "emoji": "💍", "title": "Wedding / Event", "sub": "Photographers, MUAs, decorators, venues", "href": "/services/wedding-event/"},
-    {"id": "b2b", "emoji": "🏭", "title": "Manufacturer / B2B", "sub": "Catalogue, company profile, sales kit", "href": "/services/b2b/"},
-    {"id": "salon-gym", "emoji": "💇", "title": "Salon / Gym", "sub": "Bookings, reviews, offers", "href": "/services/?type=salon-gym#finder"},
-    {"id": "restaurant", "emoji": "🍽️", "title": "Restaurant / Hospitality", "sub": "Menu, Google, WhatsApp orders", "href": "/services/?type=restaurant#finder"},
-    {"id": "professional", "emoji": "👔", "title": "Professional / Consultant", "sub": "LinkedIn, website, brochure", "href": "/services/professionals/"},
-    {"id": "creator", "emoji": "🎥", "title": "Creator", "sub": "Thumbnails, scripts, retainers", "href": "/services/creators/"},
-    {"id": "startup", "emoji": "🚀", "title": "Startup", "sub": "Pitch decks, research, website", "href": "/services/?type=startup#finder"},
-    {"id": "student-educator", "emoji": "🎓", "title": "Student / Educator", "sub": "Study material, PPT, free learning", "href": "/services/education-content/"},
-    {"id": "medical-store", "emoji": "💊", "title": "Medical Store / Clinic", "sub": "WhatsApp enquiry से verified delivery", "href": "/services/medical-store/"}
+    {
+      "id": "local-business",
+      "emoji": "🏪",
+      "title": "Local Business",
+      "sub": "दुकान, showroom, service",
+      "href": "/services/local-business-digitalization/"
+    },
+    {
+      "id": "coaching-library",
+      "emoji": "🏫",
+      "title": "Coaching / Library",
+      "sub": "Institutes, study points, tuition",
+      "href": "/services/coaching-digital-services/"
+    },
+    {
+      "id": "wedding-event",
+      "emoji": "💍",
+      "title": "Wedding / Event",
+      "sub": "Photographers, MUAs, decorators, venues",
+      "href": "/services/wedding-event/"
+    },
+    {
+      "id": "b2b",
+      "emoji": "🏭",
+      "title": "Manufacturer / B2B",
+      "sub": "Catalogue, company profile, sales kit",
+      "href": "/services/b2b-digital-sales/"
+    },
+    {
+      "id": "salon-gym",
+      "emoji": "💇",
+      "title": "Salon / Gym",
+      "sub": "Bookings, reviews, offers",
+      "href": "/services/?type=salon-gym#finder"
+    },
+    {
+      "id": "restaurant",
+      "emoji": "🍽️",
+      "title": "Restaurant / Hospitality",
+      "sub": "Menu, Google, WhatsApp orders",
+      "href": "/services/?type=restaurant#finder"
+    },
+    {
+      "id": "professional",
+      "emoji": "👔",
+      "title": "Professional / Consultant",
+      "sub": "LinkedIn, website, brochure",
+      "href": "/services/professionals/"
+    },
+    {
+      "id": "creator",
+      "emoji": "🎥",
+      "title": "Creator",
+      "sub": "Thumbnails, scripts, retainers",
+      "href": "/services/creators/"
+    },
+    {
+      "id": "startup",
+      "emoji": "🚀",
+      "title": "Startup",
+      "sub": "Pitch decks, research, website",
+      "href": "/services/?type=startup#finder"
+    },
+    {
+      "id": "student-educator",
+      "emoji": "🎓",
+      "title": "Student / Educator",
+      "sub": "Study material, PPT, free learning",
+      "href": "/services/education-content/"
+    },
+    {
+      "id": "medical-store",
+      "emoji": "💊",
+      "title": "Medical Store / Clinic",
+      "sub": "WhatsApp enquiry से verified delivery",
+      "href": "/services/medical-store/"
+    }
   ],
   "mobile_visible_types": 4,
   "before_after": {
     "local-business": {
       "title": "दुकान का digital सफ़र",
-      "before": {"heading": "पहले", "items": ["Google पर पुराना नंबर और गलत समय", "WhatsApp पर हर ग्राहक को price list टाइप करना", "Reviews का जवाब नहीं", "कौन-सी enquiry कहाँ से आई — पता नहीं"]},
-      "after": {"heading": "बाद में", "items": ["सही Google listing — call, directions, WhatsApp", "WhatsApp catalogue + quick replies", "Counter पर review QR", "Enquiries एक Google Sheet में"]}
+      "before": {
+        "heading": "पहले",
+        "items": [
+          "Google पर पुराना नंबर और गलत समय",
+          "WhatsApp पर हर ग्राहक को price list टाइप करना",
+          "Reviews का जवाब नहीं",
+          "कौन-सी enquiry कहाँ से आई — पता नहीं"
+        ]
+      },
+      "after": {
+        "heading": "बाद में",
+        "items": [
+          "सही Google listing — call, directions, WhatsApp",
+          "WhatsApp catalogue + quick replies",
+          "Counter पर review QR",
+          "Enquiries एक Google Sheet में"
+        ]
+      }
     },
     "coaching-library": {
       "title": "Coaching / library admissions",
-      "before": {"heading": "पहले", "items": ["Batch और fees हर बार फ़ोन पर बताना", "Google पर photos और timings अधूरे", "Pamphlet छपवाकर बाँटना", "Enquiries की कोई list नहीं"]},
-      "after": {"heading": "बाद में", "items": ["Courses/fees वाला landing page", "WhatsApp quick replies और labels", "Shareable batch brochure PDF", "Enquiry form → Sheet → follow-up"]}
+      "before": {
+        "heading": "पहले",
+        "items": [
+          "Batch और fees हर बार फ़ोन पर बताना",
+          "Google पर photos और timings अधूरे",
+          "Pamphlet छपवाकर बाँटना",
+          "Enquiries की कोई list नहीं"
+        ]
+      },
+      "after": {
+        "heading": "बाद में",
+        "items": [
+          "Courses/fees वाला landing page",
+          "WhatsApp quick replies और labels",
+          "Shareable batch brochure PDF",
+          "Enquiry form → Sheet → follow-up"
+        ]
+      }
     },
     "wedding-vendor": {
       "title": "Wedding vendor enquiry",
-      "before": {"heading": "पहले", "items": ["Instagram DM में 'rate kya hai?' — हर बार टाइप करके जवाब", "Portfolio सिर्फ़ scattered posts में", "Date, venue, budget पूछते-पूछते lead ठंडी", "Google पर listing नहीं"]},
-      "after": {"heading": "बाद में", "items": ["Portfolio landing page + rate card PDF", "Enquiry form — date, venue, budget एक साथ", "WhatsApp quick replies", "Google listing + Instagram highlight covers"]}
+      "before": {
+        "heading": "पहले",
+        "items": [
+          "Instagram DM में 'rate kya hai?' — हर बार टाइप करके जवाब",
+          "Portfolio सिर्फ़ scattered posts में",
+          "Date, venue, budget पूछते-पूछते lead ठंडी",
+          "Google पर listing नहीं"
+        ]
+      },
+      "after": {
+        "heading": "बाद में",
+        "items": [
+          "Portfolio landing page + rate card PDF",
+          "Enquiry form — date, venue, budget एक साथ",
+          "WhatsApp quick replies",
+          "Google listing + Instagram highlight covers"
+        ]
+      }
     },
     "b2b-manufacturer": {
       "title": "Manufacturer / B2B buyer journey",
-      "before": {"heading": "पहले", "items": ["हर buyer को अलग-अलग photos और price sheets", "Company profile पुराना या नहीं", "Quotation हर बार नए format में", "RFQ emails में खो जाती हैं"]},
-      "after": {"heading": "बाद में", "items": ["Products और capabilities वाली website", "Company profile + product catalogue PDF", "Editable quotation template", "RFQ form → Sheet + alert"]}
+      "before": {
+        "heading": "पहले",
+        "items": [
+          "हर buyer को अलग-अलग photos और price sheets",
+          "Company profile पुराना या नहीं",
+          "Quotation हर बार नए format में",
+          "RFQ emails में खो जाती हैं"
+        ]
+      },
+      "after": {
+        "heading": "बाद में",
+        "items": [
+          "Products और capabilities वाली website",
+          "Company profile + product catalogue PDF",
+          "Editable quotation template",
+          "RFQ form → Sheet + alert"
+        ]
+      }
     }
   },
   "how_it_works": [
-    ["Service चुनें", "अपनी ज़रूरत के हिसाब से package या category चुनें — या 'Something else' लिखें।"],
-    ["Requirement भेजें", "छोटा form या WhatsApp — goal, deadline, budget और reference।"],
-    ["Scope + quote पाएँ", "लिखित deliverables, timeline, revisions, third-party खर्च और final quote।"],
-    ["Project confirm करें", "आपकी हाँ और तय advance के बाद ही काम शुरू।"],
-    ["पहला version", "Moodily पहला draft/version बनाकर भेजता है।"],
-    ["Review और revisions", "तय revision rounds में आपके बदलाव।"],
-    ["Final files delivery", "तय formats में files, links और accounts की handover।"],
-    ["Optional ongoing support", "ज़रूरत हो तो monthly care या growth plan।"]
+    [
+      "आपको क्या चाहिए, चुनें",
+      "कोई path या service चुनें — या 'Something else' लिखें। तय न हो तो Free Digital Audit लें।"
+    ],
+    [
+      "Requirement भेजें",
+      "छोटा Google Form या WhatsApp — goal, deadline, budget और reference।"
+    ],
+    [
+      "Scope + quote पाएँ",
+      "लिखित deliverables, timeline, revisions, third-party खर्च और final quote। आपकी हाँ और तय advance के बाद ही काम शुरू।"
+    ],
+    [
+      "पहला version review करें",
+      "Moodily पहला version भेजता है; तय revision rounds में आपके बदलाव।"
+    ],
+    [
+      "Final digital files पाएँ",
+      "तय formats में files, links और accounts की handover।"
+    ],
+    [
+      "Optional: Digital Saathi monthly support",
+      "ज़रूरत हो तो हर महीने Google, WhatsApp, social और website की देखभाल।"
+    ]
   ]
 }

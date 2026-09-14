@@ -9,3 +9,6 @@ __pycache__/
 .dev.vars
 worker/.wrangler/
 node_modules/
+
+# internal pricing (hours, cash costs, margins) — never publish
+private/

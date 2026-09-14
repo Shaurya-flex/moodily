@@ -52,7 +52,10 @@ TPC_LABELS = SVC_DATA["third_party_cost_labels"]
 FILTER_LABELS = SVC_DATA["filter_labels"]
 CUSTOMER_TYPES = {c["id"]: c for c in ROUTERS["customer_types"]}
 ACTIVE = [x for x in SVC_DATA["services"] if x.get("active", True)]
-LOCAL_CATS = {"local-business", "google-whatsapp", "medical-store", "education-business", "websites"}
+LOCAL_CATS = {"local-business", "google-business-profile", "whatsapp-business", "medical-store", "education-business", "websites"}
+PRICE_MODES = SVC_DATA["price_modes"]
+CLIENT_PROVIDES = SVC_DATA["client_provides_by_category"]
+INTERNAL_KEYS = re.compile(r"(?i)internal|margin|hourly|cost_?price|estimated_?hours")
 BASE = SITE["url"].rstrip("/")
 ORG_ID = BASE + "/#organization"
 WARNINGS = []
@@ -167,7 +170,8 @@ L = {
 }
 
 ROLE_LABELS = {
-    "local-business": "Business owner", "google-whatsapp": "Business owner", "medical-store": "Medical store owner",
+    "local-business": "Business owner", "google-business-profile": "Business owner", "whatsapp-business": "Business owner",
+    "medical-store": "Medical store owner",
     "education": "School/Coaching", "education-content": "Teacher/Institute", "education-business": "Coaching/Library owner",
     "professionals": "Professional", "creators": "Creator", "research": "Founder/Researcher", "knowledge-to-product": "Expert/Author",
     "ai-workflows": "Business owner", "websites": "[role]", "design": "[role]", "b2b": "Manufacturer/B2B business",
@@ -222,6 +226,18 @@ def price_text(svc):
     return "₹{}{}".format(inr(svc["price_from"]), lab["month"] if svc.get("price_unit") == "month" else "")
 
 
+def price_label(svc):
+    """Mode-aware short label: '₹499' (exact) · '₹1,999 से' (starts at) · 'Custom quote' · 'FREE'."""
+    mode = svc.get("price_mode")
+    if mode in ("free", "custom_quote") or svc.get("price_from") is None:
+        return "FREE" if mode == "free" else "Custom quote"
+    return price_text(svc) + ("" if mode == "exact" else " से")
+
+
+def client_provides(svc):
+    return svc.get("client_provides") or CLIENT_PROVIDES.get(svc["category"], "")
+
+
 def scope_note_html():
     return '<p class="scope-note small muted">{}<br><span lang="en">{}</span></p>'.format(e(SCOPE_NOTE["hi"]), e(SCOPE_NOTE["en"]))
 
@@ -231,12 +247,14 @@ def price_html(svc):
     if svc.get("price_unit") == "free":
         return '<p class="price"><strong>FREE</strong></p>'
     if svc.get("price_from") is None:
-        return '<p class="price"><strong>{}</strong></p>'.format(lab["custom"])
+        return '<p class="price"><strong>{}</strong> <span class="price-mode">Custom quote</span></p>'.format(lab["custom"])
     unit = lab["month"] if svc["price_unit"] == "month" else ""
     offer = in_offer(svc)
-    regular = '<p class="price{}"><span class="price-from">{}</span> <strong>₹{}</strong>{} <span class="price-from">{}</span></p>'.format(
-        " regular-only" if offer else "", lab["from"], inr(svc["price_from"]),
-        '<span class="price-unit">{}</span>'.format(unit) if unit else "", lab["from_suffix"])
+    exact = svc.get("price_mode") == "exact"
+    regular = '<p class="price{}">{} <strong>₹{}</strong>{} {}</p>'.format(
+        " regular-only" if offer else "", '<span class="price-mode">Fixed price</span>' if exact else '<span class="price-from">{}</span>'.format(lab["from"]),
+        inr(svc["price_from"]), '<span class="price-unit">{}</span>'.format(unit) if unit else "",
+        "" if exact else '<span class="price-from">{}</span>'.format(lab["from_suffix"]))
     if not offer:
         return regular
     return ('<p class="price offer-only"><span class="badge badge-offer">{pct}% OFF · {name}</span> <strong>₹{op}</strong> '
@@ -327,7 +345,7 @@ def service_detail(svc, ctx):
         '<div class="svc-price">{price}{scope}</div></header>'
         '<dl class="facts"><div><dt>{l_for}</dt><dd>{for_}</dd></div><div><dt>{l_problem}</dt><dd>{problem}</dd></div>'
         '<div><dt>{l_time}</dt><dd>{timeline}</dd></div><div><dt>{l_scope}</dt><dd>{rev} · {sup}</dd></div>'
-        '<div class="facts-full"><dt>{l_format}</dt><dd>{delivery}</dd></div></dl>'
+        '<div class="facts-full"><dt>{l_format}</dt><dd>{delivery}</dd></div>{provides}</dl>'
         '<h4>{l_get}</h4><ul class="ticks">{deliver}</ul>'
         '<details class="not-included"><summary>{l_not}</summary><ul class="crosses">{excluded}</ul></details>'
         '{third}{compliance}{case}{offer_meta}<div class="card-actions">{ctas}</div></article>'
@@ -338,6 +356,7 @@ def service_detail(svc, ctx):
         problem=e(svc["problem"]), l_time=lab["timeline"], timeline=e(svc["timeline"]), l_scope=lab["scope"], rev=e(svc["revisions"]),
         sup=e(svc["support"]), l_format=lab["format"], delivery=delivery_html(svc), l_get=lab["get"], deliver=deliver,
         l_not=lab["not"], excluded=excluded, third=third_party_html(svc), compliance=compliance, case=case_html,
+        provides='<div class="facts-full"><dt>आपको क्या देना होगा</dt><dd>{}</dd></div>'.format(e(client_provides(svc))) if client_provides(svc) else "",
         offer_meta=offer_meta_html() if in_offer(svc) else "", ctas=service_ctas(svc))
 
 
@@ -358,9 +377,9 @@ def c_services(args, ctx):
 
 def c_price_table(args, ctx):
     rows = "".join('<tr><th scope="row"><a href="{}#{}">{}</a></th><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
-        x["page"], x["id"], e(x["name"]), e(DIVISIONS[x["division"]]), e(price_text(x)), e(x["timeline"])) for x in ACTIVE)
-    return ('<div class="table-wrap"><table class="price-table"><caption>सभी prices starting prices हैं · All prices are starting prices (INR)</caption>'
-            '<thead><tr><th scope="col">Service</th><th scope="col">Division</th><th scope="col">Starts at</th><th scope="col">Timeline</th></tr></thead>'
+        x["page"], x["id"], e(x["name"]), e(price_label(x)), e(PRICE_MODE_SHORT[x["price_mode"]]), e(x["timeline"])) for x in ACTIVE)
+    return ('<div class="table-wrap"><table class="price-table"><caption>Fixed price = लिखे scope का तय दाम · "से" = starting price · Custom quote = scope देखकर (INR)</caption>'
+            '<thead><tr><th scope="col">Service</th><th scope="col">Price</th><th scope="col">Price type</th><th scope="col">Timeline</th></tr></thead>'
             '<tbody>{}</tbody></table></div>{}').format(rows, scope_note_html())
 
 
@@ -385,7 +404,9 @@ def c_cases(args, ctx):
         else:
             link = e(c["title"])
             badge = '<span class="badge">Detailed write-up in progress</span>'
-        svc_link = '<a class="small" href="{}#{}">{} →</a>'.format(svc["page"], svc["id"], e(svc["name"])) if svc else ""
+        if KIND_LABEL.get(c.get("kind")):
+            badge += ' <span class="badge badge-kind">{}</span>'.format(e(KIND_LABEL[c["kind"]]))
+        svc_link = '<a class="small" href="{}#{}">Related service: {} →</a>'.format(svc["page"], svc["id"], e(svc["name"])) if svc else ""
         cards.append('<article class="card case-card" id="{}"><p class="eyebrow">{} · {}</p><h3>{}</h3><p class="muted small">{}</p>{}<p>{}</p></article>'.format(
             c["slug"], e(c["category"]), e(DIVISIONS[c["division"]]), link, e(c["work_type"]), badge, svc_link))
     return '<div class="grid grid-3">{}</div>'.format("".join(cards))
@@ -476,8 +497,8 @@ QUALITY = [
     ("Verify", "जाँचें", "Links, नंबर, तथ्य, spelling और mobile view की checklist।"),
     ("Human Review", "Human review", "AI से बना हर हिस्सा इंसान पढ़कर approve करता है।"),
     ("Client Approval", "आपकी approval", "आपकी हाँ के बिना कुछ भी live नहीं होता।"),
-    ("Measure & Improve", "मापें और सुधारें", "जो data उपलब्ध है (calls, clicks, enquiries) उसे देखकर अगला सुधार।"),
 ]
+PRICE_MODE_SHORT = {"exact": "Fixed price", "starts_at": "Starting price", "custom_quote": "Custom quote", "free": "Free"}
 
 
 def c_quality_workflow(args, ctx):
@@ -708,9 +729,19 @@ def validate_commerce():
         for sid in smp.get("services", []):
             if sid not in SERVICES:
                 raise SystemExit("samples.json: {} references unknown service {}".format(smp["id"], sid))
-    for n in ROUTERS["needs"]:
-        if n.get("price_service") and n["price_service"] not in SERVICES:
-            raise SystemExit("routers.json need {} has unknown price_service".format(n["id"]))
+    for p in ROUTERS["paths"]:
+        for sid in p["price_services"]:
+            if sid not in SERVICES:
+                raise SystemExit("routers.json path {} has unknown price_service {}".format(p["id"], sid))
+    for x in SVC_DATA["services"]:
+        mode = x.get("price_mode")
+        if mode not in PRICE_MODES:
+            raise SystemExit("services.json: {} needs price_mode exact|starts_at|custom_quote|free".format(x["id"]))
+        if (mode == "custom_quote") != (x["price_unit"] == "custom") or (mode == "free") != (x["price_unit"] == "free"):
+            raise SystemExit("services.json: {} price_mode '{}' does not match price_unit '{}'".format(x["id"], mode, x["price_unit"]))
+        leaked = [k for k in x if INTERNAL_KEYS.search(k)]
+        if leaked:
+            raise SystemExit("services.json: {} has internal field(s) {} — keep costs/hours/margins in private/pricing-internal.json".format(x["id"], leaked))
 
 
 def intake_service(sid):
@@ -763,7 +794,7 @@ def c_intake(args, ctx):
         x = SERVICES.get(sid)
         price = ""
         if x:
-            price = price_text(x) if x.get("price_unit") in ("free", "custom") else "शुरुआत {} से".format(price_text(x))
+            price = price_label(x)
         services[sid] = {"name": name, "category": INTAKE["categories"][cat]["label"], "price": price,
                          "offer_price": "₹" + inr(offer_price(x)) if x and in_offer(x) else "",
                          "prefill_url": (x.get("form_prefill_url") if x else "") or INTAKE.get("service_prefill_urls", {}).get(sid)
@@ -904,20 +935,66 @@ def c_how_it_works(args, ctx):
     return '<ol class="quality how-steps">{}</ol>'.format(steps)
 
 
-def c_need_router(args, ctx):
+def c_paths(args, ctx):
+    """Homepage four-path router. Each chip links to a page; the path shows its lowest published price."""
     cards = []
-    for n in ROUTERS["needs"]:
-        x = SERVICES.get(n.get("price_service") or "")
-        price = "शुरुआत {} से".format(price_text(x)) if x and x.get("price_from") else "Requirement के अनुसार quote"
-        sub = ""
-        if n.get("sublinks"):
-            sub = '<p class="need-sublinks small">{}</p>'.format(" · ".join(
-                '<a href="{}" data-track="service_card_click" data-label="need:{}:{}">{}</a>'.format(h, n["id"], e(t), e(t)) for t, h in n["sublinks"]))
-        cards.append('<div class="need-card"><a class="need-main" href="{href}" data-track="service_card_click" data-label="need:{id}">'
-                     '<span class="need-emoji" aria-hidden="true">{emoji}</span><span class="need-title">{title}</span><span class="need-sub">{sub}</span>'
-                     '<span class="need-price">{price} →</span></a>{links}</div>'.format(
-                         href=e(n["href"]), id=n["id"], emoji=n["emoji"], title=e(n["title"]), sub=e(n["sub"]), price=e(price), links=sub))
-    return '<div class="need-grid">{}</div>{}'.format("".join(cards), scope_note_html())
+    for p in ROUTERS["paths"]:
+        priced = [SERVICES[i] for i in p["price_services"] if SERVICES[i].get("price_from")]
+        low = min(priced, key=lambda x: x["price_from"]) if priced else None
+        chips = "".join('<li><a href="{0}" data-track="service_card_click" data-label="path:{1}:{2}">{2}</a></li>'.format(e(h), p["id"], e(t)) for t, h in p["items"])
+        cards.append(
+            '<article class="path-card" id="path-{id}"><p class="path-num" aria-hidden="true">{emoji}</p><h3><a href="{href}" data-track="service_card_click" data-label="path:{id}">{title}</a></h3>'
+            '<p class="muted small">{sub}</p><ul class="path-chips">{chips}</ul><p class="path-price">{price}</p>'
+            '<a class="btn btn-outline btn-sm" href="{href}" data-track="service_card_click" data-label="path-go:{id}">{cta} →</a></article>'.format(
+                id=p["id"], emoji=p["emoji"], href=e(p["href"]), title=e(p["title"]), sub=e(p["sub"]), chips=chips, cta=e(p["cta"]),
+                price=e("{} से शुरू".format(price_text(low))) if low else "Scope देखकर quote"))
+    unsure = ('<div class="path-unsure card"><div><h3>समझ नहीं आ रहा क्या चाहिए?</h3><p class="muted small">{}</p></div>'
+              '<a class="btn btn-primary" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="paths-unsure">FREE Digital Audit लें</a></div>').format(
+        e(SITE["free_audit"]["promise_hi"]))
+    return '<div class="paths-grid">{}</div>{}'.format("".join(cards), unsure)
+
+
+def c_answer_box(args, ctx):
+    """Answers the buyer's first questions in one card: what, who, what you get, price, time, revisions, inputs, extras + actions."""
+    svc = SERVICES[args["service"]]
+    if svc not in ctx["services"]:
+        ctx["services"].append(svc)
+    extras = [TPC_LABELS[c] for c in svc.get("third_party_costs", [])] + svc["not_included"][:2]
+    rows = [("यह क्या है?", e(svc["tagline"])), ("किसके लिए?", e(svc["for"])),
+            ("क्या मिलेगा?", "<ul class=\"ticks small\">{}</ul>".format("".join("<li>{}</li>".format(e(d)) for d in svc["deliverables"][:4]))),
+            ("Price", price_html(svc) + '<span class="small muted">{}</span>'.format(e(PRICE_MODES[svc["price_mode"]]))),
+            ("कितना समय?", e(svc["timeline"])), ("कितने revisions?", e(svc["revisions"])),
+            ("आपको क्या देना होगा?", e(client_provides(svc))), ("क्या extra है?", e(" · ".join(extras)) or "—")]
+    dl = "".join('<div><dt>{}</dt><dd>{}</dd></div>'.format(k, v) for k, v in rows if v)
+    lab = L[svc["lang"]]
+    actions = ('<a class="btn btn-primary" href="/contact/?service={id}" data-track="quote_start" data-label="answer:{id}">{quote}</a>'
+               '<a class="btn btn-outline" href="#samples" data-track="portfolio_open" data-label="answer:{id}">Sample देखें</a>{wa}').format(
+        id=svc["id"], quote="मुफ़्त Audit माँगें" if svc["price_mode"] == "free" else "Get Quote · Quote लें", wa=service_wa(svc, "WhatsApp", "btn btn-wa", "answer-" + svc["id"]))
+    return ('<div class="answer-box card"{attrs} data-service-id="{id}"><p class="eyebrow">एक नज़र में · {name}</p><dl class="answer-dl">{dl}</dl>'
+            '<div class="card-actions">{actions}</div>{scope}</div>').format(attrs=card_attrs(svc), id=svc["id"], name=e(svc["name"]), dl=dl,
+                                                                         actions=actions, scope=scope_note_html())
+
+
+def c_price_snapshot(args, ctx):
+    ids = split_ids(args["ids"])
+    rows = "".join('<li><a href="{}#{}" data-track="service_card_click" data-label="snapshot:{}"><span>{}</span><strong>{}</strong></a></li>'.format(
+        SERVICES[i]["page"], i, i, e(SERVICES[i]["name"]), e(price_label(SERVICES[i]))) for i in ids)
+    return '<ul class="price-snapshot" data-pricing>{}</ul>{}'.format(rows, scope_note_html())
+
+
+def c_price_guide(args, ctx):
+    """Full live price list grouped by directory category (used by the price-guide insight)."""
+    out = []
+    for key, label in FILTER_LABELS.items():
+        items = [x for x in ACTIVE if x["filters"][0] == key]
+        if not items:
+            continue
+        rows = "".join('<tr><th scope="row"><a href="{}#{}">{}</a></th><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+            x["page"], x["id"], e(x["name"]), e(price_label(x)), e(PRICE_MODE_SHORT[x["price_mode"]]), e(x["timeline"])) for x in items)
+        out.append('<h3>{}</h3><div class="table-wrap"><table class="price-table" data-pricing><thead><tr><th scope="col">Service</th><th scope="col">Price</th>'
+                   '<th scope="col">Price type</th><th scope="col">Timeline</th></tr></thead><tbody>{}</tbody></table></div>'.format(e(label), rows))
+    return "".join(out) + '<p class="small muted">Last price review: {} · Source: Moodily service registry (src/data/services.json)</p>{}'.format(
+        e(max(x.get("last_price_review", "") for x in ACTIVE)), scope_note_html())
 
 
 def c_customer_router(args, ctx):
@@ -962,9 +1039,10 @@ def c_finder(args, ctx):
 
 def c_estimator(args, ctx):
     rules = {k: v for k, v in ESTIMATOR.items() if not k.startswith("_")}
-    svcs = {x["id"]: {"name": x["name"], "price": x["price_from"], "unit": x["price_unit"], "page": "{}#{}".format(x["page"], x["id"])}
+    svcs = {x["id"]: {"name": x["name"], "price": x["price_from"], "unit": x["price_unit"], "page": "{}#{}".format(x["page"], x["id"]),
+                      "integrations": bool(set(x["filters"]) & {"website", "ai"})}
             for x in ACTIVE if x["price_unit"] not in rules["excluded_price_units"]}
-    opts = "".join('<option value="{}">{} — {} से</option>'.format(sid, e(v["name"]), e(price_text(SERVICES[sid]))) for sid, v in svcs.items())
+    opts = "".join('<option value="{}">{} — {}</option>'.format(sid, e(v["name"]), e(price_label(SERVICES[sid]))) for sid, v in svcs.items())
 
     def radios(group, legend, default):
         items = "".join(
@@ -979,7 +1057,7 @@ def c_estimator(args, ctx):
     wa = wa_button("WhatsApp पर भेजें", cls="btn btn-wa", track_label="estimator").replace("<a class=", '<a id="estWa" class=', 1)
     return ('<form class="estimator card" id="estimator" novalidate><script type="application/json" id="estimatorConfig">{cfg}</script>'
             '<div class="form-grid"><div class="field field-full"><label for="est-service">Service *</label><select id="est-service" name="service">'
-            '<option value="">Service चुनें</option>{opts}</select></div>{scope}{content}{turn}'
+            '<option value="">Service चुनें</option>{opts}</select></div>{groups}'
             '<fieldset class="field-full est-group"><legend>Extras</legend><div class="radio-row">{extras}</div></fieldset></div>'
             '<p class="small muted" id="estHint">Service चुनें — indicative range तुरंत दिखेगी।</p>'
             '<div class="est-result" id="estResult" aria-live="polite" hidden><p class="eyebrow">Indicative estimate</p><p class="est-range" id="estRange"></p>'
@@ -987,8 +1065,7 @@ def c_estimator(args, ctx):
             'यह केवल अनुमान है; इस estimate के आधार पर payment नहीं लिया जाता।</p>'
             '<div class="card-actions"><a class="btn btn-primary" id="estQuote" href="/contact/" data-track="pricing_click" data-label="estimator-quote">इस estimate के साथ Quote लें</a>'
             '{wa}<a class="btn btn-outline" id="estDetails" href="/services/">Package details</a></div></div></form>').format(
-        cfg=cfg, opts=opts, scope=radios("scope", "Scope", "basic"), content=radios("content", "Content readiness", "ready"),
-        turn=radios("turnaround", "Turnaround", "normal"), extras=extras, wa=wa)
+        cfg=cfg, opts=opts, groups="".join(radios(g["key"], g["legend"], g["default"]) for g in rules["groups"]), extras=extras, wa=wa)
 
 
 COMPONENTS = {
@@ -1000,7 +1077,8 @@ COMPONENTS = {
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
     "catalogue-group": c_catalogue_group, "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
-    "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "need-router": c_need_router,
+    "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
+    "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1080,14 +1158,19 @@ def page_schema(meta, route, ctx):
         for i, (name, href) in enumerate(crumbs, start=2):
             items.append({"@type": "ListItem", "position": i, "name": name, "item": BASE + href})
         graph.append({"@type": "BreadcrumbList", "itemListElement": items})
+    seen_ids = set()
     for s in ctx["services"]:
+        if s["id"] in seen_ids:
+            continue
+        seen_ids.add(s["id"])
         node = {"@type": "Service", "@id": BASE + s["page"] + "#" + s["id"], "name": s["name"], "description": s["tagline"],
                 "serviceType": s["category"], "provider": {"@id": ORG_ID}, "areaServed": {"@type": "Country", "name": "India"},
                 "url": BASE + s["page"] + "#" + s["id"]}
-        if s.get("price_from"):
-            spec = {"@type": "PriceSpecification", "minPrice": s["price_from"], "priceCurrency": "INR"}
+        if s.get("price_from"):  # custom-quote services publish no price; exact vs starting price follow the visible label
+            key = "price" if s["price_mode"] == "exact" else "minPrice"
+            spec = {"@type": "PriceSpecification", key: s["price_from"], "priceCurrency": "INR"}
             if s["price_unit"] == "month":
-                spec = {"@type": "UnitPriceSpecification", "minPrice": s["price_from"], "priceCurrency": "INR", "unitCode": "MON"}
+                spec = {"@type": "UnitPriceSpecification", key: s["price_from"], "priceCurrency": "INR", "unitCode": "MON"}
             node["offers"] = {"@type": "Offer", "priceSpecification": spec, "url": BASE + "/contact/?service=" + s["id"]}
             if in_offer(s):
                 node["offers"] = [node["offers"], {"@type": "Offer", "name": OFFER["name"], "price": offer_price(s), "priceCurrency": "INR",
@@ -1104,7 +1187,8 @@ def page_schema(meta, route, ctx):
         graph.append({"@type": "Article", "headline": meta["h1"] if meta.get("h1") else meta["title"], "description": meta["description"],
                       "inLanguage": meta.get("lang", "hi"), "datePublished": meta["article"]["published"],
                       "dateModified": meta["article"].get("modified", meta["article"]["published"]),
-                      "author": {"@id": ORG_ID}, "publisher": {"@id": ORG_ID}, "mainEntityOfPage": url})
+                      "author": ({"@type": "Person", "name": SITE["founder"]["name"]} if SITE["founder"].get("name") else {"@id": ORG_ID}),
+                      "publisher": {"@id": ORG_ID}, "mainEntityOfPage": url, "image": BASE + meta.get("og_image", "/assets/img/og-moodily.png")})
         if not any(n.get("@id") == ORG_ID for n in graph):
             graph.append({"@type": "Organization", "@id": ORG_ID, "name": SITE["name"], "url": BASE + "/"})
     if not graph:
@@ -1115,16 +1199,17 @@ def page_schema(meta, route, ctx):
 
 # ---------------------------------------------------------------- layout
 NAV = [
-    ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "सेवाएँ"), ("/case-studies/", "Samples", "काम"),
-    ("/store/", "Store", "खरीदें"), ("/tools/", "Tools", "Tools"),
+    ("/services/", "Services", "सेवाएँ"), ("/case-studies/", "Samples", "काम"), ("/insights/", "Insights", "Insights"),
+    ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
 SERVICE_NAV = [
-    ("/services/local-business/", "Local Business"), ("/services/google-whatsapp/", "Google + WhatsApp"),
-    ("/services/websites/", "Websites / Lead system"), ("/services/design/", "Design · Brochure · Logo"),
-    ("/services/social-media/", "Social Media"), ("/services/presentations/", "Presentations / PPT"),
-    ("/services/invitations/", "Invitations"), ("/services/education-business/", "Coaching / Library"),
-    ("/services/education-content/", "Education Material"), ("/services/wedding-event/", "Wedding / Event vendors"),
-    ("/services/b2b/", "Manufacturer / B2B"), ("/services/research/", "Research & Intelligence"),
+    ("/services/local-business-digitalization/", "Local Business Digitalization"), ("/services/google-business-profile/", "Google Business Profile"),
+    ("/services/whatsapp-business/", "WhatsApp Business"), ("/services/business-website/", "Business Website"),
+    ("/services/brochure-catalogue/", "Brochure / Catalogue"), ("/services/design/", "Logo · Poster · Visiting card"),
+    ("/services/social-media-design/", "Social Media Design"), ("/services/presentation-design/", "PPT / Presentation Design"),
+    ("/services/digital-invitation/", "Digital Invitation"), ("/services/coaching-digital-services/", "Coaching / Library"),
+    ("/services/education-content/", "Education Content"), ("/services/wedding-event/", "Wedding / Event vendors"),
+    ("/services/b2b-digital-sales/", "B2B Digital Sales"), ("/services/research-intelligence/", "Research Intelligence"),
     ("/services/knowledge-to-product/", "Knowledge-to-Product"), ("/services/ai-workflows/", "AI Workflows"),
     ("/services/medical-store/", "Medical Store / Clinic"), ("/services/professionals/", "Professionals & LinkedIn"),
     ("/services/creators/", "Creators"), ("/services/estimator/", "Price estimator"),
@@ -1144,17 +1229,18 @@ def header(route, meta):
 <header class="site-header"><div class="container nav">
   <a class="logo" href="/" aria-label="Moodily home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="dot" aria-hidden="true"></span></a>
   <nav aria-label="Primary" class="nav-main">
-    <ul class="nav-desktop">{links}<li><a href="/services/"{services}>Services</a></li><li><a href="/contact/"{contact}>Contact</a></li></ul>
+    <ul class="nav-desktop">{links}<li><a href="/contact/"{contact}>Contact</a></li></ul>
     <details class="menu"><summary aria-label="Menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
       <div class="menu-panel">
-        <ul class="nav-links">{links}<li><a href="/about/"{about}>About</a></li><li><a href="/contact/"{contact}>Contact</a></li></ul>
+        <ul class="nav-links">{links}<li><a href="/about/"{about}>About</a></li><li><a href="/contact/"{contact}>Contact</a></li>
+          <li><a href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="menu-audit">Free Digital Audit</a></li></ul>
         <p class="menu-heading">Services</p><ul class="nav-sub">{svc}</ul>
       </div>
     </details>
   </nav>
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
-    <a class="btn btn-primary btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="nav-audit">Free Audit</a></div>
-</div></header>""".format(links=links, svc=svc, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"), services=cur("/services/"))
+    <a class="btn btn-primary btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav-requirement">Requirement बताएं</a></div>
+</div></header>""".format(links=links, svc=svc, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"))
 
 
 def footer():
@@ -1168,8 +1254,8 @@ def footer():
     </div>
     <div><h2 class="footer-h">Moodily</h2><ul>
       <li><a href="/learn/">Moodily Learn</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
-      <li><a href="/services/research/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
-      <li><a href="/case-studies/">Work samples</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
+      <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
+      <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
     <div><h2 class="footer-h">Company</h2><ul>
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
@@ -1178,7 +1264,8 @@ def footer():
   <p class="footer-note small muted">Moodily curates learning paths using courses offered by recognised providers. Certificates, where applicable, are issued by the respective providers. Moodily has no official partnership with the providers listed unless stated. Some tool links may be affiliate links and are labelled.</p>
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
 </div></footer>
-<a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>""".format(
+<a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
+<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Requirement बताएं</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>""".format(
         email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm"),
         wa_href=e(wa_href(wa_text())), icon=WA_ICON)
 
@@ -1212,6 +1299,16 @@ def breadcrumbs_html(meta):
     return '<nav class="container breadcrumbs" aria-label="Breadcrumb"><ol>{}</ol></nav>'.format("".join(parts))
 
 
+def byline_html(meta):
+    art = meta.get("article")
+    if not art:
+        return ""
+    who = SITE["founder"]["name"] or "Moodily Editorial"
+    mod = art.get("modified", art["published"])
+    return ('<p class="container byline small muted">By {} · Published <time datetime="{p}">{p}</time>{upd}</p>').format(
+        e(who), p=e(art["published"]), upd=' · Last updated <time datetime="{0}">{0}</time>'.format(e(mod)) if mod != art["published"] else "")
+
+
 def layout(meta, body, route, ctx):
     lang = meta.get("lang", "hi")
     canonical = BASE + route
@@ -1237,13 +1334,17 @@ def layout(meta, body, route, ctx):
 <meta property="og:locale" content="{locale}">
 <meta property="og:image" content="{og_img}">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moodily — digital services, samples and starting prices">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
 <link rel="icon" href="/assets/img/moodily-mark.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/moodily-logo-512.png">
 <script>(function(){{try{{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}}catch(e){{}}var oe=document.documentElement.getAttribute('data-offer-ends');if(oe&&Date.now()>Date.parse(oe))document.documentElement.classList.add('offer-ended');document.documentElement.classList.add('js');}})();</script>
 {gtm}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="/assets/css/site.css?v={ver}">
 {schema}
 <script src="/assets/js/site.js?v={ver}" defer></script>
@@ -1254,7 +1355,7 @@ def layout(meta, body, route, ctx):
 {banner}
 {crumbs}
 <main id="main">
-{body}
+{byline}{body}
 </main>
 {footer}
 </body>
@@ -1262,7 +1363,7 @@ def layout(meta, body, route, ctx):
 """.format(lang=lang, dlang="en" if lang == "en" else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical,
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_IN" if lang == "en" else "hi_IN",
            og_img=og_img, gtm=gtm_head(), ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body(),
-           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(), banner=offer_banner(route),
+           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(), banner=offer_banner(route), byline=byline_html(meta),
            offer_attr=' data-offer-ends="{}" data-offer-id="{}"'.format(OFFER["ends_at"], OFFER["id"]) if OFFER_STATE else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
 
@@ -1272,19 +1373,33 @@ def case_page(c):
     shots = "".join('<figure><img src="{}" alt="{}" loading="lazy" decoding="async"><figcaption>{}</figcaption></figure>'.format(
         e(s["src"]), e(s["alt"]), e(s.get("caption", ""))) for s in c.get("screenshots", []))
     svc = SERVICES.get(c["service"])
-    section = lambda h, v: '<section class="case-sec"><h2>{}</h2><p>{}</p></section>'.format(h, e(v)) if v else ""
+
+    def section(h, v):
+        if not v:
+            return ""
+        inner = "<ul class=\"ticks\">{}</ul>".format("".join("<li>{}</li>".format(e(i)) for i in v)) if isinstance(v, list) else "<p>{}</p>".format(e(v))
+        return '<section class="case-sec"><h2>{}</h2>{}</section>'.format(h, inner)
     result = c.get("result") or "No measured result is claimed for this project yet."
-    body = """<section class="page-hero"><div class="container narrow"><p class="eyebrow">{cat} · {div}</p><h1>{title}</h1><p class="lead">{work}</p></div></section>
-<div class="container narrow case">{problem}{input}{method}{built}<section class="case-sec"><h2>Screenshots</h2><div class="shots">{shots}</div></section>{verify}
-<section class="case-sec"><h2>Result</h2><p>{result}</p></section>
-<section class="case-sec cta-box"><h2>ऐसा ही काम चाहिए?</h2><p><a class="btn btn-primary" href="/contact/?service={sid}">{sname} की enquiry करें</a> {wa}</p></section></div>""".format(
-        cat=e(c["category"]), div=e(DIVISIONS[c["division"]]), title=e(c["title"]), work=e(c["work_type"]),
-        problem=section("Problem", c.get("problem")), input=section("Input", c.get("input")), method=section("Method", c.get("method")),
-        built=section("What we built", c.get("built")), shots=shots, verify=section("Quality verification", c.get("verification")),
-        result=e(result), sid=svc["id"], sname=e(svc["name"]), wa=wa_button("WhatsApp", "interested client", svc["name"], track_label="case-" + c["slug"]))
+    ba = ""
+    if c.get("before") or c.get("after"):
+        ba = '<section class="case-sec"><h2>Before → After</h2><div class="ba-grid">{}<div class="ba-arrow" aria-hidden="true">→</div>{}</div></section>'.format(
+            '<div class="ba-col ba-before"><p class="ba-h">Before</p><p>{}</p></div>'.format(e(c.get("before") or "—")),
+            '<div class="ba-col ba-after"><p class="ba-h">After</p><p>{}</p></div>'.format(e(c.get("after") or "—")))
+    body = """<section class="page-hero"><div class="container narrow"><p class="eyebrow">{cat} · {div}</p><h1>{title}</h1><p class="lead">{work}</p>{kind}</div></section>
+<div class="container narrow case">{ctype}{problem}{gap}{input}{built}{workflow}{ba}{deliverables}{time}<section class="case-sec"><h2>Screenshots</h2><div class="shots">{shots}</div></section>{verify}
+<section class="case-sec"><h2>Result</h2><p>{result}</p></section>{lessons}
+<section class="case-sec cta-box"><h2>ऐसा ही काम चाहिए?</h2><p>Related service: <a href="{spage}#{sid}">{sname}</a></p><p><a class="btn btn-primary" href="/contact/?service={sid}" data-track="quote_start" data-label="case-{slug}">{sname} की requirement भेजें</a> {wa}</p></section></div>""".format(
+        cat=e(c["category"]), div=e(DIVISIONS[c["division"]]), title=e(c["title"]), work=e(c["work_type"]), slug=c["slug"],
+        kind='<p><span class="badge badge-kind">{}</span></p>'.format(e(KIND_LABEL[c["kind"]])) if KIND_LABEL.get(c.get("kind")) else "",
+        ctype=section("Client / project type", c.get("client_type")), problem=section("Problem", c.get("problem")),
+        gap=section("Observed gap", c.get("observed_gap")), input=section("Input", c.get("input")),
+        built=section("What Moodily created", c.get("built")), workflow=section("Workflow", c.get("workflow") or c.get("method")), ba=ba,
+        deliverables=section("Deliverables", c.get("deliverables")), time=section("Time", c.get("time")), shots=shots,
+        verify=section("Quality verification", c.get("verification")), result=e(result), lessons=section("Lessons", c.get("lessons")),
+        spage=svc["page"], sid=svc["id"], sname=e(svc["name"]), wa=wa_button("WhatsApp", "interested client", svc["name"], track_label="case-" + c["slug"]))
     meta = {"title": "{} — Case study | Moodily".format(c["title"]), "description": "{}: problem, method, what Moodily built and how quality was verified.".format(c["title"]),
             "lang": "en", "breadcrumbs": [["Case studies", "/case-studies/"], [c["title"], "/case-studies/{}/".format(c["slug"])]],
-            "track_view": ["case_study_open", c["slug"]]}
+            "track_view": ["case_study_view", c["slug"]]}
     return meta, body
 
 
@@ -1383,7 +1498,7 @@ REDIRECT_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Moved — {path} | Moodily</title>
+<title>Moved: {old} → {path} | Moodily</title>
 <meta name="description" content="यह Moodily page अब नए पते पर है: {path}। Page अपने-आप खुल जाएगा; न खुले तो link पर click करें।">
 <link rel="canonical" href="{url}">
 <meta name="robots" content="noindex, follow">
@@ -1417,6 +1532,9 @@ def main():
             meta, body = case_page(c)
             jobs.append((meta, body, "/case-studies/{}/".format(c["slug"]), ROOT / "case-studies" / c["slug"] / "index.html", "case:" + c["slug"]))
 
+    lastmod_file = ROOT / ".build-lastmod.json"
+    lastmods = json.loads(lastmod_file.read_text()) if lastmod_file.exists() else {}
+    new_lastmods = {}
     titles = {}
     for meta, body, route, out, src in jobs:
         meta["title"], meta["description"] = render_prices(meta.get("title", "")), render_prices(meta.get("description", ""))
@@ -1431,13 +1549,18 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html_out, encoding="utf-8")
         written.append(str(out.relative_to(ROOT)))
+        # sitemap lastmod changes only when the page content changes (asset hashes, countdown numbers and year ignored)
+        stable = re.sub(r"\?v=[0-9a-f]+|<strong>\d+/\d+</strong>|© \d{4}|data-offer-ends=\"[^\"]*\"", "", html_out)
+        digest = hashlib.sha1(stable.encode("utf-8")).hexdigest()[:16]
+        prev = lastmods.get(route)
+        new_lastmods[route] = [digest, prev[1] if prev and prev[0] == digest else TODAY]
         if not meta.get("noindex") and route != "/404.html":
             sitemap.append((route, meta.get("priority", "0.7")))
 
     for old_route, new_route in REDIRECTS.items():
         target = ROOT.joinpath(*old_route.strip("/").split("/"), "index.html")
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(REDIRECT_TEMPLATE.format(path=e(new_route), url=e(BASE + new_route)), encoding="utf-8")
+        target.write_text(REDIRECT_TEMPLATE.format(old=e(old_route), path=e(new_route), url=e(BASE + new_route)), encoding="utf-8")
         written.append(str(target.relative_to(ROOT)))
 
     for stale in sorted(old - set(written)):
@@ -1450,7 +1573,8 @@ def main():
                 pass
             print("removed stale", stale)
 
-    urls = "".join("<url><loc>{}{}</loc><lastmod>{}</lastmod><priority>{}</priority></url>".format(BASE, r, TODAY, p) for r, p in sitemap)
+    lastmod_file.write_text(json.dumps(new_lastmods, indent=0, sort_keys=True) + "\n")
+    urls = "".join("<url><loc>{}{}</loc><lastmod>{}</lastmod><priority>{}</priority></url>".format(BASE, r, new_lastmods[r][1], p) for r, p in sitemap)
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{}</urlset>\n'.format(urls), encoding="utf-8")
     (ROOT / "robots.txt").write_text("User-agent: *\nAllow: /\nDisallow: /contact/thanks/\nDisallow: /payment/\n\nSitemap: {}/sitemap.xml\n".format(BASE), encoding="utf-8")
     MANIFEST.write_text(json.dumps(sorted(written), indent=0))

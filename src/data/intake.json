@@ -115,7 +115,10 @@
     "content-growth-retainer": "social",
     "coaching-digital-starter": "web-google",
     "coaching-growth": "web-google",
-    "coaching-monthly-saathi": "web-google"
+    "coaching-monthly-saathi": "web-google",
+    "whatsapp-business-setup": "web-google",
+    "pitch-deck": "presentation",
+    "competitive-intelligence": "research"
   },
   "service_prefill_urls": {
     "_readme": "Optional per-service override: service id → full pre-filled Google Form URL. Wins over the category prefill_url."
