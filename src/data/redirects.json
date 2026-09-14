@@ -1,0 +1,8 @@
+{
+  "_readme": "Old route → new route. build.py writes a noindex redirect page (meta refresh + JS + link, canonical to the new URL) at each old route.",
+  "/services/presentation-design/": "/services/presentations/",
+  "/services/invitation-design/": "/services/invitations/",
+  "/services/business-documents/": "/services/design/",
+  "/services/social-media-design/": "/services/social-media/",
+  "/services/education/": "/services/education-content/"
+}

@@ -29,7 +29,7 @@
   "local-business": [
     {
       "q": "Google Business Profile बनाने की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Business Starter {{price:digital-business-starter}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Google + WhatsApp Starter {{price:digital-business-starter}} से शुरू।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -179,7 +179,7 @@
   "social-media": [
     {
       "q": "क्या आप हमारे account पर post भी करेंगे?",
-      "a": "Post packs में design और caption drafts शामिल हैं; posting/scheduling नहीं। Regular management चाहिए तो Digital Saathi Monthly देखें।"
+      "a": "Post packs में design और caption drafts शामिल हैं; posting/scheduling नहीं। Regular management चाहिए तो Digital Saathi Care देखें।"
     },
     {
       "q": "Reel editing करते हैं?",
@@ -188,6 +188,138 @@
     {
       "q": "Followers या sales बढ़ने की guarantee?",
       "a": "नहीं। Platform algorithms पर किसी का नियंत्रण नहीं। हम consistent, साफ़ और brand-aligned creatives बनाते हैं।"
+    }
+  ],
+  "education-business": [
+    {
+      "q": "क्या आप हमारे coaching में admissions बढ़ने की guarantee देते हैं?",
+      "a": "नहीं। Admission आपकी पढ़ाई, fees, location और reputation पर निर्भर है। हम Google listing, WhatsApp enquiry, brochure और website को साफ़ और भरोसेमंद बनाते हैं ताकि student को जानकारी आसानी से मिले और enquiry दर्ज हो।"
+    },
+    {
+      "q": "Library या study point के लिए भी यह package चलेगा?",
+      "a": "हाँ। Coaching Digital Starter में seat/shift timing, fees, facilities, location और WhatsApp enquiry — ये सब library और study point पर भी उसी तरह लागू होते हैं। Scope देखकर लिखित quote मिलता है।"
+    },
+    {
+      "q": "क्या topper photos और results website पर डाल सकते हैं?",
+      "a": "सिर्फ़ तब, जब student (और नाबालिग हो तो parent) की लिखित सहमति और result का proof आपके पास हो। बिना proof के rank या selection के दावे हम नहीं लिखते।"
+    },
+    {
+      "q": "Coaching Monthly Saathi में हर महीने क्या होता है?",
+      "a": "Batch और admission creatives, Google listing updates, website में छोटे बदलाव, review माँगने में मदद और basic reporting। Ad spend, printing या paid tools का खर्च अलग है और आपके account से होता है।"
+    },
+    {
+      "q": "Notes या PDF study material भी बनवा सकते हैं?",
+      "a": "हाँ, यह अलग service है — Educational PDF Module और Education Content page देखें। Content आपका या आपकी अनुमति वाला होना चाहिए; किसी दूसरे publisher का material copy नहीं किया जाता।"
+    }
+  ],
+  "wedding-event": [
+    {
+      "q": "Wedding vendor के लिए कौन सा package सही है?",
+      "a": "नए vendor के लिए Google + WhatsApp Starter और rate card PDF अच्छी शुरुआत है। Photographer, makeup artist और decorator के लिए portfolio landing page सबसे उपयोगी है। Venue, caterer और planner के लिए lead booking website बेहतर है जिसमें date और guests की enquiry दर्ज हो।"
+    },
+    {
+      "q": "क्या portfolio में दूसरों की photos या stock images लगा सकते हैं?",
+      "a": "नहीं। Portfolio में सिर्फ़ आपका अपना असली काम जाएगा। Client की photos public करने से पहले उनकी सहमति ज़रूरी है। Paid stock image कहीं decoration के लिए चाहिए तो उसका खर्च अलग है और साफ़ label के साथ।"
+    },
+    {
+      "q": "क्या आप Instagram Reels भी edit करते हैं?",
+      "a": "Monthly content retainer में तय संख्या में creatives और content शामिल होते हैं। उससे ज़्यादा Reels editing चाहिए तो footage और काम देखकर अलग quote मिलता है।"
+    },
+    {
+      "q": "क्या आप reviews या followers बढ़ाकर देंगे?",
+      "a": "नहीं। Fake reviews, खरीदे गए followers या नकली booking counts हम नहीं करते। असली clients से Google review माँगने का आसान QR और message system बनाते हैं।"
+    },
+    {
+      "q": "Website और domain किसके नाम पर होगा?",
+      "a": "आपके नाम पर। Domain, hosting, Instagram और Google profile आपके account में रहते हैं, और इनका third-party खर्च package price से अलग होता है।"
+    }
+  ],
+  "b2b": [
+    {
+      "q": "क्या B2B Digital Sales Kit से orders या export buyers मिलेंगे?",
+      "a": "Moodily leads, orders या export sales का वादा नहीं करता। हम website, company profile, catalogue और quotation जैसा sales material professional बनाते हैं; buyer मिलना आपके product, price, follow-up और market पर निर्भर है।"
+    },
+    {
+      "q": "Catalogue के लिए हमें क्या देना होगा?",
+      "a": "Product list, specifications, sizes/variants, MOQ (अगर हो), product photos और company की basic जानकारी। Photos अच्छी नहीं हैं तो professional product photography का खर्च अलग है।"
+    },
+    {
+      "q": "ISO certificate या production capacity profile में लिख सकते हैं?",
+      "a": "हाँ, लेकिन सिर्फ़ तब जब आप उसका proof (certificate copy, registration आदि) दें। बिना proof के certification, capacity या export देशों के दावे हम नहीं लिखते।"
+    },
+    {
+      "q": "Quotation template में GST और legal terms कौन भरेगा?",
+      "a": "GST number, company registration details, tax rates और payment/legal terms आप देते हैं। हम template का design और structure बनाते हैं; ज़रूरत हो तो अपने CA या legal advisor से पुष्टि करें।"
+    },
+    {
+      "q": "क्या सिर्फ़ catalogue या सिर्फ़ website भी बनवा सकते हैं?",
+      "a": "हाँ। Product Catalogue और Business Website अलग-अलग भी मिलते हैं। Website, catalogue, profile, presentation और LinkedIn assets सब एक साथ चाहिए तो B2B Digital Sales Kit ज़्यादा सुविधाजनक है। Domain, hosting और printing का खर्च अलग है।"
+    }
+  ],
+  "websites": [
+    {
+      "q": "Website बनवाने में कुल कितना खर्च आता है?",
+      "a": "Landing Page {{price:landing-page}} से और Business Website {{price:business-website}} से शुरू होती है — ये शुरुआती prices हैं, scope देखकर लिखित quote मिलता है। Domain और hosting की सालाना fees अलग हैं और आप सीधे देते हैं।"
+    },
+    {
+      "q": "Domain और hosting किसके नाम पर रहेंगे?",
+      "a": "आपके नाम और आपके account में। Login आपके पास रहता है। अगर कभी Moodily के साथ काम बंद करें, तब भी website और domain आपके ही रहेंगे।"
+    },
+    {
+      "q": "क्या website बनने के बाद Google पर पहला rank और पक्की leads मिलेंगी?",
+      "a": "नहीं, ऐसी guarantee कोई ईमानदार agency नहीं दे सकती। हम mobile speed, सही titles, Google Maps और WhatsApp जैसी बुनियादी चीज़ें सही करते हैं; ranking और leads कई बातों पर निर्भर करते हैं जो किसी के नियंत्रण में नहीं।"
+    },
+    {
+      "q": "मेरी छोटी दुकान है — क्या website ज़रूरी है?",
+      "a": "हमेशा नहीं। कई दुकानों के लिए सही Google Business Profile और WhatsApp Business catalogue शुरुआत में काफ़ी होते हैं। ऐसे में हम पहले Google + WhatsApp setup सुझाते हैं, और website बाद में जब ज़रूरत हो।"
+    },
+    {
+      "q": "Website बनाने के लिए मुझे क्या देना होगा?",
+      "a": "Business का नाम, logo (अगर है), services/products की list, photos, पता, समय और contact number। Content लिखने में हम मदद करते हैं; कौन-सी चीज़ किस package में है, वह quote में साफ़ लिखा होता है।"
+    }
+  ],
+  "google-whatsapp": [
+    {
+      "q": "Google Business Profile की fees कितनी है?",
+      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design और management के लिए charge करता है — पुरानी listing ठीक करने का Google Business Fix {{price:google-business-fix}} से और Google + WhatsApp Starter {{price:digital-business-starter}} से शुरू।"
+    },
+    {
+      "q": "Verification कौन करेगा?",
+      "a": "Verification Google business owner से करवाता है (video, call या दूसरे तरीके से), इसलिए वह step आप करते हैं। हम पहले से सारी जानकारी तैयार रखते हैं और हर step पर guide करते हैं।"
+    },
+    {
+      "q": "क्या आप Google Maps पर ऊपर दिखने की guarantee देते हैं?",
+      "a": "नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता। हम listing की जानकारी, category, photos और reviews का system Google की guidelines के अनुसार सही करते हैं।"
+    },
+    {
+      "q": "क्या आप reviews लिखकर या खरीदकर देंगे?",
+      "a": "कभी नहीं। Fake या पैसे/offer देकर लिए गए reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का QR और message system बनाते हैं।"
+    },
+    {
+      "q": "Setup के बाद हर महीने मदद मिलेगी?",
+      "a": "हाँ, अगर चाहें। Digital Saathi Care {{price:digital-saathi-monthly}}/महीना से listing updates, posts और छोटे बदलाव संभालता है। WhatsApp Business API, ads का खर्च और printing इसमें शामिल नहीं हैं।"
+    }
+  ],
+  "design": [
+    {
+      "q": "Logo design में क्या-क्या मिलता है?",
+      "a": "Logo Starter {{price:logo-starter}} से शुरू होता है — logo concepts, तय revisions और PNG/PDF files। पूरी पहचान (colours, fonts, visiting card, social templates) चाहिए तो Logo + Mini Brand Kit {{price:business-identity-kit}} से। सारे prices शुरुआती हैं।"
+    },
+    {
+      "q": "क्या मेरा logo exclusive और trademark-ready होगा?",
+      "a": "Template या stock artwork से बना design कभी exclusive या trademark-ready बताकर नहीं दिया जाता। Trademark search और registration शामिल नहीं है — उसके लिए किसी trademark professional से सलाह लें।"
+    },
+    {
+      "q": "क्या मुझे editable file मिलेगी?",
+      "a": "Print-ready PDF और PNG हमेशा मिलते हैं। Editable Canva link केवल वहाँ दिया जाता है जहाँ इस्तेमाल हुए fonts, photos और elements का licence इसकी अनुमति देता है।"
+    },
+    {
+      "q": "Invoice या quotation template में GST सही होगा?",
+      "a": "Template एक design service है। GSTIN, tax rates और ज़रूरी कानूनी जानकारी आप देते हैं; Moodily accounting या tax advice नहीं देता। ज़रूरत हो तो अपने CA से पुष्टि करें।"
+    },
+    {
+      "q": "Printing भी आप करवाते हैं?",
+      "a": "हम printer को देने लायक print-ready file देते हैं। Printing, paper और delivery का खर्च अलग है और आप अपने पसंद के printer से करवा सकते हैं।"
     }
   ]
 }

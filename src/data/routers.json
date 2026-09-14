@@ -1,0 +1,64 @@
+{
+  "_readme": "Homepage routers and concept before/after illustrations. Concepts are ALWAYS labelled as concepts — never present them as client work.",
+  "positioning": {
+    "en": "Digital solutions for businesses, professionals, educators, creators and institutions.",
+    "hi": "Businesses, professionals, educators, creators और institutions के लिए digital solutions।"
+  },
+  "needs": [
+    {"id": "digitize-business", "emoji": "🏪", "title": "Business को Digital बनाना है", "sub": "Google, WhatsApp, catalogue, reviews", "href": "/services/local-business/", "price_service": "google-business-fix"},
+    {"id": "website-lead-system", "emoji": "🌐", "title": "Website / Lead System चाहिए", "sub": "Landing page, business website, booking", "href": "/services/websites/", "price_service": "landing-page"},
+    {"id": "design-content", "emoji": "🎨", "title": "Design / Digital Content चाहिए", "sub": "Brochure, catalogue, logo, posts", "href": "/services/design/", "price_service": "social-creative-single"},
+    {"id": "education-material", "emoji": "📚", "title": "Education Material चाहिए", "sub": "PDF modules, tests, PYQ, worksheets", "href": "/services/education-content/", "price_service": "educational-pdf-module"},
+    {"id": "research-presentation", "emoji": "📊", "title": "Research / Presentation चाहिए", "sub": "Decks, research briefs, dossiers", "href": "/services/presentations/", "price_service": "presentation-design-only",
+     "sublinks": [["Presentations", "/services/presentations/"], ["Research", "/services/research/"]]},
+    {"id": "ai-workflow", "emoji": "⚙️", "title": "AI Workflow चाहिए", "sub": "Leads, Sheets, content automation", "href": "/services/ai-workflows/", "price_service": "ai-automation-starter"},
+    {"id": "invitation-personal", "emoji": "💌", "title": "Invitation / Personal Design चाहिए", "sub": "Wedding, birthday, animated invites", "href": "/services/invitations/", "price_service": "invitation-digital"},
+    {"id": "something-else", "emoji": "✨", "title": "Something Else", "sub": "जो list में नहीं — वह भी पूछें", "href": "/contact/?service=custom-digital-work", "price_service": null}
+  ],
+  "customer_types": [
+    {"id": "local-business", "emoji": "🏪", "title": "Local Business", "sub": "दुकान, showroom, service", "href": "/services/local-business/"},
+    {"id": "coaching-library", "emoji": "🏫", "title": "Coaching / Library", "sub": "Institutes, study points, tuition", "href": "/services/education-business/"},
+    {"id": "wedding-event", "emoji": "💍", "title": "Wedding / Event", "sub": "Photographers, MUAs, decorators, venues", "href": "/services/wedding-event/"},
+    {"id": "b2b", "emoji": "🏭", "title": "Manufacturer / B2B", "sub": "Catalogue, company profile, sales kit", "href": "/services/b2b/"},
+    {"id": "salon-gym", "emoji": "💇", "title": "Salon / Gym", "sub": "Bookings, reviews, offers", "href": "/services/?type=salon-gym#finder"},
+    {"id": "restaurant", "emoji": "🍽️", "title": "Restaurant / Hospitality", "sub": "Menu, Google, WhatsApp orders", "href": "/services/?type=restaurant#finder"},
+    {"id": "professional", "emoji": "👔", "title": "Professional / Consultant", "sub": "LinkedIn, website, brochure", "href": "/services/professionals/"},
+    {"id": "creator", "emoji": "🎥", "title": "Creator", "sub": "Thumbnails, scripts, retainers", "href": "/services/creators/"},
+    {"id": "startup", "emoji": "🚀", "title": "Startup", "sub": "Pitch decks, research, website", "href": "/services/?type=startup#finder"},
+    {"id": "student-educator", "emoji": "🎓", "title": "Student / Educator", "sub": "Study material, PPT, free learning", "href": "/services/education-content/"},
+    {"id": "medical-store", "emoji": "💊", "title": "Medical Store / Clinic", "sub": "WhatsApp enquiry से verified delivery", "href": "/services/medical-store/"}
+  ],
+  "mobile_visible_types": 4,
+  "before_after": {
+    "local-business": {
+      "title": "दुकान का digital सफ़र",
+      "before": {"heading": "पहले", "items": ["Google पर पुराना नंबर और गलत समय", "WhatsApp पर हर ग्राहक को price list टाइप करना", "Reviews का जवाब नहीं", "कौन-सी enquiry कहाँ से आई — पता नहीं"]},
+      "after": {"heading": "बाद में", "items": ["सही Google listing — call, directions, WhatsApp", "WhatsApp catalogue + quick replies", "Counter पर review QR", "Enquiries एक Google Sheet में"]}
+    },
+    "coaching-library": {
+      "title": "Coaching / library admissions",
+      "before": {"heading": "पहले", "items": ["Batch और fees हर बार फ़ोन पर बताना", "Google पर photos और timings अधूरे", "Pamphlet छपवाकर बाँटना", "Enquiries की कोई list नहीं"]},
+      "after": {"heading": "बाद में", "items": ["Courses/fees वाला landing page", "WhatsApp quick replies और labels", "Shareable batch brochure PDF", "Enquiry form → Sheet → follow-up"]}
+    },
+    "wedding-vendor": {
+      "title": "Wedding vendor enquiry",
+      "before": {"heading": "पहले", "items": ["Instagram DM में 'rate kya hai?' — हर बार टाइप करके जवाब", "Portfolio सिर्फ़ scattered posts में", "Date, venue, budget पूछते-पूछते lead ठंडी", "Google पर listing नहीं"]},
+      "after": {"heading": "बाद में", "items": ["Portfolio landing page + rate card PDF", "Enquiry form — date, venue, budget एक साथ", "WhatsApp quick replies", "Google listing + Instagram highlight covers"]}
+    },
+    "b2b-manufacturer": {
+      "title": "Manufacturer / B2B buyer journey",
+      "before": {"heading": "पहले", "items": ["हर buyer को अलग-अलग photos और price sheets", "Company profile पुराना या नहीं", "Quotation हर बार नए format में", "RFQ emails में खो जाती हैं"]},
+      "after": {"heading": "बाद में", "items": ["Products और capabilities वाली website", "Company profile + product catalogue PDF", "Editable quotation template", "RFQ form → Sheet + alert"]}
+    }
+  },
+  "how_it_works": [
+    ["Service चुनें", "अपनी ज़रूरत के हिसाब से package या category चुनें — या 'Something else' लिखें।"],
+    ["Requirement भेजें", "छोटा form या WhatsApp — goal, deadline, budget और reference।"],
+    ["Scope + quote पाएँ", "लिखित deliverables, timeline, revisions, third-party खर्च और final quote।"],
+    ["Project confirm करें", "आपकी हाँ और तय advance के बाद ही काम शुरू।"],
+    ["पहला version", "Moodily पहला draft/version बनाकर भेजता है।"],
+    ["Review और revisions", "तय revision rounds में आपके बदलाव।"],
+    ["Final files delivery", "तय formats में files, links और accounts की handover।"],
+    ["Optional ongoing support", "ज़रूरत हो तो monthly care या growth plan।"]
+  ]
+}

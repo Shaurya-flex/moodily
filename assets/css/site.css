@@ -348,3 +348,60 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--muted);margin-b
 .intake-service{font-size:1.4rem;margin-bottom:2px}
 .intake-cta h2,.side-h{font-size:1.25rem}
 .intake-legacy .lead-form{margin-top:12px}
+
+/* service commerce v3 */
+.positioning{font-weight:700;color:var(--text);margin:-4px 0 12px;max-width:760px}
+.need-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:960px){.need-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.need-grid{grid-template-columns:1fr}}
+.need-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);transition:border-color .2s,transform .2s}
+.need-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.need-main{display:flex;flex-direction:column;gap:4px;padding:16px;color:var(--text)!important;text-decoration:none;flex:1}
+.need-emoji{font-size:1.8rem;line-height:1}
+.need-title{font-weight:800;font-size:1.02rem;margin-top:4px}
+.need-sub{font-size:.86rem;color:var(--muted)}
+.need-price{margin-top:auto;padding-top:8px;font-weight:700;color:var(--secondary);font-size:.9rem}
+.need-sublinks{margin:0;padding:0 16px 14px}
+.types-toggle{display:none;margin-top:12px}
+@media (max-width:640px){.js .types:not(.expanded) .more-type{display:none}.js .types-toggle{display:inline-flex}}
+.tiers{align-items:stretch;padding-top:12px}
+.tier-card{position:relative}
+.tier-card.recommended{border:2px solid var(--primary);box-shadow:var(--shadow)}
+.badge-rec{position:absolute;top:-12px;left:20px;margin:0;background:var(--primary-strong);color:#fff;border-color:transparent}
+.scope-note{margin:8px 0 0}
+.facts .facts-full{grid-column:1/-1}
+.facts dd .chips{margin:4px 0}
+.samples-grid .sample-card{padding:14px;margin:0}
+.sample-card figcaption{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.badge-kind{border-color:var(--teal);color:var(--teal);margin:0 0 4px}
+.sample-card .mock-phone .mock-screen{max-width:190px}
+.sample-card .mock-pdf .mock-screen{max-width:260px;margin:0 auto}
+.sample-note{margin-top:14px}
+.before-after{margin:0;border:1px dashed var(--border);border-radius:var(--r-card);padding:16px;background:var(--surface)}
+.before-after figcaption{margin-bottom:12px}
+.ba-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch}
+@media (max-width:640px){.ba-grid{grid-template-columns:1fr}.ba-arrow{transform:rotate(90deg);justify-self:center}}
+.ba-col{border-radius:10px;padding:14px;border:1px solid var(--border)}
+.ba-before{background:rgba(248,113,113,.07)}
+.ba-after{background:rgba(20,184,166,.08)}
+.ba-h{font-weight:800;margin-bottom:6px}
+.ba-col ul{margin:0;padding-left:1.1em}
+.ba-col li{margin-bottom:6px;font-size:.92rem}
+.ba-arrow{align-self:center;font-size:1.6rem;color:var(--secondary)}
+.finder-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.finder-search{flex:1 1 260px;min-height:48px;padding:10px 16px;font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--r-pill)}
+.finder-type{min-height:48px;max-width:100%;padding:8px 14px;font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--r-pill)}
+.finder-card[hidden]{display:none}
+.finder-card h3 a{color:var(--text)!important;text-decoration:none}
+.finder-card h3 a:hover{color:var(--secondary)!important}
+.estimator .radio-row{display:flex;flex-direction:column;gap:8px}
+.estimator .radio{display:flex;gap:10px;align-items:flex-start}
+.estimator .radio input{width:20px;height:20px;min-height:0;margin-top:3px;flex:none}
+.estimator .radio label{font-weight:500;margin:0}
+.estimator input:disabled+label{opacity:.5}
+.est-group{border:1px solid var(--border);border-radius:var(--r-input);padding:12px 14px;margin:0}
+.est-group[hidden]{display:none}
+.est-group legend{font-size:1rem;padding:0 6px}
+.est-range{font-size:clamp(1.5rem,6vw,2.2rem);font-weight:800;margin:0 0 4px;font-family:var(--font)}
+.est-result{border-top:1px solid var(--border);margin-top:16px;padding-top:16px}
+.third-party-card .chips li{border-color:rgba(245,158,11,.5)}

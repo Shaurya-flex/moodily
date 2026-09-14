@@ -14,19 +14,10 @@ Values the site needs from the owner. Nothing here was invented — fill real da
 ## src/data/services.json
 - **services[2]**: OWNER: confirm support hours for Digital Saathi Monthly
 - **services[11]**: OWNER: set a starting price once the first B2B scope is priced.
-- **services[15]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[16]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[17]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[18]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[19]**: DRAFT starting price for owner approval (set 2026-09-14)
 - **services[20]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[21]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[22]**: DRAFT starting price for owner approval (set 2026-09-14)
 - **services[23]**: DRAFT starting price for owner approval (set 2026-09-14)
 - **services[24]**: DRAFT starting price for owner approval (set 2026-09-14)
 - **services[25]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[26]**: DRAFT starting price for owner approval (set 2026-09-14)
-- **services[27]**: DRAFT starting price for owner approval (set 2026-09-14)
 
 ## src/data/products.json
 - **products[0].contents[0]**: _todo: owner to list final contents
