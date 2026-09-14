@@ -135,3 +135,23 @@ Landing (organic/social/WhatsApp share)
           → proposal sent → paid            (tracked in Sheet/CRM, not GA)
 ```
 Weekly review: sessions → service_view rate; price_click → form/WhatsApp rate by service; submissions by budget band; qualified % ; first-response time.
+
+## Event taxonomy v2 (2026-09-14) — Google Form intake & catalogue
+
+Supersedes names in the table above: `price_click` → `pricing_click`, `tool_affiliate_click` → `affiliate_click`, audit CTAs → `free_audit_click`.
+
+| Event | Trigger | label |
+|---|---|---|
+| `service_card_click` | Outcome card, catalogue card title, "Quote माँगें", service card "details" | outcome/group id, `quote:<group>` |
+| `sample_click` | "Sample देखें", sample links, any link to `/case-studies/` | group id / case slug |
+| `form_open` | `/contact/` requirement page opened | service id, `mode` = google-form / fallback, `offer` |
+| `google_form_click` | "Continue Requirement Form" | service id |
+| `whatsapp_click` | Any WhatsApp CTA | placement |
+| `free_audit_click` | Any "मुफ़्त Digital Audit" / "Free Audit" CTA | placement |
+| `pricing_click` | "Starting price" links, price table / PAYG enquire, package enquire | service id |
+| `store_click` | Any link to `/store/` | href |
+| `affiliate_click` | Tool outbound link | tool slug |
+| `catalogue_filter` | Filter chip on `/services/` | `outcome|format` |
+
+GTM trigger regex (replace the old one): `^(service_card_click|sample_click|form_open|google_form_click|whatsapp_click|free_audit_click|pricing_click|store_click|affiliate_click|catalogue_filter|hero_cta_click|service_view|case_study_open|product_view|checkout_click|offer_view|offer_cta_click|payment_success|payment_failed|payment_dismissed|payment_verify_failed|form_start|form_submit|language_switch|audience_select)$`.
+Key events in GA4: `google_form_click`, `whatsapp_click` (Google Form submissions themselves are counted in the Sheet — Google Forms does not report back to GA).

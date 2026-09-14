@@ -1,49 +1,193 @@
 {
   "_readme": "FAQ sets. Rendered visibly and as FAQPage JSON-LD on the same page (schema must match visible text).",
   "home": [
-    {"q": "Moodily क्या है?", "a": "Moodily (moodily.in) एक Hindi-English platform है जहाँ आप AI और digital skills free में सीख सकते हैं (Moodily Learn), अपने business/profession का digital काम करवा सकते हैं (Moodily Digital Saathi और Intelligence Studio), और तैयार digital resources ले सकते हैं (Moodily Store)।"},
-    {"q": "मुफ़्त Digital Audit में क्या मिलता है?", "a": "आप अपने business का नाम, Google/WhatsApp/website/social link भेजते हैं। हम देखकर 3 सबसे ज़रूरी सुधार WhatsApp पर बताते हैं। कोई payment या commitment नहीं।"},
-    {"q": "क्या आप Google पर पहला rank दिलाने की guarantee देते हैं?", "a": "नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता, इसलिए ऐसी guarantee देना गलत है। हम listing, website और reviews की वे बुनियादी चीज़ें सही करते हैं जो Google की guidelines के अनुसार ज़रूरी हैं, और परिणाम मापते हैं।"},
-    {"q": "Prices fixed हैं?", "a": "Website पर दिए prices शुरुआती (starting) prices हैं। आपके काम का scope देखकर लिखित quote मिलता है, जिसमें deliverables, समय, revisions और क्या शामिल नहीं है — सब साफ़ लिखा होता है।"},
-    {"q": "क्या free AI learning बंद हो गई?", "a": "नहीं। Moodily Learn पर AI fundamentals से AI agents तक का free learning path पहले की तरह उपलब्ध है।"},
-    {"q": "Payment कैसे होता है?", "a": "अभी हर project के लिए लिखित quote के बाद payment details WhatsApp/email पर भेजी जाती हैं। Website पर online checkout बाद में जोड़ा जाएगा।"}
+    {
+      "q": "Moodily क्या है?",
+      "a": "Moodily (moodily.in) एक Hindi-English platform है जहाँ आप AI और digital skills free में सीख सकते हैं (Moodily Learn), अपने business/profession का digital काम करवा सकते हैं (Moodily Digital Saathi और Intelligence Studio), और तैयार digital resources ले सकते हैं (Moodily Store)।"
+    },
+    {
+      "q": "मुफ़्त Digital Audit में क्या मिलता है?",
+      "a": "आप अपने business का नाम, Google/WhatsApp/website/social link भेजते हैं। हम देखकर 3 सबसे ज़रूरी सुधार WhatsApp पर बताते हैं। कोई payment या commitment नहीं।"
+    },
+    {
+      "q": "क्या आप Google पर पहला rank दिलाने की guarantee देते हैं?",
+      "a": "नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता, इसलिए ऐसी guarantee देना गलत है। हम listing, website और reviews की वे बुनियादी चीज़ें सही करते हैं जो Google की guidelines के अनुसार ज़रूरी हैं, और परिणाम मापते हैं।"
+    },
+    {
+      "q": "Prices fixed हैं?",
+      "a": "Website पर दिए prices शुरुआती (starting) prices हैं। आपके काम का scope देखकर लिखित quote मिलता है, जिसमें deliverables, समय, revisions और क्या शामिल नहीं है — सब साफ़ लिखा होता है।"
+    },
+    {
+      "q": "क्या free AI learning बंद हो गई?",
+      "a": "नहीं। Moodily Learn पर AI fundamentals से AI agents तक का free learning path पहले की तरह उपलब्ध है।"
+    },
+    {
+      "q": "Payment कैसे होता है?",
+      "a": "अभी हर project के लिए लिखित quote के बाद payment details WhatsApp/email पर भेजी जाती हैं। Website पर online checkout बाद में जोड़ा जाएगा।"
+    }
   ],
   "local-business": [
-    {"q": "Google Business Profile बनाने की fees कितनी है?", "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Business Starter {{price:digital-business-starter}} से शुरू।"},
-    {"q": "Verification कौन करेगा?", "a": "Verification Google आपके business के नाम/नंबर/पते पर करता है, इसलिए वह step आप करते हैं। हम पहले से सब तैयार रखते हैं और हर step पर guide करते हैं।"},
-    {"q": "Listing मेरे नाम पर रहेगी या आपके?", "a": "आपके। Google profile, domain, hosting और WhatsApp — सब आपके account/नाम पर। हम सिर्फ़ manager access लेते हैं जिसे आप कभी भी हटा सकते हैं।"},
-    {"q": "Reviews खरीदकर या लिखकर देंगे?", "a": "नहीं। Fake या incentivized reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का आसान system (QR + message) बनाते हैं।"}
+    {
+      "q": "Google Business Profile बनाने की fees कितनी है?",
+      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Business Starter {{price:digital-business-starter}} से शुरू।"
+    },
+    {
+      "q": "Verification कौन करेगा?",
+      "a": "Verification Google आपके business के नाम/नंबर/पते पर करता है, इसलिए वह step आप करते हैं। हम पहले से सब तैयार रखते हैं और हर step पर guide करते हैं।"
+    },
+    {
+      "q": "Listing मेरे नाम पर रहेगी या आपके?",
+      "a": "आपके। Google profile, domain, hosting और WhatsApp — सब आपके account/नाम पर। हम सिर्फ़ manager access लेते हैं जिसे आप कभी भी हटा सकते हैं।"
+    },
+    {
+      "q": "Reviews खरीदकर या लिखकर देंगे?",
+      "a": "नहीं। Fake या incentivized reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का आसान system (QR + message) बनाते हैं।"
+    }
   ],
   "medical-store": [
-    {"q": "क्या यह system दवाइयाँ suggest करता है?", "a": "नहीं। यह केवल enquiry, verification, confirmation और delivery को व्यवस्थित करता है। दवा से जुड़ा हर निर्णय licensed pharmacist/doctor का है।"},
-    {"q": "Prescription photos कहाँ रहेंगी?", "a": "केवल store के WhatsApp Business chat में, जहाँ ग्राहक ने भेजी। हम कोई public form या shared drive पर prescription upload नहीं बनवाते, और staff के लिए deletion/retention नियम लिखित देते हैं।"},
-    {"q": "क्या इससे online pharmacy license की ज़रूरत खत्म हो जाती है?", "a": "नहीं। Store पर लागू सभी drug-sale नियमों और licenses की ज़िम्मेदारी store की है। ज़रूरत हो तो अपने legal/CA advisor से पुष्टि करें।"}
+    {
+      "q": "क्या यह system दवाइयाँ suggest करता है?",
+      "a": "नहीं। यह केवल enquiry, verification, confirmation और delivery को व्यवस्थित करता है। दवा से जुड़ा हर निर्णय licensed pharmacist/doctor का है।"
+    },
+    {
+      "q": "Prescription photos कहाँ रहेंगी?",
+      "a": "केवल store के WhatsApp Business chat में, जहाँ ग्राहक ने भेजी। हम कोई public form या shared drive पर prescription upload नहीं बनवाते, और staff के लिए deletion/retention नियम लिखित देते हैं।"
+    },
+    {
+      "q": "क्या इससे online pharmacy license की ज़रूरत खत्म हो जाती है?",
+      "a": "नहीं। Store पर लागू सभी drug-sale नियमों और licenses की ज़िम्मेदारी store की है। ज़रूरत हो तो अपने legal/CA advisor से पुष्टि करें।"
+    }
   ],
   "education": [
-    {"q": "PYQ analysis क्या है?", "a": "पिछले वर्षों के प्रश्नपत्रों (Previous Year Questions) को topic, frequency और difficulty के आधार पर व्यवस्थित करना, ताकि पढ़ाई की प्राथमिकता तय हो सके। यह trends दिखाता है — आने वाले प्रश्नों की guarantee नहीं देता।"},
-    {"q": "क्या आपका किसी exam body से affiliation है?", "a": "नहीं। Moodily किसी exam body, board या NCERT से affiliated नहीं है। हमारा material स्वतंत्र study aid है।"},
-    {"q": "White-label का मतलब?", "a": "Material पर आपके school/coaching का नाम और logo होगा, और scope के अनुसार उपयोग का license आपके institute को मिलेगा।"}
+    {
+      "q": "PYQ analysis क्या है?",
+      "a": "पिछले वर्षों के प्रश्नपत्रों (Previous Year Questions) को topic, frequency और difficulty के आधार पर व्यवस्थित करना, ताकि पढ़ाई की प्राथमिकता तय हो सके। यह trends दिखाता है — आने वाले प्रश्नों की guarantee नहीं देता।"
+    },
+    {
+      "q": "क्या आपका किसी exam body से affiliation है?",
+      "a": "नहीं। Moodily किसी exam body, board या NCERT से affiliated नहीं है। हमारा material स्वतंत्र study aid है।"
+    },
+    {
+      "q": "White-label का मतलब?",
+      "a": "Material पर आपके school/coaching का नाम और logo होगा, और scope के अनुसार उपयोग का license आपके institute को मिलेगा।"
+    }
   ],
   "research": [
-    {"q": "What do the FACT / INFERENCE / HYPOTHESIS / UNVERIFIED labels mean?", "a": "FACT = directly supported by a cited source. INFERENCE = a reasoned conclusion from facts. HYPOTHESIS = a testable idea that needs validation. UNVERIFIED = a claim we found but could not confirm. You always know how much weight each finding can carry."},
-    {"q": "Do you use AI for research?", "a": "Yes, for gathering and organising. Every factual claim in the final brief is checked against a source by a human before delivery."},
-    {"q": "Will you sign an NDA?", "a": "Yes. Share your NDA before sending confidential material."}
+    {
+      "q": "What do the FACT / INFERENCE / HYPOTHESIS / UNVERIFIED labels mean?",
+      "a": "FACT = directly supported by a cited source. INFERENCE = a reasoned conclusion from facts. HYPOTHESIS = a testable idea that needs validation. UNVERIFIED = a claim we found but could not confirm. You always know how much weight each finding can carry."
+    },
+    {
+      "q": "Do you use AI for research?",
+      "a": "Yes, for gathering and organising. Every factual claim in the final brief is checked against a source by a human before delivery."
+    },
+    {
+      "q": "Will you sign an NDA?",
+      "a": "Yes. Share your NDA before sending confidential material."
+    }
   ],
   "knowledge-to-product": [
-    {"q": "Who owns the final product?", "a": "You do. Deliverables are created for you and rights transfer on full payment, as written in the agreement. You must own or have permission for the material you send."},
-    {"q": "Do you work with international clients?", "a": "Yes. We work in English and Hindi, remotely, with quotes in INR or USD."},
-    {"q": "Will the content be AI-generated?", "a": "AI helps with structuring and first drafts. Your expertise is the source, and every product goes through an accuracy review with you before delivery."}
+    {
+      "q": "Who owns the final product?",
+      "a": "You do. Deliverables are created for you and rights transfer on full payment, as written in the agreement. You must own or have permission for the material you send."
+    },
+    {
+      "q": "Do you work with international clients?",
+      "a": "Yes. We work in English and Hindi, remotely, with quotes in INR or USD."
+    },
+    {
+      "q": "Will the content be AI-generated?",
+      "a": "AI helps with structuring and first drafts. Your expertise is the source, and every product goes through an accuracy review with you before delivery."
+    }
   ],
   "ai-workflows": [
-    {"q": "AI workflow automation क्या है?", "a": "बार-बार होने वाले काम (जैसे form entry को sheet में डालना, reminder भेजना, draft बनाना) को tools जोड़कर automatic करना, जिसमें ज़रूरत की जगह AI और ज़रूरी जगह human approval हो।"},
-    {"q": "Tool subscriptions का खर्च कौन देगा?", "a": "Tools आपके account में रहते हैं और उनका खर्च आप देते हैं। हम setup से पहले अनुमानित monthly tool खर्च बताते हैं।"}
+    {
+      "q": "AI workflow automation क्या है?",
+      "a": "बार-बार होने वाले काम (जैसे form entry को sheet में डालना, reminder भेजना, draft बनाना) को tools जोड़कर automatic करना, जिसमें ज़रूरत की जगह AI और ज़रूरी जगह human approval हो।"
+    },
+    {
+      "q": "Tool subscriptions का खर्च कौन देगा?",
+      "a": "Tools आपके account में रहते हैं और उनका खर्च आप देते हैं। हम setup से पहले अनुमानित monthly tool खर्च बताते हैं।"
+    }
   ],
   "creators": [
-    {"q": "क्या आप video editing करते हैं?", "a": "Creator Content Sprint में planning, scripts, titles और repurposing system है — shooting/editing शामिल नहीं। ज़रूरत हो तो अलग quote।"},
-    {"q": "Views बढ़ने की guarantee?", "a": "नहीं। Platform algorithms पर किसी का नियंत्रण नहीं। हम process और consistency सुधारते हैं और आप क्या मापें, यह बताते हैं।"}
+    {
+      "q": "क्या आप video editing करते हैं?",
+      "a": "Creator Content Sprint में planning, scripts, titles और repurposing system है — shooting/editing शामिल नहीं। ज़रूरत हो तो अलग quote।"
+    },
+    {
+      "q": "Views बढ़ने की guarantee?",
+      "a": "नहीं। Platform algorithms पर किसी का नियंत्रण नहीं। हम process और consistency सुधारते हैं और आप क्या मापें, यह बताते हैं।"
+    }
   ],
   "professionals": [
-    {"q": "Posts मेरे नाम से कौन लिखेगा?", "a": "Moodily writer आपसे interview/voice notes लेकर आपकी आवाज़ में लिखता है। हर post आपकी approval के बाद ही publish होता है।"},
-    {"q": "Doctors/lawyers के लिए भी?", "a": "हाँ, पर उनके professional bodies के advertising/solicitation नियमों के भीतर — educational content, कोई misleading claims या patient/client solicitation नहीं।"}
+    {
+      "q": "Posts मेरे नाम से कौन लिखेगा?",
+      "a": "Moodily writer आपसे interview/voice notes लेकर आपकी आवाज़ में लिखता है। हर post आपकी approval के बाद ही publish होता है।"
+    },
+    {
+      "q": "Doctors/lawyers के लिए भी?",
+      "a": "हाँ, पर उनके professional bodies के advertising/solicitation नियमों के भीतर — educational content, कोई misleading claims या patient/client solicitation नहीं।"
+    }
+  ],
+  "presentations": [
+    {
+      "q": "Design Only, Content + Design और Research + Content + Design में क्या फ़र्क है?",
+      "a": "Design Only में content आपका होता है और हम उसे साफ़ slides में बदलते हैं। Content + Design में हम आपके notes से structure और slide text भी लिखते हैं। Research + Content + Design में topic से शुरू करके public sources से research, sources slide, text और design — सब शामिल है।"
+    },
+    {
+      "q": "क्या editable PPT file मिलेगी?",
+      "a": "हाँ, PowerPoint (PPTX) और PDF दोनों मिलते हैं। Canva में चाहिए तो बताएँ — editable Canva link तभी दिया जाता है जब इस्तेमाल किए elements का licence अनुमति दे।"
+    },
+    {
+      "q": "School/college assignment के लिए बनाएँगे?",
+      "a": "हम presentation design और learning support देते हैं। Graded assignment में आपके institution के academic integrity नियम लागू होते हैं — उनका पालन आपकी ज़िम्मेदारी है।"
+    },
+    {
+      "q": "10 से ज़्यादा slides हों तो?",
+      "a": "Starting price तय slide संख्या के लिए है। ज़्यादा slides, animations या urgent delivery के लिए form में बताइए — लिखित quote मिलेगा।"
+    }
+  ],
+  "invitations": [
+    {
+      "q": "Invitation कितने समय में मिलेगा?",
+      "a": "Digital static invitation आमतौर पर पूरी जानकारी मिलने के 24–48 घंटे में। Print-ready suite और animated video में 3–5 working days।"
+    },
+    {
+      "q": "क्या आप printing भी करवाते हैं?",
+      "a": "नहीं। हम printer को देने लायक print-ready PDF देते हैं। Printing, paper और delivery का खर्च और quality printer पर निर्भर है।"
+    },
+    {
+      "q": "Video invitation में film song लगा सकते हैं?",
+      "a": "Copyrighted film songs हम नहीं लगाते क्योंकि उन पर copyright होता है। Royalty-free या licensed music इस्तेमाल होता है।"
+    }
+  ],
+  "business-documents": [
+    {
+      "q": "क्या आपका invoice template GST compliant होगा?",
+      "a": "Template एक design service है। GSTIN, HSN/SAC, tax rates और कानूनी रूप से ज़रूरी जानकारी आप (या आपके CA) देते हैं। Moodily accounting या tax compliance advice नहीं देता।"
+    },
+    {
+      "q": "Editable file किस format में मिलेगी?",
+      "a": "Word, Google Docs/Sheets या Canva — आपकी सुविधा के अनुसार — और साथ में PDF। Canva editable link तभी जब licence अनुमति दे।"
+    },
+    {
+      "q": "क्या logo भी बनाएँगे?",
+      "a": "मौजूदा logo को साफ़ करके इस्तेमाल कर सकते हैं। Trademark के लिए original logo का अलग quote होता है; template/stock artwork को exclusive या trademark-ready नहीं कहा जाता।"
+    }
+  ],
+  "social-media": [
+    {
+      "q": "क्या आप हमारे account पर post भी करेंगे?",
+      "a": "Post packs में design और caption drafts शामिल हैं; posting/scheduling नहीं। Regular management चाहिए तो Digital Saathi Monthly देखें।"
+    },
+    {
+      "q": "Reel editing करते हैं?",
+      "a": "हाँ, अलग quote पर। Form में footage की लंबाई, संख्या और style बताइए।"
+    },
+    {
+      "q": "Followers या sales बढ़ने की guarantee?",
+      "a": "नहीं। Platform algorithms पर किसी का नियंत्रण नहीं। हम consistent, साफ़ और brand-aligned creatives बनाते हैं।"
+    }
   ]
 }

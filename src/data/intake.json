@@ -1,0 +1,69 @@
+{
+  "_readme": "Google Form intake config. The site never invents form URLs or entry IDs — paste real values from Google Forms (see _project/08-google-form-intake.md). form_url empty = /contact/ keeps the built-in fallback form.",
+  "form_url": "",
+  "_todo_form_url": "OWNER: paste the Google Form link ending in /viewform (Send → link icon → untick 'Shorten URL'). forms.gle short links cannot carry prefill values.",
+  "entry_ids": {
+    "_readme": "Optional but recommended: numeric IDs from Form ⋮ → 'Get pre-filled link'. With these, every service CTA pre-selects the form automatically.",
+    "service_category": "",
+    "sub_service": "",
+    "offer_code": ""
+  },
+  "_todo_entry_ids": "OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).",
+  "categories": {
+    "invitation": {"label": "Invitation / Personal Design", "prefill_url": ""},
+    "business-design": {"label": "Business Design", "prefill_url": ""},
+    "presentation": {"label": "Presentation / PPT", "prefill_url": ""},
+    "social": {"label": "Social Media", "prefill_url": ""},
+    "creator": {"label": "Creator Content", "prefill_url": ""},
+    "education": {"label": "Educational Material", "prefill_url": ""},
+    "exam-pyq": {"label": "Exam / PYQ Material", "prefill_url": ""},
+    "research": {"label": "Research", "prefill_url": ""},
+    "knowledge-to-product": {"label": "Knowledge-to-Product", "prefill_url": ""},
+    "web-google": {"label": "Website / Google Business", "prefill_url": ""},
+    "ai": {"label": "AI Workflow / Automation", "prefill_url": ""},
+    "professional": {"label": "Professional Authority", "prefill_url": ""},
+    "print": {"label": "Print-ready Design", "prefill_url": ""},
+    "custom": {"label": "Custom Digital Work", "prefill_url": ""}
+  },
+  "service_map": {
+    "digital-business-starter": "web-google",
+    "business-growth-launch": "web-google",
+    "digital-saathi-monthly": "web-google",
+    "medical-store-digital-desk": "web-google",
+    "professional-authority-pack": "professional",
+    "linkedin-essential": "professional",
+    "linkedin-growth": "professional",
+    "linkedin-authority": "professional",
+    "creator-content-sprint": "creator",
+    "research-intelligence-sprint": "research",
+    "knowledge-to-product": "knowledge-to-product",
+    "education-content-pack": "education",
+    "ai-automation-starter": "ai",
+    "ai-workflow-package": "ai",
+    "ai-content-engine": "ai",
+    "presentation-design-only": "presentation",
+    "presentation-content-design": "presentation",
+    "presentation-research-content-design": "presentation",
+    "invitation-digital": "invitation",
+    "invitation-print-ready": "invitation",
+    "invitation-animated": "invitation",
+    "business-document-template": "business-design",
+    "business-identity-kit": "business-design",
+    "business-marketing-collateral": "business-design",
+    "print-design-single": "print",
+    "social-post-pack": "social",
+    "social-carousel-thumbnail-pack": "social",
+    "social-campaign-kit": "social"
+  },
+  "service_prefill_urls": {
+    "_readme": "Optional per-service override: service id → full pre-filled Google Form URL. Wins over the category prefill_url."
+  },
+  "extra_services": {
+    "free-digital-audit": {"name": "मुफ़्त Digital Audit", "category": "web-google"},
+    "linkedin-payg": {"name": "LinkedIn pay-as-you-go pack", "category": "professional"},
+    "store-product": {"name": "Store / digital product", "category": "custom"},
+    "not-sure": {"name": "सही service का सुझाव", "category": "custom"},
+    "custom-digital-work": {"name": "Custom Digital Work", "category": "custom"},
+    "exam-pyq-material": {"name": "Exam / PYQ Material", "category": "exam-pyq"}
+  }
+}

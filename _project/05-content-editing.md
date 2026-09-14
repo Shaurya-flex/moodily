@@ -56,3 +56,20 @@ Commit both `src/` changes and the generated output.
 
 ## Claims policy (enforced by tests)
 No ratings, learner counts, testimonials, results, revenue, "unlimited", official partnerships or government/IIT certificates unless the owner holds evidence — and even then, add the evidence to the case study first.
+
+## Catalogue & Google Form intake (2026-09-14)
+
+| I want to… | Edit |
+|---|---|
+| Add the Google Form link / prefill IDs | `src/data/intake.json` (`form_url`, `entry_ids`, optional `categories.*.prefill_url`, `service_prefill_urls`) |
+| Map a new service to a form category | `src/data/intake.json → service_map` (build fails if missing) |
+| Add/rename a catalogue group, items or formats | `src/data/catalogue.json` |
+| Add a real sample image | put file in `/assets/img/samples/`, add `{"type":"image","src":"...","alt":"...","frame":"phone|laptop|poster|screen|grid|thumb|pdf","title":"..."}` to the group's `samples` |
+
+| Token | Output |
+|---|---|
+| `<!--@intake -->` | `/contact/` wrapper: service context, Google Form CTA (or fallback form), WhatsApp |
+| `<!--@outcomes -->` | 8 outcome cards (home) |
+| `<!--@catalogue -->` | Filterable full catalogue |
+| `<!--@catalogue-group id="…" -->` | Items, formats and samples for one group (landing pages) |
+| `<!--@revision-policy -->`, `<!--@formats -->` | Basic/Standard/Premium revisions; delivery formats |

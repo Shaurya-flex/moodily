@@ -284,6 +284,104 @@
     });
   }
 
+  // ---------- auto-track sample and store links that have no explicit data-track
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest('a[href]');
+    if (!a || a.hasAttribute('data-track') || a.closest('[data-track]')) return;
+    var href = a.getAttribute('href');
+    if (href.indexOf('/case-studies/') === 0) track('sample_click', { label: href, link_url: href });
+    else if (href.indexOf('/store/') === 0) track('store_click', { label: href, link_url: href });
+  });
+
+  // ---------- Google Form intake wrapper (/contact/) — config from src/data/intake.json
+  var intake = document.getElementById('intake');
+  if (intake) initIntake(intake);
+
+  function formUrlFor(cfg, svc, offerOn) {
+    var base = (svc && svc.prefill_url) || cfg.form_url || '';
+    if (!base) return '';
+    var ids = cfg.entry_ids || {};
+    var norm = function (id) { return 'entry.' + String(id).replace(/^entry\./, ''); };
+    var params = [];
+    var add = function (id, value) {
+      if (id && value && base.indexOf(norm(id) + '=') === -1) params.push(norm(id) + '=' + encodeURIComponent(value));
+    };
+    if (svc) { add(ids.service_category, svc.category); add(ids.sub_service, svc.name); }
+    if (offerOn) add(ids.offer_code, cfg.offer.id);
+    if (!params.length) return base;
+    if (base.indexOf('usp=pp_url') === -1) params.unshift('usp=pp_url');
+    return base + (base.indexOf('?') === -1 ? '?' : '&') + params.join('&');
+  }
+
+  function initIntake(box) {
+    var cfg = {};
+    try { cfg = JSON.parse(document.getElementById('intakeConfig').textContent); } catch (e) {}
+    var q = new URLSearchParams(location.search);
+    var sid = q.get('service') || '';
+    var svc = (cfg.services || {})[sid];
+    var offerOn = !!(svc && svc.offer_price && cfg.offer && cfg.offer.active && q.get('offer') === cfg.offer.id && !root.classList.contains('offer-ended'));
+    if (svc) {
+      document.getElementById('intakeContext').hidden = false;
+      document.getElementById('intakeService').textContent = svc.name;
+      document.getElementById('intakeCategory').textContent = 'Form category: ' + svc.category;
+      document.getElementById('intakePrice').textContent = offerOn ? cfg.offer.name + ' offer: ' + svc.offer_price + ' (' + cfg.offer.pct + '% छूट)' : svc.price;
+      var details = document.getElementById('intakeDetails');
+      if (svc.page) details.setAttribute('href', svc.page); else details.hidden = true;
+      if (offerOn) {
+        var note = document.getElementById('intakeOffer');
+        note.hidden = false;
+        note.textContent = 'आप ' + cfg.offer.name + ' offer के लिए requirement भेज रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।';
+      }
+    }
+    var gbtn = document.getElementById('gformBtn');
+    if (gbtn) {
+      var url = formUrlFor(cfg, svc, offerOn);
+      if (url) gbtn.setAttribute('href', url);
+      gbtn.setAttribute('data-label', sid || 'none');
+      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'google-form' });
+    } else {
+      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'fallback' });
+    }
+    var wa = document.getElementById('intakeWa');
+    if (wa && svc) {
+      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' +
+        'Main [role] hoon.\nCity [city] hai.\nDeadline [deadline] hai.\nBudget approx [budget] hai.\nReference/website link [URL] hai.';
+      wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent(text));
+      wa.setAttribute('data-label', 'intake-' + sid);
+    }
+  }
+
+  // ---------- services catalogue filters (all cards visible without JS)
+  var froot = document.querySelector('[data-filter-root]');
+  if (froot) {
+    var catCards = document.querySelectorAll('.cat-card');
+    var fstate = { outcome: new URLSearchParams(location.search).get('cat') || '', format: '' };
+    var applyFilters = function () {
+      var shown = 0;
+      catCards.forEach(function (c) {
+        var always = c.hasAttribute('data-always');
+        var okOutcome = !fstate.outcome || c.getAttribute('data-outcome') === fstate.outcome;
+        var okFormat = !fstate.format || (' ' + (c.getAttribute('data-formats') || '') + ' ').indexOf(' ' + fstate.format + ' ') !== -1;
+        var ok = always || (okOutcome && okFormat);
+        c.hidden = !ok;
+        if (ok && !always) shown++;
+      });
+      froot.querySelectorAll('[data-filter-outcome]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter-outcome') === fstate.outcome ? 'true' : 'false'); });
+      froot.querySelectorAll('[data-filter-format]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter-format') === fstate.format ? 'true' : 'false'); });
+      froot.querySelector('[data-filter-count]').textContent = shown + ' categories दिख रही हैं';
+    };
+    froot.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button');
+      if (!b) return;
+      if (b.hasAttribute('data-filter-outcome')) fstate.outcome = b.getAttribute('data-filter-outcome');
+      else if (b.hasAttribute('data-filter-format')) fstate.format = b.getAttribute('data-filter-format');
+      else return;
+      applyFilters();
+      track('catalogue_filter', { label: (fstate.outcome || 'all') + '|' + (fstate.format || 'all') });
+    });
+    applyFilters();
+  }
+
   // ---------- thank-you page: WhatsApp fallback built from sessionStorage (never from URL)
   var thanks = document.getElementById('thanksWa');
   if (thanks) {
