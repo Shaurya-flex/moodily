@@ -1068,6 +1068,83 @@ def c_estimator(args, ctx):
         cfg=cfg, opts=opts, groups="".join(radios(g["key"], g["legend"], g["default"]) for g in rules["groups"]), extras=extras, wa=wa)
 
 
+# ------------------------------------------------- reference-framework components
+HOME_PACKAGES = ["digital-business-starter", "business-growth-launch", "digital-saathi-monthly"]
+
+
+def c_packages(args, ctx):
+    """Three flagship commercial packages, reference-style: outcome, price, what's inside, one CTA."""
+    ids = split_ids(args["ids"]) if args.get("ids") else HOME_PACKAGES
+    lead = args.get("lead", ids[0])
+    out = []
+    for sid in ids:
+        svc = SERVICES[sid]
+        if svc not in ctx["services"]:
+            ctx["services"].append(svc)
+        items = "".join("<li>{}</li>".format(e(d)) for d in svc["deliverables"][:5])
+        out.append(
+            '<article class="pkg{lead}" id="pkg-{id}"{attrs} data-service-id="{id}">'
+            '<h3>{name}</h3><p class="pkg-for">{tagline}</p>{price}'
+            '<p class="small muted">{mode}</p><ul class="ticks">{items}</ul>'
+            '<p class="pkg-meta">{timeline} · {revisions}</p>'
+            '<div class="card-actions"><a class="btn btn-primary" href="/contact/?service={id}" data-track="quote_start" data-label="pkg:{id}">Requirement बताएं</a>'
+            '<a class="btn btn-outline" href="{page}#{id}" data-track="service_card_click" data-label="pkg-detail:{id}">पूरा scope →</a></div></article>'.format(
+                lead=" pkg-lead" if sid == lead else "", id=sid, attrs=card_attrs(svc), name=e(svc["name"]), tagline=e(svc["tagline"]),
+                price=price_html(svc), mode=e(PRICE_MODES[svc["price_mode"]]), items=items,
+                timeline=e(svc["timeline"]), revisions=e(svc["revisions"]), page=svc["page"]))
+    return '<div class="pkg-grid">{}</div>{}'.format("".join(out), scope_note_html())
+
+
+def c_categories(args, ctx):
+    """Directory teaser: one tile per service-filter category, each with a live count and lowest price."""
+    tiles = []
+    for key, label in FILTER_LABELS.items():
+        items = [x for x in ACTIVE if key in x["filters"]]
+        if not items:
+            continue
+        priced = [x for x in items if x.get("price_from")]
+        low = min(priced, key=lambda x: x["price_from"]) if priced else None
+        sub = "{} services · {}".format(len(items), "{} से".format(price_text(low)) if low else "custom quote")
+        tiles.append('<a class="cat-tile" href="/services/#finder" data-track="service_card_click" data-label="cat:{k}"><strong>{l}</strong><span>{s}</span></a>'.format(
+            k=key, l=e(label), s=e(sub)))
+    return '<div class="cats-grid">{}</div>'.format("".join(tiles))
+
+
+def c_scorecard(args, ctx):
+    """Hero-side Digital Audit scorecard. Illustrative sample, labelled as such — never a real client."""
+    rows = [("Google Business Profile आपके नाम पर", "done", "Done"),
+            ("समय और फ़ोन नंबर सही", "part", "Partly"),
+            ("अंदर, बाहर और team की photos", "fix", "Fix"),
+            ("Services और rate list", "fix", "Fix"),
+            ("हर customer से review माँगा जाता है", "fix", "Fix"),
+            ("WhatsApp Business + catalogue", "part", "Partly"),
+            ("Reviews के जवाब", "done", "Done")]
+    li = "".join('<li><span>{}</span><span class="score-tag score-{}">{}</span></li>'.format(e(t), k, lab) for t, k, lab in rows)
+    top = ["Counter पर QR लगाकर हर customer से review माँगें",
+           "Services + rate list डालें और 10 असली photos जोड़ें",
+           "WhatsApp catalogue और quick replies सेट करें"]
+    return ('<aside class="scorecard" aria-label="Digital Audit scorecard — sample">'
+            '<div class="scorecard-head"><h2>Digital Audit scorecard</h2><p class="scorecard-note">Sample — असली business नहीं</p></div>'
+            '<p class="scorecard-sub">एक coaching centre: Google Maps और WhatsApp</p>'
+            '<p><span class="score-num">43</span><span class="score-den"> / 100</span></p>'
+            '<ul class="score-list">{li}</ul>'
+            '<div class="score-top"><p>सबसे ज़रूरी तीन सुधार</p><ol>{top}</ol></div></aside>').format(
+        li=li, top="".join("<li>{}</li>".format(e(t)) for t in top))
+
+
+def c_promises(args, ctx):
+    """Trust pair: what Moodily does every time, and what it will never do."""
+    will = ["हर payment से पहले लिखित scope", "Google, domain, WhatsApp — सब accounts आपके नाम पर",
+            "Delivery से पहले एक इंसान by-hand जाँचता है", "Handover checklist जो आप दोबारा इस्तेमाल कर सकें",
+            "तय revisions — पहले से लिखे हुए", "Third-party खर्च अलग से, पहले बताए हुए"]
+    wont = ["Reviews ख़रीदना, लिखना या incentive देना", "Ranking, followers या sales की guarantee",
+            "आपके accounts या passwords अपने पास रखना", "बिना पूछे लोगों को message करना",
+            "Textbook copy करना या sources गढ़ना", "बिना आपकी लिखित अनुमति के result या testimonial छापना"]
+    return ('<div class="promise-grid"><div class="card promise-card will"><h3>हर project में, हर बार</h3><ul class="ticks">{w}</ul></div>'
+            '<div class="card promise-card wont"><h3>ये हम कभी नहीं करते</h3><ul class="crosses">{n}</ul></div></div>').format(
+        w="".join("<li>{}</li>".format(e(x)) for x in will), n="".join("<li>{}</li>".format(e(x)) for x in wont))
+
+
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
@@ -1079,6 +1156,7 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
+    "packages": c_packages, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1239,7 +1317,7 @@ def header(route, meta):
     </details>
   </nav>
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
-    <a class="btn btn-primary btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav-requirement">Requirement बताएं</a></div>
+    <a class="btn btn-warm btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav-requirement">Requirement बताएं</a></div>
 </div></header>""".format(links=links, svc=svc, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"))
 
 
@@ -1317,7 +1395,7 @@ def layout(meta, body, route, ctx):
     view = meta.get("track_view")
     view_attr = ' data-view-event="{}" data-view-label="{}"'.format(e(view[0]), e(view[1])) if view else ""
     return """<!DOCTYPE html>
-<html lang="{lang}" data-lang="{dlang}" data-theme="dark"{offer_attr}>
+<html lang="{lang}" data-lang="{dlang}" data-theme="light"{offer_attr}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1325,7 +1403,7 @@ def layout(meta, body, route, ctx):
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
 {robots}
-<meta name="theme-color" content="#0A0B0F">
+<meta name="theme-color" content="#f7f5f0">
 <meta property="og:site_name" content="Moodily">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
@@ -1343,8 +1421,8 @@ def layout(meta, body, route, ctx):
 <script>(function(){{try{{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}}catch(e){{}}var oe=document.documentElement.getAttribute('data-offer-ends');if(oe&&Date.now()>Date.parse(oe))document.documentElement.classList.add('offer-ended');document.documentElement.classList.add('js');}})();</script>
 {gtm}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap"></noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="/assets/css/site.css?v={ver}">
 {schema}
 <script src="/assets/js/site.js?v={ver}" defer></script>
