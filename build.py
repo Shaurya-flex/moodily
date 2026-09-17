@@ -93,7 +93,10 @@ def _offer_state():
 
 
 OFFER_STATE = _offer_state()
-NO_BANNER = {"/privacy/", "/terms/", "/refund/", "/contact/thanks/", "/payment/success/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
+# Legal / transparency routes. These carry no promotional banner, no sticky conversion bar and no
+# floating WhatsApp button: a compliance page should read as clarity, not as a sales surface.
+LEGAL_ROUTES = {"/privacy/", "/terms/", "/refund/", "/affiliate-disclosure/"}
+NO_BANNER = LEGAL_ROUTES | {"/contact/thanks/", "/payment/success/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
 
 
 def offer_deadline_hi():
@@ -1536,7 +1539,19 @@ def c_evidence(args, ctx):
 # enabled the programme AND supplied a real Associate tracking ID. A missing tag is a build error
 # at the point of use, never a silently broken or untagged link.
 def amazon_live():
+    """True only when real affiliate links can be emitted."""
     return bool(AMAZON.get("enabled")) and bool(AMAZON.get("tag"))
+
+
+def amazon_public():
+    """True only when Moodily genuinely earns affiliate commission and says so.
+
+    While this is False nothing affiliate-related is published: no /affiliate-disclosure/ page,
+    no footer link, no sitemap entry, no disclosure block. A page whose message is "we currently
+    earn nothing" is honest but not worth a public route, so it simply is not generated.
+    The template and components stay in source, gated — not deleted.
+    """
+    return amazon_live() and bool(AMAZON.get("disclosure_enabled"))
 
 
 def amazon_disclosure(inline=False):
@@ -1554,12 +1569,10 @@ AMAZON_STATEMENT = "As an Amazon Associate I earn from qualifying purchases."
 
 
 def c_affiliate_disclosure(args, ctx):
-    if amazon_live() and AMAZON.get("disclosure_enabled"):
-        return amazon_disclosure(inline=args.get("inline") == "yes")
-    # Programme off: say what is true today rather than claiming earnings that do not exist.
-    return ('<aside class="affiliate-disclosure is-off" role="note"><p><strong>Affiliate disclosure.</strong> '
-            'Moodily अभी किसी affiliate link से कोई commission नहीं कमाता। अगर आगे ऐसा होता है, '
-            'हर ऐसी जगह पर साफ़ लिखा जाएगा — <a href="/affiliate-disclosure/">Affiliate disclosure</a>.</p></aside>')
+    """Dormant while the programme is off — renders nothing at all, not a 'we earn nothing' notice."""
+    if not amazon_public():
+        return ""
+    return amazon_disclosure(inline=args.get("inline") == "yes")
 
 
 def c_amazon_link(args, ctx):
@@ -1580,6 +1593,8 @@ def c_amazon_link(args, ctx):
             '<span class="paid-link">(paid link)</span></a>').format(
         href=e(href), slug=e(args.get("id") or name.lower().replace(" ", "-")[:40]), name=e(name))
 
+
+FEATURE_GATES = {"amazon_associates": amazon_public}
 
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
@@ -1764,7 +1779,8 @@ def header(route, meta):
                menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
 
 
-def footer():
+def footer(route=""):
+    plain = route in LEGAL_ROUTES
     svc = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in SERVICE_NAV[:-1])
     return """<footer class="site-footer"><div class="container">
   <div class="footer-grid">
@@ -1780,15 +1796,20 @@ def footer():
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
     <div><h2 class="footer-h">Company</h2><ul>
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
-      <li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li><li><a href="/refund/">Refund policy</a></li><li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li></ul></div>
+      <li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li><li><a href="/refund/">Refund policy</a></li>{affiliate}</ul></div>
   </div>
   <p class="footer-note small muted">Moodily curates learning paths using courses offered by recognised providers. Certificates, where applicable, are issued by the respective providers. Moodily has no official partnership with the providers listed unless stated. Some tool links may be affiliate links and are labelled.</p>
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
 </div></footer>
-<a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
-<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Requirement बताएं</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>""".format(
+{sticky}""".format(
         email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm"),
-        wa_href=e(wa_href(wa_text())), icon=WA_ICON)
+        affiliate='<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>' if amazon_public() else "",
+        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text())), icon=WA_ICON))
+
+
+STICKY_CTA = """
+<a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
+<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Requirement बताएं</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
 
 
 def gtm_head():
@@ -1884,7 +1905,7 @@ def layout(meta, body, route, ctx):
 """.format(lang=lang, dlang="en" if lang == "en" else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical,
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_IN" if lang == "en" else "hi_IN",
            og_img=og_img, gtm=gtm_head(), ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body(),
-           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(), banner=offer_banner(route), byline=byline_html(meta),
+           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(route), banner=offer_banner(route), byline=byline_html(meta),
            offer_attr=' data-offer-ends="{}" data-offer-id="{}"'.format(OFFER["ends_at"], OFFER["id"]) if OFFER_STATE else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
 
@@ -2114,6 +2135,11 @@ def main():
         if not m:
             raise SystemExit("Missing <!--meta {...} --> block in " + str(path))
         meta = json.loads(m.group(1))
+        # Feature-gated pages stay in source but are not generated while their gate is off,
+        # so they never reach the sitemap, the footer or an internal link.
+        gate = meta.get("gated_on")
+        if gate and not FEATURE_GATES[gate]():
+            continue
         route, out = route_for(path)
         jobs.append((meta, raw[m.end():], route, out, str(path.relative_to(ROOT))))
     for c in CASES:

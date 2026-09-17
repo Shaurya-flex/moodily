@@ -3,6 +3,21 @@
 **Status: prepared, inert.** No affiliate link, tag or earnings claim exists anywhere on Moodily.in
 today. `src/site.json → amazon_associates` is `enabled: false`, `tag: ""`.
 
+## Nothing affiliate-related is public today
+
+While `enabled` is false the site publishes **no** affiliate surface at all:
+`/affiliate-disclosure/` is not generated, it is absent from the sitemap, the footer carries no link,
+and `@affiliate-disclosure` renders an empty string. A page whose message is "Moodily currently earns
+no commission" is honest but not worth a public route, so it simply does not exist yet. The template
+lives on in `src/pages/affiliate-disclosure.html` with `"gated_on": "amazon_associates"`.
+
+Flipping the four config values regenerates the page, the sitemap entry and the footer link with no
+code change. Both directions were tested.
+
+Legal and transparency routes (`/privacy/`, `/terms/`, `/refund/`, and `/affiliate-disclosure/` when
+live) render without the promotional banner, the sticky conversion bar and the floating WhatsApp
+button — a compliance page should read as clarity, not as a sales surface.
+
 ## Build-time guards (verified)
 
 `validate_amazon()` fails the build on every half-configured state:
@@ -27,7 +42,7 @@ instead, so a page keeps its editorial value and never carries a dead affiliate 
 | Owner owns moodily.in | ✅ `CNAME` in repo |
 | **10+ substantive original pieces** | ✅ **11** (see below) |
 | Recent content present | ✅ guides + insights, actively edited |
-| Affiliate Disclosure page | ✅ `/affiliate-disclosure/`, linked from the footer |
+| Affiliate Disclosure page | ✅ written and **feature-gated** — not generated while the programme is off |
 | Required Amazon statement ready | ✅ verbatim, renders only when enabled |
 | Link-level disclosure | ✅ `(paid link)` beside each link, not footer-only |
 | No prohibited Amazon trademarks/assets | ✅ no Amazon logo, photo, review or copy anywhere |

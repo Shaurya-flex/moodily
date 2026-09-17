@@ -628,7 +628,9 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
   .mobile-cta{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:95;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--paper) 94%,transparent);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
   .mobile-cta .btn{min-height:48px;justify-content:center;padding:0 10px;font-size:.95rem}
   .fab-wa{display:none}
-  body{padding-bottom:74px}
+  /* only reserve space when the sticky bar is actually present (legal pages omit it) */
+  body:has(.mobile-cta){padding-bottom:74px}
+  @supports not selector(:has(*)){body{padding-bottom:74px}}
 }
 /* phones: every control reaches the 44px comfortable target */
 @media (max-width:720px){
