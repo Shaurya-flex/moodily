@@ -428,6 +428,10 @@
       data.delete('company_hp');
       data.append('page', location.pathname + location.search);
       data.append('submitted_at', new Date().toISOString());
+      try {
+        var qsSample = new URLSearchParams(location.search).get('sample');
+        if (qsSample) data.append('sample', qsSample.replace(/[^a-z0-9-]/gi, '').slice(0, 60));
+      } catch (e) {}
       var summary = {};
       data.forEach(function (v, k) { summary[k] = v; });
       if (sel && sel.selectedIndex >= 0) summary.service_label = sel.options[sel.selectedIndex].text;
@@ -441,7 +445,31 @@
         track('form_submit', { label: summary.service || '', budget: summary.budget || '', role: summary.role || '', delivery: status });
         location.href = form.getAttribute('data-success') + '?s=' + status;
       };
-      if (!endpoint) { done('whatsapp'); return; }
+      if (!endpoint) {
+        // No server to post to. Hand the filled enquiry straight to WhatsApp so it actually
+        // reaches Moodily in one tap — never pretend a submission was received.
+        var wa = document.getElementById('intakeWa') || document.querySelector('a[href*="wa.me"]');
+        var base = wa ? wa.getAttribute('href').split('?')[0] : '';
+        if (base) {
+          var lines = ['Namaste Moodily,'];
+          var add = function (label, key) { if (summary[key]) lines.push(label + ': ' + summary[key]); };
+          add('Naam', 'name');
+          lines.push('Service: ' + (summary.service_label || summary.service || '-'));
+          add('Sample', 'sample');
+          add('Goal', 'goal');
+          add('City', 'city');
+          add('Budget', 'budget');
+          add('Deadline', 'deadline');
+          add('Language', 'language');
+          add('Link', 'link');
+          add('Requirement', 'message');
+          add('WhatsApp', 'whatsapp');
+          add('Email', 'email');
+          window.open(base + '?text=' + encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
+        }
+        done('whatsapp');
+        return;
+      }
       // Google Apps Script web app: no-cors POST (opaque response). CRM/n8n: swap endpoint, keep field names.
       fetch(endpoint, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) })
         .then(function () { done('sent'); })
@@ -462,7 +490,7 @@
   var intake = document.getElementById('intake');
   if (intake) initIntake(intake);
 
-  function formUrlFor(cfg, svc, offerOn, estimate) {
+  function formUrlFor(cfg, svc, offerOn, estimate, sampleName) {
     var base = (svc && svc.prefill_url) || cfg.form_url || '';
     if (!base) return '';
     var ids = cfg.entry_ids || {};
@@ -473,7 +501,8 @@
     };
     if (svc) { add(ids.service_category, svc.category); add(ids.sub_service, svc.name); }
     if (offerOn) add(ids.offer_code, cfg.offer.id);
-    add(ids.estimate, estimate);
+    // one field carries whichever context the visitor arrived with: a sample, or a website estimate
+    add(ids.sample_or_estimate, sampleName || estimate);
     if (!params.length) return base;
     if (base.indexOf('usp=pp_url') === -1) params.unshift('usp=pp_url');
     return base + (base.indexOf('?') === -1 ? '?' : '&') + params.join('&');
@@ -520,12 +549,12 @@
     }
     var gbtn = document.getElementById('gformBtn');
     if (gbtn) {
-      var url = formUrlFor(cfg, svc, offerOn, estText);
+      var url = formUrlFor(cfg, svc, offerOn, estText, sampleName);
       if (url) gbtn.setAttribute('href', url);
       gbtn.setAttribute('data-label', sid || 'none');
-      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'google-form' });
+      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', sample: sampleSlug || '', mode: 'google-form' });
     } else {
-      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'fallback' });
+      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', sample: sampleSlug || '', mode: 'fallback' });
     }
     var wa = document.getElementById('intakeWa');
     if (wa && svc) {
@@ -680,7 +709,8 @@
       document.getElementById('thanksMustWa').hidden = true;
     }
     if (lead) {
-      var msg = 'Namaste Moodily,\nMain ' + (lead.name || '') + ' (' + (lead.role || '') + ') hoon.\nMujhe ' + (lead.service_label || lead.service || '') + ' chahiye.\nGoal: ' + (lead.goal || '') +
+      var msg = 'Namaste Moodily,\nMain ' + (lead.name || '') + ' (' + (lead.role || '') + ') hoon.\nMujhe ' + (lead.service_label || lead.service || '') + ' chahiye.' +
+        (lead.sample ? '\nSample: moodily.in/samples/' + lead.sample + '/' : '') + '\nGoal: ' + (lead.goal || '') +
         '\nCity: ' + (lead.city || '') + '\nBudget approx: ' + (lead.budget || '') + '\nDeadline: ' + (lead.deadline || '') +
         '\nCurrent website/social link: ' + (lead.link || '-') + (lead.offer ? '\nOffer: ' + lead.offer : '') + '\nLanguage: ' + (lead.language || '') + (lead.message ? '\nMessage: ' + lead.message : '');
       var base = thanks.getAttribute('href').split('?')[0];

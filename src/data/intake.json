@@ -1,13 +1,14 @@
 {
-  "_readme": "Google Form intake config. The site never invents form URLs or entry IDs — paste real values from Google Forms (see _project/08-google-form-intake.md). form_url empty = /contact/ keeps the built-in fallback form.",
+  "_readme": "V1 lead capture = a standard Google Form wired to a Google Sheet. NO Apps Script is needed for this. Paste the Form's share URL into form_url below; everything else already works. entry_ids are optional but recommended — with them Moodily pre-selects the service, sub-service, offer and sample so the visitor never re-enters what we already know. Get them from the Form's ⋮ menu -> 'Get pre-filled link', fill one answer per field, copy the link, and read the entry.NNNNN numbers out of it. NEVER invent an entry ID: a wrong one silently drops that answer.",
   "form_url": "",
-  "_todo_form_url": "OWNER: paste the Google Form link ending in /viewform (Send → link icon → untick 'Shorten URL'). forms.gle short links cannot carry prefill values.",
+  "_todo_form_url": "TODO (OWNER, BLOCKER): paste the Google Form URL, e.g. https://docs.google.com/forms/d/e/1FAIpQLSc.../viewform . Until this is set, /contact/ shows the built-in form which sends through WhatsApp — nothing is stored server-side.",
   "entry_ids": {
-    "_readme": "Optional but recommended: numeric IDs from Form ⋮ → 'Get pre-filled link'. With these, every service CTA pre-selects the form automatically. Optional 'estimate' = short-answer question 'Indicative estimate (website से)'.",
+    "_readme": "Optional. entry.NNNNN numbers from the Form's pre-filled link. Leave a value empty to skip that prefill; the Form still opens, the visitor just picks that answer themselves.",
     "service_category": "",
     "sub_service": "",
     "offer_code": "",
-    "estimate": ""
+    "sample_or_estimate": "",
+    "_todo": "TODO (OWNER): 4 IDs — service_category, sub_service, offer_code, sample_or_estimate."
   },
   "_todo_entry_ids": "OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).",
   "categories": {

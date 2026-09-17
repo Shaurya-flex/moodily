@@ -761,3 +761,15 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
   .sample-filters .chip-row::-webkit-scrollbar{display:none}
   .sample-filters .chip-btn{flex:none;scroll-snap-align:start}
 }
+
+/* ---------------------------------------------------------------- affiliate disclosure
+   Never hidden in the footer or Terms: it sits with the content it describes. */
+.affiliate-disclosure{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r-input);
+  background:var(--accent-soft);padding:14px 18px;margin:0 0 22px}
+.affiliate-disclosure.is-off{border-left-color:var(--border-strong);background:var(--surface-sunken)}
+.affiliate-disclosure p{margin:0;font-size:.93rem}
+.affiliate-note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;
+  border-radius:var(--r-input);margin:0 0 16px}
+.paid-link{font-size:.82em;font-weight:700;color:var(--text-muted);white-space:nowrap}
+.amazon-link{font-weight:600}
+.amazon-link.is-off{font-weight:600;color:var(--text)}

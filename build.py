@@ -48,6 +48,7 @@ ROUTERS = load("data/routers.json")
 ESTIMATOR = load("data/estimator.json")
 REDIRECTS = {k: v for k, v in load("data/redirects.json").items() if not k.startswith("_")}
 EVIDENCE = load("data/evidence.json")
+AMAZON = SITE.get("amazon_associates") or {}
 SAMPLES = {x["id"]: x for x in load("data/samples.json")["samples"]}
 SCOPE_NOTE = SVC_DATA["scope_note"]
 TPC_LABELS = SVC_DATA["third_party_cost_labels"]
@@ -585,7 +586,15 @@ def c_lead_form(args, ctx):
         '<option value="{}">{}</option>'.format(s["id"], e(s["name"])) for s in SVC_DATA["services"]) + \
         '<option value="linkedin-payg">LinkedIn pay-as-you-go pack</option><option value="store-product">Store / digital product</option><option value="not-sure">पता नहीं — सुझाव चाहिए</option>'
     endpoint = SITE["form"].get("endpoint") or ""
+    # With no endpoint the form cannot reach a server, so it says so and hands off through WhatsApp in one tap.
+    # It must never look like a submission that Moodily has received.
+    posts = bool(endpoint)
     return FORM_TEMPLATE.format(endpoint=e(endpoint), success=e(SITE["form"]["success_path"]), roles=opt(roles),
+                                btn_class="btn-primary" if posts else "btn-wa",
+                                submit_label="Enquiry भेजें →" if posts else "WhatsApp पर भेजें →",
+                                route_note=("भेजने के बाद 1 working day में जवाब।" if posts else
+                                            "यह form WhatsApp पर भेजा जाएगा — button दबाते ही आपकी भरी हुई जानकारी के साथ "
+                                            "WhatsApp खुलेगा, बस Send दबाइए। तब तक Moodily तक कुछ नहीं पहुँचता।"),
                                 budgets=opt(budgets), services=service_opts, offer_id=e(OFFER["id"]) if OFFER_STATE else "",
                                 offer_note=e("आप {} offer ({}% छूट) के लिए enquiry कर रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।".format(
                                     OFFER.get("name", ""), OFFER.get("discount_pct", ""))))
@@ -620,7 +629,8 @@ FORM_TEMPLATE = """
   <div class="hp" aria-hidden="true"><label for="f-company">Company</label><input id="f-company" name="company_hp" tabindex="-1" autocomplete="off"></div>
   <div class="field consent"><input id="f-consent" name="consent" type="checkbox" value="yes" required><label for="f-consent">मैं सहमत हूँ कि Moodily इस enquiry के बारे में मुझसे WhatsApp/email पर संपर्क करे। *</label></div>
   <p class="form-error" id="formError" role="alert" hidden></p>
-  <button class="btn btn-primary btn-lg btn-block" type="submit">Enquiry भेजें →</button>
+  <button class="btn {btn_class} btn-lg btn-block" type="submit">{submit_label}</button>
+  <p class="small muted" id="formRoute">{route_note}</p>
 </form>
 """
 
@@ -715,6 +725,18 @@ def _validate_catalogue_intake():
 
 
 _validate_catalogue_intake()
+
+
+def validate_amazon():
+    """Refuse to build a half-configured affiliate programme."""
+    if AMAZON.get("enabled") and not AMAZON.get("tag"):
+        raise SystemExit("site.json: amazon_associates.enabled is true but tag is empty — untagged affiliate links would earn nothing and mislead readers")
+    if AMAZON.get("disclosure_enabled") and not AMAZON.get("enabled"):
+        raise SystemExit("site.json: amazon_associates.disclosure_enabled is true while the programme is off — that claims earnings Moodily does not make")
+    if AMAZON.get("enabled") and not AMAZON.get("disclosure_enabled"):
+        raise SystemExit("site.json: affiliate links are enabled without disclosure_enabled — disclosure is required, not optional")
+    if AMAZON.get("enabled") and not AMAZON.get("approved_properties"):
+        raise SystemExit("site.json: list the exact URLs approved in Associates Central before enabling affiliate links")
 
 
 def validate_commerce():
@@ -1509,6 +1531,56 @@ def c_evidence(args, ctx):
     return '<div class="evidence-grid">{}</div>{}{}'.format("".join(cards), "".join(means), note)
 
 
+# ------------------------------------------------- Amazon Associates (inert until configured)
+# Nothing here renders an affiliate link, a tag or an earnings claim unless the owner has both
+# enabled the programme AND supplied a real Associate tracking ID. A missing tag is a build error
+# at the point of use, never a silently broken or untagged link.
+def amazon_live():
+    return bool(AMAZON.get("enabled")) and bool(AMAZON.get("tag"))
+
+
+def amazon_disclosure(inline=False):
+    """The required statement. Shown only when affiliate links are actually live on the page."""
+    if not amazon_live() or not AMAZON.get("disclosure_enabled"):
+        return ""
+    if inline:
+        return '<p class="affiliate-note small">इस section में कुछ links affiliate links हैं <span class="paid-link">(paid link)</span>. {}</p>'.format(
+            e(AMAZON_STATEMENT))
+    return ('<aside class="affiliate-disclosure" role="note"><p><strong>Affiliate disclosure.</strong> {} '
+            '<a href="/affiliate-disclosure/">पूरी जानकारी</a></p></aside>').format(e(AMAZON_STATEMENT))
+
+
+AMAZON_STATEMENT = "As an Amazon Associate I earn from qualifying purchases."
+
+
+def c_affiliate_disclosure(args, ctx):
+    if amazon_live() and AMAZON.get("disclosure_enabled"):
+        return amazon_disclosure(inline=args.get("inline") == "yes")
+    # Programme off: say what is true today rather than claiming earnings that do not exist.
+    return ('<aside class="affiliate-disclosure is-off" role="note"><p><strong>Affiliate disclosure.</strong> '
+            'Moodily अभी किसी affiliate link से कोई commission नहीं कमाता। अगर आगे ऐसा होता है, '
+            'हर ऐसी जगह पर साफ़ लिखा जाएगा — <a href="/affiliate-disclosure/">Affiliate disclosure</a>.</p></aside>')
+
+
+def c_amazon_link(args, ctx):
+    """A single Special Link. Refuses to render without a real tag — never a fabricated one."""
+    name = args.get("name") or ""
+    url = args.get("url") or ""
+    if not name:
+        raise SystemExit("@amazon-link needs a product name in {}".format(ctx["file"]))
+    if not amazon_live():
+        # Name the product, link nowhere. The page keeps its editorial value with no dead affiliate stub.
+        return '<span class="amazon-link is-off">{}</span>'.format(e(name))
+    if not url or "amazon." not in url:
+        raise SystemExit("@amazon-link for '{}' needs a real amazon.in product URL in {}".format(name, ctx["file"]))
+    joiner = "&" if "?" in url else "?"
+    href = "{}{}tag={}".format(url, joiner, AMAZON["tag"])
+    return ('<a class="amazon-link" href="{href}" rel="nofollow sponsored noopener" target="_blank" '
+            'data-track="affiliate_link_click" data-label="{slug}">{name} — Amazon पर आज का price देखें '
+            '<span class="paid-link">(paid link)</span></a>').format(
+        href=e(href), slug=e(args.get("id") or name.lower().replace(" ", "-")[:40]), name=e(name))
+
+
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
@@ -1520,7 +1592,7 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
+    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1708,7 +1780,7 @@ def footer():
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
     <div><h2 class="footer-h">Company</h2><ul>
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
-      <li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li><li><a href="/refund/">Refund policy</a></li></ul></div>
+      <li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li><li><a href="/refund/">Refund policy</a></li><li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li></ul></div>
   </div>
   <p class="footer-note small muted">Moodily curates learning paths using courses offered by recognised providers. Certificates, where applicable, are issued by the respective providers. Moodily has no official partnership with the providers listed unless stated. Some tool links may be affiliate links and are labelled.</p>
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
@@ -2031,6 +2103,7 @@ def main():
     validate_services()
     validate_offer()
     validate_commerce()
+    validate_amazon()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 
