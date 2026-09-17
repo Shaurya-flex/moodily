@@ -1270,41 +1270,97 @@ def c_promises(args, ctx):
 # Tiny inline SVG mockups. Inline so they theme with currentColor, add no requests and
 # no image files to the repo. Every one is aria-hidden with the meaning carried in text.
 def _mock(kind):
-    box = '<svg class="ba-mock" viewBox="0 0 320 132" role="img" aria-hidden="true" focusable="false">'
-    bg = '<rect width="320" height="132" fill="var(--surface-sunken)"/>'
-    def bar(x, y, w, h, c="var(--border-strong)", r=3):
-        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, r, c)
-    P, A, G = "var(--primary)", "var(--accent)", "var(--success)"
-    if kind == "gbp-before":
-        inner = bar(16, 16, 96, 60, "var(--border)") + bar(124, 18, 120, 9) + bar(124, 34, 90, 7) + bar(124, 48, 150, 7) + bar(16, 88, 130, 8) + bar(16, 104, 80, 8)
-    elif kind == "gbp-after":
-        inner = (bar(16, 16, 96, 60, P, 6) + bar(124, 18, 150, 9, "var(--text)") + bar(124, 34, 110, 7) + bar(124, 48, 170, 7)
-                 + bar(124, 62, 60, 14, G, 7) + bar(16, 88, 130, 8, P) + bar(158, 88, 60, 8, A) + bar(16, 104, 180, 8))
-    elif kind == "wa-before":
-        inner = bar(16, 16, 288, 26, "var(--border)") + bar(16, 52, 180, 8) + bar(16, 70, 140, 8) + bar(16, 96, 100, 20, "var(--border)", 10)
-    elif kind == "wa-after":
-        inner = (bar(16, 16, 288, 26, "var(--surface)", 6) + bar(24, 24, 120, 10, "var(--text)") + bar(16, 52, 130, 22, G, 11)
-                 + bar(158, 52, 130, 22, P, 11) + bar(16, 86, 288, 30, "var(--surface)", 6) + bar(24, 96, 200, 10) + bar(236, 94, 60, 14, A, 7))
-    elif kind == "doc-before":
-        inner = bar(16, 14, 60, 104, "var(--border)") + bar(90, 18, 150, 9) + bar(90, 34, 120, 7) + bar(90, 48, 190, 7) + bar(90, 62, 100, 7)
-    elif kind == "doc-after":
-        inner = (bar(16, 14, 60, 104, P, 6) + bar(90, 18, 190, 9, "var(--text)") + bar(90, 34, 150, 7) + bar(90, 48, 200, 7)
-                 + bar(90, 66, 88, 18, A, 9) + bar(186, 66, 88, 18, "var(--surface)", 9) + bar(90, 94, 190, 7) + bar(90, 108, 120, 7))
-    else:
-        inner = ""
-    return box + bg + inner + "</svg>"
+    """Illustrative interface mockups, inline SVG. Never a real screenshot, never real client data.
+
+    'before' states are deliberately sparse: missing photos, blank fields, no way to act.
+    'after' states show what a finished Moodily handover actually looks like — a business that can
+    be found, judged and contacted. Every one is captioned as a sample in the markup around it.
+    """
+    P, A, G, S = "var(--primary)", "var(--accent)", "var(--success)", "var(--secondary)"
+    MUT, LINE, CARD, SUNK = "var(--border-strong)", "var(--border)", "var(--surface)", "var(--surface-sunken)"
+
+    def r(x, y, w, h, c=MUT, rad=3):
+        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, rad, c)
+
+    def star(cx, cy, c=A, sc=1.0):
+        pts = "0,-5 1.5,-1.6 5,-1.6 2.2,0.7 3.1,4.2 0,2.2 -3.1,4.2 -2.2,0.7 -5,-1.6 -1.5,-1.6"
+        return '<polygon points="{}" fill="{}" transform="translate({},{}) scale({})"/>'.format(pts, c, cx, cy, sc)
+
+    def stars(x, y, n=5, filled=5):
+        return "".join(star(x + i * 13, y, A if i < filled else LINE) for i in range(n))
+
+    def pin(cx, cy, c=A):
+        return ('<path d="M{cx} {t}c-4.4 0-8 3.6-8 8 0 5.6 8 13 8 13s8-7.4 8-13c0-4.4-3.6-8-8-8z" fill="{c}"/>'
+                '<circle cx="{cx}" cy="{ic}" r="3" fill="#fff"/>').format(cx=cx, t=cy - 10, ic=cy - 2, c=c)
+
+    def chip(x, y, w, c, label_c=None):
+        return r(x, y, w, 15, c, 7)
+
+    # a faint map backdrop: roads only, no real geography
+    def maplet(x, y, w, h):
+        return (r(x, y, w, h, SUNK, 6)
+                + '<path d="M{a} {b}h{w}M{a} {c}h{w}M{d} {y}v{h}M{e} {y}v{h}" stroke="{l}" stroke-width="2" fill="none" opacity=".9"/>'.format(
+                    a=x, b=y + h * 0.34, c=y + h * 0.7, w=w, d=x + w * 0.3, e=x + w * 0.68, y=y, h=h, l=LINE))
+
+    M = {}
+    # ---- local business: an unfindable shop vs a shop you can find, judge and contact
+    M["gbp-before"] = (r(14, 14, 78, 54, LINE, 6) + '<text x="53" y="45" font-size="11" fill="{}" text-anchor="middle">no photo</text>'.format(MUT)
+                       + r(102, 16, 104, 10, MUT) + r(102, 32, 62, 7) + r(102, 46, 44, 7)
+                       + stars(108, 62, 5, 0) + r(176, 57, 30, 8)
+                       + r(14, 80, 120, 8) + r(14, 94, 86, 8)
+                       + r(14, 112, 238, 22, SUNK, 11) + '<text x="133" y="127" font-size="10" fill="{}" text-anchor="middle">कोई action button नहीं</text>'.format(MUT))
+    M["gbp-after"] = (maplet(14, 12, 104, 74) + pin(66, 56, A)
+                      + r(126, 14, 110, 11, "var(--text)") + stars(128, 36) + r(196, 31, 40, 9, G, 4)
+                      + r(126, 50, 92, 7) + r(126, 62, 66, 7)
+                      + r(126, 76, 26, 26, LINE, 4) + r(156, 76, 26, 26, LINE, 4) + r(186, 76, 26, 26, LINE, 4) + r(216, 76, 26, 26, LINE, 4)
+                      + chip(14, 96, 48, P) + chip(66, 96, 48, G)
+                      + chip(14, 116, 74, P) + chip(94, 116, 74, G) + chip(174, 116, 78, A))
+    # ---- coaching / library: fees on the phone vs a page that answers and captures
+    M["wa-before"] = (r(14, 14, 238, 26, LINE, 6) + '<text x="133" y="31" font-size="10" fill="{}" text-anchor="middle">"fees kitni hai?" — हर बार call</text>'.format(MUT)
+                      + r(14, 50, 150, 8) + r(14, 64, 116, 8) + r(14, 78, 134, 8)
+                      + r(14, 100, 96, 22, SUNK, 11) + '<text x="62" y="115" font-size="10" fill="{}" text-anchor="middle">no page</text>'.format(MUT))
+    M["wa-after"] = (r(14, 12, 238, 30, CARD, 6) + r(24, 20, 104, 12, "var(--text)") + chip(200, 19, 44, G)
+                     + r(14, 50, 114, 34, SUNK, 6) + r(24, 58, 60, 8, P) + r(24, 70, 84, 6)
+                     + r(138, 50, 114, 34, SUNK, 6) + r(148, 58, 60, 8, P) + r(148, 70, 84, 6)
+                     + r(14, 92, 238, 20, CARD, 6) + r(24, 99, 120, 7) + chip(196, 94, 48, A)
+                     + chip(14, 118, 114, P) + chip(138, 118, 114, G))
+    # ---- professional / creator: scattered files vs a presence that sells for you
+    M["doc-before"] = (r(14, 14, 56, 46, LINE, 4) + r(78, 14, 56, 46, LINE, 4) + r(142, 14, 56, 46, LINE, 4) + r(206, 14, 46, 46, LINE, 4)
+                       + '<text x="133" y="80" font-size="10" fill="{}" text-anchor="middle">files इधर-उधर</text>'.format(MUT)
+                       + r(14, 92, 150, 8) + r(14, 106, 104, 8) + r(14, 120, 128, 8))
+    M["doc-after"] = (r(14, 12, 238, 20, CARD, 6) + r(24, 18, 44, 8, "var(--text)") + chip(206, 15, 38, A)
+                      + r(14, 40, 140, 12, "var(--text)") + r(14, 58, 104, 7) + r(14, 70, 122, 7)
+                      + chip(14, 84, 70, P) + chip(90, 84, 64, G)
+                      + r(166, 40, 86, 62, SUNK, 6) + r(176, 50, 66, 8, P) + r(176, 62, 52, 6) + r(176, 74, 66, 6) + chip(176, 86, 46, A)
+                      + r(14, 112, 238, 22, SUNK, 6) + r(24, 120, 96, 7) + chip(196, 115, 48, G))
+    art = M.get(kind, "")
+    return ('<svg class="ba-mock" viewBox="0 0 266 148" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet">'
+            '<rect width="266" height="148" fill="{}"/>{}</svg>').format(
+        e(BA_MOCK_ALT.get(kind, "Illustrative interface sample")), "var(--surface-sunken)", art)
+
+
+BA_MOCK_ALT = {
+    "gbp-before": "नमूना: अधूरी business listing — कोई photo नहीं, कोई rating नहीं, कोई action button नहीं",
+    "gbp-after": "नमूना: पूरी business listing — map पर pin, rating, photos और call/WhatsApp/directions buttons",
+    "wa-before": "नमूना: fees और batch की जानकारी सिर्फ़ call पर, कोई course page नहीं",
+    "wa-after": "नमूना: course और batch cards, WhatsApp enquiry button और brochure download",
+    "doc-before": "नमूना: काम बिखरी हुई files में, भेजने लायक कुछ नहीं",
+    "doc-after": "नमूना: एक page जो काम दिखाता है, साथ में lead magnet और enquiry form",
+}
+
 
 
 BA_EXAMPLES = [
     {"h": "दुकान / local business", "sub": "एक ऐसी दुकान जो Google पर अधूरी दिखती है",
      "mock": "gbp", "before": ["Google listing अधूरी — गलत समय, पुराना नंबर", "WhatsApp पर enquiry का कोई साफ़ रास्ता नहीं",
                                "न website, न digital catalogue", "हर जगह अलग-अलग नाम और logo"],
-     "after": ["Google Business Profile पूरी — photos, services, सही समय", "WhatsApp पर एक साफ़ enquiry button",
-               "Digital catalogue जो chat में भेजा जा सके", "Landing page और counter पर review QR"]},
+     "after": ["Google Maps पर pin, सही समय और directions", "Photos, services और rate list — सब listing पर",
+               "Call · WhatsApp · Directions — तीनों एक tap पर", "Counter पर review QR, ताकि rating असली ग्राहकों से बने",
+               "Digital catalogue जो chat में भेजा जा सके"]},
     {"h": "Coaching / library", "sub": "एक coaching centre जहाँ हर जानकारी फ़ोन पर ही मिलती है",
      "mock": "wa", "before": ["Batch और fees की जानकारी सिर्फ़ call पर", "कोई course brochure नहीं",
                               "Enquiry कहाँ आई, कहाँ गई — पता नहीं", "Study material बिखरा हुआ"],
-     "after": ["Course और batch page, fees के साथ", "WhatsApp enquiry जो अपने आप record होती है",
+     "after": ["Course और batch cards, fees लिखी हुई", "WhatsApp enquiry button — हर पूछने वाला record होता है",
                "Digital brochure — PDF और link दोनों", "Google पर centre दिखता है, study resources एक जगह"]},
     {"h": "Manufacturer / B2B", "sub": "एक manufacturer जो अब तक marketplace और जान-पहचान पर चलता है",
      "mock": "doc", "before": ["Catalogue हर buyer को हाथ से भेजना पड़ता है", "अपनी कोई website नहीं — सिर्फ़ marketplace listing",
@@ -1319,8 +1375,8 @@ BA_EXAMPLES = [
     {"h": "Professional / creator", "sub": "एक consultant जिसका काम अच्छा है पर दिखता नहीं",
      "mock": "doc", "before": ["सालों का knowledge files में बिखरा", "Presentation हर बार नए सिरे से बनती है",
                                "कोई ऐसा asset नहीं जो lead लाए", "पूछने वाले को भेजने के लिए कुछ नहीं"],
-     "after": ["एक website जो काम का सबूत देती है", "तैयार PPT / pitch deck template",
-               "Lead magnet — guide, checklist या report", "Content assets और एक structured enquiry form"]},
+     "after": ["एक page जो काम का सबूत देता है", "तैयार PPT / pitch deck template",
+               "Lead magnet — guide, checklist या report", "Structured enquiry form, ताकि कोई पूछने वाला छूटे नहीं"]},
 ]
 
 
@@ -1330,16 +1386,17 @@ def c_before_after_saathi(args, ctx):
     for i, x in enumerate(BA_EXAMPLES, 1):
         out.append(
             '<article class="ba-card"><header><h3>{h}</h3><p>{sub}</p></header><div class="ba-split">'
-            '<div class="ba-side is-before"><p class="ba-label is-before">पहले</p>{mb}<ul>{before}</ul></div>'
+            '<div class="ba-side is-before"><p class="ba-label is-before">पहले</p><figure class="ba-fig">{mb}'
+            '<figcaption>नमूना चित्र · illustrative</figcaption></figure><ul>{before}</ul></div>'
             '<div class="ba-step" aria-hidden="true"><span>→</span></div>'
-            '<div class="ba-side is-after"><p class="ba-label is-after">Moodily के बाद</p>{ma}<ul>{after}</ul></div>'
+            '<div class="ba-side is-after"><p class="ba-label is-after">Moodily के बाद</p><figure class="ba-fig">{ma}'
+            '<figcaption>नमूना चित्र · illustrative</figcaption></figure><ul>{after}</ul></div>'
             '</div></article>'.format(
                 h=e(x["h"]), sub=e(x["sub"]), mb=_mock(x["mock"] + "-before"), ma=_mock(x["mock"] + "-after"),
                 before="".join("<li>{}</li>".format(e(b)) for b in x["before"]),
                 after="".join("<li>{}</li>".format(e(a)) for a in x["after"])))
-    note = ('<p class="small muted" style="margin-top:16px">ये तीनों उदाहरण हैं — यह दिखाने के लिए कि किस तरह का काम होता है। '
-            'किसी client का नाम, number या result यहाँ नहीं है। असली काम <a href="#work">samples</a> और '
-            '<a href="/case-studies/">case studies</a> में है।</p>')
+    note = ('<p class="small muted ba-note">ऊपर के चित्र नमूने हैं — किसी client का नाम, number या result नहीं। '
+            'असली काम <a href="#work">samples</a> और <a href="/case-studies/">case studies</a> में देखिए।</p>')
     return '<div class="ba-saathi">{}</div>{}'.format("".join(out), note)
 
 
@@ -1558,31 +1615,37 @@ def c_sample_grid(args, ctx):
 
 
 def c_evidence(args, ctx):
-    """Verified, India-specific numbers only. A card without source + year + link is a build error."""
+    """Verified India-only numbers, each paired with the action it implies.
+
+    One card = one number + what it measures + what to do about it + the source. Pairing the
+    'so what' with the number (instead of a separate block of three) keeps it useful rather than
+    reading like a report dump. A card missing source, year or link is a build error.
+    """
+    means = {m.get("card"): m for m in EVIDENCE["means"] if m.get("card")}
     cards = []
     for cd in EVIDENCE["cards"]:
         for key in ("number", "claim", "source", "year", "url", "context"):
             if not cd.get(key):
                 raise SystemExit("evidence.json: {} is missing {} — a number without a checkable source is not published".format(cd.get("id"), key))
+        act = means.get(cd["id"])
+        action = ""
+        if act:
+            links = " · ".join('<a href="{}#{}">{}</a>'.format(SERVICES[x]["page"], x, e(SERVICES[x]["name"]))
+                               for x in act.get("services", []) if x in SERVICES)
+            action = ('<div class="evidence-act"><p class="evidence-act-h">आपको क्या करना चाहिए</p>'
+                      '<p>{do}</p><p class="small">{links}</p></div>').format(do=e(act["solution"]), links=links)
         cards.append(
-            '<article class="evidence" data-view="evidence_card_view|{id}"><p class="evidence-num">{num}</p>'
-            '<p class="evidence-claim">{claim}</p><p class="small muted">{ctx}</p>'
-            '<p class="evidence-src">Source: <a href="{url}" rel="nofollow noopener" target="_blank">{src}</a> · {year}</p></article>'.format(
-                id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=e(cd["context"]),
-                url=e(cd["url"]), src=e(cd["source"]), year=e(cd["year"])))
-    means = []
-    for m in EVIDENCE["means"]:
-        links = " · ".join('<a href="{}#{}">{}</a>'.format(SERVICES[s]["page"], s, e(SERVICES[s]["name"]))
-                           for s in m["services"] if s in SERVICES)
-        means.append('<div class="means"><h3>आपके business के लिए इसका मतलब</h3><dl>'
-                     '<div><dt>क्या हो रहा है</dt><dd>{t}</dd></div>'
-                     '<div><dt>आपके लिए मतलब</dt><dd>{i}</dd></div>'
-                     '<div><dt>क्या करें</dt><dd>{s}<br><span class="small">{l}</span></dd></div></dl></div>'.format(
-                         t=e(m["trend"]), i=e(m["implication"]), s=e(m["solution"]), l=links))
-    note = ('<p class="small muted" style="margin-top:16px">हर आँकड़ा भारत का है, source और साल के साथ। '
-            'दूसरे देश का आँकड़ा भारत के नाम पर नहीं दिखाया जाता। पिछली जाँच: {} · अगली जाँच: {}।</p>').format(
-        e(EVIDENCE["last_reviewed"]), e(EVIDENCE["review_due"]))
-    return '<div class="evidence-grid">{}</div>{}{}'.format("".join(cards), "".join(means), note)
+            '<article class="evidence" data-view="evidence_card_view|{id}">'
+            '<p class="evidence-num">{num}</p><p class="evidence-claim">{claim}</p>'
+            '<p class="evidence-src">{src} · {year} · <a href="{url}" rel="nofollow noopener" target="_blank">source</a></p>'
+            '{action}</article>'.format(
+                id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]),
+                url=e(cd["url"]), src=e(cd["source"].split(",")[0]), year=e(cd["year"]), action=action))
+    note = ('<p class="small muted evidence-note">हर आँकड़ा भारत का है, source और साल के साथ — दूसरे देश का आँकड़ा '
+            'भारत के नाम पर नहीं दिखाया जाता। ये आँकड़े बाज़ार के बारे में हैं, किसी एक business के नतीजे की guarantee नहीं। '
+            'पिछली जाँच: {}।</p>').format(e(EVIDENCE["last_reviewed"]))
+    return '<div class="evidence-grid">{}</div>{}'.format("".join(cards), note)
+
 
 
 # ------------------------------------------------- Amazon Associates (inert until configured)
