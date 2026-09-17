@@ -178,12 +178,24 @@ def check_commerce(pages):
             fail(rel, "before/after without a concept label")
         if 'id="estimator"' in text and "Final quote after reviewing requirement" not in text:
             fail(rel, "estimator without the final-quote disclaimer")
+    service_ids = {x["id"] for x in json.loads((ROOT / "src/data/services.json").read_text(encoding="utf-8"))["services"]}
     for smp in json.loads((ROOT / "src/data/samples.json").read_text(encoding="utf-8"))["samples"]:
-        f = ROOT / smp["image"].lstrip("/")
-        if not f.exists():
-            fail("samples.json", "missing image " + smp["image"])
-        elif f.stat().st_size > 300000:
-            fail("samples.json", "{} is {} KB — publish an optimized derivative".format(smp["image"], f.stat().st_size // 1024))
+        if smp.get("image"):
+            f = ROOT / smp["image"].lstrip("/")
+            if not f.exists():
+                fail("samples.json", "missing image " + smp["image"])
+            elif f.stat().st_size > 300000:
+                fail("samples.json", "{} is {} KB — publish an optimized derivative".format(smp["image"], f.stat().st_size // 1024))
+        elif not smp.get("preview"):
+            fail("samples.json", smp["id"] + " has neither an image nor a concept preview")
+        # the sample catalogue must never carry its own price — services.json is the one registry
+        for key in ("price", "price_from", "amount", "starting_price"):
+            if key in smp:
+                fail("samples.json", "{} carries its own {} — price must come from services.json".format(smp["id"], key))
+        if smp.get("slug") and smp.get("service") and smp["service"] not in service_ids:
+            fail("samples.json", "{} references unknown service {}".format(smp["id"], smp["service"]))
+        if smp.get("sample_type") == "concept" and smp.get("kind") == "client":
+            fail("samples.json", smp["id"] + " is a concept but labelled as client work")
     redirects = json.loads((ROOT / "src/data/redirects.json").read_text(encoding="utf-8"))
     for old, new in redirects.items():
         if old.startswith("_"):

@@ -145,6 +145,84 @@
     track('language_switch', { label: next });
   });
 
+  // ---------- sample catalogue: search + browse-by-need + browse-by-customer-type
+  var grid = document.querySelector('[data-sample-grid]');
+  if (grid) {
+    var tiles = [].slice.call(grid.querySelectorAll('.sample-tile'));
+    var search = document.getElementById('sampleSearch');
+    var countEl = document.querySelector('[data-sample-count]');
+    var emptyEl = document.querySelector('[data-sample-empty]');
+    var state = { cat: '', type: '', q: '' };
+
+    function apply() {
+      var shown = 0;
+      tiles.forEach(function (t) {
+        var okCat = !state.cat || t.getAttribute('data-cat') === state.cat;
+        var okType = !state.type || (' ' + t.getAttribute('data-types') + ' ').indexOf(' ' + state.type + ' ') > -1;
+        var okQ = !state.q || t.getAttribute('data-search').indexOf(state.q) > -1;
+        var show = okCat && okType && okQ;
+        t.hidden = !show;
+        if (show) shown++;
+      });
+      if (countEl) countEl.textContent = shown + ' sample' + (shown === 1 ? '' : 's');
+      if (emptyEl) emptyEl.hidden = shown !== 0;
+    }
+    function press(group, value) {
+      document.querySelectorAll('[data-filter-' + group + ']').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-filter-' + group) === value));
+      });
+    }
+    document.querySelectorAll('[data-filter-cat]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.cat = b.getAttribute('data-filter-cat'); press('cat', state.cat); apply();
+        if (state.cat) track('sample_filter', { label: 'need:' + state.cat });
+      });
+    });
+    document.querySelectorAll('[data-filter-type]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.type = b.getAttribute('data-filter-type'); press('type', state.type); apply();
+        if (state.type) track('sample_filter', { label: 'who:' + state.type });
+      });
+    });
+    if (search) {
+      var t0;
+      search.addEventListener('input', function () {
+        state.q = search.value.trim().toLowerCase();
+        apply();
+        clearTimeout(t0);
+        t0 = setTimeout(function () { if (state.q) track('sample_search', { label: state.q.slice(0, 40) }); }, 800);
+      });
+    }
+    // deep link: /samples/?need=ppt or ?who=coaching-library
+    try {
+      var qp = new URLSearchParams(location.search);
+      if (qp.get('need')) { state.cat = qp.get('need'); press('cat', state.cat); }
+      if (qp.get('who')) { state.type = qp.get('who'); press('type', state.type); }
+    } catch (e) {}
+    apply();
+  }
+
+  // sample_card_view: fire once per tile when half of it has been seen
+  if ('IntersectionObserver' in window) {
+    var sseen = {};
+    var sio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var slug = en.target.getAttribute('data-sample');
+        if (en.isIntersecting && !sseen[slug]) { sseen[slug] = 1; track('sample_card_view', { label: slug }); sio.unobserve(en.target); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.sample-tile[data-sample]').forEach(function (el) { sio.observe(el); });
+    // before_after_view / evidence_card_view
+    var vseen = {};
+    var vio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var ev = en.target.getAttribute('data-view');
+        if (en.isIntersecting && !vseen[ev]) { vseen[ev] = 1; track(ev.split('|')[0], { label: ev.split('|')[1] || '' }); vio.unobserve(en.target); }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('[data-view]').forEach(function (el) { vio.observe(el); });
+  }
+
   // ---------- legacy anchors from the old single-page site
   var legacy = { '#curriculum': '/learn/#curriculum', '#learn': '/learn/', '#services': '/services/ai-workflows/', '#linkedin': '/services/professionals/#linkedin', '#tools': '/tools/', '#intake': '/contact/', '#weekly-tip': '/learn/#weekly-tip', '#why': '/about/' };
   if (location.pathname === '/' && legacy[location.hash]) location.replace(legacy[location.hash]);
@@ -408,6 +486,8 @@
     var sid = q.get('service') || '';
     var svc = (cfg.services || {})[sid];
     var offerOn = !!(svc && svc.offer_price && cfg.offer && cfg.offer.active && q.get('offer') === cfg.offer.id && !root.classList.contains('offer-ended'));
+    var sampleSlug = (q.get('sample') || '').replace(/[^a-z0-9-]/gi, '').slice(0, 60);
+    var sampleName = (cfg.samples || {})[sampleSlug] || '';
     var est = (q.get('estimate') || '').match(/^(\d{3,7})-(\d{3,7})$/);
     var estText = est ? '₹' + Number(est[1]).toLocaleString('en-IN') + '–₹' + Number(est[2]).toLocaleString('en-IN') : '';
     if (svc) {
@@ -422,6 +502,15 @@
         note.hidden = false;
         note.textContent = 'आप ' + cfg.offer.name + ' offer के लिए requirement भेज रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।';
       }
+    }
+    if (sampleName) {
+      var sNote = document.getElementById('intakeSample');
+      if (sNote) {
+        sNote.hidden = false;
+        sNote.innerHTML = 'Sample: <a href="/samples/' + sampleSlug + '/">' + sampleName + '</a> — इसी तरह का काम आपके लिए customize होगा।';
+      }
+      document.getElementById('intakeContext').hidden = false;
+      track('customize_sample_start', { label: sampleSlug });
     }
     if (estText) {
       var estNote = document.getElementById('intakeEstimate');
@@ -440,7 +529,8 @@
     }
     var wa = document.getElementById('intakeWa');
     if (wa && svc) {
-      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' + (estText ? 'Website estimate: ' + estText + '\n' : '') +
+      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' +
+        (sampleName ? 'Sample: ' + sampleName + ' (moodily.in/samples/' + sampleSlug + '/)\n' : '') + (estText ? 'Website estimate: ' + estText + '\n' : '') +
         'Main [role] hoon.\nCity [city] hai.\nDeadline [deadline] hai.\nBudget approx [budget] hai.\nReference/website link [URL] hai.';
       wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent(text));
       wa.setAttribute('data-label', 'intake-' + sid);

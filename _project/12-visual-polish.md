@@ -114,3 +114,79 @@ Both use **inline SVG** — no new image files, no requests, and they theme with
 
 Roughly 60 lines of CSS. No orphaned image assets. Two dead rules added during this pass
 (`btn-ghost`, `case-grid`) were removed straight away.
+
+---
+
+# Phase 2 — Sample catalogue (2026-09-17)
+
+Extends the visual-polish baseline. Nothing from Phase 1 was reverted.
+
+## Sample registry — one file, no parallel pricing
+
+`src/data/samples.json` is the single catalogue registry. **No sample carries a price.**
+Each maps to a `service` id and the price, timeline and revisions are read from
+`src/data/services.json` at build time. Both `build.py` and `tests/check_site.py` now *fail the
+build* if a sample grows a `price`, `price_from`, `amount` or `starting_price` key, or references
+an unknown service, customer type or case study.
+
+17 samples: **5 with real web-optimised assets**, **12 concept previews**.
+Types present: 2 Moodily-internal, 3 self-initiated, 12 concept. **Zero claim to be client work.**
+
+## Asset policy (no storage clutter)
+
+Concept previews are **inline SVG generated in `build.py`** (`_sample_preview`), not image files.
+Phase 2 therefore added **0 bytes** of binary assets — 14 inline previews across the site.
+Real assets remain the five existing `.webp` files under `/assets/img/samples/`; none were
+duplicated, renamed or re-encoded. The registry holds the canonical path; there is no second copy.
+
+## Evidence — verified, India-only
+
+`src/data/evidence.json`. Three cards, each with source, year, link and context. `build.py`
+refuses to render a card missing any of those fields.
+
+| Number | Claim | Source |
+|---|---|---|
+| 109 करोड़ | India internet subscribers (1,092.79 M, 31 Mar 2026) | TRAI, Indian Telecom Services Performance Indicator Report Jan–Mar 2026, via PIB |
+| 57% | of active internet users are rural (~548 M of 958 M) | IAMAI–Kantar, Internet in India Report 2025 |
+| 61% | watched short-video content in 2025 (588 M) | IAMAI–Kantar, Internet in India Report 2025 |
+
+UPI/NPCI figures were researched but **omitted**: the monthly volume could only be confirmed
+through secondary reporting, not NPCI or PIB directly (both blocked automated fetch). Per the
+brief, a weak source means no card. Each entry carries `last_reviewed` and `review_due`
+(2027-03-31) so the numbers do not quietly go stale.
+
+No causal claim is made anywhere. Every statistic is followed by a
+"आपके business के लिए इसका मतलब" block that turns the trend into a practical step and links
+the relevant services — trend → implication → what to do.
+
+## Routes added
+
+`/samples/` (catalogue, search + browse-by-need + browse-by-customer-type) and
+`/samples/<slug>/` × 17. 61 → **79 pages**, 45 → **63 sitemap URLs**.
+
+## Conversion journey
+
+Sample tile → `इसे मेरे लिए बनाइए` → `/contact/?service=<id>&sample=<slug>` → the enquiry page
+names the sample, shows the service and its price, and the WhatsApp hand-off carries
+`Sample: <title> (moodily.in/samples/<slug>/)`. The Google Form URL is still empty, so the
+built-in form is used; prefill support is already wired for when the form is configured.
+**No Form entry ID was invented.**
+
+## Analytics
+
+`samples_page_view`, `sample_card_view`, `sample_card_click`, `sample_detail_view`,
+`customize_sample_click`, `customize_sample_start`, `sample_filter`, `sample_search`,
+`evidence_card_view`, `before_after_view`, plus the existing quote/WhatsApp/form events.
+Labels only — no enquiry content is ever sent to analytics.
+
+## Bug found and fixed during QA
+
+The footer's `color:#dcdff0!important` was repainting `.btn-wa` inside the footer, dropping the
+WhatsApp button to **4.11:1**. The override is now scoped with `:not(.btn)`. Contrast audits on
+`/`, `/samples/` and a sample detail page measured from first paint: **0 failures in either theme.**
+
+## Still open
+
+- Google Form URL and entry IDs (owner).
+- The 11 case studies remain `draft`; sample pages link to them but the write-ups are unpublished.
+- 25 unused CSS classes — **re-audit deferred to after Phase 2 review, as instructed.**

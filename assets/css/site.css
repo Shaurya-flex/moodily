@@ -402,8 +402,8 @@ legend{font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-b
 .footer-h{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:#949ab5;margin-bottom:12px;font-family:var(--font);font-weight:700}
 .site-footer ul{list-style:none;padding:0;margin:0}
 .site-footer li{margin-bottom:8px}
-.site-footer li a,.site-footer a{color:#dcdff0!important;text-decoration:none;font-size:.93rem}
-.site-footer li a:hover,.site-footer a:hover{color:var(--accent-bright)!important;text-decoration:underline}
+.site-footer li a:not(.btn),.site-footer a:not(.btn){color:#dcdff0!important;text-decoration:none;font-size:.93rem}
+.site-footer li a:not(.btn):hover,.site-footer a:not(.btn):hover{color:var(--accent-bright)!important;text-decoration:underline}
 .footer-note{border-top:1px solid rgba(255,255,255,.12);margin-top:28px;padding-top:18px}
 .fab-wa{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:90;display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px;border-radius:var(--r-pill);background:var(--wa);color:var(--wa-on)!important;font-weight:600;text-decoration:none;box-shadow:var(--shadow-lg);transition:width .2s ease,padding .2s ease,opacity .2s ease}
 .fab-wa .ico{width:24px;height:24px;flex:none}
@@ -687,3 +687,65 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
 .score-done{background:var(--success-soft);color:var(--success)}
 .score-part{background:var(--warning-soft);color:var(--warning)}
 .score-fix{background:var(--danger-soft);color:var(--danger)}
+
+/* ---------------------------------------------------------------- sample catalogue
+   Native to the Moodily card system: same radius, border, hover and CTA hierarchy.
+   Nothing here should read as a separate "store" skin. */
+.sample-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:1000px){.sample-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.sample-grid{grid-template-columns:1fr}}
+.sample-tile{padding:0;overflow:hidden}
+.sample-tile>*:not(.sample-shot){margin-inline:clamp(16px,1.8vw,20px)}
+.sample-tile>.badge{margin-top:14px}
+.sample-tile h3{font-size:1.08rem;margin:0 0 6px}
+.sample-tile h3 a{color:var(--text);text-decoration:none}
+.sample-tile:hover h3 a{color:var(--primary)}
+.sample-who{font-size:.9rem;margin:0 0 6px;font-weight:600}
+.sample-solves{margin:0 0 10px;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sample-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:auto 0 2px}
+.sample-price{font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--primary)}
+.sample-tile .card-actions{margin-bottom:clamp(16px,1.8vw,20px);padding-top:12px}
+/* the work itself is the hero — no stock photography anywhere */
+.sample-shot{display:block;aspect-ratio:16/9;background:var(--surface-sunken);border-bottom:1px solid var(--border);overflow:hidden}
+.sample-shot img,.sample-shot svg{display:block;width:100%;height:100%;object-fit:cover}
+.sample-shot.is-concept{display:grid;place-items:center;padding:10px}
+.sample-shot.is-concept svg{object-fit:contain}
+.sample-tile[hidden]{display:none}
+
+.sample-filters{margin-bottom:22px}
+.sample-filters .finder-search{width:100%;flex:none;margin-bottom:14px}
+.filter-label{font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:0 0 8px}
+.sample-filters .chip-row{margin-bottom:14px}
+[data-sample-count]{margin:2px 0 0}
+
+/* detail page */
+.sample-detail-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(22px,3vw,44px);align-items:start}
+@media (max-width:900px){.sample-detail-grid{grid-template-columns:1fr}}
+.sample-detail-visual{position:sticky;top:80px}
+@media (max-width:900px){.sample-detail-visual{position:static}}
+.sample-detail-visual .sample-shot{aspect-ratio:auto;border:1px solid var(--border);border-radius:var(--r-lg);min-height:220px}
+.sample-fmt{margin-top:10px}
+.sample-detail .answer-dl{margin-top:0}
+.sample-detail .section{padding-top:var(--space-section);border-top:1px solid var(--border);margin-top:var(--space-section)}
+.sample-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.sample-grid-3{grid-template-columns:1fr}}
+
+/* ---------------------------------------------------------------- evidence cards
+   Every number carries its source, year and link. No number ships without one. */
+.evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.evidence-grid{grid-template-columns:1fr}}
+.evidence{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px)}
+.evidence-num{font-family:var(--font-display);font-size:clamp(2rem,4vw,2.6rem);font-weight:700;line-height:1;color:var(--primary);margin:0 0 8px}
+.evidence-claim{margin:0 0 12px;font-size:.97rem}
+.evidence-src{margin:auto 0 0;padding-top:12px;border-top:1px solid var(--border);font-size:.82rem;color:var(--text-muted)}
+.evidence-src a{color:var(--text-muted);text-decoration:underline}
+.evidence-src a:hover{color:var(--primary)}
+.means{background:var(--primary-soft);border:1px solid var(--border);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px);margin-top:var(--space-gap)}
+.means h3{margin:0 0 10px;font-size:1.06rem}
+.means dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 24px;margin:0}
+@media (max-width:760px){.means dl{grid-template-columns:1fr}}
+.means dt{font-size:.74rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted)}
+.means dd{margin:3px 0 0;font-size:.94rem}
+
+.sample-answers-h{font-size:1.1rem;margin:0 0 12px}
+.sample-detail-body .answer-dl{margin-top:0}

@@ -13,6 +13,7 @@ and may contain component tokens:
     <!--@services ids="a,b" -->   <!--@faq set="home" -->
 See _project/05-content-editing.md for the full list.
 """
+import collections
 import hashlib
 import html
 import json
@@ -46,6 +47,7 @@ LEARN = load("data/learn.json")
 ROUTERS = load("data/routers.json")
 ESTIMATOR = load("data/estimator.json")
 REDIRECTS = {k: v for k, v in load("data/redirects.json").items() if not k.startswith("_")}
+EVIDENCE = load("data/evidence.json")
 SAMPLES = {x["id"]: x for x in load("data/samples.json")["samples"]}
 SCOPE_NOTE = SVC_DATA["scope_note"]
 TPC_LABELS = SVC_DATA["third_party_cost_labels"]
@@ -739,14 +741,40 @@ def validate_commerce():
         for ok, what in checks:
             if not ok:
                 raise SystemExit("services.json: {} — invalid {}".format(x["id"], what))
+    ctype_ids = {c["id"] for c in ROUTERS["customer_types"]}
+    seen_slugs = set()
     for smp in SAMPLES.values():
         if smp.get("kind") not in KIND_LABEL:
             raise SystemExit("samples.json: {} needs kind self-initiated|client|concept".format(smp["id"]))
-        if not (ROOT / smp["image"].lstrip("/")).exists():
-            raise SystemExit("samples.json: image missing for {}".format(smp["id"]))
+        # a sample either ships a real, present asset or a named concept preview — never a broken image
+        if smp.get("image"):
+            if not (ROOT / smp["image"].lstrip("/")).exists():
+                raise SystemExit("samples.json: image missing for {}".format(smp["id"]))
+        elif not smp.get("preview"):
+            raise SystemExit("samples.json: {} needs either an image or a preview key".format(smp["id"]))
         for sid in smp.get("services", []):
             if sid not in SERVICES:
                 raise SystemExit("samples.json: {} references unknown service {}".format(smp["id"], sid))
+        if not smp.get("slug"):
+            continue
+        # catalogue entries carry the full model and must never invent a price of their own
+        if smp["slug"] in seen_slugs:
+            raise SystemExit("samples.json: duplicate slug {}".format(smp["slug"]))
+        seen_slugs.add(smp["slug"])
+        if smp.get("sample_type") not in SAMPLE_TYPE:
+            raise SystemExit("samples.json: {} needs sample_type real-client|moodily-internal|self-initiated|concept".format(smp["id"]))
+        if smp.get("category") not in SAMPLE_CATS:
+            raise SystemExit("samples.json: {} has unknown category {}".format(smp["id"], smp.get("category")))
+        if smp.get("service") and smp["service"] not in SERVICES:
+            raise SystemExit("samples.json: {} references unknown service {}".format(smp["id"], smp["service"]))
+        for t in smp.get("customer_types", []):
+            if t not in ctype_ids:
+                raise SystemExit("samples.json: {} has unknown customer_type {}".format(smp["id"], t))
+        if smp.get("case_study") and smp["case_study"] not in CASES_BY_SLUG:
+            raise SystemExit("samples.json: {} references unknown case study {}".format(smp["id"], smp["case_study"]))
+        for k in ("price", "price_from", "amount"):
+            if k in smp:
+                raise SystemExit("samples.json: {} must not carry its own {} — price comes from services.json".format(smp["id"], k))
     for p in ROUTERS["paths"]:
         for sid in p["price_services"]:
             if sid not in SERVICES:
@@ -818,13 +846,15 @@ def c_intake(args, ctx):
                          "prefill_url": (x.get("form_prefill_url") if x else "") or INTAKE.get("service_prefill_urls", {}).get(sid)
                          or INTAKE["categories"][cat].get("prefill_url") or "",
                          "page": "{}#{}".format(x["page"], sid) if x else ""}
-    cfg = {"form_url": form_url, "entry_ids": {k: v for k, v in INTAKE.get("entry_ids", {}).items() if not k.startswith("_")},
+    cfg = {"form_url": form_url, "samples": {x["slug"]: x["catalogue_title"] for x in SAMPLE_CATALOGUE},
+           "entry_ids": {k: v for k, v in INTAKE.get("entry_ids", {}).items() if not k.startswith("_")},
            "offer": {"id": OFFER.get("id"), "name": OFFER.get("name"), "pct": OFFER.get("discount_pct"), "active": bool(OFFER_STATE)},
            "services": services}
     cfg_json = json.dumps(cfg, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     context = ('<div class="card intake-context" id="intakeContext" hidden><p class="eyebrow">आपने चुना</p>'
                '<h2 class="intake-service" id="intakeService"></h2><p class="muted small" id="intakeCategory"></p>'
-               '<p class="price" id="intakePrice"></p><p class="notice small" id="intakeOffer" hidden></p><p class="notice small" id="intakeEstimate" hidden></p>'
+               '<p class="price" id="intakePrice"></p><p class="notice small" id="intakeSample" hidden></p>'
+               '<p class="notice small" id="intakeOffer" hidden></p><p class="notice small" id="intakeEstimate" hidden></p>'
                '<p class="small"><a id="intakeDetails" href="/services/">Package details</a> · <a href="/services/#finder">दूसरी service चुनें</a></p></div>')
     if form_url:
         main = ('<div class="card intake-cta featured"><p class="eyebrow">3–5 मिनट · कोई login नहीं</p><h2>Requirement form भरें</h2>'
@@ -887,12 +917,18 @@ def c_samples(args, ctx):
     cards = []
     for smp in items:
         fmts = ", ".join(FORMATS[f] for f in smp.get("formats", []))
-        cards.append('<figure class="card sample-card" data-sample="{id}"><div class="mock mock-{frame}"><div class="mock-screen">'
-                     '<img src="{img}" alt="{alt}" width="{w}" height="{h}" loading="lazy" decoding="async"></div></div>'
-                     '<figcaption><span class="badge badge-kind">{kind}</span><strong>{title}</strong><span class="small muted">{desc}</span>{fmts}</figcaption></figure>'.format(
-                         id=smp["id"], frame=e(smp["frame"]), img=e(smp["image"]), alt=e(smp["alt"]), w=smp["width"], h=smp["height"],
-                         kind=e(KIND_LABEL[smp["kind"]]), title=e(smp["title"]), desc=e(smp["description"]),
-                         fmts='<span class="small">Format: {}</span>'.format(e(fmts)) if fmts else ""))
+        if smp.get("image"):
+            visual = ('<div class="mock mock-{frame}"><div class="mock-screen"><img src="{img}" alt="{alt}" '
+                      'width="{w}" height="{h}" loading="lazy" decoding="async"></div></div>').format(
+                frame=e(smp["frame"]), img=e(smp["image"]), alt=e(smp["alt"]), w=smp["width"], h=smp["height"])
+        else:
+            visual = '<div class="sample-shot is-concept">{}</div>'.format(_sample_preview(smp.get("preview", ""), smp["title"]))
+        more = ('<a class="small" href="/samples/{0}/" data-track="sample_card_click" data-label="grid-{0}">पूरा sample देखें →</a>'.format(
+            smp["slug"]) if smp.get("slug") else "")
+        cards.append('<figure class="card sample-card" data-sample="{id}">{visual}'
+                     '<figcaption><span class="badge badge-kind">{kind}</span><strong>{title}</strong><span class="small muted">{desc}</span>{fmts}{more}</figcaption></figure>'.format(
+                         id=smp["id"], visual=visual, kind=e(KIND_LABEL[smp["kind"]]), title=e(smp["title"]), desc=e(smp["description"]),
+                         fmts='<span class="small">Format: {}</span>'.format(e(fmts)) if fmts else "", more=more))
     for slug in cases:
         c = CASES_BY_SLUG[slug]
         cards.append('<article class="card sample-card sample-case"><span class="badge">Real project · detailed write-up in progress</span><h3>{t}</h3>'
@@ -1204,6 +1240,16 @@ BA_EXAMPLES = [
                               "Enquiry कहाँ आई, कहाँ गई — पता नहीं", "Study material बिखरा हुआ"],
      "after": ["Course और batch page, fees के साथ", "WhatsApp enquiry जो अपने आप record होती है",
                "Digital brochure — PDF और link दोनों", "Google पर centre दिखता है, study resources एक जगह"]},
+    {"h": "Manufacturer / B2B", "sub": "एक manufacturer जो अब तक marketplace और जान-पहचान पर चलता है",
+     "mock": "doc", "before": ["Catalogue हर buyer को हाथ से भेजना पड़ता है", "अपनी कोई website नहीं — सिर्फ़ marketplace listing",
+                               "Company profile presentation पुरानी है", "Enquiry कहाँ से आई, पता नहीं चलता"],
+     "after": ["अपनी website — marketplace के भरोसे नहीं", "Professional catalogue और company profile PDF",
+               "Product presentation buyer meeting के लिए", "WhatsApp, QR और enquiry form एक साथ"]},
+    {"h": "Wedding / event business", "sub": "एक decorator या photographer जिसका काम Instagram में दबा है",
+     "mock": "gbp", "before": ["Portfolio Instagram posts में बिखरा", "हर पूछने वाले को rate list दोबारा टाइप करना",
+                               "Enquiry DM, call और status में बँटी", "Package क्या-क्या है, साफ़ नहीं"],
+     "after": ["एक portfolio page जो link में भेजा जा सके", "Packages और rate card लिखित",
+               "WhatsApp enquiry एक जगह", "Reel और social assets, ज़रूरत हो तो Google presence"]},
     {"h": "Professional / creator", "sub": "एक consultant जिसका काम अच्छा है पर दिखता नहीं",
      "mock": "doc", "before": ["सालों का knowledge files में बिखरा", "Presentation हर बार नए सिरे से बनती है",
                                "कोई ऐसा asset नहीं जो lead लाए", "पूछने वाले को भेजने के लिए कुछ नहीं"],
@@ -1278,6 +1324,190 @@ def c_creates(args, ctx):
     return '<div class="creates">{}</div>'.format("".join(tiles))
 
 
+# ------------------------------------------------- sample catalogue
+# Concept previews are inline SVG: they theme with the design tokens, cost no request and
+# add no binary file to the repo. A concept preview is ALWAYS labelled as a concept.
+def _sample_preview(key, title):
+    P, A, G, S = "var(--primary)", "var(--accent)", "var(--success)", "var(--secondary)"
+    MUT, LINE, CARD = "var(--border-strong)", "var(--border)", "var(--surface)"
+
+    def r(x, y, w, h, c=MUT, rad=3):
+        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, rad, c)
+
+    def c(cx, cy, rr, col):
+        return '<circle cx="{}" cy="{}" r="{}" fill="{}"/>'.format(cx, cy, rr, col)
+    art = {
+        "gbp": r(14, 14, 84, 62, P, 8) + r(108, 16, 118, 10, "var(--text)") + r(108, 32, 84, 8) + r(108, 46, 140, 8)
+               + c(114, 66, 5, A) + c(128, 66, 5, A) + c(142, 66, 5, A) + c(156, 66, 5, A) + c(170, 66, 5, LINE)
+               + r(14, 88, 110, 22, G, 11) + r(134, 88, 110, 22, P, 11) + r(14, 120, 230, 8),
+        "whatsapp": r(14, 12, 236, 30, CARD, 8) + r(24, 20, 96, 12, "var(--text)") + r(24, 52, 150, 26, LINE, 13)
+                    + r(100, 86, 150, 26, G, 13) + r(14, 120, 120, 10) + r(212, 118, 38, 16, A, 8),
+        "starter": r(14, 14, 74, 54, P, 8) + r(96, 14, 74, 54, G, 8) + r(178, 14, 74, 54, A, 8)
+                   + r(14, 80, 238, 9, "var(--text)") + r(14, 96, 180, 8) + r(14, 112, 120, 22, P, 11),
+        "catalogue": r(14, 14, 70, 56, LINE, 6) + r(96, 14, 70, 56, LINE, 6) + r(178, 14, 70, 56, LINE, 6)
+                     + r(14, 76, 50, 8) + r(96, 76, 50, 8) + r(178, 76, 50, 8)
+                     + r(14, 90, 34, 12, A, 6) + r(96, 90, 34, 12, A, 6) + r(178, 90, 34, 12, A, 6)
+                     + r(14, 116, 238, 10, P, 5),
+        "brochure": r(14, 12, 74, 122, CARD, 4) + r(92, 12, 74, 122, CARD, 4) + r(170, 12, 74, 122, P, 4)
+                    + r(22, 20, 56, 30, LINE, 3) + r(22, 56, 56, 7) + r(22, 68, 40, 7)
+                    + r(100, 20, 58, 8, "var(--text)") + r(100, 34, 58, 6) + r(100, 46, 44, 6) + r(100, 62, 40, 12, A, 6),
+        "vcard": r(30, 26, 206, 96, P, 12) + r(46, 44, 62, 10, "#fff") + r(46, 62, 96, 7, "#ffffffaa")
+                 + r(46, 90, 44, 16, A, 8) + r(98, 90, 44, 16, "#ffffff44", 8) + c(206, 74, 18, "#ffffff33"),
+        "landing": r(14, 12, 238, 18, CARD, 6) + r(22, 18, 40, 6, "var(--text)") + r(200, 17, 44, 9, A, 5)
+                   + r(14, 38, 140, 12, "var(--text)") + r(14, 56, 110, 8) + r(14, 70, 96, 20, P, 10)
+                   + r(166, 38, 86, 52, LINE, 6) + r(14, 102, 74, 32, CARD, 6) + r(96, 102, 74, 32, CARD, 6) + r(178, 102, 74, 32, CARD, 6),
+        "social": r(14, 14, 70, 70, P, 6) + r(96, 14, 70, 70, A, 6) + r(178, 14, 70, 70, G, 6)
+                  + r(14, 94, 70, 8) + r(96, 94, 56, 8) + r(178, 94, 64, 8) + r(14, 112, 100, 18, P, 9),
+        "ppt": r(14, 12, 238, 94, CARD, 6) + r(28, 24, 104, 12, "var(--text)") + r(28, 44, 84, 7) + r(28, 58, 96, 7)
+               + r(28, 76, 52, 14, A, 7) + r(148, 24, 90, 66, P, 6)
+               + r(14, 116, 52, 14, LINE, 4) + r(72, 116, 52, 14, LINE, 4) + r(130, 116, 52, 14, P, 4),
+        "invite": r(58, 10, 150, 124, CARD, 8) + r(72, 26, 122, 1.5, A) + r(86, 42, 94, 12, "var(--text)")
+                  + r(100, 62, 66, 8) + c(133, 90, 13, A) + r(86, 110, 94, 8) + r(72, 124, 122, 1.5, A),
+        "research": r(14, 12, 116, 122, CARD, 6) + r(26, 24, 84, 10, "var(--text)") + r(26, 42, 92, 6) + r(26, 54, 70, 6)
+                    + r(26, 70, 92, 6) + r(26, 82, 56, 6) + r(26, 102, 60, 14, G, 7)
+                    + r(140, 12, 112, 58, P, 6) + r(140, 78, 112, 26, LINE, 6) + r(140, 112, 112, 22, A, 6),
+        "knowledge": c(133, 44, 20, P) + c(58, 96, 14, A) + c(133, 104, 14, G) + c(208, 96, 14, S)
+                     + '<path d="M133 64 L58 82 M133 64 L133 90 M133 64 L208 82" stroke="{}" stroke-width="2" fill="none"/>'.format(MUT)
+                     + r(20, 120, 64, 7) + r(101, 120, 64, 7) + r(182, 120, 64, 7),
+        "workflow": r(10, 52, 52, 34, LINE, 6) + r(76, 52, 52, 34, P, 6) + r(142, 52, 52, 34, A, 6) + r(208, 52, 48, 34, G, 6)
+                    + '<path d="M62 69 h14 M128 69 h14 M194 69 h14" stroke="{}" stroke-width="2"/>'.format(MUT)
+                    + r(76, 100, 118, 14, CARD, 7) + r(86, 104, 98, 6, G) + r(10, 22, 246, 8),
+    }.get(key, "")
+    return ('<svg class="sample-art" viewBox="0 0 266 148" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet">'
+            '<rect width="266" height="148" fill="var(--surface-sunken)"/>{}</svg>').format(e(title + " — concept preview"), art)
+
+
+SAMPLE_TYPE = {
+    "real-client": ("Client project", "बाहरी client के लिए किया गया असली काम, उनकी अनुमति से।"),
+    "moodily-internal": ("Moodily का अपना project", "Moodily ने अपने लिए बनाया और खुद चला रहा है।"),
+    "self-initiated": ("Self-initiated", "Moodily ने अपनी मर्ज़ी से बनाया — किसी client का काम नहीं।"),
+    "concept": ("Concept sample", "यह दिखाने के लिए बनाया गया concept है कि क्या बन सकता है — किसी client का काम नहीं।"),
+}
+SAMPLE_CATS = collections.OrderedDict([
+    ("business", "Business setup"), ("google-business", "Google Business"), ("whatsapp", "WhatsApp"),
+    ("website", "Website"), ("catalogue", "Catalogue"), ("design", "Design & print"),
+    ("presentation", "PPT / Presentation"), ("invitation", "Invitation"), ("social", "Social / Creator"),
+    ("creator", "Creator"), ("education", "Study material"), ("research", "Research"),
+    ("knowledge", "Knowledge product"), ("ai", "AI workflow"),
+])
+SAMPLE_CATALOGUE = [s for s in SAMPLES.values() if s.get("status") == "published" and s.get("slug")]
+SAMPLE_BY_SLUG = {s["slug"]: s for s in SAMPLE_CATALOGUE}
+
+
+def sample_service(smp):
+    return SERVICES.get(smp.get("service") or (smp.get("services") or [None])[0])
+
+
+def sample_visual(smp, lazy=True):
+    """Real asset if we have one, otherwise a clearly-labelled inline concept preview."""
+    if smp.get("image"):
+        return ('<div class="sample-shot"><img src="{}" alt="{}" width="{}" height="{}"{} decoding="async"></div>'.format(
+            e(smp["image"]), e(smp["alt"]), smp["width"], smp["height"], ' loading="lazy"' if lazy else ""))
+    return '<div class="sample-shot is-concept">{}</div>'.format(_sample_preview(smp.get("preview", ""), smp["catalogue_title"]))
+
+
+def sample_price_line(smp):
+    svc = sample_service(smp)
+    if not svc:
+        return '<span class="sample-price">Custom quote</span>'
+    return '<span class="sample-price">{}</span><span class="small muted">{}</span>'.format(
+        e(price_label(svc)), e(PRICE_MODE_SHORT[svc["price_mode"]]))
+
+
+def customise_href(smp):
+    """'Customize this for me' carries the sample + its service into the existing intake flow."""
+    svc = sample_service(smp)
+    return "/contact/?service={}&sample={}".format(svc["id"] if svc else "custom", smp["slug"])
+
+
+def sample_wa(smp, label="WhatsApp", cls="btn btn-wa btn-sm", track="sample"):
+    return wa_button(label, "customer", "{} jaisa kaam (sample: {})".format(smp["catalogue_title"], smp["slug"]),
+                     cls=cls, track_label="{}-{}".format(track, smp["slug"]))
+
+
+def sample_card(smp, lazy=True):
+    svc = sample_service(smp)
+    label, _ = SAMPLE_TYPE[smp["sample_type"]]
+    types = " ".join(smp.get("customer_types", []))
+    hay = " ".join([smp["catalogue_title"], smp.get("who", ""), smp.get("solves", ""), smp.get("category", ""),
+                    svc["name"] if svc else "", " ".join(smp.get("customer_types", []))]).lower()
+    return (
+        '<article class="card sample-tile" data-sample="{slug}" data-cat="{cat}" data-types="{types}" data-search="{hay}">'
+        '{visual}<span class="badge badge-kind">{label}</span>'
+        '<h3><a class="stretched" href="/samples/{slug}/" data-track="sample_card_click" data-label="{slug}">{title}</a></h3>'
+        '<p class="sample-who">{who}</p><p class="small muted sample-solves">{solves}</p>'
+        '<p class="sample-meta">{price}</p><p class="small muted">{timeline}</p>'
+        '<div class="card-actions"><a class="btn btn-primary btn-sm" href="{cust}" data-track="customize_sample_click" data-label="{slug}">इसे मेरे लिए बनाइए</a>'
+        '<a class="btn btn-outline btn-sm" href="/samples/{slug}/" data-track="sample_card_click" data-label="view-{slug}">Sample देखें</a></div>'
+        '</article>').format(
+            slug=smp["slug"], cat=e(smp.get("category", "")), types=e(types), hay=e(hay), visual=sample_visual(smp, lazy),
+            label=e(label), title=e(smp["catalogue_title"]), who=e(smp.get("who", "")), solves=e(smp.get("solves", "")),
+            price=sample_price_line(smp), timeline=e(svc["timeline"]) if svc else "Scope देखकर", cust=e(customise_href(smp)))
+
+
+def c_sample_grid(args, ctx):
+    """Full catalogue with search + browse-by-need + browse-by-customer-type."""
+    items = SAMPLE_CATALOGUE
+    if args.get("featured"):
+        items = [s for s in items if s.get("featured")]
+    limit = int(args.get("limit", "0") or 0)
+    if limit:
+        items = items[:limit]
+    for smp in items:
+        svc = sample_service(smp)
+        if svc and svc not in ctx["services"]:
+            ctx["services"].append(svc)
+    # only the catalogue page has tiles above the fold; every embedded strip is below it
+    top = 3 if args.get("filters") == "yes" else 0
+    cards = "".join(sample_card(s, lazy=(i >= top)) for i, s in enumerate(items))
+    if args.get("filters") != "yes":
+        return '<div class="sample-grid">{}</div>'.format(cards)
+    cats = collections.OrderedDict((k, v) for k, v in SAMPLE_CATS.items() if any(s.get("category") == k for s in items))
+    chips = "".join('<button class="chip-btn" type="button" data-filter-cat="{}" aria-pressed="false">{}</button>'.format(k, e(v)) for k, v in cats.items())
+    tchips = "".join('<button class="chip-btn" type="button" data-filter-type="{}" aria-pressed="false">{} {}</button>'.format(
+        c["id"], c.get("emoji", ""), e(c["title"].split(" ", 1)[-1] if c.get("emoji") else c["title"])) for c in ROUTERS["customer_types"])
+    return ('<div class="sample-filters">'
+            '<label class="sr-only" for="sampleSearch">Sample खोजें</label>'
+            '<input id="sampleSearch" class="finder-search" type="search" placeholder="खोजें — catalogue, PPT, invitation, Google, website…" autocomplete="off">'
+            '<p class="filter-label" id="fl-need">क्या चाहिए</p><div class="chip-row" role="group" aria-labelledby="fl-need">'
+            '<button class="chip-btn" type="button" data-filter-cat="" aria-pressed="true">सभी</button>{chips}</div>'
+            '<p class="filter-label" id="fl-who">आप कौन हैं</p><div class="chip-row" role="group" aria-labelledby="fl-who">'
+            '<button class="chip-btn" type="button" data-filter-type="" aria-pressed="true">सभी</button>{tchips}</div>'
+            '<p class="small muted" data-sample-count aria-live="polite"></p></div>'
+            '<div class="sample-grid" data-sample-grid>{cards}</div>'
+            '<p class="notice small" data-sample-empty hidden>इस combination में अभी कोई sample नहीं है — '
+            '<a href="/contact/?service=custom">अपनी requirement भेजिए</a>, हम scope और quote बनाकर देंगे।</p>').format(
+        chips=chips, tchips=tchips, cards=cards)
+
+
+def c_evidence(args, ctx):
+    """Verified, India-specific numbers only. A card without source + year + link is a build error."""
+    cards = []
+    for cd in EVIDENCE["cards"]:
+        for key in ("number", "claim", "source", "year", "url", "context"):
+            if not cd.get(key):
+                raise SystemExit("evidence.json: {} is missing {} — a number without a checkable source is not published".format(cd.get("id"), key))
+        cards.append(
+            '<article class="evidence" data-view="evidence_card_view|{id}"><p class="evidence-num">{num}</p>'
+            '<p class="evidence-claim">{claim}</p><p class="small muted">{ctx}</p>'
+            '<p class="evidence-src">Source: <a href="{url}" rel="nofollow noopener" target="_blank">{src}</a> · {year}</p></article>'.format(
+                id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=e(cd["context"]),
+                url=e(cd["url"]), src=e(cd["source"]), year=e(cd["year"])))
+    means = []
+    for m in EVIDENCE["means"]:
+        links = " · ".join('<a href="{}#{}">{}</a>'.format(SERVICES[s]["page"], s, e(SERVICES[s]["name"]))
+                           for s in m["services"] if s in SERVICES)
+        means.append('<div class="means"><h3>आपके business के लिए इसका मतलब</h3><dl>'
+                     '<div><dt>क्या हो रहा है</dt><dd>{t}</dd></div>'
+                     '<div><dt>आपके लिए मतलब</dt><dd>{i}</dd></div>'
+                     '<div><dt>क्या करें</dt><dd>{s}<br><span class="small">{l}</span></dd></div></dl></div>'.format(
+                         t=e(m["trend"]), i=e(m["implication"]), s=e(m["solution"]), l=links))
+    note = ('<p class="small muted" style="margin-top:16px">हर आँकड़ा भारत का है, source और साल के साथ। '
+            'दूसरे देश का आँकड़ा भारत के नाम पर नहीं दिखाया जाता। पिछली जाँच: {} · अगली जाँच: {}।</p>').format(
+        e(EVIDENCE["last_reviewed"]), e(EVIDENCE["review_due"]))
+    return '<div class="evidence-grid">{}</div>{}{}'.format("".join(cards), "".join(means), note)
+
+
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
@@ -1289,7 +1519,7 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
+    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1410,11 +1640,11 @@ def page_schema(meta, route, ctx):
 
 # ---------------------------------------------------------------- layout
 NAV = [
-    ("/services/", "Services", "सेवाएँ"), ("/case-studies/", "Samples", "काम"), ("/insights/", "Insights", "Insights"),
-    ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
+    ("/services/", "Services", "सेवाएँ"), ("/samples/", "Samples", "Samples"), ("/case-studies/", "Case studies", "काम"),
+    ("/insights/", "Insights", "Insights"), ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
 # the inline desktop row stays short so the header never wraps; the rest is in the Menu popover
-NAV_DESKTOP = [("/services/", "Services"), ("/case-studies/", "Samples"), ("/services/#prices", "Pricing"), ("/learn/", "Learn")]
+NAV_DESKTOP = [("/services/", "Services"), ("/samples/", "Samples"), ("/services/#prices", "Pricing"), ("/learn/", "Learn")]
 SERVICE_NAV = [
     ("/services/local-business-digitalization/", "Local Business Digitalization"), ("/services/google-business-profile/", "Google Business Profile"),
     ("/services/whatsapp-business/", "WhatsApp Business"), ("/services/business-website/", "Business Website"),
@@ -1621,6 +1851,73 @@ def case_page(c):
     return meta, body
 
 
+def sample_page(smp):
+    """One reusable template per sample — answers the buyer's questions in a fixed order."""
+    svc = sample_service(smp)
+    label, label_note = SAMPLE_TYPE[smp["sample_type"]]
+    ctx_services = [svc] if svc else []
+    rows = [("यह क्या है?", e(smp.get("solves", ""))),
+            ("किसके लिए है?", e(smp.get("who", ""))),
+            ("Moodily इसमें क्या customize करेगा?",
+             '<ul class="ticks small">{}</ul>'.format("".join("<li>{}</li>".format(e(x)) for x in smp.get("customises", [])))),
+            ("क्या मिलेगा?", '<ul class="ticks small">{}</ul>'.format(
+                "".join("<li>{}</li>".format(e(d)) for d in svc["deliverables"][:5])) if svc else "Scope के अनुसार"),
+            ("कौन-से formats?", e(", ".join(FORMATS[f] for f in smp.get("formats", []))) or "Scope तय होने पर"),
+            ("Price?", (price_html(svc) + '<span class="small muted">{}</span>'.format(e(PRICE_MODES[svc["price_mode"]]))) if svc else "Custom quote"),
+            ("कितना समय?", e(svc["timeline"]) if svc else "Scope देखकर"),
+            ("कितने revisions?", e(svc["revisions"]) if svc else "Scope में लिखा जाएगा"),
+            ("आपको क्या देना होगा?", e(client_provides(svc)) if svc else "—")]
+    dl = "".join('<div><dt>{}</dt><dd>{}</dd></div>'.format(k, v) for k, v in rows if v)
+
+    related = [x for x in SAMPLE_CATALOGUE if x["slug"] != smp["slug"] and
+               (x.get("category") == smp.get("category") or set(x.get("customer_types", [])) & set(smp.get("customer_types", [])))][:3]
+    rel_html = ('<section class="section" aria-labelledby="rel-h"><div class="section-head"><h2 id="rel-h">मिलते-जुलते samples</h2></div>'
+                '<div class="sample-grid sample-grid-3">{}</div></section>'.format("".join(sample_card(x) for x in related))) if related else ""
+
+    case = CASES_BY_SLUG.get(smp.get("case_study") or "")
+    case_html = ""
+    if case:
+        link = ('<a href="/case-studies/{0}/">{1} →</a>'.format(case["slug"], e(case["title"])) if case["status"] == "published"
+                else '<a href="/case-studies/#{0}">{1} →</a>'.format(case["slug"], e(case["title"])))
+        case_html = ('<p class="notice small"><strong>इससे जुड़ा असली project:</strong> {} '
+                     '<span class="muted">Case study = जो काम सच में हुआ। Sample = जो बन सकता है।</span></p>'.format(link))
+
+    svc_html = ('<p class="small">पूरी service और scope: <a href="{}#{}" data-track="service_card_click" data-label="sample-svc-{}">{} →</a></p>'.format(
+        svc["page"], svc["id"], smp["slug"], e(svc["name"]))) if svc else ""
+
+    actions = ('<a class="btn btn-primary btn-lg" href="{cust}" data-track="customize_sample_click" data-label="detail-{slug}">इसे मेरे लिए बनाइए</a>'
+               '{wa}').format(cust=e(customise_href(smp)), slug=smp["slug"],
+                              wa=sample_wa(smp, "WhatsApp पर पूछें", "btn btn-wa btn-lg", "sample-detail"))
+
+    body = """<section class="page-hero"><div class="container"><p class="eyebrow">Sample · {cat}</p>
+<h1>{title}</h1><p class="lead">{solves}</p>
+<p><span class="badge badge-kind">{label}</span> <span class="small muted">{note}</span></p></div></section>
+<div class="container sample-detail">
+  <div class="sample-detail-grid">
+    <div class="sample-detail-visual">{visual}{fmtnote}</div>
+    <div class="sample-detail-body"><h2 class="sample-answers-h">एक नज़र में</h2><dl class="answer-dl">{dl}</dl>{svc}{case}
+      <div class="btn-row">{actions}</div>{scope}</div>
+  </div>
+  {rel}
+  <section class="section"><div class="card path-unsure"><div><h3>यह बिल्कुल वैसा नहीं चाहिए?</h3>
+    <p class="muted small">Sample सिर्फ़ शुरुआत है। अपनी requirement बताइए — हम scope और quote बनाकर देंगे।</p></div>
+    <a class="btn btn-primary" href="/contact/?service={svcid}" data-track="quote_start" data-label="sample-custom-{slug}">अपनी requirement भेजें</a></div></section>
+</div>""".format(
+        cat=e(SAMPLE_CATS.get(smp.get("category"), "Sample")), title=e(smp["catalogue_title"]), solves=e(smp.get("solves", "")),
+        label=e(label), note=e(label_note), visual=sample_visual(smp, lazy=False), dl=dl, svc=svc_html, case=case_html,
+        actions=actions, scope=scope_note_html(), rel=rel_html, slug=smp["slug"], svcid=svc["id"] if svc else "custom",
+        fmtnote=('<p class="small muted sample-fmt">Formats: {}</p>'.format(e(", ".join(FORMATS[f] for f in smp.get("formats", [])))) if smp.get("formats") else ""))
+
+    price_bit = " — {}".format(price_label(svc)) if svc else ""
+    meta = {"title": "{} sample{} | Moodily".format(smp["catalogue_title"], price_bit),
+            "description": "{} {} Moodily इसे आपके business के लिए customize करता है — starting price, delivery time और formats साफ़ लिखे हैं।".format(
+                smp.get("solves", "")[:110], smp.get("who", "")[:70]),
+            "lang": "hi", "breadcrumbs": [["Samples", "/samples/"], [smp["catalogue_title"], "/samples/{}/".format(smp["slug"])]],
+            "track_view": ["sample_detail_view", smp["slug"]], "sample": smp["slug"],
+            "schema_services": [svc["id"]] if svc else []}
+    return meta, body, ctx_services
+
+
 # ----------------------------------------------------------------- build
 META_RE = re.compile(r"\A\s*<!--meta\s*(\{.*?\})\s*-->", re.S)
 ASSET_VERSION = hashlib.sha1(b"".join((ROOT / "assets" / p).read_bytes() for p in ("css/site.css", "js/site.js"))).hexdigest()[:10]
@@ -1749,6 +2046,9 @@ def main():
         if c["status"] == "published":
             meta, body = case_page(c)
             jobs.append((meta, body, "/case-studies/{}/".format(c["slug"]), ROOT / "case-studies" / c["slug"] / "index.html", "case:" + c["slug"]))
+    for smp in SAMPLE_CATALOGUE:
+        meta, body, _ = sample_page(smp)
+        jobs.append((meta, body, "/samples/{}/".format(smp["slug"]), ROOT / "samples" / smp["slug"] / "index.html", "sample:" + smp["slug"]))
 
     lastmod_file = ROOT / ".build-lastmod.json"
     lastmods = json.loads(lastmod_file.read_text()) if lastmod_file.exists() else {}
@@ -1763,6 +2063,10 @@ def main():
             raise SystemExit("Duplicate title '{}' in {} and {}".format(meta["title"], src, titles[meta["title"]]))
         titles[meta["title"]] = src
         ctx = {"services": [], "products": [], "faqs": [], "file": src}
+        # pages built in Python (not from tokens) name their service so schema still matches what is visible
+        for sid in meta.get("schema_services", []):
+            if sid in SERVICES and SERVICES[sid] not in ctx["services"]:
+                ctx["services"].append(SERVICES[sid])
         html_out = layout(meta, render_tokens(body, ctx), route, ctx)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html_out, encoding="utf-8")
