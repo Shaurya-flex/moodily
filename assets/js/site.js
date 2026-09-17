@@ -49,6 +49,93 @@
     store('moodily_theme', next);
   });
 
+  // ---------- menu: popover on desktop, drawer on phones.
+  // <details> still works with JS off; this adds backdrop, Escape, click-outside,
+  // focus management and a body-scroll lock while it is open.
+  var menu = document.getElementById('siteMenu');
+  if (menu) {
+    var summary = menu.querySelector('summary');
+    var panel = menu.querySelector('.menu-panel');
+    var backdrop = null, scrollY = 0;
+
+    function focusables() {
+      return panel.querySelectorAll('a[href],button:not([disabled]),input,select,textarea');
+    }
+    function lock() {
+      scrollY = window.scrollY;
+      body.style.position = 'fixed';
+      body.style.top = -scrollY + 'px';
+      body.style.width = '100%';
+    }
+    function unlock() {
+      body.style.position = body.style.top = body.style.width = '';
+      window.scrollTo(0, scrollY);
+    }
+    var isDrawer = function () { return window.matchMedia('(max-width:719px)').matches; };
+
+    function open() {
+      backdrop = document.createElement('button');
+      backdrop.className = 'menu-backdrop';
+      backdrop.setAttribute('aria-label', 'Menu बंद करें');
+      backdrop.addEventListener('click', function () { close(true); });
+      menu.parentNode.insertBefore(backdrop, menu);
+      if (isDrawer()) lock();
+      var first = focusables()[0];
+      if (first) first.focus();
+    }
+    function close(refocus) {
+      if (!menu.open) return;
+      menu.open = false;
+      if (backdrop) { backdrop.remove(); backdrop = null; }
+      unlock();
+      if (refocus && summary) summary.focus();
+    }
+
+    menu.addEventListener('toggle', function () { if (menu.open) open(); else close(false); });
+
+    document.addEventListener('keydown', function (ev) {
+      if (!menu.open) return;
+      if (ev.key === 'Escape') { ev.preventDefault(); close(true); return; }
+      if (ev.key !== 'Tab') return;
+      var f = focusables();
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+      else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+    });
+
+    document.addEventListener('click', function (ev) {
+      if (!menu.open) return;
+      if (summary && summary.contains(ev.target)) return;      // the toggle handles itself
+      if (menu.contains(ev.target)) { if (ev.target.closest('a,[data-menu-close]')) close(false); return; }
+      close(false);
+    });
+
+    // a drawer left open across the desktop breakpoint would strand the scroll lock
+    window.addEventListener('resize', function () { if (menu.open && !isDrawer()) unlock(); });
+  }
+
+  // ---------- WhatsApp FAB: shrink to an icon while scrolling, step aside over the footer
+  var fab = document.querySelector('.fab-wa');
+  if (fab && 'IntersectionObserver' in window) {
+    var footer = document.querySelector('.site-footer');
+    if (footer) {
+      new IntersectionObserver(function (es) {
+        fab.classList.toggle('is-parked', es[0].isIntersecting);
+      }, { rootMargin: '0px 0px -40px 0px' }).observe(footer);
+    }
+    var lastY = window.scrollY, ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        fab.classList.toggle('is-compact', window.scrollY > 320 && window.scrollY > lastY);
+        lastY = window.scrollY;
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
   // ---------- language (only on bilingual pages)
   var langBtn = document.getElementById('langToggle');
   if (langBtn) langBtn.addEventListener('click', function () {
@@ -57,6 +144,84 @@
     store('moodily_lang', next);
     track('language_switch', { label: next });
   });
+
+  // ---------- sample catalogue: search + browse-by-need + browse-by-customer-type
+  var grid = document.querySelector('[data-sample-grid]');
+  if (grid) {
+    var tiles = [].slice.call(grid.querySelectorAll('.sample-tile'));
+    var search = document.getElementById('sampleSearch');
+    var countEl = document.querySelector('[data-sample-count]');
+    var emptyEl = document.querySelector('[data-sample-empty]');
+    var state = { cat: '', type: '', q: '' };
+
+    function apply() {
+      var shown = 0;
+      tiles.forEach(function (t) {
+        var okCat = !state.cat || t.getAttribute('data-cat') === state.cat;
+        var okType = !state.type || (' ' + t.getAttribute('data-types') + ' ').indexOf(' ' + state.type + ' ') > -1;
+        var okQ = !state.q || t.getAttribute('data-search').indexOf(state.q) > -1;
+        var show = okCat && okType && okQ;
+        t.hidden = !show;
+        if (show) shown++;
+      });
+      if (countEl) countEl.textContent = shown + ' sample' + (shown === 1 ? '' : 's');
+      if (emptyEl) emptyEl.hidden = shown !== 0;
+    }
+    function press(group, value) {
+      document.querySelectorAll('[data-filter-' + group + ']').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-filter-' + group) === value));
+      });
+    }
+    document.querySelectorAll('[data-filter-cat]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.cat = b.getAttribute('data-filter-cat'); press('cat', state.cat); apply();
+        if (state.cat) track('sample_filter', { label: 'need:' + state.cat });
+      });
+    });
+    document.querySelectorAll('[data-filter-type]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.type = b.getAttribute('data-filter-type'); press('type', state.type); apply();
+        if (state.type) track('sample_filter', { label: 'who:' + state.type });
+      });
+    });
+    if (search) {
+      var t0;
+      search.addEventListener('input', function () {
+        state.q = search.value.trim().toLowerCase();
+        apply();
+        clearTimeout(t0);
+        t0 = setTimeout(function () { if (state.q) track('sample_search', { label: state.q.slice(0, 40) }); }, 800);
+      });
+    }
+    // deep link: /samples/?need=ppt or ?who=coaching-library
+    try {
+      var qp = new URLSearchParams(location.search);
+      if (qp.get('need')) { state.cat = qp.get('need'); press('cat', state.cat); }
+      if (qp.get('who')) { state.type = qp.get('who'); press('type', state.type); }
+    } catch (e) {}
+    apply();
+  }
+
+  // sample_card_view: fire once per tile when half of it has been seen
+  if ('IntersectionObserver' in window) {
+    var sseen = {};
+    var sio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var slug = en.target.getAttribute('data-sample');
+        if (en.isIntersecting && !sseen[slug]) { sseen[slug] = 1; track('sample_card_view', { label: slug }); sio.unobserve(en.target); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.sample-tile[data-sample]').forEach(function (el) { sio.observe(el); });
+    // before_after_view / evidence_card_view
+    var vseen = {};
+    var vio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var ev = en.target.getAttribute('data-view');
+        if (en.isIntersecting && !vseen[ev]) { vseen[ev] = 1; track(ev.split('|')[0], { label: ev.split('|')[1] || '' }); vio.unobserve(en.target); }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('[data-view]').forEach(function (el) { vio.observe(el); });
+  }
 
   // ---------- legacy anchors from the old single-page site
   var legacy = { '#curriculum': '/learn/#curriculum', '#learn': '/learn/', '#services': '/services/ai-workflows/', '#linkedin': '/services/professionals/#linkedin', '#tools': '/tools/', '#intake': '/contact/', '#weekly-tip': '/learn/#weekly-tip', '#why': '/about/' };
@@ -263,6 +428,10 @@
       data.delete('company_hp');
       data.append('page', location.pathname + location.search);
       data.append('submitted_at', new Date().toISOString());
+      try {
+        var qsSample = new URLSearchParams(location.search).get('sample');
+        if (qsSample) data.append('sample', qsSample.replace(/[^a-z0-9-]/gi, '').slice(0, 60));
+      } catch (e) {}
       var summary = {};
       data.forEach(function (v, k) { summary[k] = v; });
       if (sel && sel.selectedIndex >= 0) summary.service_label = sel.options[sel.selectedIndex].text;
@@ -276,7 +445,31 @@
         track('form_submit', { label: summary.service || '', budget: summary.budget || '', role: summary.role || '', delivery: status });
         location.href = form.getAttribute('data-success') + '?s=' + status;
       };
-      if (!endpoint) { done('whatsapp'); return; }
+      if (!endpoint) {
+        // No server to post to. Hand the filled enquiry straight to WhatsApp so it actually
+        // reaches Moodily in one tap — never pretend a submission was received.
+        var wa = document.getElementById('intakeWa') || document.querySelector('a[href*="wa.me"]');
+        var base = wa ? wa.getAttribute('href').split('?')[0] : '';
+        if (base) {
+          var lines = ['Namaste Moodily,'];
+          var add = function (label, key) { if (summary[key]) lines.push(label + ': ' + summary[key]); };
+          add('Naam', 'name');
+          lines.push('Service: ' + (summary.service_label || summary.service || '-'));
+          add('Sample', 'sample');
+          add('Goal', 'goal');
+          add('City', 'city');
+          add('Budget', 'budget');
+          add('Deadline', 'deadline');
+          add('Language', 'language');
+          add('Link', 'link');
+          add('Requirement', 'message');
+          add('WhatsApp', 'whatsapp');
+          add('Email', 'email');
+          window.open(base + '?text=' + encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
+        }
+        done('whatsapp');
+        return;
+      }
       // Google Apps Script web app: no-cors POST (opaque response). CRM/n8n: swap endpoint, keep field names.
       fetch(endpoint, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) })
         .then(function () { done('sent'); })
@@ -297,7 +490,7 @@
   var intake = document.getElementById('intake');
   if (intake) initIntake(intake);
 
-  function formUrlFor(cfg, svc, offerOn, estimate) {
+  function formUrlFor(cfg, svc, offerOn, estimate, sampleName) {
     var base = (svc && svc.prefill_url) || cfg.form_url || '';
     if (!base) return '';
     var ids = cfg.entry_ids || {};
@@ -306,9 +499,11 @@
     var add = function (id, value) {
       if (id && value && base.indexOf(norm(id) + '=') === -1) params.push(norm(id) + '=' + encodeURIComponent(value));
     };
-    if (svc) { add(ids.service_category, svc.category); add(ids.sub_service, svc.name); }
+    // svc.form_category is the Form dropdown's exact option; svc.category is only the label we show.
+    if (svc) { add(ids.service_category, svc.form_category); add(ids.sub_service, svc.name); }
     if (offerOn) add(ids.offer_code, cfg.offer.id);
-    add(ids.estimate, estimate);
+    // one field carries whichever context the visitor arrived with: a sample, or a website estimate
+    add(ids.sample_or_estimate, sampleName || estimate);
     if (!params.length) return base;
     if (base.indexOf('usp=pp_url') === -1) params.unshift('usp=pp_url');
     return base + (base.indexOf('?') === -1 ? '?' : '&') + params.join('&');
@@ -321,6 +516,8 @@
     var sid = q.get('service') || '';
     var svc = (cfg.services || {})[sid];
     var offerOn = !!(svc && svc.offer_price && cfg.offer && cfg.offer.active && q.get('offer') === cfg.offer.id && !root.classList.contains('offer-ended'));
+    var sampleSlug = (q.get('sample') || '').replace(/[^a-z0-9-]/gi, '').slice(0, 60);
+    var sampleName = (cfg.samples || {})[sampleSlug] || '';
     var est = (q.get('estimate') || '').match(/^(\d{3,7})-(\d{3,7})$/);
     var estText = est ? '₹' + Number(est[1]).toLocaleString('en-IN') + '–₹' + Number(est[2]).toLocaleString('en-IN') : '';
     if (svc) {
@@ -336,6 +533,15 @@
         note.textContent = 'आप ' + cfg.offer.name + ' offer के लिए requirement भेज रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।';
       }
     }
+    if (sampleName) {
+      var sNote = document.getElementById('intakeSample');
+      if (sNote) {
+        sNote.hidden = false;
+        sNote.innerHTML = 'Sample: <a href="/samples/' + sampleSlug + '/">' + sampleName + '</a> — इसी तरह का काम आपके लिए customize होगा।';
+      }
+      document.getElementById('intakeContext').hidden = false;
+      track('customize_sample_start', { label: sampleSlug });
+    }
     if (estText) {
       var estNote = document.getElementById('intakeEstimate');
       estNote.hidden = false;
@@ -344,16 +550,17 @@
     }
     var gbtn = document.getElementById('gformBtn');
     if (gbtn) {
-      var url = formUrlFor(cfg, svc, offerOn, estText);
+      var url = formUrlFor(cfg, svc, offerOn, estText, sampleName);
       if (url) gbtn.setAttribute('href', url);
       gbtn.setAttribute('data-label', sid || 'none');
-      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'google-form' });
+      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', sample: sampleSlug || '', mode: 'google-form' });
     } else {
-      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', mode: 'fallback' });
+      track('form_open', { label: sid || 'none', offer: offerOn ? cfg.offer.id : '', sample: sampleSlug || '', mode: 'fallback' });
     }
     var wa = document.getElementById('intakeWa');
     if (wa && svc) {
-      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' + (estText ? 'Website estimate: ' + estText + '\n' : '') +
+      var text = 'Namaste Moodily,\nMujhe ' + svc.name + (offerOn ? ' (' + cfg.offer.name + ' offer, ' + svc.offer_price + ')' : '') + ' chahiye.\n' +
+        (sampleName ? 'Sample: ' + sampleName + ' (moodily.in/samples/' + sampleSlug + '/)\n' : '') + (estText ? 'Website estimate: ' + estText + '\n' : '') +
         'Main [role] hoon.\nCity [city] hai.\nDeadline [deadline] hai.\nBudget approx [budget] hai.\nReference/website link [URL] hai.';
       wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent(text));
       wa.setAttribute('data-label', 'intake-' + sid);
@@ -378,7 +585,7 @@
     };
     watch('[data-pricing]', 'pricing_view', function () { return location.pathname; });
     watch('[data-retainer]', 'retainer_view', function (el) { return el.getAttribute('data-retainer'); });
-    watch('[data-sample-section]', 'service_sample_view', function () { return location.pathname; });
+    watch('[data-sample-section]', 'sample_view', function () { return location.pathname; });
   }
 
   // ---------- customer-type router: progressive disclosure on mobile
@@ -454,17 +661,22 @@
       var result = document.getElementById('estResult'), hint = document.getElementById('estHint');
       if (!sv) { result.hidden = true; hint.hidden = false; return; }
       var monthly = sv.unit === 'month';
-      estForm.querySelector('[data-group="turnaround"]').hidden = monthly;
+      var skip = { turnaround: monthly, integrations: !sv.integrations };
+      R.groups.forEach(function (g) { estForm.querySelector('[data-group="' + g.key + '"]').hidden = !!skip[g.key]; });
       var rush = document.getElementById('est-turnaround-rush');
       rush.disabled = sv.price > R.rush_max_starting_price;
       if (rush.disabled && rush.checked) document.getElementById('est-turnaround-normal').checked = true;
-      var sc = R.scope[picked('scope')], ct = R.content[picked('content')];
-      var tr = monthly ? { min: 1, max: 1 } : R.turnaround[picked('turnaround')];
+      // multipliers describe scope/complexity only — never the customer
+      var mmin = 1, mmax = 1;
+      R.groups.forEach(function (g) {
+        var v = skip[g.key] ? null : R[g.key][picked(g.key)];
+        if (v) { mmin *= v.min; mmax *= v.max; }
+      });
       var pmin = 0, pmax = 0;
       estForm.querySelectorAll('input[name="extras"]:checked').forEach(function (x) { pmin += R.extras[x.value].min_pct; pmax += R.extras[x.value].max_pct; });
       var r = R.round_to;
-      var low = Math.max(sv.price, Math.floor(sv.price * sc.min * ct.min * tr.min * (1 + pmin / 100) / r) * r);
-      var high = Math.max(low + r, Math.ceil(sv.price * sc.max * ct.max * tr.max * (1 + pmax / 100) / r) * r);
+      var low = Math.max(sv.price, Math.floor(sv.price * mmin * (1 + pmin / 100) / r) * r);
+      var high = Math.max(low + r, Math.ceil(sv.price * mmax * (1 + pmax / 100) / r) * r);
       var unit = monthly ? '/महीना' : '';
       document.getElementById('estRange').textContent = 'Estimated ' + rupees(low) + '–' + rupees(high) + unit;
       document.getElementById('estBase').textContent = sv.name + ' की starting price ' + rupees(sv.price) + unit + ' है।' +
@@ -477,10 +689,10 @@
       wa.setAttribute('href', wa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent('Namaste Moodily,\nMujhe ' + sv.name + ' chahiye.\nWebsite estimator: ' +
         rupees(low) + '–' + rupees(high) + unit + ' (scope: ' + picked('scope') + ', content: ' + picked('content') + (monthly ? '' : ', turnaround: ' + picked('turnaround')) +
         ').\nKripya final quote bhejiye.'));
-      if (estStarted && !estCompleted) { estCompleted = true; track('quote_estimator_complete', { label: sid, scope: picked('scope') }); }
+      if (estStarted && !estCompleted) { estCompleted = true; track('quote_complete', { label: 'estimator:' + sid, scope: picked('scope') }); }
     };
     estForm.addEventListener('change', function () {
-      if (!estStarted) { estStarted = true; track('quote_estimator_start', { label: eSel.value || 'none' }); }
+      if (!estStarted) { estStarted = true; track('quote_start', { label: 'estimator:' + (eSel.value || 'none') }); }
       calc();
     });
     estForm.addEventListener('submit', function (ev) { ev.preventDefault(); });
@@ -498,7 +710,8 @@
       document.getElementById('thanksMustWa').hidden = true;
     }
     if (lead) {
-      var msg = 'Namaste Moodily,\nMain ' + (lead.name || '') + ' (' + (lead.role || '') + ') hoon.\nMujhe ' + (lead.service_label || lead.service || '') + ' chahiye.\nGoal: ' + (lead.goal || '') +
+      var msg = 'Namaste Moodily,\nMain ' + (lead.name || '') + ' (' + (lead.role || '') + ') hoon.\nMujhe ' + (lead.service_label || lead.service || '') + ' chahiye.' +
+        (lead.sample ? '\nSample: moodily.in/samples/' + lead.sample + '/' : '') + '\nGoal: ' + (lead.goal || '') +
         '\nCity: ' + (lead.city || '') + '\nBudget approx: ' + (lead.budget || '') + '\nDeadline: ' + (lead.deadline || '') +
         '\nCurrent website/social link: ' + (lead.link || '-') + (lead.offer ? '\nOffer: ' + lead.offer : '') + '\nLanguage: ' + (lead.language || '') + (lead.message ? '\nMessage: ' + lead.message : '');
       var base = thanks.getAttribute('href').split('?')[0];

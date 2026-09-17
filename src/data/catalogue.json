@@ -43,7 +43,7 @@
         "gif",
         "canva"
       ],
-      "page": "/services/invitations/",
+      "page": "/services/digital-invitation/",
       "price_service": "invitation-digital",
       "quote_service": "invitation-digital"
     },
@@ -107,7 +107,7 @@
         "pdf",
         "canva"
       ],
-      "page": "/services/presentations/",
+      "page": "/services/presentation-design/",
       "price_service": "presentation-design-only",
       "quote_service": "presentation-content-design"
     },
@@ -176,7 +176,7 @@
         "gif",
         "canva"
       ],
-      "page": "/services/social-media/",
+      "page": "/services/social-media-design/",
       "price_service": "social-post-pack",
       "quote_service": "social-post-pack"
     },
@@ -262,7 +262,7 @@
         "pptx",
         "docs"
       ],
-      "page": "/services/research/",
+      "page": "/services/research-intelligence/",
       "price_service": "research-intelligence-sprint",
       "quote_service": "research-intelligence-sprint"
     },
@@ -320,7 +320,7 @@
         "png",
         "pdf"
       ],
-      "page": "/services/local-business/",
+      "page": "/services/local-business-digitalization/",
       "price_service": "digital-business-starter",
       "quote_service": "digital-business-starter"
     },

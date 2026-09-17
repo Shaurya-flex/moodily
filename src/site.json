@@ -35,8 +35,9 @@
   "_todo_same_as": "TODO: official profile URLs only (LinkedIn page, YouTube, Instagram, X). These feed Organization.sameAs.",
   "form": {
     "endpoint": "",
-    "_todo": "TODO: Google Apps Script web-app URL (see _project/03-forms-payments-analytics.md). Empty = submissions go to the thank-you page with a mandatory WhatsApp hand-off.",
-    "success_path": "/contact/thanks/"
+    "_todo": "OPTIONAL (not a launch blocker): Apps Script web-app URL if you later want the built-in form to post directly.",
+    "success_path": "/contact/thanks/",
+    "_readme": "V1 lead capture is the Google Form in src/data/intake.json -> form_url, which writes to its linked Google Sheet. This 'endpoint' is an OPTIONAL later upgrade (Apps Script / CRM / n8n) for the built-in form; it is deliberately NOT required for launch. With both empty the built-in form hands off through WhatsApp and says so plainly — it never claims Moodily received anything."
   },
   "payments": {
     "provider": "razorpay",
@@ -53,6 +54,8 @@
     "ends_at": "2026-09-20T23:59:59+05:30",
     "slots_total": 10,
     "slots_taken": 0,
+    "urgency_confirmed": false,
+    "_urgency_readme": "Set true ONLY when all three are true: the 10-slot limit is a real commitment, slots_taken is kept current after every confirmed booking, and a customer can actually pay the discounted price (payments.api_base live, or offer.payment_links filled). While false the site shows the introductory pricing and its terms but no countdown and no slot counter — unverified scarcity is a dark pattern.",
     "_slots_readme": "Update slots_taken after every confirmed paid booking, then rebuild and push. The counter must always be true (CCPA dark-patterns guidelines prohibit false urgency/scarcity).",
     "services": [
       "digital-business-starter",
@@ -68,5 +71,14 @@
   "free_audit": {
     "promise_hi": "आपकी Google listing, WhatsApp, website और social profile देखकर 3 सबसे ज़रूरी सुधार — 2 working days में, WhatsApp पर।",
     "_todo": "CONFIRM the owner can deliver this promise (2 working days, 3 suggestions)."
+  },
+  "amazon_associates": {
+    "_readme": "Amazon Associates stays completely inert until 'enabled' is true AND 'tag' holds a real Associate tracking ID. build.py refuses to emit an affiliate link or an earnings claim without both. Never invent a tag.",
+    "enabled": false,
+    "tag": "",
+    "_todo_tag": "TODO (OWNER): your amazon.in Associates tracking ID, e.g. moodily-21. Only after the account is approved.",
+    "disclosure_enabled": false,
+    "approved_properties": [],
+    "_todo_properties": "TODO (OWNER): the exact URLs listed in Associates Central -> Site List, e.g. https://moodily.in and your exact YouTube channel URL. Do not promote from a property that is not listed."
   }
 }

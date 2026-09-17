@@ -1,13 +1,12 @@
 {
-  "_readme": "Google Form intake config. The site never invents form URLs or entry IDs — paste real values from Google Forms (see _project/08-google-form-intake.md). form_url empty = /contact/ keeps the built-in fallback form.",
-  "form_url": "",
-  "_todo_form_url": "OWNER: paste the Google Form link ending in /viewform (Send → link icon → untick 'Shorten URL'). forms.gle short links cannot carry prefill values.",
+  "_readme": "V1 lead capture = a standard Google Form wired to a Google Sheet. NO Apps Script is needed for this. Paste the Form's share URL into form_url below; everything else already works. entry_ids are optional but recommended — with them Moodily pre-selects the service, sub-service, offer and sample so the visitor never re-enters what we already know. Get them from the Form's ⋮ menu -> 'Get pre-filled link', fill one answer per field, copy the link, and read the entry.NNNNN numbers out of it. NEVER invent an entry ID: a wrong one silently drops that answer.",
+  "form_url": "https://docs.google.com/forms/d/e/1FAIpQLScxmJC__HE8cHIKctFhNqMvGGtA7vGshkriqvuu8mjFPBgN7A/viewform",
   "entry_ids": {
-    "_readme": "Optional but recommended: numeric IDs from Form ⋮ → 'Get pre-filled link'. With these, every service CTA pre-selects the form automatically. Optional 'estimate' = short-answer question 'Indicative estimate (website से)'.",
-    "service_category": "",
-    "sub_service": "",
-    "offer_code": "",
-    "estimate": ""
+    "_readme": "Verified entry IDs for the live 'Moodily — Digital Service Leads' Form. Only the PUBLIC /viewform URL belongs in this repo — the Form edit URL and the linked Sheet URL are owner-only operational links and must never be committed or published.",
+    "service_category": "entry.732529302",
+    "sub_service": "entry.1367803601",
+    "offer_code": "entry.154582414",
+    "sample_or_estimate": "entry.1896344087"
   },
   "_todo_entry_ids": "OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).",
   "categories": {
@@ -115,7 +114,10 @@
     "content-growth-retainer": "social",
     "coaching-digital-starter": "web-google",
     "coaching-growth": "web-google",
-    "coaching-monthly-saathi": "web-google"
+    "coaching-monthly-saathi": "web-google",
+    "whatsapp-business-setup": "web-google",
+    "pitch-deck": "presentation",
+    "competitive-intelligence": "research"
   },
   "service_prefill_urls": {
     "_readme": "Optional per-service override: service id → full pre-filled Google Form URL. Wins over the category prefill_url."
@@ -141,5 +143,53 @@
       "name": "Exam / PYQ Material",
       "category": "exam-pyq"
     }
+  },
+  "form_category_options": [
+    "Business Digitalization",
+    "Website / Landing Page",
+    "Google Business Profile",
+    "WhatsApp Business",
+    "Design / Print-ready Asset",
+    "Presentation / PPT",
+    "Invitation / Personal Design",
+    "Social Media / Creator Content",
+    "Education / Study Material",
+    "Exam / PYQ Material",
+    "Research / Intelligence",
+    "Knowledge-to-Product",
+    "AI Workflow / Automation",
+    "Professional Authority",
+    "Custom Digital Work",
+    "Not Sure / Need Recommendation"
+  ],
+  "_form_category_readme": "Exact option strings of the live Form's 'Service Category' dropdown (entry.732529302). Google drops any prefill value that is not an exact match, so build.py validates every mapping below against this list and fails the build on a mismatch. Re-copy this list if the Form's options are edited.",
+  "form_category_map": {
+    "invitation": "Invitation / Personal Design",
+    "business-design": "Design / Print-ready Asset",
+    "presentation": "Presentation / PPT",
+    "social": "Social Media / Creator Content",
+    "creator": "Social Media / Creator Content",
+    "education": "Education / Study Material",
+    "exam-pyq": "Exam / PYQ Material",
+    "research": "Research / Intelligence",
+    "knowledge-to-product": "Knowledge-to-Product",
+    "web-google": "Business Digitalization",
+    "ai": "AI Workflow / Automation",
+    "professional": "Professional Authority",
+    "print": "Design / Print-ready Asset",
+    "custom": "Custom Digital Work"
+  },
+  "form_category_by_service_category": {
+    "google-business-profile": "Google Business Profile",
+    "whatsapp-business": "WhatsApp Business",
+    "websites": "Website / Landing Page",
+    "local-business": "Business Digitalization",
+    "medical-store": "Business Digitalization",
+    "education-business": "Business Digitalization",
+    "b2b": "Business Digitalization"
+  },
+  "form_category_unsure": "Not Sure / Need Recommendation",
+  "form_category_by_service_id": {
+    "free-digital-audit": "Not Sure / Need Recommendation"
   }
 }

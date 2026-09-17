@@ -179,7 +179,7 @@
   "social-media": [
     {
       "q": "क्या आप हमारे account पर post भी करेंगे?",
-      "a": "Post packs में design और caption drafts शामिल हैं; posting/scheduling नहीं। Regular management चाहिए तो Digital Saathi Care देखें।"
+      "a": "Post packs में design और caption drafts शामिल हैं; posting/scheduling नहीं। Regular management चाहिए तो Digital Saathi Monthly देखें।"
     },
     {
       "q": "Reel editing करते हैं?",
@@ -281,29 +281,97 @@
   "google-whatsapp": [
     {
       "q": "Google Business Profile की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design और management के लिए charge करता है — पुरानी listing ठीक करने का Google Business Fix {{price:google-business-fix}} से और Google + WhatsApp Starter {{price:digital-business-starter}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Profile Optimization {{price:google-business-fix}} से शुरू।"
     },
     {
       "q": "Verification कौन करेगा?",
-      "a": "Verification Google business owner से करवाता है (video, call या दूसरे तरीके से), इसलिए वह step आप करते हैं। हम पहले से सारी जानकारी तैयार रखते हैं और हर step पर guide करते हैं।"
+      "a": "Verification Google business owner से करवाता है (video, call या Google जो तरीका दे), इसलिए वह step आप करते हैं। हम पहले से सारी जानकारी तैयार रखते हैं और हर step पर guide करते हैं। Verification में Google की ओर से देरी हो सकती है, जो हमारे नियंत्रण में नहीं।"
     },
     {
       "q": "क्या आप Google Maps पर ऊपर दिखने की guarantee देते हैं?",
-      "a": "नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता। हम listing की जानकारी, category, photos और reviews का system Google की guidelines के अनुसार सही करते हैं।"
+      "a": "नहीं। Google ranking पर किसी agency का नियंत्रण नहीं होता, इसलिए ranking की guarantee कोई ईमानदार agency नहीं दे सकती। हम listing की जानकारी, category, photos और reviews का system Google की guidelines के अनुसार सही करते हैं।"
     },
     {
       "q": "क्या आप reviews लिखकर या खरीदकर देंगे?",
-      "a": "कभी नहीं। Fake या पैसे/offer देकर लिए गए reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का QR और message system बनाते हैं।"
+      "a": "कभी नहीं। Fake या पैसे/offer देकर लिए गए reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का QR और message बनाते हैं।"
+    },
+    {
+      "q": "Listing किसके account में रहेगी?",
+      "a": "हमेशा आपके अपने Google account में। हम सिर्फ़ manager access लेते हैं, जिसे आप कभी भी हटा सकते हैं। अगर कोई आपकी listing अपने account में बनाकर access न दे, तो वह खतरे का संकेत है।"
+    },
+    {
+      "q": "मेरी listing suspend हो गई है या duplicate बनी है — क्या आप ठीक करेंगे?",
+      "a": "हम जाँच करके Google के अनुसार सही steps (जैसे duplicate या गलत जानकारी के लिए suggestion, reinstatement request की तैयारी) में मदद करते हैं। पर फ़ैसला Google का होता है, इसलिए suspended listing वापस आने की guarantee नहीं दी जाती।"
     },
     {
       "q": "Setup के बाद हर महीने मदद मिलेगी?",
-      "a": "हाँ, अगर चाहें। Digital Saathi Care {{price:digital-saathi-monthly}}/महीना से listing updates, posts और छोटे बदलाव संभालता है। WhatsApp Business API, ads का खर्च और printing इसमें शामिल नहीं हैं।"
+      "a": "हाँ, अगर चाहें। Digital Saathi Monthly {{price:digital-saathi-monthly}}/महीना से Google posts, reviews के जवाब के drafts, timing/offer updates और monthly report संभालता है। Ads का खर्च और printing इसमें शामिल नहीं हैं।"
+    }
+  ],
+  "whatsapp-business": [
+    {
+      "q": "क्या WhatsApp Business app के पैसे लगते हैं?",
+      "a": "नहीं, WhatsApp Business app Meta की ओर से free है। Moodily profile, catalogue, quick replies, labels और QR के setup के लिए charge करता है — WhatsApp Business Basic Setup {{price:whatsapp-business-setup}} (fixed)।"
+    },
+    {
+      "q": "WhatsApp Business app और WhatsApp Business API में क्या फ़र्क है?",
+      "a": "App एक phone पर चलने वाला free app है — छोटे और मध्यम businesses के लिए काफ़ी। API बड़े volume, automated messages या कई लोगों के एक साथ जवाब देने के लिए है; उसके लिए provider चाहिए और Meta/provider के charges लगते हैं। हमारे Basic Setup में सिर्फ़ app का setup है — API का setup और उसके charges शामिल नहीं।"
+    },
+    {
+      "q": "क्या मेरा नंबर और chats मेरे पास ही रहेंगे?",
+      "a": "हाँ। Account आपके अपने नंबर पर रहता है और सारी settings आप कभी भी बदल सकते हैं। Personal WhatsApp से Business app पर जाने से पहले chat backup ज़रूर लें — हम setup से पहले यह step समझा देते हैं।"
+    },
+    {
+      "q": "Setup के लिए मुझे क्या देना होगा?",
+      "a": "Business का नाम, logo (अगर है), पता/Google Maps link, समय, catalogue के लिए products/services की photos, नाम और prices, और ग्राहकों के सबसे आम सवाल। Prices और product details की सटीकता आपकी ज़िम्मेदारी है।"
+    },
+    {
+      "q": "कितने दिन में setup हो जाएगा?",
+      "a": "पूरी जानकारी और photos मिलने के बाद आम तौर पर 2 working days। Setup के बाद 7 दिन तक WhatsApp पर सवाल पूछ सकते हैं।"
+    },
+    {
+      "q": "क्या आप broadcast या bulk messages भेजेंगे?",
+      "a": "Basic Setup में broadcast campaign चलाना शामिल नहीं है। Bulk या promotional messages के लिए ग्राहक की सहमति ज़रूरी है और WhatsApp की policy का पालन करना होता है — बिना सहमति spam भेजने से नंबर block हो सकता है। Ads/broadcast का खर्च अलग है।"
+    },
+    {
+      "q": "Google listing भी साथ में ठीक करवानी हो तो?",
+      "a": "तब Google + WhatsApp Starter {{price:digital-business-starter}} से बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
+    }
+  ],
+  "brochure-catalogue": [
+    {
+      "q": "Brochure और catalogue में क्या फ़र्क है?",
+      "a": "Brochure (या company profile) आपके business को एक नज़र में समझाता है — आप कौन हैं, क्या करते हैं, क्यों भरोसा करें। Catalogue products को category, code, specs और price के साथ व्यवस्थित करता है, ताकि ग्राहक या dealer order दे सके।"
+    },
+    {
+      "q": "Brochure या catalogue design का खर्च कितना है?",
+      "a": "Business Brochure {{price:business-brochure}} से (4 pages तक) और 40 products तक का Catalogue {{price:product-catalogue}} से शुरू होता है। Pages या products ज़्यादा हों तो लिखित quote मिलता है। Printing और product photography का खर्च अलग है।"
+    },
+    {
+      "q": "Content और prices कौन देगा?",
+      "a": "Products के नाम, prices, specs, GST/tax details, certifications और company की जानकारी आप देते हैं। हम उसे साफ़, पढ़ने लायक layout में रखते हैं और spelling जाँचते हैं, पर prices, tax या कानूनी जानकारी की सटीकता आपकी ज़िम्मेदारी है। शुरू से content writing का अलग quote है।"
+    },
+    {
+      "q": "मुझे कौन-सी files मिलेंगी?",
+      "a": "WhatsApp/email पर भेजने लायक हल्का PDF और printer को देने लायक print-ready PDF। Catalogue में आगे prices बदलने के लिए updatable template भी मिलता है। Editable Canva file केवल वहाँ, जहाँ इस्तेमाल हुए elements का licence अनुमति देता है।"
+    },
+    {
+      "q": "क्या आप printing भी करवाते हैं?",
+      "a": "Printing package में शामिल नहीं है। हम print-ready file देते हैं जिसे आप अपने local printer से छपवा सकते हैं; paper, size और quantity के अनुसार printing का खर्च अलग लगता है।"
+    },
+    {
+      "q": "क्या design exclusive होगा?",
+      "a": "Layout आपके content और brand के हिसाब से बनता है, पर जहाँ stock photos, icons या template elements इस्तेमाल होते हैं, वे exclusive या trademark करने लायक नहीं होते। पूरी तरह original brand पहचान चाहिए तो Starter Brand Kit {{price:business-identity-kit}} से देखें।"
+    },
+    {
+      "q": "Manufacturer हूँ — website, catalogue और quotation सब चाहिए, तो?",
+      "a": "तब B2B Digital Sales Kit {{price:b2b-digital-sales-kit}} से देखें — इसमें website, company profile, 60 products तक catalogue, editable quotation template और product presentation एक साथ हैं। Certifications या capacity के claims केवल वही लिखे जाते हैं जिनका प्रमाण आप देते हैं।"
     }
   ],
   "design": [
     {
       "q": "Logo design में क्या-क्या मिलता है?",
-      "a": "Logo Starter {{price:logo-starter}} से शुरू होता है — logo concepts, तय revisions और PNG/PDF files। पूरी पहचान (colours, fonts, visiting card, social templates) चाहिए तो Logo + Mini Brand Kit {{price:business-identity-kit}} से। सारे prices शुरुआती हैं।"
+      "a": "Logo Design {{price:logo-starter}} से शुरू होता है — logo concepts, तय revisions और PNG/PDF files। पूरी पहचान (colours, fonts, visiting card, social templates) चाहिए तो Starter Brand Kit {{price:business-identity-kit}} से। सारे prices शुरुआती हैं।"
     },
     {
       "q": "क्या मेरा logo exclusive और trademark-ready होगा?",

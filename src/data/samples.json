@@ -1,5 +1,5 @@
 {
-  "_readme": "Real work samples only. kind: self-initiated | client | concept. Web derivatives (webp, ≤300 KB) live in /assets/img/samples/; high-resolution originals stay outside the repository in the owner's content folders. Client work needs written permission before status 'published'. Private files (emails, IDs, startup blueprints, third-party study material) must never be added.",
+  "_readme": "Canonical Moodily sample registry. Every sample maps to an existing service id in services.json — prices are NEVER stored here, they are read from that one registry. sample_type must be one of: real-client, moodily-internal, self-initiated, concept. A concept sample is never presented as client work. 'image' = a real web-optimised asset under /assets/img/samples/. 'preview' = an inline-SVG concept preview key (build.py -> _sample_preview); concept previews add no files to the repo.",
   "samples": [
     {
       "id": "moodily-website",
@@ -23,7 +23,28 @@
       "status": "published",
       "image": "/assets/img/samples/moodily-website-desktop.webp",
       "width": 1000,
-      "height": 659
+      "height": 659,
+      "sample_type": "moodily-internal",
+      "category": "website",
+      "customer_types": [
+        "local-business",
+        "professional",
+        "startup",
+        "b2b"
+      ],
+      "slug": "business-website",
+      "catalogue_title": "Business Website — sample",
+      "service": "business-website",
+      "who": "ऐसा business जिसे अपनी website चाहिए — अपने नाम पर, किराए की listing पर नहीं।",
+      "solves": "ग्राहक Google पर आपको ढूँढता है और भरोसे लायक कुछ नहीं मिलता। Website आपकी अपनी जगह है जहाँ पूरी जानकारी एक साथ मिलती है।",
+      "customises": [
+        "आपका content, photos और services",
+        "आपका domain और branding",
+        "Enquiry form और WhatsApp button",
+        "Hindi, English या दोनों"
+      ],
+      "case_study": null,
+      "featured": true
     },
     {
       "id": "moodily-website-mobile",
@@ -43,7 +64,27 @@
       "status": "published",
       "image": "/assets/img/samples/moodily-website-mobile.webp",
       "width": 400,
-      "height": 800
+      "height": 800,
+      "sample_type": "moodily-internal",
+      "category": "website",
+      "customer_types": [
+        "local-business",
+        "professional",
+        "startup"
+      ],
+      "slug": "landing-page",
+      "catalogue_title": "Landing Page — mobile sample",
+      "service": "landing-page",
+      "who": "जिसे एक साफ़ page चाहिए — एक offer, एक service या एक campaign के लिए।",
+      "solves": "Instagram या WhatsApp से आने वाला ग्राहक कहाँ जाए? एक ऐसा page जो phone पर तेज़ खुले और enquiry ले।",
+      "customises": [
+        "आपका offer और copy",
+        "Phone-first layout",
+        "WhatsApp और call button",
+        "Lead form"
+      ],
+      "case_study": null,
+      "featured": true
     },
     {
       "id": "ncert-how-we-breathe",
@@ -63,7 +104,26 @@
       "status": "published",
       "image": "/assets/img/samples/ncert-how-we-breathe.webp",
       "width": 640,
-      "height": 906
+      "height": 906,
+      "sample_type": "self-initiated",
+      "category": "education",
+      "customer_types": [
+        "student-educator",
+        "coaching-library"
+      ],
+      "slug": "educational-pdf",
+      "catalogue_title": "Educational PDF — visual chapter",
+      "service": "educational-pdf-module",
+      "who": "Teacher, coaching centre या subject expert जिसे chapter पढ़ाने लायक PDF चाहिए।",
+      "solves": "Textbook का chapter लंबा है और बच्चे उसे दोहरा नहीं पाते। Visual PDF वही chapter पढ़ने और revise करने लायक बनाती है।",
+      "customises": [
+        "आपका chapter या syllabus",
+        "Board / exam pattern",
+        "भाषा — Hindi, English या दोनों",
+        "आपकी coaching की branding"
+      ],
+      "case_study": "ncert-respiratory-visual-learning",
+      "featured": true
     },
     {
       "id": "ai-with-saurabh-channel-art",
@@ -85,7 +145,26 @@
       "status": "published",
       "image": "/assets/img/samples/ai-with-saurabh-channel-art.webp",
       "width": 1000,
-      "height": 563
+      "height": 563,
+      "sample_type": "self-initiated",
+      "category": "creator",
+      "customer_types": [
+        "creator",
+        "professional"
+      ],
+      "slug": "creator-content-pack",
+      "catalogue_title": "Creator Content Pack — channel identity",
+      "service": "creator-content-sprint",
+      "who": "Creator या expert जो YouTube/Instagram पर एक जैसी पहचान चाहता है।",
+      "solves": "हर video का thumbnail अलग दिखता है, channel एक brand जैसा नहीं लगता। एक तय visual system इसे ठीक करता है।",
+      "customises": [
+        "आपका channel नाम और niche",
+        "Colour और type system",
+        "Thumbnail templates",
+        "Banner और profile assets"
+      ],
+      "case_study": "ayurveda-channel-strategy",
+      "featured": false
     },
     {
       "id": "short-one-book-five-study-tools",
@@ -105,7 +184,499 @@
       "status": "published",
       "image": "/assets/img/samples/short-one-book-five-study-tools.webp",
       "width": 360,
-      "height": 640
+      "height": 640,
+      "sample_type": "self-initiated",
+      "category": "education",
+      "customer_types": [
+        "student-educator",
+        "coaching-library"
+      ],
+      "slug": "exam-study-system",
+      "catalogue_title": "Study Material System — one chapter, five tools",
+      "service": "education-content-pack",
+      "who": "Coaching centre, library या educator जिसे पूरा study kit चाहिए, सिर्फ़ notes नहीं।",
+      "solves": "एक chapter से notes, mind map, flashcards, quiz और revision sheet — पढ़ाने और दोहराने दोनों के लिए।",
+      "customises": [
+        "आपका syllabus और exam",
+        "Tools की संख्या और तरह",
+        "Batch-wise branding",
+        "Print या digital delivery"
+      ],
+      "case_study": "uppcs-intelligence-brief",
+      "featured": true
+    },
+    {
+      "id": "google-business-makeover",
+      "slug": "google-business-makeover",
+      "title": "Google Business Makeover",
+      "catalogue_title": "Google Business Makeover",
+      "sample_type": "concept",
+      "category": "google-business",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "medical-store",
+        "coaching-library"
+      ],
+      "service": "google-business-fix",
+      "who": "कोई भी local business जिसकी Google listing अधूरी, पुरानी या गलत है।",
+      "solves": "ग्राहक Google Maps पर आपको ढूँढता है और उसे गलत समय, पुराना नंबर या कोई photo नहीं मिलती — वह अगली दुकान पर चला जाता है।",
+      "customises": [
+        "आपकी category और services",
+        "असली photos — अंदर, बाहर, team",
+        "सही समय, नंबर और directions",
+        "Review माँगने का QR और तरीका"
+      ],
+      "preview": "gbp",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "kind": "concept",
+      "services": [
+        "google-business-fix"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Google Business Makeover — concept preview",
+      "description": "ग्राहक Google Maps पर आपको ढूँढता है और उसे गलत समय, पुराना नंबर या कोई photo नहीं मिलती — वह अगली दुकान पर चला जाता है।"
+    },
+    {
+      "id": "whatsapp-business-starter",
+      "slug": "whatsapp-business-starter",
+      "title": "WhatsApp Business Starter",
+      "catalogue_title": "WhatsApp Business Starter",
+      "sample_type": "concept",
+      "category": "whatsapp",
+      "customer_types": [
+        "local-business",
+        "restaurant",
+        "salon-gym",
+        "medical-store"
+      ],
+      "service": "whatsapp-business-setup",
+      "who": "वह business जो पहले से WhatsApp पर order लेता है, पर सब कुछ हाथ से टाइप करता है।",
+      "solves": "हर ग्राहक को price list दोबारा टाइप करना पड़ता है और पूछे गए सवाल का जवाब देर से जाता है।",
+      "customises": [
+        "आपका catalogue — items, दाम, photos",
+        "Greeting और away message",
+        "5 quick replies आपके आम सवालों के लिए",
+        "Chat QR जो counter पर लगे"
+      ],
+      "preview": "whatsapp",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "kind": "concept",
+      "services": [
+        "whatsapp-business-setup"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "WhatsApp Business Starter — concept preview",
+      "description": "हर ग्राहक को price list दोबारा टाइप करना पड़ता है और पूछे गए सवाल का जवाब देर से जाता है।"
+    },
+    {
+      "id": "local-business-starter-kit",
+      "slug": "local-business-starter-kit",
+      "title": "Local Business Starter Kit",
+      "catalogue_title": "Local Business Starter Kit",
+      "sample_type": "concept",
+      "category": "business",
+      "customer_types": [
+        "local-business",
+        "salon-gym",
+        "restaurant",
+        "medical-store"
+      ],
+      "service": "digital-business-starter",
+      "who": "दुकान, सैलून, रेस्टोरेंट या कोई भी local business जो digital पर शुरुआत कर रहा है।",
+      "solves": "Google, WhatsApp, visiting card और creatives — सब अलग-अलग जगह से बनवाने के बजाय एक साथ, एक जैसी पहचान के साथ।",
+      "customises": [
+        "Google + WhatsApp दोनों का setup",
+        "आपका digital visiting card",
+        "QR codes — chat और review",
+        "3 creatives आपके offer/त्योहार के लिए"
+      ],
+      "preview": "starter",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "kind": "concept",
+      "services": [
+        "digital-business-starter"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Local Business Starter Kit — concept preview",
+      "description": "Google, WhatsApp, visiting card और creatives — सब अलग-अलग जगह से बनवाने के बजाय एक साथ, एक जैसी पहचान के साथ।"
+    },
+    {
+      "id": "product-catalogue",
+      "slug": "product-catalogue",
+      "title": "Product / Service Catalogue",
+      "catalogue_title": "Product / Service Catalogue",
+      "sample_type": "concept",
+      "category": "catalogue",
+      "customer_types": [
+        "local-business",
+        "b2b",
+        "restaurant",
+        "wedding-event"
+      ],
+      "service": "product-catalogue",
+      "who": "वह business जिसे बार-बार अपनी item list भेजनी पड़ती है।",
+      "solves": "ग्राहक पूछता है 'क्या-क्या है?' और आप हर बार photos और दाम अलग-अलग भेजते हैं। एक catalogue एक बार भेजने लायक होता है।",
+      "customises": [
+        "आपके products, दाम और photos",
+        "Category-wise क्रम",
+        "WhatsApp पर भेजने लायक size",
+        "Print और digital दोनों version"
+      ],
+      "preview": "catalogue",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "pdf",
+        "print-pdf",
+        "png"
+      ],
+      "kind": "concept",
+      "services": [
+        "product-catalogue"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Product / Service Catalogue — concept preview",
+      "description": "ग्राहक पूछता है 'क्या-क्या है?' और आप हर बार photos और दाम अलग-अलग भेजते हैं। एक catalogue एक बार भेजने लायक होता है।"
+    },
+    {
+      "id": "business-brochure",
+      "slug": "business-brochure",
+      "title": "Business Brochure",
+      "catalogue_title": "Business Brochure",
+      "sample_type": "concept",
+      "category": "design",
+      "customer_types": [
+        "local-business",
+        "b2b",
+        "professional",
+        "coaching-library"
+      ],
+      "service": "business-brochure",
+      "who": "वह business जिसे अपनी बात एक page में रखनी है — meeting, exhibition या WhatsApp के लिए।",
+      "solves": "आप क्या करते हैं, किसके लिए करते हैं और क्यों — यह हर बार बोलकर समझाना पड़ता है।",
+      "customises": [
+        "आपका content और photos",
+        "Print-ready या WhatsApp version",
+        "आपके brand colours",
+        "Fold या single-page layout"
+      ],
+      "preview": "brochure",
+      "case_study": null,
+      "featured": false,
+      "status": "published",
+      "formats": [
+        "pdf",
+        "print-pdf"
+      ],
+      "kind": "concept",
+      "services": [
+        "business-brochure"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Business Brochure — concept preview",
+      "description": "आप क्या करते हैं, किसके लिए करते हैं और क्यों — यह हर बार बोलकर समझाना पड़ता है।"
+    },
+    {
+      "id": "digital-visiting-card",
+      "slug": "digital-visiting-card",
+      "title": "Digital Visiting Card",
+      "catalogue_title": "Digital Visiting Card",
+      "sample_type": "concept",
+      "category": "design",
+      "customer_types": [
+        "local-business",
+        "professional",
+        "creator",
+        "b2b"
+      ],
+      "service": "digital-visiting-card",
+      "who": "कोई भी जो अपना नंबर WhatsApp पर भेजता है।",
+      "solves": "कागज़ का card जेब में खो जाता है। Digital card forward हो जाता है और उस पर tap करके call या WhatsApp खुल जाता है।",
+      "customises": [
+        "आपका नाम, काम और नंबर",
+        "Logo और colours",
+        "WhatsApp, call, location links",
+        "PNG और PDF दोनों"
+      ],
+      "preview": "vcard",
+      "case_study": null,
+      "featured": false,
+      "status": "published",
+      "formats": [
+        "png",
+        "pdf"
+      ],
+      "kind": "concept",
+      "services": [
+        "digital-visiting-card"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Digital Visiting Card — concept preview",
+      "description": "कागज़ का card जेब में खो जाता है। Digital card forward हो जाता है और उस पर tap करके call या WhatsApp खुल जाता है।"
+    },
+    {
+      "id": "social-campaign-pack",
+      "slug": "social-campaign-pack",
+      "title": "Social Media Campaign Pack",
+      "catalogue_title": "Social Media Campaign Pack",
+      "sample_type": "concept",
+      "category": "social",
+      "customer_types": [
+        "local-business",
+        "restaurant",
+        "salon-gym",
+        "creator",
+        "wedding-event"
+      ],
+      "service": "social-campaign-kit",
+      "who": "वह business जिसे त्योहार, offer या launch के लिए एक साथ creatives चाहिए।",
+      "solves": "हर post अलग दिखती है और campaign एक जैसा नहीं लगता। एक pack में सब एक सुर में रहता है।",
+      "customises": [
+        "आपका offer और तारीख़ें",
+        "Post, story और carousel sizes",
+        "आपके brand colours",
+        "Hindi/English caption"
+      ],
+      "preview": "social",
+      "case_study": null,
+      "featured": false,
+      "status": "published",
+      "formats": [
+        "png",
+        "jpg",
+        "mp4"
+      ],
+      "kind": "concept",
+      "services": [
+        "social-campaign-kit"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Social Media Campaign Pack — concept preview",
+      "description": "हर post अलग दिखती है और campaign एक जैसा नहीं लगता। एक pack में सब एक सुर में रहता है।"
+    },
+    {
+      "id": "presentation-ppt",
+      "slug": "presentation-ppt",
+      "title": "Presentation / PPT",
+      "catalogue_title": "Presentation / PPT",
+      "sample_type": "concept",
+      "category": "presentation",
+      "customer_types": [
+        "professional",
+        "b2b",
+        "startup",
+        "coaching-library"
+      ],
+      "service": "presentation-design-only",
+      "who": "कोई भी जिसे अपनी बात slides में रखनी है — client, investor या class के लिए।",
+      "solves": "Content तैयार है पर slides भरी-भरी और बेतरतीब लगती हैं। साफ़ slides में वही बात समझ आ जाती है।",
+      "customises": [
+        "आपका content और data",
+        "Slide count और flow",
+        "आपकी branding",
+        "PPTX — आप खुद edit कर सकें"
+      ],
+      "preview": "ppt",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "pptx",
+        "pdf"
+      ],
+      "kind": "concept",
+      "services": [
+        "presentation-design-only"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Presentation / PPT — concept preview",
+      "description": "Content तैयार है पर slides भरी-भरी और बेतरतीब लगती हैं। साफ़ slides में वही बात समझ आ जाती है।"
+    },
+    {
+      "id": "digital-invitation",
+      "slug": "digital-invitation",
+      "title": "Digital Invitation",
+      "catalogue_title": "Digital Invitation",
+      "sample_type": "concept",
+      "category": "invitation",
+      "customer_types": [
+        "wedding-event",
+        "local-business"
+      ],
+      "service": "invitation-digital",
+      "who": "शादी, गृहप्रवेश, जन्मदिन, opening या किसी भी function के लिए।",
+      "solves": "छपे हुए card महँगे हैं और सबको पहुँचते नहीं। Digital invitation WhatsApp पर उसी दिन सबके पास पहुँच जाता है।",
+      "customises": [
+        "नाम, तारीख़, जगह, समय",
+        "Theme और colours",
+        "Map link और RSVP number",
+        "Static या animated"
+      ],
+      "preview": "invite",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "png",
+        "pdf",
+        "mp4",
+        "gif"
+      ],
+      "kind": "concept",
+      "services": [
+        "invitation-digital"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Digital Invitation — concept preview",
+      "description": "छपे हुए card महँगे हैं और सबको पहुँचते नहीं। Digital invitation WhatsApp पर उसी दिन सबके पास पहुँच जाता है।"
+    },
+    {
+      "id": "research-intelligence-report",
+      "slug": "research-intelligence-report",
+      "title": "Research Intelligence Report",
+      "catalogue_title": "Research Intelligence Report",
+      "sample_type": "concept",
+      "category": "research",
+      "customer_types": [
+        "b2b",
+        "professional",
+        "startup",
+        "creator"
+      ],
+      "service": "research-intelligence-sprint",
+      "who": "वह जिसे किसी market, competitor या topic पर भरोसे लायक brief चाहिए।",
+      "solves": "जानकारी बिखरी हुई है और हर source अलग बात कहता है। एक brief में वही सब जाँचकर, source के साथ रखा जाता है।",
+      "customises": [
+        "आपका सवाल और scope",
+        "कितने competitors या sources",
+        "Format — PDF, slides या दोनों",
+        "हर दावे पर source"
+      ],
+      "preview": "research",
+      "case_study": null,
+      "featured": false,
+      "status": "published",
+      "formats": [
+        "pdf",
+        "pptx"
+      ],
+      "kind": "concept",
+      "services": [
+        "research-intelligence-sprint"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Research Intelligence Report — concept preview",
+      "description": "जानकारी बिखरी हुई है और हर source अलग बात कहता है। एक brief में वही सब जाँचकर, source के साथ रखा जाता है।"
+    },
+    {
+      "id": "knowledge-to-product",
+      "slug": "knowledge-to-product",
+      "title": "Knowledge-to-Product",
+      "catalogue_title": "Knowledge-to-Product",
+      "sample_type": "concept",
+      "category": "knowledge",
+      "customer_types": [
+        "professional",
+        "creator",
+        "coaching-library",
+        "student-educator"
+      ],
+      "service": "knowledge-to-product",
+      "who": "वह expert जिसके पास सालों का knowledge है पर बेचने लायक कुछ नहीं।",
+      "solves": "आपका अनुभव notes, calls और files में बिखरा है। उसे एक ऐसी चीज़ में बदलना जो भेजी, बेची या सिखाई जा सके।",
+      "customises": [
+        "आपका मौजूदा material",
+        "Product की शक्ल — guide, course या kit",
+        "Depth और length",
+        "Delivery format"
+      ],
+      "preview": "knowledge",
+      "case_study": "mind-map-second-brain",
+      "featured": false,
+      "status": "published",
+      "formats": [
+        "pdf",
+        "pptx",
+        "docs"
+      ],
+      "kind": "concept",
+      "services": [
+        "knowledge-to-product"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "Knowledge-to-Product — concept preview",
+      "description": "आपका अनुभव notes, calls और files में बिखरा है। उसे एक ऐसी चीज़ में बदलना जो भेजी, बेची या सिखाई जा सके।"
+    },
+    {
+      "id": "ai-workflow-system",
+      "slug": "ai-workflow-system",
+      "title": "AI Workflow System",
+      "catalogue_title": "AI Workflow System",
+      "sample_type": "concept",
+      "category": "ai",
+      "customer_types": [
+        "professional",
+        "startup",
+        "b2b",
+        "creator"
+      ],
+      "service": "ai-automation-starter",
+      "who": "वह जो हर दिन एक ही तरह का दोहराने वाला digital काम करता है।",
+      "solves": "Email पढ़ना, छाँटना, जवाब लिखना, follow-up लिखना — हर दिन वही क्रम। Workflow वह क्रम तय कर देता है, आपकी मंज़ूरी के साथ।",
+      "customises": [
+        "आपका मौजूदा process",
+        "कहाँ इंसान की मंज़ूरी ज़रूरी है",
+        "आपके tools",
+        "Handover और training"
+      ],
+      "preview": "workflow",
+      "case_study": null,
+      "featured": true,
+      "status": "published",
+      "formats": [
+        "docs",
+        "other"
+      ],
+      "kind": "concept",
+      "services": [
+        "ai-automation-starter"
+      ],
+      "frame": null,
+      "image": null,
+      "alt": "AI Workflow System — concept preview",
+      "description": "Email पढ़ना, छाँटना, जवाब लिखना, follow-up लिखना — हर दिन वही क्रम। Workflow वह क्रम तय कर देता है, आपकी मंज़ूरी के साथ।"
     }
   ]
 }
