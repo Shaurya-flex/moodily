@@ -208,13 +208,18 @@ section+section{border-top:1px solid var(--line)}
 
 /* hero */
 .hero{padding:clamp(32px,4vw,60px) 0 clamp(36px,4vw,60px);border-top:0}
-.hero h1{max-width:26ch;text-wrap:balance;letter-spacing:-.015em;font-size:clamp(1.95rem,3.8vw,2.9rem)}  /* 2.9rem leaves the longer sentence ~40px of slack in its column; 3.1rem was a dead tie that wrapped */
+.hero h1{max-width:26ch;text-wrap:balance;letter-spacing:-.015em;font-size:clamp(1.95rem,3.3vw,2.5rem)}
+/* Sized to the balanced hero column: at 2.5rem the longer sentence needs ~581px inside a 598px
+   track, so each sentence keeps its own line. Larger caps re-split it mid-phrase. */
 /* Two deliberate lines, one sentence each — never three ragged ones. Above 900px the grid
    column already bounds the line, so a ch cap would only re-introduce a mid-sentence break. */
 @media (min-width:900px){.hero h1{max-width:none}.hero h1 span{display:block}}
 .hero h1 span{color:var(--indigo)}
 .hero .lead{max-width:48ch;text-wrap:pretty}
-.herogrid{display:grid;grid-template-columns:minmax(0,1.24fr) minmax(0,.76fr);gap:clamp(28px,3.4vw,52px);align-items:center}
+.herogrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,3.4vw,56px);align-items:center}
+/* the copy column gets a measure rather than filling its track, so the two sides carry
+   comparable visual weight instead of one looking stretched and the other squeezed */
+.herogrid>div:first-child{max-width:40rem}
 @media (max-width:900px){.herogrid{grid-template-columns:1fr;gap:28px}}
 .trust-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:22px;padding:0;list-style:none;font-size:.9rem;color:var(--ink-2)}
 .trust-row li::before{content:"✓ ";color:var(--leaf);font-weight:700}
@@ -435,12 +440,15 @@ legend{font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-b
 /* founding offer */
 html:not(.offer-ended) .regular-only{display:none!important}
 html.offer-ended .offer-only{display:none!important}
-.offer-banner{background:linear-gradient(100deg,var(--panel),var(--panel-2));color:#fff}
-.offer-inner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 20px}
-.offer-banner p{margin:0;color:#fff;font-size:.93rem}
-.offer-banner a:not(.btn){color:#fff}
-.offer-banner .badge-offer{background:var(--accent);color:var(--accent-on);border-color:transparent}
-.offer-btn{background:#fff;color:#1d1a3d!important;margin-left:auto;border-color:transparent}
+.offer-banner{background:var(--surface-sunken);color:var(--text);border-bottom:1px solid var(--border)}
+[data-theme="dark"] .offer-banner{background:var(--surface)}
+.offer-inner{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;padding:8px 20px;font-size:.9rem}
+.offer-banner p{margin:0;color:var(--text-muted);font-size:.88rem}
+.offer-banner p strong{color:var(--text)}
+.offer-banner a:not(.btn){color:var(--text-muted)}
+.offer-banner .badge-offer{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-size:.72rem}
+.offer-btn{background:transparent;color:var(--primary)!important;margin-left:auto;border:1px solid var(--border-strong)}
+.offer-btn:hover{border-color:var(--primary);background:var(--primary-soft)}
 .badge-offer{background:var(--accent);color:var(--accent-on);border-color:transparent;margin:0 6px 0 0}
 .price-was{color:var(--ink-2);font-size:1rem;font-weight:600;text-decoration:line-through}
 .offer-note{font-size:.9rem;color:var(--ink-2);margin:6px 0 0}
@@ -703,6 +711,7 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
 
 /* ---------------------------------------------------------------- scorecard on new tokens */
 .scorecard{background:var(--surface-elevated);box-shadow:var(--shadow)}
+@media (max-width:899px){.scorecard{margin-top:6px}}
 .score-num{color:var(--primary)}
 .score-done{background:var(--success-soft);color:var(--success)}
 .score-part{background:var(--warning-soft);color:var(--warning)}
@@ -754,13 +763,14 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
    Every number carries its source, year and link. No number ships without one. */
 .evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
 @media (max-width:900px){.evidence-grid{grid-template-columns:1fr}}
-.evidence{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px)}
-.evidence-num{font-family:var(--font-display);font-size:clamp(2rem,4vw,2.6rem);font-weight:700;line-height:1;color:var(--primary);margin:0 0 8px}
+.evidence{display:flex;flex-direction:column;background:transparent;border:0;border-top:2px solid var(--border);border-radius:0;padding:clamp(16px,1.8vw,20px) 0 0}
+.evidence-num{font-family:var(--font-display);font-size:clamp(1.9rem,3.4vw,2.35rem);font-weight:700;line-height:1;color:var(--primary);margin:0 0 6px}
 .evidence-claim{margin:0 0 12px;font-size:.97rem}
 .evidence-src{margin:auto 0 0;padding-top:12px;border-top:1px solid var(--border);font-size:.82rem;color:var(--text-muted)}
 .evidence-src a{color:var(--text-muted);text-decoration:underline}
 .evidence-src a:hover{color:var(--primary)}
 .means{background:var(--primary-soft);border:1px solid var(--border);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px);margin-top:var(--space-gap)}
+.evidence-grid{gap:clamp(20px,2.4vw,32px)}
 .means h3{margin:0 0 10px;font-size:1.06rem}
 .means dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 24px;margin:0}
 @media (max-width:760px){.means dl{grid-template-columns:1fr}}
@@ -815,9 +825,15 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
 /* evidence: number -> what it measures -> what to do, inside one card */
 .evidence-num{margin-bottom:6px}
 .evidence-claim{margin:0 0 10px;font-size:1rem;line-height:1.5}
-.evidence-src{margin:0;padding:0 0 14px;border:0;font-size:.8rem;color:var(--text-muted)}
-.evidence-act{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
+.evidence-src{margin:0;padding:0 0 12px;border:0;font-size:.78rem;color:var(--text-muted)}
+.evidence-act{margin-top:auto;padding-top:12px}
 .evidence-act-h{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin:0 0 6px}
 .evidence-act p{margin:0 0 6px;font-size:.94rem}
 .evidence-act p.small{margin:0;line-height:1.7}
 .evidence-note{margin-top:16px;max-width:76ch}
+
+/* evidence methodology: available, not shouted */
+details.evidence-note{margin-top:20px;max-width:76ch}
+details.evidence-note>summary{cursor:pointer;font-size:.85rem;color:var(--text-muted);font-weight:600}
+details.evidence-note>summary:hover{color:var(--primary)}
+details.evidence-note p{margin:10px 0 0}

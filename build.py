@@ -109,6 +109,13 @@ def in_offer(svc):
     return bool(OFFER_STATE and svc["id"] in OFFER["services"] and svc.get("price_from"))
 
 
+def offer_show_pct():
+    """A discount percentage is published only when the owner has confirmed it is true against a
+    FIXED regular price. These packages are 'starts_at', so the percentage is computed off a 'from'
+    figure and the delivered price varies — we show the real introductory price instead."""
+    return bool(OFFER.get("show_percentage"))
+
+
 def offer_price(svc):
     return svc["price_from"] * (100 - int(OFFER["discount_pct"])) // 100
 
@@ -143,13 +150,14 @@ def offer_banner(route):
     if not OFFER_STATE or route in NO_BANNER:
         return ""
     return ('<aside class="offer-banner offer-only" aria-label="{name} offer"><div class="container offer-inner">'
-            '<p><span class="badge badge-offer">{pct}% OFF</span> <strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर {pct}% छूट</p>'
+            '<p>{badge}<strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर introductory pricing</p>'
             '{meta}'
             '<a class="btn btn-sm offer-btn" href="/offers/{id}/" data-track="offer_cta_click" data-label="banner">Offer देखें →</a></div></aside>').format(
-        name=e(OFFER["name"]), pct=OFFER["discount_pct"], total=OFFER["slots_total"], id=OFFER["id"],
+        name=e(OFFER["name"]), total=OFFER["slots_total"], id=OFFER["id"],
+        badge=('<span class="badge badge-offer">{}% OFF</span> '.format(OFFER["discount_pct"]) if offer_show_pct() else ""),
         meta=('<p class="offer-meta"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span data-countdown>{} तक</span></p>'.format(
             OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
-            else '<p class="offer-meta">Introductory pricing · <a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"])))
+            else '<p class="offer-meta"><a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"])))
 
 
 def e(value):
@@ -278,9 +286,11 @@ def price_html(svc):
         "" if exact else '<span class="price-from">{}</span>'.format(lab["from_suffix"]))
     if not offer:
         return regular
-    return ('<p class="price offer-only"><span class="badge badge-offer">{pct}% OFF · {name}</span> <strong>₹{op}</strong> '
+    return ('<p class="price offer-only"><span class="badge badge-offer">{label}</span> <strong>₹{op}</strong> '
             '<s class="price-was"><span class="sr-only">Regular starting price </span>₹{reg}</s></p>').format(
-        pct=OFFER["discount_pct"], name=e(OFFER["name"]), op=inr(offer_price(svc)), reg=inr(svc["price_from"])) + regular
+        label=('{}% OFF · {}'.format(OFFER["discount_pct"], e(OFFER["name"])) if offer_show_pct()
+               else '{} · introductory'.format(e(OFFER["name"]))),
+        op=inr(offer_price(svc)), reg=inr(svc["price_from"])) + regular
 
 
 def card_attrs(svc):
@@ -599,8 +609,8 @@ def c_lead_form(args, ctx):
                                             "यह form WhatsApp पर भेजा जाएगा — button दबाते ही आपकी भरी हुई जानकारी के साथ "
                                             "WhatsApp खुलेगा, बस Send दबाइए। तब तक Moodily तक कुछ नहीं पहुँचता।"),
                                 budgets=opt(budgets), services=service_opts, offer_id=e(OFFER["id"]) if OFFER_STATE else "",
-                                offer_note=e("आप {} offer ({}% छूट) के लिए enquiry कर रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।".format(
-                                    OFFER.get("name", ""), OFFER.get("discount_pct", ""))))
+                                offer_note=e("आप {} introductory pricing के लिए enquiry कर रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।".format(
+                                    OFFER.get("name", ""))))
 
 
 FORM_TEMPLATE = """
@@ -656,11 +666,13 @@ def c_offer_details(args, ctx):
                          btn=offer_pay_button(s), page=s["page"], id=s["id"]))
     return ('<section class="offer-section offer-only" id="offer-{id}" aria-labelledby="offer-h"><div class="container">'
             '<div class="section-head"><p class="eyebrow">{name} · सिर्फ़ पहले {total} ग्राहक</p>'
-            '<h2 id="offer-h">{n} starter packages पर {pct}% छूट</h2>'
+            '<h2 id="offer-h">{heading}</h2>'
             '{urgency}'
             '<p class="muted small">Scope वही जो regular package में है — सिर्फ़ दाम कम। Slot पूरा payment मिलने पर पक्का होता है। <a href="/offers/{id}/">पूरी शर्तें</a></p></div>'
             '<div class="grid grid-3">{cards}</div></div></section>').format(
-        id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]), pct=OFFER["discount_pct"],
+        id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]),
+        heading=('{} starter packages पर {}% छूट'.format(len(OFFER["services"]), OFFER["discount_pct"]) if offer_show_pct()
+                 else 'Founding client pricing — {} starter packages'.format(len(OFFER["services"]))),
         cards="".join(cards),
         urgency=('<p class="lead"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span class="countdown" data-countdown>{} तक</span></p>'.format(
             OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
@@ -672,7 +684,8 @@ def c_offer_terms(args, ctx):
     deadline = e(offer_deadline_hi()) if OFFER_STATE else e(OFFER.get("ends_at", ""))
     total, pct = OFFER.get("slots_total"), OFFER.get("discount_pct")
     items = [
-        "{} offer: {} पर regular starting price से {}% छूट।".format(e(OFFER.get("name")), names, pct),
+        ("{} offer: {} पर regular starting price से {}% छूट।".format(e(OFFER.get("name")), names, pct) if offer_show_pct()
+         else "{}: {} पर founding client introductory pricing — regular starting price से कम।".format(e(OFFER.get("name")), names)),
         "कुल {} founding slots — इन packages को मिलाकर। Offer {} तक या सभी slots भरने तक, जो पहले हो।".format(total, deadline),
         "Slot तभी पक्का होता है जब founding price का पूरा payment मिल जाए। सिर्फ़ enquiry या WhatsApp message से slot reserve नहीं होता।",
         "हर business के लिए एक founding slot।",
@@ -1334,9 +1347,15 @@ def _mock(kind):
                       + r(166, 40, 86, 62, SUNK, 6) + r(176, 50, 66, 8, P) + r(176, 62, 52, 6) + r(176, 74, 66, 6) + chip(176, 86, 46, A)
                       + r(14, 112, 238, 22, SUNK, 6) + r(24, 120, 96, 7) + chip(196, 115, 48, G))
     art = M.get(kind, "")
-    return ('<svg class="ba-mock" viewBox="0 0 266 148" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet">'
-            '<rect width="266" height="148" fill="{}"/>{}</svg>').format(
-        e(BA_MOCK_ALT.get(kind, "Illustrative interface sample")), "var(--surface-sunken)", art)
+    # a dashed frame + an in-image tag: this is a Moodily diagram, not a product screenshot
+    frame = ('<rect x="1.5" y="1.5" width="263" height="145" rx="9" fill="var(--surface-sunken)" '
+             'stroke="var(--border-strong)" stroke-width="1.5" stroke-dasharray="6 4"/>')
+    tag = ('<g transform="translate(200,6)"><rect width="60" height="14" rx="7" fill="var(--primary-soft)"/>'
+           '<text x="30" y="10" font-size="8" letter-spacing="1.2" text-anchor="middle" '
+           'fill="var(--primary)" font-family="sans-serif">NAMUNA</text></g>')
+    return ('<svg class="ba-mock" viewBox="0 0 266 154" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet">'
+            '{}<g transform="translate(0,6)">{}</g>{}</svg>').format(
+        e(BA_MOCK_ALT.get(kind, "Illustrative interface sample")), frame, art, tag)
 
 
 BA_MOCK_ALT = {
@@ -1630,10 +1649,12 @@ def c_evidence(args, ctx):
         act = means.get(cd["id"])
         action = ""
         if act:
-            links = " · ".join('<a href="{}#{}">{}</a>'.format(SERVICES[x]["page"], x, e(SERVICES[x]["name"]))
-                               for x in act.get("services", []) if x in SERVICES)
+            # one best next action reads stronger than three competing links
+            first = next((x for x in act.get("services", []) if x in SERVICES), None)
+            link = ('<a href="{}#{}" data-track="service_card_click" data-label="evidence:{}">{} →</a>'.format(
+                SERVICES[first]["page"], first, first, e(SERVICES[first]["name"])) if first else "")
             action = ('<div class="evidence-act"><p class="evidence-act-h">आपको क्या करना चाहिए</p>'
-                      '<p>{do}</p><p class="small">{links}</p></div>').format(do=e(act["solution"]), links=links)
+                      '<p>{do}</p><p class="small">{link}</p></div>').format(do=e(act["solution"]), link=link)
         cards.append(
             '<article class="evidence" data-view="evidence_card_view|{id}">'
             '<p class="evidence-num">{num}</p><p class="evidence-claim">{claim}</p>'
@@ -1641,9 +1662,10 @@ def c_evidence(args, ctx):
             '{action}</article>'.format(
                 id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]),
                 url=e(cd["url"]), src=e(cd["source"].split(",")[0]), year=e(cd["year"]), action=action))
-    note = ('<p class="small muted evidence-note">हर आँकड़ा भारत का है, source और साल के साथ — दूसरे देश का आँकड़ा '
-            'भारत के नाम पर नहीं दिखाया जाता। ये आँकड़े बाज़ार के बारे में हैं, किसी एक business के नतीजे की guarantee नहीं। '
-            'पिछली जाँच: {}।</p>').format(e(EVIDENCE["last_reviewed"]))
+    note = ('<details class="evidence-note"><summary>ये आँकड़े कहाँ से आए?</summary>'
+            '<p class="small muted">हर आँकड़ा भारत का है, source और साल के साथ — दूसरे देश का आँकड़ा भारत के नाम पर '
+            'नहीं दिखाया जाता। ये बाज़ार के आँकड़े हैं, किसी एक business के नतीजे की guarantee नहीं। '
+            'पिछली जाँच: {}।</p></details>').format(e(EVIDENCE["last_reviewed"]))
     return '<div class="evidence-grid">{}</div>{}'.format("".join(cards), note)
 
 
