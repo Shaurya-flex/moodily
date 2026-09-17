@@ -499,7 +499,8 @@
     var add = function (id, value) {
       if (id && value && base.indexOf(norm(id) + '=') === -1) params.push(norm(id) + '=' + encodeURIComponent(value));
     };
-    if (svc) { add(ids.service_category, svc.category); add(ids.sub_service, svc.name); }
+    // svc.form_category is the Form dropdown's exact option; svc.category is only the label we show.
+    if (svc) { add(ids.service_category, svc.form_category); add(ids.sub_service, svc.name); }
     if (offerOn) add(ids.offer_code, cfg.offer.id);
     // one field carries whichever context the visitor arrived with: a sample, or a website estimate
     add(ids.sample_or_estimate, sampleName || estimate);

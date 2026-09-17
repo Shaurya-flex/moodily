@@ -730,6 +730,38 @@ def _validate_catalogue_intake():
 _validate_catalogue_intake()
 
 
+def validate_form_prefill():
+    """A prefill value that is not an exact dropdown option is silently dropped by Google."""
+    if not INTAKE.get("form_url"):
+        return
+    opts = set(INTAKE.get("form_category_options") or [])
+    if not opts:
+        raise SystemExit("intake.json: form_url is set but form_category_options is empty — cannot verify prefill values")
+    for where, mapping in (("form_category_map", INTAKE.get("form_category_map", {})),
+                           ("form_category_by_service_category", INTAKE.get("form_category_by_service_category", {})),
+                           ("form_category_by_service_id", INTAKE.get("form_category_by_service_id", {}))):
+        for key, value in mapping.items():
+            if value not in opts:
+                raise SystemExit("intake.json: {}['{}'] = '{}' is not an option of the Form's Service Category dropdown — "
+                                 "Google would discard it".format(where, key, value))
+    if INTAKE.get("form_category_unsure") and INTAKE["form_category_unsure"] not in opts:
+        raise SystemExit("intake.json: form_category_unsure is not a Form option")
+    # every live service must resolve to a real option, or we send nothing rather than something wrong
+    for svc in ACTIVE:
+        got = form_category_for(svc)
+        if got and got not in opts:
+            raise SystemExit("intake.json: service '{}' maps to '{}', which the Form does not offer".format(svc["id"], got))
+    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate"):
+        eid = INTAKE.get("entry_ids", {}).get(key, "")
+        if eid and not re.fullmatch(r"entry\.\d+", str(eid)):
+            raise SystemExit("intake.json: entry_ids['{}'] = '{}' is not an entry.NNNN id".format(key, eid))
+    # operational links must never reach the repo or the public site
+    blob = json.dumps(INTAKE, ensure_ascii=False) + json.dumps(SITE, ensure_ascii=False)
+    for bad in ("/forms/d/1", "spreadsheets.google.com", "/spreadsheets/d/"):
+        if bad in blob:
+            raise SystemExit("intake.json/site.json contains an owner-only Form-edit or Sheet URL — only the public /viewform URL may be committed")
+
+
 def validate_amazon():
     """Refuse to build a half-configured affiliate programme."""
     if AMAZON.get("enabled") and not AMAZON.get("tag"):
@@ -866,7 +898,10 @@ def c_intake(args, ctx):
         price = ""
         if x:
             price = price_label(x)
-        services[sid] = {"name": name, "category": INTAKE["categories"][cat]["label"], "price": price,
+        services[sid] = {"name": name, "category": INTAKE["categories"][cat]["label"],
+                         # what the Form's dropdown actually accepts — anything else is discarded by Google
+                         "form_category": form_category_for(x) if x else INTAKE.get("form_category_map", {}).get(cat, ""),
+                         "price": price,
                          "offer_price": "₹" + inr(offer_price(x)) if x and in_offer(x) else "",
                          "prefill_url": (x.get("form_prefill_url") if x else "") or INTAKE.get("service_prefill_urls", {}).get(sid)
                          or INTAKE["categories"][cat].get("prefill_url") or "",
@@ -882,24 +917,30 @@ def c_intake(args, ctx):
                '<p class="notice small" id="intakeOffer" hidden></p><p class="notice small" id="intakeEstimate" hidden></p>'
                '<p class="small"><a id="intakeDetails" href="/services/">Package details</a> · <a href="/services/#finder">दूसरी service चुनें</a></p></div>')
     if form_url:
-        main = ('<div class="card intake-cta featured"><p class="eyebrow">3–5 मिनट · कोई login नहीं</p><h2>Requirement form भरें</h2>'
-                '<p>Google Form आपकी चुनी service के हिसाब से सिर्फ़ ज़रूरी सवाल पूछेगा। आपकी जानकारी सीधे Moodily तक पहुँचती है।</p>'
-                '<a class="btn btn-primary btn-lg btn-block" id="gformBtn" href="{url}" target="_blank" rel="noopener" data-track="google_form_open" data-label="contact">Continue Requirement Form →</a>'
-                '<p class="small muted">Form नई tab में खुलेगा। भेजने के बाद 1 working day में WhatsApp या email पर जवाब।</p>'
+        main = ('<div class="card intake-cta featured"><p class="eyebrow">3–5 मिनट · कोई login नहीं</p><h2>Requirement Form</h2>'
+                '<p>अपनी requirement record करने के लिए secure Google Form भरें। आपने जो service या sample चुना है, '
+                'वह पहले से भरा मिलेगा — दोबारा लिखने की ज़रूरत नहीं।</p>'
+                '<a class="btn btn-primary btn-lg btn-block" id="gformBtn" href="{url}" target="_blank" rel="noopener" data-track="google_form_open" data-label="contact">Requirement Form खोलें →</a>'
+                '<p class="small muted">Form नई tab में खुलेगा। <strong>यही एक रास्ता है जिससे आपकी requirement record होती है।</strong> '
+                'भेजने के बाद 1 working day में WhatsApp या email पर जवाब।</p>'
                 '<details class="not-included"><summary>Form भरने से पहले तैयार रखें</summary><ul class="ticks small">'
                 '<li>आपका मुख्य goal और deadline</li><li>Budget का अंदाज़ा (या "Need recommendation")</li>'
                 '<li>Reference, existing website/social या Google Drive link</li><li>Text/content जो design में जाना है</li></ul></details>'
                 '{sens}</div>').format(url=e(form_url), sens=SENSITIVE_NOTICE)
     else:
         main = '<div class="intake-legacy">{}{}</div>'.format(SENSITIVE_NOTICE, c_lead_form(args, ctx))
-    wa = wa_button("WhatsApp पर requirement भेजें", cls="btn btn-wa btn-lg btn-block", track_label="intake").replace("<a class=", '<a id="intakeWa" class=', 1)
+    # label matches the framing: the Form records, WhatsApp is for talking
+    wa = wa_button("WhatsApp पर बात करें" if form_url else "WhatsApp पर requirement भेजें",
+                   cls="btn btn-wa btn-lg btn-block", track_label="intake").replace("<a class=", '<a id="intakeWa" class=', 1)
     return ('<div class="intake" id="intake" data-mode="{mode}"><script type="application/json" id="intakeConfig">{cfg}</script>'
             '<div class="intake-grid"><div class="intake-main">{context}{main}</div>'
-            '<aside class="intake-side"><div class="card"><h2 class="side-h">WhatsApp पर तुरंत</h2><p class="small muted">Form नहीं भरना? अपनी ज़रूरत सीधे WhatsApp करें — voice note भी चलेगा।</p>{wa}'
+            '<aside class="intake-side"><div class="card"><h2 class="side-h">WhatsApp पर बात करें</h2><p class="small muted">सवाल पूछना है या जल्दी बात करनी है? WhatsApp कीजिए — voice note भी चलेगा। {wa_note}</p>{wa}'
             '<p class="small muted">या email: <a href="mailto:{email}">{email}</a></p></div>'
             '<div class="card"><h2 class="side-h">आगे क्या होगा</h2><ol class="steps-list small"><li>हम आपकी requirement पढ़ते हैं और ज़रूरत हो तो 1–2 सवाल पूछते हैं।</li>'
             '<li>लिखित scope, timeline, revisions, third-party खर्च और quote भेजते हैं।</li><li>आप हाँ कहें, तभी काम शुरू होता है।</li></ol></div></aside></div></div>').format(
-        mode="google-form" if form_url else "fallback", cfg=cfg_json, context=context, main=main, wa=wa, email=e(SITE["email"]))
+        mode="google-form" if form_url else "fallback", cfg=cfg_json, context=context, main=main, wa=wa, email=e(SITE["email"]),
+        wa_note=("यह बातचीत के लिए है — requirement record करने के लिए ऊपर वाला Form भरिए।" if form_url else
+                 "आपका message भेजते ही Moodily तक पहुँच जाता है।"))
 
 
 # ------------------------------------------------------ commerce components
@@ -1440,9 +1481,19 @@ def sample_price_line(smp):
 
 
 def customise_href(smp):
-    """'Customize this for me' carries the sample + its service into the existing intake flow."""
+    """'Customize this for me' goes straight to the prefilled Google Form when one is configured,
+    so the visitor never re-answers what Moodily already knows. Falls back to /contact/ otherwise."""
     svc = sample_service(smp)
+    direct = form_prefill_url(svc, sample=smp["catalogue_title"])
+    if direct:
+        return direct
     return "/contact/?service={}&sample={}".format(svc["id"] if svc else "custom", smp["slug"])
+
+
+def customise_attrs(smp):
+    """An external Form link needs the new-tab treatment and its own event; a fallback does not."""
+    return (' target="_blank" rel="noopener" data-track="google_form_open"'
+            if customise_href(smp).startswith("http") else ' data-track="customize_sample_click"')
 
 
 def sample_wa(smp, label="WhatsApp", cls="btn btn-wa btn-sm", track="sample"):
@@ -1462,12 +1513,12 @@ def sample_card(smp, lazy=True):
         '<h3><a class="stretched" href="/samples/{slug}/" data-track="sample_card_click" data-label="{slug}">{title}</a></h3>'
         '<p class="sample-who">{who}</p><p class="small muted sample-solves">{solves}</p>'
         '<p class="sample-meta">{price}</p><p class="small muted">{timeline}</p>'
-        '<div class="card-actions"><a class="btn btn-primary btn-sm" href="{cust}" data-track="customize_sample_click" data-label="{slug}">इसे मेरे लिए बनाइए</a>'
+        '<div class="card-actions"><a class="btn btn-primary btn-sm" href="{cust}"{cattrs} data-label="{slug}">इसे मेरे लिए बनाइए</a>'
         '<a class="btn btn-outline btn-sm" href="/samples/{slug}/" data-track="sample_card_click" data-label="view-{slug}">Sample देखें</a></div>'
         '</article>').format(
             slug=smp["slug"], cat=e(smp.get("category", "")), types=e(types), hay=e(hay), visual=sample_visual(smp, lazy),
             label=e(label), title=e(smp["catalogue_title"]), who=e(smp.get("who", "")), solves=e(smp.get("solves", "")),
-            price=sample_price_line(smp), timeline=e(svc["timeline"]) if svc else "Scope देखकर", cust=e(customise_href(smp)))
+            price=sample_price_line(smp), timeline=e(svc["timeline"]) if svc else "Scope देखकर", cust=e(customise_href(smp)), cattrs=customise_attrs(smp))
 
 
 def c_sample_grid(args, ctx):
@@ -1592,6 +1643,48 @@ def c_amazon_link(args, ctx):
             'data-track="affiliate_link_click" data-label="{slug}">{name} — Amazon पर आज का price देखें '
             '<span class="paid-link">(paid link)</span></a>').format(
         href=e(href), slug=e(args.get("id") or name.lower().replace(" ", "-")[:40]), name=e(name))
+
+
+# ------------------------------------------------- Google Form prefill
+# The Form's "Service Category" question is a dropdown: Google silently discards any value that is
+# not an exact option string. Every mapping is validated against the Form's real option list at
+# build time, so a typo fails the build instead of quietly losing the answer.
+def form_category_for(svc):
+    if not svc:
+        return ""
+    by_id = INTAKE.get("form_category_by_service_id", {})
+    if svc.get("id") in by_id:
+        return by_id[svc["id"]]
+    by_cat = INTAKE.get("form_category_by_service_category", {})
+    if svc.get("category") in by_cat:
+        return by_cat[svc["category"]]
+    _, intake_cat = intake_service(svc["id"])
+    return INTAKE.get("form_category_map", {}).get(intake_cat, "")
+
+
+def form_prefill_url(svc=None, sample=None, unsure=False):
+    """Build a prefilled Form URL. Only fills what Moodily actually knows."""
+    base = (svc.get("form_prefill_url") if svc else "") or INTAKE.get("service_prefill_urls", {}).get(
+        svc["id"] if svc else "", "") or INTAKE.get("form_url") or ""
+    if not base:
+        return ""
+    ids = {k: v for k, v in INTAKE.get("entry_ids", {}).items() if not k.startswith("_")}
+    params = []
+
+    def add(key, value):
+        eid = ids.get(key)
+        if eid and value:
+            params.append("{}={}".format(quote(str(eid), safe=""), quote(str(value), safe="")))
+    add("service_category", INTAKE.get("form_category_unsure") if unsure else form_category_for(svc))
+    if svc:
+        add("sub_service", svc["name"])
+    if svc and in_offer(svc) and OFFER_STATE:
+        add("offer_code", OFFER["id"])
+    if sample:
+        add("sample_or_estimate", sample)
+    if not params:
+        return base
+    return "{}?{}".format(base, "&".join(["usp=pp_url"] + params))
 
 
 FEATURE_GATES = {"amazon_associates": amazon_public}
@@ -1979,8 +2072,8 @@ def sample_page(smp):
     svc_html = ('<p class="small">पूरी service और scope: <a href="{}#{}" data-track="service_card_click" data-label="sample-svc-{}">{} →</a></p>'.format(
         svc["page"], svc["id"], smp["slug"], e(svc["name"]))) if svc else ""
 
-    actions = ('<a class="btn btn-primary btn-lg" href="{cust}" data-track="customize_sample_click" data-label="detail-{slug}">इसे मेरे लिए बनाइए</a>'
-               '{wa}').format(cust=e(customise_href(smp)), slug=smp["slug"],
+    actions = ('<a class="btn btn-primary btn-lg" href="{cust}"{cattrs} data-label="detail-{slug}">इसे मेरे लिए बनाइए</a>'
+               '{wa}').format(cust=e(customise_href(smp)), cattrs=customise_attrs(smp), slug=smp["slug"],
                               wa=sample_wa(smp, "WhatsApp पर पूछें", "btn btn-wa btn-lg", "sample-detail"))
 
     body = """<section class="page-hero"><div class="container"><p class="eyebrow">Sample · {cat}</p>
@@ -2125,6 +2218,7 @@ def main():
     validate_offer()
     validate_commerce()
     validate_amazon()
+    validate_form_prefill()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 

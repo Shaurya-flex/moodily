@@ -1,14 +1,12 @@
 {
   "_readme": "V1 lead capture = a standard Google Form wired to a Google Sheet. NO Apps Script is needed for this. Paste the Form's share URL into form_url below; everything else already works. entry_ids are optional but recommended — with them Moodily pre-selects the service, sub-service, offer and sample so the visitor never re-enters what we already know. Get them from the Form's ⋮ menu -> 'Get pre-filled link', fill one answer per field, copy the link, and read the entry.NNNNN numbers out of it. NEVER invent an entry ID: a wrong one silently drops that answer.",
-  "form_url": "",
-  "_todo_form_url": "TODO (OWNER, BLOCKER): paste the Google Form URL, e.g. https://docs.google.com/forms/d/e/1FAIpQLSc.../viewform . Until this is set, /contact/ shows the built-in form which sends through WhatsApp — nothing is stored server-side.",
+  "form_url": "https://docs.google.com/forms/d/e/1FAIpQLScxmJC__HE8cHIKctFhNqMvGGtA7vGshkriqvuu8mjFPBgN7A/viewform",
   "entry_ids": {
-    "_readme": "Optional. entry.NNNNN numbers from the Form's pre-filled link. Leave a value empty to skip that prefill; the Form still opens, the visitor just picks that answer themselves.",
-    "service_category": "",
-    "sub_service": "",
-    "offer_code": "",
-    "sample_or_estimate": "",
-    "_todo": "TODO (OWNER): 4 IDs — service_category, sub_service, offer_code, sample_or_estimate."
+    "_readme": "Verified entry IDs for the live 'Moodily — Digital Service Leads' Form. Only the PUBLIC /viewform URL belongs in this repo — the Form edit URL and the linked Sheet URL are owner-only operational links and must never be committed or published.",
+    "service_category": "entry.732529302",
+    "sub_service": "entry.1367803601",
+    "offer_code": "entry.154582414",
+    "sample_or_estimate": "entry.1896344087"
   },
   "_todo_entry_ids": "OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).",
   "categories": {
@@ -145,5 +143,53 @@
       "name": "Exam / PYQ Material",
       "category": "exam-pyq"
     }
+  },
+  "form_category_options": [
+    "Business Digitalization",
+    "Website / Landing Page",
+    "Google Business Profile",
+    "WhatsApp Business",
+    "Design / Print-ready Asset",
+    "Presentation / PPT",
+    "Invitation / Personal Design",
+    "Social Media / Creator Content",
+    "Education / Study Material",
+    "Exam / PYQ Material",
+    "Research / Intelligence",
+    "Knowledge-to-Product",
+    "AI Workflow / Automation",
+    "Professional Authority",
+    "Custom Digital Work",
+    "Not Sure / Need Recommendation"
+  ],
+  "_form_category_readme": "Exact option strings of the live Form's 'Service Category' dropdown (entry.732529302). Google drops any prefill value that is not an exact match, so build.py validates every mapping below against this list and fails the build on a mismatch. Re-copy this list if the Form's options are edited.",
+  "form_category_map": {
+    "invitation": "Invitation / Personal Design",
+    "business-design": "Design / Print-ready Asset",
+    "presentation": "Presentation / PPT",
+    "social": "Social Media / Creator Content",
+    "creator": "Social Media / Creator Content",
+    "education": "Education / Study Material",
+    "exam-pyq": "Exam / PYQ Material",
+    "research": "Research / Intelligence",
+    "knowledge-to-product": "Knowledge-to-Product",
+    "web-google": "Business Digitalization",
+    "ai": "AI Workflow / Automation",
+    "professional": "Professional Authority",
+    "print": "Design / Print-ready Asset",
+    "custom": "Custom Digital Work"
+  },
+  "form_category_by_service_category": {
+    "google-business-profile": "Google Business Profile",
+    "whatsapp-business": "WhatsApp Business",
+    "websites": "Website / Landing Page",
+    "local-business": "Business Digitalization",
+    "medical-store": "Business Digitalization",
+    "education-business": "Business Digitalization",
+    "b2b": "Business Digitalization"
+  },
+  "form_category_unsure": "Not Sure / Need Recommendation",
+  "form_category_by_service_id": {
+    "free-digital-audit": "Not Sure / Need Recommendation"
   }
 }

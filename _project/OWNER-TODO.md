@@ -35,8 +35,6 @@ Values the site needs from the owner. Nothing here was invented — fill real da
 - **tools[5]**: OWNER: add real affiliate URL if Moodily is in Hostinger's affiliate programme.
 
 ## src/data/intake.json (Google Form)
-- **site**: TODO (OWNER, BLOCKER): paste the Google Form URL, e.g. https://docs.google.com/forms/d/e/1FAIpQLSc.../viewform . Until this is set, /contact/ shows the built-in form which sends through WhatsApp — nothing is stored server-side.
-- **entry_ids**: TODO (OWNER): 4 IDs — service_category, sub_service, offer_code, sample_or_estimate.
 - **site**: OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).
 
 ## Case studies still in draft (11 of 11)

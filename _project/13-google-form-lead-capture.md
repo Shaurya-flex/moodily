@@ -4,7 +4,27 @@
 Google Forms already stores every response and populates its linked Sheet. Apps Script stays on the
 shelf for later (notifications, lead scoring, CRM sync) — it is not needed to capture a lead.
 
-## What the owner has to do (≈15 minutes)
+## Status: LIVE
+
+The Form is published, open to anyone with the link, requires no sign-in, and writes to its linked
+Sheet. `src/data/intake.json` carries the public `/viewform` URL and all four verified entry IDs.
+
+**Only the public Form URL is committed.** The Form-edit URL and the Sheet URL are owner-only
+operational links; `validate_form_prefill()` fails the build if either ever appears in the config.
+
+### The dropdown trap, and the guard against it
+
+`Service Category` (entry.732529302) is a **dropdown**. Google silently discards any prefill value
+that is not an exact option string. Moodily's own category labels did **not** match — 7 of 14 would
+have been dropped (`Business Design`, `Social Media`, `Creator Content`, `Educational Material`,
+`Research`, `Website / Google Business`, `Print-ready Design`).
+
+`intake.json` now stores the Form's 16 real options plus three mappings (by intake category, by
+service category, by service id), and `validate_form_prefill()` fails the build if any mapping — or
+any active service — resolves to something the Form does not offer. All 49 active services resolve
+to a real option.
+
+## Original setup notes (kept for reference)
 
 ### 1. Build the Form
 Fields, in this order. `*` = mark Required in the Form.
