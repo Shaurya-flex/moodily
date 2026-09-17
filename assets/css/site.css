@@ -749,3 +749,15 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
 
 .sample-answers-h{font-size:1.1rem;margin:0 0 12px}
 .sample-detail-body .answer-dl{margin-top:0}
+
+/* Phones: the two filter groups are ~25 chips. Wrapped, they push the first sample
+   off-screen. Each row becomes its own horizontally scrollable strip — contained,
+   so it never adds to the page's scroll width. */
+@media (max-width:719px){
+  .sample-filters .chip-row{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
+    padding-bottom:6px;margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter);
+    scrollbar-width:none}
+  .sample-filters .chip-row::-webkit-scrollbar{display:none}
+  .sample-filters .chip-btn{flex:none;scroll-snap-align:start}
+}

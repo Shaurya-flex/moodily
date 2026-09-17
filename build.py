@@ -1464,8 +1464,9 @@ def c_sample_grid(args, ctx):
         return '<div class="sample-grid">{}</div>'.format(cards)
     cats = collections.OrderedDict((k, v) for k, v in SAMPLE_CATS.items() if any(s.get("category") == k for s in items))
     chips = "".join('<button class="chip-btn" type="button" data-filter-cat="{}" aria-pressed="false">{}</button>'.format(k, e(v)) for k, v in cats.items())
-    tchips = "".join('<button class="chip-btn" type="button" data-filter-type="{}" aria-pressed="false">{} {}</button>'.format(
-        c["id"], c.get("emoji", ""), e(c["title"].split(" ", 1)[-1] if c.get("emoji") else c["title"])) for c in ROUTERS["customer_types"])
+    # the emoji is a separate field — the title is already the full label, so never split it
+    tchips = "".join('<button class="chip-btn" type="button" data-filter-type="{}" aria-pressed="false">{}{}</button>'.format(
+        c["id"], (c["emoji"] + " ") if c.get("emoji") else "", e(c["title"])) for c in ROUTERS["customer_types"])
     return ('<div class="sample-filters">'
             '<label class="sr-only" for="sampleSearch">Sample खोजें</label>'
             '<input id="sampleSearch" class="finder-search" type="search" placeholder="खोजें — catalogue, PPT, invitation, Google, website…" autocomplete="off">'
