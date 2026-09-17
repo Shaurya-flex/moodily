@@ -223,6 +223,71 @@
     document.querySelectorAll('[data-view]').forEach(function (el) { vio.observe(el); });
   }
 
+  // ---------- resource hub: filter by audience and by problem
+  var resTiles = document.querySelector('[data-res-tiles]');
+  if (resTiles) {
+    var tiles = [].slice.call(resTiles.querySelectorAll('.res-tile'));
+    var countEl = document.querySelector('[data-res-count]');
+    var emptyEl = document.querySelector('[data-res-empty]');
+    var st = { aud: '', prob: '' };
+    var has = function (el, attr, v) { return !v || (' ' + el.getAttribute(attr) + ' ').indexOf(' ' + v + ' ') > -1; };
+    function applyRes() {
+      var n = 0;
+      tiles.forEach(function (t) {
+        var show = has(t, 'data-aud', st.aud) && has(t, 'data-prob', st.prob);
+        t.hidden = !show; if (show) n++;
+      });
+      if (countEl) countEl.textContent = n + ' resource' + (n === 1 ? '' : 's');
+      if (emptyEl) emptyEl.hidden = n !== 0;
+    }
+    function pressRes(group, value) {
+      document.querySelectorAll('[data-res-' + group + ']').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-res-' + group) === value));
+      });
+    }
+    document.querySelectorAll('[data-res-aud]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        st.aud = b.getAttribute('data-res-aud'); pressRes('aud', st.aud); applyRes();
+        if (st.aud) track('resource_filter', { label: 'who:' + st.aud });
+      });
+    });
+    document.querySelectorAll('[data-res-prob]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        st.prob = b.getAttribute('data-res-prob'); pressRes('prob', st.prob); applyRes();
+        if (st.prob) track('resource_filter', { label: 'what:' + st.prob });
+      });
+    });
+    try {
+      var rq = new URLSearchParams(location.search);
+      if (rq.get('who')) { st.aud = rq.get('who'); pressRes('aud', st.aud); }
+      if (rq.get('what')) { st.prob = rq.get('what'); pressRes('prob', st.prob); }
+    } catch (e) {}
+    applyRes();
+  }
+
+  // ---------- copy a prompt. The event records WHICH prompt, never its text or any user input.
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-copy]');
+    if (!btn) return;
+    var pre = btn.parentNode.querySelector('.prompt-text');
+    if (!pre) return;
+    var done = function (ok) {
+      var was = btn.textContent;
+      btn.textContent = ok ? 'Copy हो गया ✓' : 'Copy नहीं हुआ — select करके copy कीजिए';
+      if (ok) btn.setAttribute('data-copied', '1');
+      setTimeout(function () { btn.textContent = was; btn.removeAttribute('data-copied'); }, 2200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pre.textContent).then(function () { done(true); }, function () { done(false); });
+    } else {
+      try {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        done(document.execCommand('copy'));
+      } catch (e) { done(false); }
+    }
+  });
+
   // ---------- legacy anchors from the old single-page site
   var legacy = { '#curriculum': '/learn/#curriculum', '#learn': '/learn/', '#services': '/services/ai-workflows/', '#linkedin': '/services/professionals/#linkedin', '#tools': '/tools/', '#intake': '/contact/', '#weekly-tip': '/learn/#weekly-tip', '#why': '/about/' };
   if (location.pathname === '/' && legacy[location.hash]) location.replace(legacy[location.hash]);

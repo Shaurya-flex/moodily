@@ -48,6 +48,7 @@ ROUTERS = load("data/routers.json")
 ESTIMATOR = load("data/estimator.json")
 REDIRECTS = {k: v for k, v in load("data/redirects.json").items() if not k.startswith("_")}
 EVIDENCE = load("data/evidence.json")
+RES = load("data/resources.json")
 AMAZON = SITE.get("amazon_associates") or {}
 SAMPLES = {x["id"]: x for x in load("data/samples.json")["samples"]}
 SCOPE_NOTE = SVC_DATA["scope_note"]
@@ -1772,6 +1773,236 @@ def form_prefill_url(svc=None, sample=None, unsure=False):
     return "{}?{}".format(base, "&".join(["usp=pp_url"] + params))
 
 
+# ------------------------------------------------- practical AI resource layer
+# No performance claim ever renders here. Benefits are qualitative only; a workflow missing any
+# required field is a build error, and a timing result is published only when a real Moodily test
+# recorded it (workflow_tests is empty until then).
+WF_REQUIRED = ("title", "who", "problem", "tool", "input", "steps", "prompt", "follow_up", "check", "never_share", "advanced")
+RES_AUD = collections.OrderedDict((a["id"], a) for a in RES["audiences"])
+RES_PROB = collections.OrderedDict((x["id"], x["label"]) for x in RES["problems"])
+BANNED_CLAIM = re.compile(r"(\d+\s*%\s*(time|faster|productiv)|\d+\s*x\s*(faster|productiv)|saves?\s+\d+\s*%)", re.I)
+
+
+def validate_resources():
+    # scan only what can reach a visitor — _readme / _todo notes may quote a banned phrase as an example
+    def publishable(node):
+        if isinstance(node, dict):
+            return [publishable(v) for k, v in node.items() if not k.startswith("_")]
+        if isinstance(node, list):
+            return [publishable(v) for v in node]
+        return node
+    blob = json.dumps(publishable(RES), ensure_ascii=False)
+    m = BANNED_CLAIM.search(blob)
+    if m:
+        raise SystemExit("resources.json: unsupported performance claim {!r} — state benefits qualitatively".format(m.group(0)))
+    for w in RES["workflows"]:
+        for k in WF_REQUIRED:
+            if not w.get(k):
+                raise SystemExit("resources.json: workflow '{}' is missing {}".format(w.get("id"), k))
+        if len(w["steps"]) < 3:
+            raise SystemExit("resources.json: workflow '{}' needs at least 3 steps".format(w["id"]))
+    for coll, key in (("prompts", "prompt"), ("workflows", "prompt")):
+        for x in RES[coll]:
+            for a in x.get("audiences", []):
+                if a not in RES_AUD:
+                    raise SystemExit("resources.json: {} '{}' has unknown audience {}".format(coll, x["id"], a))
+            for pr in x.get("problems", []):
+                if pr not in RES_PROB:
+                    raise SystemExit("resources.json: {} '{}' has unknown problem {}".format(coll, x["id"], pr))
+    for t in RES["workflow_tests"]["tests"]:
+        for k in ("workflow", "manual_time", "ai_assisted_time", "tool", "date", "conditions", "sample_size", "notes"):
+            if not t.get(k):
+                raise SystemExit("resources.json: workflow_test is missing {} — an untested timing is never published".format(k))
+
+
+def yt_link(label=None, cls="small"):
+    """Renders only when the owner has supplied the real channel URL. No figures, ever."""
+    yt = RES.get("youtube") or {}
+    if not yt.get("url"):
+        return ""
+    return '<a class="{}" href="{}" rel="noopener" target="_blank" data-track="youtube_click" data-label="resources">{}</a>'.format(
+        cls, e(yt["url"]), e(label or yt["name"]))
+
+
+def _copy_block(text, label):
+    """A copy-to-clipboard prompt box. The button only reports that a copy happened — never the text."""
+    return ('<div class="prompt"><pre class="prompt-text" tabindex="0">{txt}</pre>'
+            '<button class="btn btn-outline btn-sm prompt-copy" type="button" data-copy '
+            'data-track="prompt_copy" data-label="{id}">Prompt copy करें</button></div>').format(txt=e(text), id=e(label))
+
+
+def c_prompt_framework(args, ctx):
+    f = RES["framework"]
+    boxes = "".join(
+        '<article class="fw-box"><p class="fw-k">{k}<span>{hi}</span></p><p class="fw-ask">{ask}</p>'
+        '<p class="fw-eg"><span>उदाहरण</span>{eg}</p></article>'.format(
+            k=e(b["k"]), hi=e(b["hi"]), ask=e(b["ask"]), eg=e(b["eg"])) for b in f["boxes"])
+    return ('<p class="lead">{intro}</p><div class="fw-grid">{boxes}</div>'
+            '<div class="fw-compare"><div class="card fw-bad"><p class="ba-label is-before">कमज़ोर prompt</p>'
+            '<pre class="prompt-text">{bad}</pre><p class="small muted">{badw}</p></div>'
+            '<div class="card fw-good"><p class="ba-label is-after">छह खाने वाला prompt</p>'
+            '<pre class="prompt-text">{better}</pre><p class="small muted">{betterw}</p></div></div>').format(
+        intro=e(f["intro"]), boxes=boxes, bad=e(f["bad"]), badw=e(f["bad_why"]),
+        better=e(f["better"]), betterw=e(f["better_why"]))
+
+
+def c_prompt_pack(args, ctx):
+    ids = split_ids(args.get("ids")) or [x["id"] for x in RES["prompts"]]
+    out = []
+    for pid in ids:
+        pr = next((x for x in RES["prompts"] if x["id"] == pid), None)
+        if not pr:
+            raise SystemExit("@prompt-pack: unknown prompt {} in {}".format(pid, ctx["file"]))
+        tags = "".join('<li>{} {}</li>'.format(RES_AUD[a]["emoji"], e(RES_AUD[a]["label"])) for a in pr["audiences"])
+        out.append(
+            '<article class="card res-prompt" id="p-{id}" data-aud="{aud}" data-prob="{prob}">'
+            '<h3>{title}</h3><p class="small muted">{why}</p><ul class="chips">{tags}</ul>{copy}'
+            '<details class="not-included"><summary>अगला prompt</summary><pre class="prompt-text">{follow}</pre></details>'
+            '</article>'.format(
+                id=pr["id"], aud=" ".join(pr["audiences"]), prob=" ".join(pr["problems"]), title=e(pr["title"]),
+                why=e(pr["why"]), tags=tags, copy=_copy_block(pr["prompt"], pr["id"]), follow=e(pr["follow_up"])))
+    return '<div class="res-prompt-grid" data-res-grid>{}</div>'.format("".join(out))
+
+
+def c_workflow(args, ctx):
+    ids = split_ids(args.get("ids")) or [x["id"] for x in RES["workflows"]]
+    out = []
+    for wid in ids:
+        w = next((x for x in RES["workflows"] if x["id"] == wid), None)
+        if not w:
+            raise SystemExit("@workflow: unknown workflow {} in {}".format(wid, ctx["file"]))
+        steps = "".join('<li><span class="step-num">{}</span><p>{}</p></li>'.format(i, e(t))
+                        for i, t in enumerate(w["steps"], 1))
+        rows = [("किसके लिए?", w["who"]), ("क्या समस्या हल होती है?", w["problem"]),
+                ("कौन-सा free tool?", w["tool"]), ("क्या तैयार रखें?", w["input"])]
+        dl = "".join('<div><dt>{}</dt><dd>{}</dd></div>'.format(k, e(v)) for k, v in rows)
+        return_chk = next((c for c in RES["checklists"] if c["id"] == "verify"), None)
+        out.append(
+            '<article class="card res-workflow" id="w-{id}" data-aud="{aud}" data-prob="{prob}" '
+            'data-view="workflow_view|{id}"><h3>{title}</h3><dl class="answer-dl">{dl}</dl>'
+            '<ol class="res-steps">{steps}</ol>{copy}'
+            '<details class="not-included"><summary>अगला prompt</summary><pre class="prompt-text">{follow}</pre></details>'
+            '<div class="res-check"><p class="human-check">{hc}</p><p><strong>Output कैसे जाँचें:</strong> {check}</p>'
+            '<p><strong>यह न भेजें:</strong> {never}</p>{chklink}</div>'
+            '<details class="not-included"><summary>आगे बढ़ना हो तो</summary><p>{adv}</p></details>'
+            '</article>'.format(
+                id=w["id"], aud=" ".join(w["audiences"]), prob=" ".join(w["problems"]), title=e(w["title"]), dl=dl,
+                steps=steps, copy=_copy_block(w["prompt"], w["id"]), follow=e(w["follow_up"]),
+                hc=HUMAN_CHECK_TEXT, check=e(w["check"]), never=e(w["never_share"]), adv=e(w["advanced"]),
+                chklink='<p class="small"><a href="/resources/ai-daily-life-starter/#verify">जाँच की पूरी list →</a></p>' if return_chk else ""))
+    return '<div class="res-workflow-list" data-res-grid>{}</div>'.format("".join(out))
+
+
+HUMAN_CHECK_TEXT = "AI draft बनाता है · आप approve करते हैं"
+
+
+def c_flow_diagram(args, ctx):
+    ids = split_ids(args.get("ids")) or [x["id"] for x in RES["diagrams"]]
+    out = []
+    for did in ids:
+        g = next((x for x in RES["diagrams"] if x["id"] == did), None)
+        if not g:
+            raise SystemExit("@flow-diagram: unknown diagram {} in {}".format(did, ctx["file"]))
+
+        def lane(items, kind, last_is_check=False):
+            cells = []
+            for i, t in enumerate(items):
+                cells.append('<li class="flow-step">{}</li>'.format(e(t)))
+            if last_is_check:
+                cells.append('<li class="flow-step is-check">{}</li>'.format(e("आप approve करें")))
+            return '<ol class="flow-lane is-{}">{}</ol>'.format(kind, "".join(cells))
+        out.append(
+            '<article class="card flow-card" data-view="workflow_view|diagram-{id}"><h3>{title}</h3>'
+            '<div class="flow-row"><p class="ba-label is-before">अभी — हाथ से</p>{manual}</div>'
+            '<div class="flow-row"><p class="ba-label is-after">AI की मदद से</p>{assisted}</div>'
+            '<p class="small muted flow-gain">{gain}</p></article>'.format(
+                id=g["id"], title=e(g["title"]), manual=lane(g["manual"], "manual"),
+                assisted=lane(g["assisted"], "assisted", last_is_check=True), gain=e(g["gain"])))
+    return '<div class="flow-grid">{}</div>'.format("".join(out))
+
+
+def c_ai_ladder(args, ctx):
+    L = RES["ladder"]
+    steps = "".join(
+        '<li class="ladder-step"><p class="ladder-n">Level {n}</p><p class="ladder-t">{title}</p>'
+        '<p class="small">{what}</p><p class="small muted"><span>कब</span> {when}</p></li>'.format(
+            n=x["n"], title=e(x["title"]), what=e(x["what"]), when=e(x["when"])) for x in L["levels"])
+    return '<p class="lead">{}</p><ol class="ladder">{}</ol>'.format(e(L["intro"]), steps)
+
+
+def c_task_matrix(args, ctx):
+    M = RES["matrix"]
+    lab = {x["k"]: x["label"] for x in M["legend"]}
+    rows = "".join(
+        '<tr><th scope="row">{t}</th><td><span class="mx mx-{d}">{dl}</span></td>'
+        '<td><span class="mx mx-{v}">{vl}</span></td><td>{a}</td><td>{p}</td></tr>'.format(
+            t=e(r["task"]), d=r["draft"], dl=e(lab[r["draft"]]), v=r["verify"], vl=e(lab[r["verify"]]),
+            a=e(r["automate"]), p=e(r["privacy"])) for r in M["rows"])
+    return ('<p class="lead">{intro}</p><div class="table-wrap"><table class="price-table matrix">'
+            '<thead><tr><th scope="col">काम</th><th scope="col">Draft</th><th scope="col">जाँच</th>'
+            '<th scope="col">दोहराने लायक?</th><th scope="col">निजी जानकारी का ख़तरा</th></tr></thead>'
+            '<tbody>{rows}</tbody></table></div>').format(intro=e(M["intro"]), rows=rows)
+
+
+def c_checklist(args, ctx):
+    cid = args.get("id")
+    cl = next((x for x in RES["checklists"] if x["id"] == cid), None)
+    if not cl:
+        raise SystemExit("@checklist: unknown id {} in {}".format(cid, ctx["file"]))
+    items = "".join("<li>{}</li>".format(e(i)) for i in cl["items"])
+    cls = "crosses" if cid == "privacy" else "ticks"
+    return '<div class="card res-check-card" id="{id}"><h3>{t}</h3><p class="muted">{i}</p><ul class="{c}">{items}</ul></div>'.format(
+        id=cl["id"], t=e(cl["title"]), i=e(cl["intro"]), c=cls, items=items)
+
+
+def c_resource_index(args, ctx):
+    """Hub listing: filter by who you are and by the problem. Prompts and workflows in one grid."""
+    cards = []
+    for w in RES["workflows"]:
+        cards.append(("workflow", w["id"], w["title"], w["problem"], w["audiences"], w["problems"]))
+    for pr in RES["prompts"]:
+        cards.append(("prompt", pr["id"], pr["title"], pr["why"], pr["audiences"], pr["problems"]))
+    tiles = "".join(
+        '<a class="res-tile" href="/resources/ai-daily-life-starter/#{anchor}" data-aud="{aud}" data-prob="{prob}" '
+        'data-track="resource_card_click" data-label="{id}"><span class="res-kind">{kind}</span>'
+        '<strong>{title}</strong><span class="small muted">{sub}</span></a>'.format(
+            anchor=("w-" if kind == "workflow" else "p-") + rid, aud=" ".join(aud), prob=" ".join(prob),
+            id=rid, kind="Workflow" if kind == "workflow" else "Prompt", title=e(title), sub=e(sub[:96]))
+        for kind, rid, title, sub, aud, prob in cards)
+    achips = "".join('<button class="chip-btn" type="button" data-res-aud="{}" aria-pressed="false">{} {}</button>'.format(
+        a["id"], a["emoji"], e(a["label"])) for a in RES["audiences"])
+    pchips = "".join('<button class="chip-btn" type="button" data-res-prob="{}" aria-pressed="false">{}</button>'.format(
+        k, e(v)) for k, v in RES_PROB.items())
+    return ('<div class="sample-filters">'
+            '<p class="filter-label" id="rl-who">आप कौन हैं</p><div class="chip-row" role="group" aria-labelledby="rl-who">'
+            '<button class="chip-btn" type="button" data-res-aud="" aria-pressed="true">सभी</button>{a}</div>'
+            '<p class="filter-label" id="rl-what">क्या करना है</p><div class="chip-row" role="group" aria-labelledby="rl-what">'
+            '<button class="chip-btn" type="button" data-res-prob="" aria-pressed="true">सभी</button>{p}</div>'
+            '<p class="small muted" data-res-count aria-live="polite"></p></div>'
+            '<div class="res-tiles" data-res-tiles>{t}</div>'
+            '<p class="notice small" data-res-empty hidden>इस combination में अभी कुछ नहीं है — '
+            '<a href="/contact/?service=custom">बताइए क्या चाहिए</a>, हम इसी तरह का resource बनाएँगे।</p>').format(
+        a=achips, p=pchips, t=tiles)
+
+
+def c_resources_teaser(args, ctx):
+    """Compact homepage teaser: the 'teach me' path, distinct from Digital Saathi's 'do it for me'."""
+    cards = [("🎓", "Study with AI", "Chapter से notes, quiz और revision plan", "student"),
+             ("💼", "Work with AI", "Email, meeting notes और action list", "professional"),
+             ("🎥", "Create with AI", "Topic से script, hook और Shorts", "creator"),
+             ("🏪", "Business with AI", "ग्राहक के सवालों के तैयार जवाब", "small-business")]
+    tiles = "".join(
+        '<a class="res-teaser-card" href="/resources/?who={who}" data-track="resource_card_click" data-label="teaser:{who}">'
+        '<span class="res-teaser-emoji" aria-hidden="true">{em}</span><strong>{t}</strong>'
+        '<span class="small muted">{s}</span></a>'.format(em=em, t=e(t), s=e(sub), who=who)
+        for em, t, sub, who in cards)
+    yt = yt_link("AI with SaurabhKr देखें", "small")
+    return ('<div class="res-teaser">{tiles}</div>'
+            '<p class="btn-row"><a class="btn btn-outline" href="/resources/" data-track="resources_view" '
+            'data-label="home-teaser">Free AI Resources देखें →</a>{yt}</p>').format(
+        tiles=tiles, yt=' <span class="small muted">{}</span>'.format(yt) if yt else "")
+
+
 FEATURE_GATES = {"amazon_associates": amazon_public}
 
 COMPONENTS = {
@@ -1785,7 +2016,10 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
+    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
+    "workflow": c_workflow, "flow-diagram": c_flow_diagram, "ai-ladder": c_ai_ladder,
+    "task-matrix": c_task_matrix, "checklist": c_checklist, "resource-index": c_resource_index,
+    "resources-teaser": c_resources_teaser, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1907,7 +2141,8 @@ def page_schema(meta, route, ctx):
 # ---------------------------------------------------------------- layout
 NAV = [
     ("/services/", "Services", "सेवाएँ"), ("/samples/", "Samples", "Samples"), ("/case-studies/", "Case studies", "काम"),
-    ("/insights/", "Insights", "Insights"), ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
+    ("/resources/", "AI Resources", "AI Resources"), ("/insights/", "Insights", "Insights"),
+    ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
 # the inline desktop row stays short so the header never wraps; the rest is in the Menu popover
 NAV_DESKTOP = [("/services/", "Services"), ("/samples/", "Samples"), ("/services/#prices", "Pricing"), ("/learn/", "Learn")]
@@ -1968,7 +2203,7 @@ def footer(route=""):
       {wa}
     </div>
     <div><h2 class="footer-h">Moodily</h2><ul>
-      <li><a href="/learn/">Moodily Learn</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
+      <li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
       <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
       <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
@@ -2304,6 +2539,7 @@ def main():
     validate_commerce()
     validate_amazon()
     validate_form_prefill()
+    validate_resources()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 

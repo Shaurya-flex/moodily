@@ -837,3 +837,113 @@ details.evidence-note{margin-top:20px;max-width:76ch}
 details.evidence-note>summary{cursor:pointer;font-size:.85rem;color:var(--text-muted);font-weight:600}
 details.evidence-note>summary:hover{color:var(--primary)}
 details.evidence-note p{margin:10px 0 0}
+
+/* ---------------------------------------------------------------- practical AI resources
+   Built from the existing tokens and card system — no new design language, no chart library. */
+.res-teaser{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.res-teaser{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.res-teaser{grid-template-columns:1fr}}
+.res-teaser-card{display:flex;flex-direction:column;gap:4px;min-height:var(--tap);padding:18px;
+  border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);color:var(--text)!important;
+  text-decoration:none;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.res-teaser-card:hover{border-color:var(--primary);background:var(--primary-soft)}
+@media (prefers-reduced-motion:no-preference){.res-teaser-card:hover{transform:translateY(-2px)}}
+.res-teaser-emoji{font-size:1.7rem;line-height:1}
+.res-teaser-card strong{font-family:var(--font-display);font-size:1.02rem;margin-top:4px}
+
+/* prompt framework: six boxes */
+.fw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.fw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.fw-grid{grid-template-columns:1fr}}
+.fw-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px}
+.fw-k{font-family:var(--font-display);font-weight:700;font-size:1rem;margin:0 0 6px;color:var(--primary)}
+.fw-k span{display:block;font-family:var(--font);font-weight:600;font-size:.82rem;color:var(--text-muted)}
+.fw-ask{margin:0 0 10px;font-size:.93rem}
+.fw-eg{margin:0;font-size:.88rem;color:var(--text-muted);padding-top:10px;border-top:1px solid var(--border)}
+.fw-eg span{display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.fw-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-gap);margin-top:var(--space-gap)}
+@media (max-width:760px){.fw-compare{grid-template-columns:1fr}}
+.fw-bad{background:var(--surface-sunken)}
+.fw-good{border-color:var(--success)}
+
+/* copy-paste prompt blocks */
+.prompt{margin:14px 0}
+.prompt-text{margin:0;padding:14px 16px;background:var(--surface-sunken);border:1px solid var(--border);
+  border-radius:var(--r-card);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem;
+  line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.prompt-text:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.prompt-copy{margin-top:10px}
+.prompt-copy[data-copied]{border-color:var(--success);color:var(--success)!important}
+
+/* workflows */
+.res-workflow-list{display:grid;gap:var(--space-gap)}
+.res-workflow{scroll-margin-top:86px}
+.res-workflow h3{font-size:1.2rem}
+.res-steps{list-style:none;padding:0;margin:0 0 4px;display:grid;gap:12px}
+.res-steps li{display:flex;gap:14px;align-items:flex-start}
+.res-steps p{margin:0;font-size:.95rem}
+.res-check{margin-top:14px;padding:14px 16px;border-radius:var(--r-card);background:var(--surface-sunken);border:1px solid var(--border)}
+.res-check p{margin:0 0 8px;font-size:.92rem}
+.res-check p:last-child{margin-bottom:0}
+.human-check{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.8rem!important;
+  letter-spacing:.03em;padding:5px 12px;border-radius:var(--r-pill);background:var(--success-soft);color:var(--success)}
+.human-check::before{content:"✓";font-weight:700}
+
+/* prompt cards */
+.res-prompt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.res-prompt-grid{grid-template-columns:1fr}}
+.res-prompt{scroll-margin-top:86px}
+.res-prompt h3{font-size:1.08rem}
+.res-prompt[hidden],.res-workflow[hidden],.res-tile[hidden]{display:none}
+
+/* manual vs AI-assisted lanes */
+.flow-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.flow-grid{grid-template-columns:1fr}}
+.flow-row{margin-bottom:14px}
+.flow-lane{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0;margin:0}
+.flow-step{display:inline-flex;align-items:center;padding:7px 12px;border-radius:var(--r-pill);
+  background:var(--surface-sunken);border:1px solid var(--border);font-size:.85rem}
+.flow-lane.is-assisted .flow-step{background:var(--primary-soft);border-color:transparent;color:var(--primary)}
+/* dark: primary on primary-soft measures ~4.3:1 at this size, so use the lighter tint */
+[data-theme="dark"] .flow-lane.is-assisted .flow-step:not(.is-check){color:var(--primary-hover)}
+/* the approve pill must out-rank the assisted-lane rule, or it never turns green */
+.flow-lane .flow-step.is-check{background:var(--success-soft);border-color:transparent;color:var(--success);font-weight:700}
+.flow-lane li+li::before{content:"→";margin-right:6px;color:var(--text-muted);font-size:.9rem}
+.flow-gain{margin:0;padding-top:12px;border-top:1px solid var(--border)}
+
+/* adoption ladder */
+.ladder{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.ladder{grid-template-columns:1fr}}
+.ladder-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;
+  border-top:3px solid var(--primary)}
+.ladder-step:nth-child(1){border-top-color:var(--border-strong)}
+.ladder-step:nth-child(2){border-top-color:var(--secondary)}
+.ladder-step:nth-child(4){border-top-color:var(--accent)}
+.ladder-step:nth-child(5){border-top-color:var(--success)}
+.ladder-n{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin:0 0 4px}
+.ladder-t{font-family:var(--font-display);font-weight:700;font-size:1.02rem;margin:0 0 8px}
+.ladder-step p.small{margin:0 0 8px}
+.ladder-step p.small.muted span{font-weight:700;text-transform:uppercase;font-size:.68rem;letter-spacing:.06em}
+
+/* human vs AI matrix */
+.matrix th[scope="row"]{font-weight:600;max-width:22ch}
+.mx{display:inline-block;font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);white-space:nowrap}
+.mx-ai{background:var(--primary-soft);color:var(--primary)}
+.mx-verify{background:var(--warning-soft);color:var(--warning)}
+.mx-human{background:var(--danger-soft);color:var(--danger)}
+
+/* checklists */
+.res-check-card h3{font-size:1.06rem}
+.res-check-card{scroll-margin-top:86px}
+
+/* hub tiles */
+.res-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.res-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.res-tiles{grid-template-columns:1fr}}
+.res-tile{display:flex;flex-direction:column;gap:4px;min-height:var(--tap);padding:16px;border:1px solid var(--border);
+  border-radius:var(--r-card);background:var(--surface);color:var(--text)!important;text-decoration:none;
+  transition:border-color .18s ease,background .18s ease}
+.res-tile:hover{border-color:var(--primary);background:var(--primary-soft)}
+.res-kind{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)}
+.res-tile strong{font-size:.98rem}

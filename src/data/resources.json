@@ -1,0 +1,607 @@
+{
+  "_readme": "Practical AI resource layer. Separate from /learn/ (a curated course path) and /tools/ (tool reviews with last_reviewed) — this holds prompts, workflows and checklists people can use today. No performance claim ('saves 80% time', '10x') may be added here: benefits are stated qualitatively (fewer manual steps, faster first draft, structured output). build.py refuses to render a workflow missing any required field, and refuses to render tested timings unless a real Moodily test recorded them.",
+  "last_reviewed": "2026-09-18",
+  "youtube": {
+    "name": "AI with SaurabhKr",
+    "url": "",
+    "_todo": "TODO (OWNER): the exact channel URL. Until it is set, no channel link renders anywhere — and no subscriber/view figure is ever published."
+  },
+  "audiences": [
+    {
+      "id": "student",
+      "label": "Student",
+      "emoji": "🎓"
+    },
+    {
+      "id": "job-seeker",
+      "label": "Job Seeker",
+      "emoji": "📄"
+    },
+    {
+      "id": "professional",
+      "label": "Professional",
+      "emoji": "💼"
+    },
+    {
+      "id": "teacher",
+      "label": "Teacher",
+      "emoji": "🏫"
+    },
+    {
+      "id": "creator",
+      "label": "Creator",
+      "emoji": "🎥"
+    },
+    {
+      "id": "freelancer",
+      "label": "Freelancer",
+      "emoji": "🧑‍💻"
+    },
+    {
+      "id": "small-business",
+      "label": "Small Business",
+      "emoji": "🏪"
+    },
+    {
+      "id": "founder",
+      "label": "Founder",
+      "emoji": "🚀"
+    },
+    {
+      "id": "daily-life",
+      "label": "रोज़ का काम",
+      "emoji": "🏠"
+    }
+  ],
+  "problems": [
+    {
+      "id": "writing",
+      "label": "Writing"
+    },
+    {
+      "id": "research",
+      "label": "Research"
+    },
+    {
+      "id": "study",
+      "label": "Study"
+    },
+    {
+      "id": "email",
+      "label": "Email"
+    },
+    {
+      "id": "meetings",
+      "label": "Meetings"
+    },
+    {
+      "id": "presentation",
+      "label": "Presentation"
+    },
+    {
+      "id": "content",
+      "label": "Content"
+    },
+    {
+      "id": "planning",
+      "label": "Planning"
+    },
+    {
+      "id": "business",
+      "label": "Business"
+    },
+    {
+      "id": "productivity",
+      "label": "Productivity"
+    }
+  ],
+  "framework": {
+    "name": "6-Box Prompt",
+    "name_hi": "6 खाने का Prompt",
+    "intro": "एक अच्छा prompt लंबा नहीं होता — पूरा होता है। छह खाने भर दीजिए, जवाब अपने आप सुधर जाता है।",
+    "boxes": [
+      {
+        "k": "GOAL",
+        "hi": "क्या चाहिए",
+        "ask": "एक वाक्य में नतीजा — 'क्या बनाना है', न कि 'क्या करना है'।",
+        "eg": "Class 10 के छात्रों के लिए इस chapter का revision sheet चाहिए।"
+      },
+      {
+        "k": "CONTEXT",
+        "hi": "किसके लिए, कहाँ",
+        "ask": "कौन पढ़ेगा/इस्तेमाल करेगा, किस board/शहर/business में।",
+        "eg": "Hindi-medium students, UP Board, पहली बार यह chapter पढ़ रहे हैं।"
+      },
+      {
+        "k": "INPUT",
+        "hi": "कच्चा माल",
+        "ask": "अपना असली text, notes या data चिपकाइए — AI को अंदाज़ा न लगाने दें।",
+        "eg": "नीचे chapter का text दिया है: …"
+      },
+      {
+        "k": "CONSTRAINTS",
+        "hi": "हद",
+        "ask": "कितना लंबा, कौन-सी भाषा, क्या शामिल नहीं करना।",
+        "eg": "एक page, आसान Hindi, कोई नया fact अपने से न जोड़ें।"
+      },
+      {
+        "k": "OUTPUT",
+        "hi": "शक्ल",
+        "ask": "आपको किस format में चाहिए — table, bullet, script, letter।",
+        "eg": "दो हिस्से: 10 bullet points, फिर 5 सवाल-जवाब।"
+      },
+      {
+        "k": "CHECK",
+        "hi": "जाँच",
+        "ask": "AI से कहिए कि वह खुद बताए कहाँ पक्का नहीं है।",
+        "eg": "अंत में लिखें कि किन 3 बातों को मुझे खुद verify करना चाहिए।"
+      }
+    ],
+    "bad": "इस chapter का summary बना दो।",
+    "bad_why": "न यह पता है कि किसके लिए है, न कितना लंबा, न किस format में — जवाब हर बार अलग और आम आएगा।",
+    "better": "GOAL: Class 10 UP Board के Hindi-medium छात्रों के लिए इस chapter का एक-page revision sheet बनाइए।\nCONTEXT: ये छात्र chapter पहली बार पढ़ रहे हैं; exam में 3-अंक के सवाल आते हैं।\nINPUT: नीचे chapter का पूरा text दिया है — [text चिपकाइए]\nCONSTRAINTS: एक page, आसान Hindi, कोई नया fact अपने से न जोड़ें, definitions chapter के शब्दों में रखें।\nOUTPUT: दो हिस्से — (1) 10 bullet points, (2) 5 संभावित सवाल और छोटे जवाब।\nCHECK: अंत में लिखें कि किन 3 बातों को मुझे book से खुद verify करना चाहिए।",
+    "better_why": "छह खाने भरने से जवाब एक जैसा, आपके छात्रों के लायक और जाँचने लायक आता है।"
+  },
+  "prompts": [
+    {
+      "id": "explain-chapter",
+      "audiences": [
+        "student",
+        "teacher"
+      ],
+      "problems": [
+        "study"
+      ],
+      "title": "Chapter को आसान भाषा में समझना",
+      "why": "पहली बार पढ़ने पर chapter भारी लगता है — यह उसे रोज़ की भाषा में खोल देता है।",
+      "prompt": "GOAL: नीचे दिए chapter को एक ऐसे छात्र को समझाइए जो इसे पहली बार पढ़ रहा है।\nCONTEXT: Class [X], [board], Hindi-medium.\nINPUT: [chapter का text चिपकाइए]\nCONSTRAINTS: आसान Hindi, हर technical शब्द का मतलब साथ में, कोई नया fact न जोड़ें।\nOUTPUT: (1) 5 लाइन में पूरा सार (2) मुख्य शब्द और उनके मतलब (3) एक रोज़मर्रा का उदाहरण।\nCHECK: अंत में बताइए कि किन बातों के लिए मुझे book देखनी चाहिए।",
+      "follow_up": "अब इसी chapter से 5 ऐसे सवाल बनाइए जो exam में 3 अंक के आ सकते हैं, और हर सवाल का 3-4 लाइन का जवाब।"
+    },
+    {
+      "id": "revision-sheet",
+      "audiences": [
+        "student"
+      ],
+      "problems": [
+        "study",
+        "planning"
+      ],
+      "title": "एक-page revision sheet",
+      "why": "Exam से पहले पूरा chapter नहीं, एक page दोहराना होता है।",
+      "prompt": "GOAL: नीचे दिए notes से एक page का revision sheet बनाइए।\nINPUT: [notes चिपकाइए]\nCONSTRAINTS: एक page, सिर्फ़ वही जो notes में है, आसान Hindi।\nOUTPUT: (1) 10 bullet points (2) 5 ऐसी बातें जो लोग भूल जाते हैं (3) 3 formula/definition जो रटने लायक हैं।\nCHECK: बताइए कि notes में कौन-सा हिस्सा अधूरा लग रहा है।",
+      "follow_up": "इन्हीं points से 15 flashcards बनाइए — एक तरफ़ सवाल, दूसरी तरफ़ छोटा जवाब, table में।"
+    },
+    {
+      "id": "email-summary",
+      "audiences": [
+        "professional"
+      ],
+      "problems": [
+        "email",
+        "productivity"
+      ],
+      "title": "लंबा email thread 30 सेकंड में",
+      "why": "20 reply वाला thread पढ़ने में समय जाता है; पहले फ़ैसला चाहिए, फिर detail।",
+      "prompt": "GOAL: नीचे दिए email thread का सार निकालिए।\nINPUT: [thread चिपकाइए — नाम/नंबर हटा दें]\nCONSTRAINTS: 120 शब्द से कम, कोई अनुमान न लगाएँ।\nOUTPUT: (1) फ़ैसला क्या चाहिए (2) किसने क्या माँगा (3) मेरे हिस्से के काम, deadline के साथ (4) अटकी हुई बातें।\nCHECK: अगर thread में कोई तारीख़ या आँकड़ा साफ़ नहीं है, उसे अलग लिखें।",
+      "follow_up": "अब इसका एक विनम्र reply draft कीजिए — 100 शब्द से कम, हर माँग का जवाब, और जहाँ मुझे decide करना है वहाँ [ ] छोड़ दें।"
+    },
+    {
+      "id": "meeting-notes",
+      "audiences": [
+        "professional",
+        "founder"
+      ],
+      "problems": [
+        "meetings",
+        "productivity"
+      ],
+      "title": "Meeting notes से action list",
+      "why": "Notes सबके पास होते हैं; तय काम किसी के पास नहीं।",
+      "prompt": "GOAL: इन meeting notes से action list बनाइए।\nINPUT: [notes चिपकाइए]\nCONSTRAINTS: सिर्फ़ वही काम जो notes में साफ़ तय हुए; बाक़ी 'unclear' में डालें।\nOUTPUT: एक table — काम | किसका | कब तक | notes में कहाँ कहा गया।\nCHECK: नीचे 'unclear' में वे बातें लिखें जिन पर फ़ैसला नहीं हुआ।",
+      "follow_up": "इन action items का एक छोटा follow-up email draft कीजिए, हर व्यक्ति के हिस्से को अलग bullet में।"
+    },
+    {
+      "id": "job-tailor-cv",
+      "audiences": [
+        "job-seeker"
+      ],
+      "problems": [
+        "writing"
+      ],
+      "title": "CV को एक job के हिसाब से कसना",
+      "why": "एक ही CV हर जगह भेजने से कुछ नहीं होता; हर job के शब्द अलग होते हैं।",
+      "prompt": "GOAL: मेरे CV को इस job description के हिसाब से कसिए।\nINPUT: CV: [चिपकाइए] · Job description: [चिपकाइए]\nCONSTRAINTS: कोई नया अनुभव, degree या skill न जोड़ें — सिर्फ़ जो CV में है उसे फिर से लिखें।\nOUTPUT: (1) सुधरे हुए 6 bullet points (2) JD के कौन-से शब्द अब CV में आ गए (3) कौन-सी माँग मेरे CV में नहीं है।\nCHECK: साफ़ लिखें कि आपने कुछ भी नया नहीं जोड़ा।",
+      "follow_up": "अब इसी के आधार पर 120 शब्द का cover note लिखिए — बिना बढ़ा-चढ़ाकर, सादी भाषा में।"
+    },
+    {
+      "id": "customer-reply",
+      "audiences": [
+        "small-business",
+        "freelancer"
+      ],
+      "problems": [
+        "business",
+        "email"
+      ],
+      "title": "ग्राहक के सवाल का तैयार जवाब",
+      "why": "एक ही सवाल दिन में दस बार आता है — जवाब हर बार टाइप करना पड़ता है।",
+      "prompt": "GOAL: इस ग्राहक के सवाल का WhatsApp जवाब draft कीजिए।\nCONTEXT: मेरा business [type] है, [शहर] में। मेरी services और दाम: [list चिपकाइए]\nINPUT: ग्राहक का message: [चिपकाइए]\nCONSTRAINTS: 80 शब्द से कम, सादी Hindi, कोई दाम या वादा जो मेरी list में नहीं है वह न लिखें।\nOUTPUT: (1) जवाब (2) अगला सवाल जो मुझे उनसे पूछना चाहिए।\nCHECK: अगर जवाब देने के लिए कोई जानकारी कम है, पहले वही पूछिए।",
+      "follow_up": "इसी तरह के 5 आम सवालों के जवाब बनाइए, जिन्हें मैं WhatsApp के quick replies में रख सकूँ।"
+    },
+    {
+      "id": "catalogue-copy",
+      "audiences": [
+        "small-business"
+      ],
+      "problems": [
+        "business",
+        "writing"
+      ],
+      "title": "Product list से catalogue copy",
+      "why": "दाम की list होती है, पढ़ने लायक description नहीं।",
+      "prompt": "GOAL: मेरी product list से catalogue की copy लिखिए।\nINPUT: [list — नाम, दाम, थोड़ी detail]\nCONSTRAINTS: हर item 20 शब्द से कम; कोई फ़ायदा या दावा न जोड़ें जो list में नहीं है।\nOUTPUT: एक table — item | दाम | एक लाइन का description.\nCHECK: जिन items की detail कम है, उन्हें अलग दिखाइए ताकि मैं जानकारी जोड़ूँ।",
+      "follow_up": "अब इन्हें 3 categories में बाँटिए और हर category के लिए एक छोटा heading सुझाइए।"
+    },
+    {
+      "id": "video-outline",
+      "audiences": [
+        "creator"
+      ],
+      "problems": [
+        "content"
+      ],
+      "title": "Topic से video का ढाँचा",
+      "why": "Topic तय है, पहला मिनट तय नहीं — वहीं पर लोग छोड़ देते हैं।",
+      "prompt": "GOAL: इस topic पर एक video का ढाँचा बनाइए।\nCONTEXT: audience [कौन], भाषा [Hindi/Hinglish], लंबाई [X मिनट]।\nINPUT: topic और मेरे points: [चिपकाइए]\nCONSTRAINTS: कोई आँकड़ा या दावा न जोड़ें जो मैंने नहीं दिया।\nOUTPUT: (1) 5 hook options (2) section-wise outline, हर section का मक़सद (3) एक line का CTA।\nCHECK: बताइए किन points के लिए मुझे source दिखाना चाहिए।",
+      "follow_up": "इसी outline से एक 45-second Short की script बनाइए — पहली लाइन hook, आख़िरी लाइन CTA।"
+    },
+    {
+      "id": "research-brief",
+      "audiences": [
+        "professional",
+        "founder",
+        "freelancer"
+      ],
+      "problems": [
+        "research"
+      ],
+      "title": "किसी topic पर जाँचने लायक brief",
+      "why": "AI का जवाब भरोसे लायक तब बनता है जब वह अपने हर दावे का दर्जा खुद बताए।",
+      "prompt": "GOAL: इस सवाल पर एक छोटा brief बनाइए: [सवाल]\nCONSTRAINTS: जहाँ पक्का नहीं है वहाँ साफ़ लिखें 'पक्का नहीं'; कोई आँकड़ा बिना source न दें।\nOUTPUT: एक table — दावा | यह fact है, अनुमान है या राय | कहाँ जाँचें।\nCHECK: अंत में 3 ऐसे सवाल लिखिए जिनका जवाब इस brief में नहीं है।",
+      "follow_up": "अब उन दावों की list बनाइए जिन्हें मुझे किसी official source पर खुद जाँचना चाहिए।"
+    },
+    {
+      "id": "week-plan",
+      "audiences": [
+        "daily-life",
+        "student",
+        "freelancer"
+      ],
+      "problems": [
+        "planning",
+        "productivity"
+      ],
+      "title": "हफ़्ते के कामों को क्रम देना",
+      "why": "List लंबी होती है; क्रम नहीं होता — इसलिए ज़रूरी काम छूट जाता है।",
+      "prompt": "GOAL: मेरे इन कामों का हफ़्ते भर का क्रम बनाइए।\nINPUT: काम और deadline: [list चिपकाइए]\nCONSTRAINTS: रोज़ 3 से ज़्यादा बड़े काम न रखें; deadline वाले काम पहले।\nOUTPUT: दिन-wise table — दिन | बड़े काम | छोटे काम | क्यों इस क्रम में।\nCHECK: बताइए कौन-सा काम इस हफ़्ते होना मुश्किल है और क्यों।",
+      "follow_up": "अब इसमें से वे काम अलग कीजिए जो कोई और कर सकता है, और जो सिर्फ़ मैं कर सकता हूँ।"
+    }
+  ],
+  "workflows": [
+    {
+      "id": "chapter-to-study-kit",
+      "audiences": [
+        "student",
+        "teacher"
+      ],
+      "problems": [
+        "study"
+      ],
+      "title": "एक chapter से पूरा study kit",
+      "who": "वह छात्र या teacher जिसके पास chapter है पर दोहराने का कोई ढाँचा नहीं।",
+      "problem": "Chapter पढ़ लेने के बाद भी revision के लिए कुछ नहीं बचता — notes बिखरे, सवाल नहीं, याद करने का तरीका नहीं।",
+      "tool": "कोई भी free AI chat। PDF हो तो ऐसा tool जो document पढ़ सके — Moodily के tool notes /tools/ पर हैं।",
+      "input": "Chapter का text या PDF, और यह पता कि किस class/board के लिए है।",
+      "steps": [
+        "Chapter का text चिपकाइए और आसान भाषा में समझने को कहिए — पहले समझ, फिर notes।",
+        "उसी समझ से एक-page revision sheet बनवाइए, सिर्फ़ chapter के अंदर की बातों से।",
+        "उसी sheet से flashcards और 5 exam-जैसे सवाल बनवाइए।"
+      ],
+      "prompt": "GOAL: नीचे दिए chapter से एक study kit बनाइए।\nCONTEXT: Class [X], [board], Hindi-medium; छात्र पहली बार पढ़ रहे हैं।\nINPUT: [chapter का text चिपकाइए]\nCONSTRAINTS: सिर्फ़ chapter के अंदर की बातें; कोई नया fact नहीं; आसान Hindi।\nOUTPUT: चार हिस्से — (1) 5 लाइन का सार (2) 10 bullet revision points (3) 15 flashcards table में (4) 5 exam-जैसे सवाल और छोटे जवाब।\nCHECK: अंत में लिखिए कि किन 3 बातों को book से खुद जाँचना चाहिए।",
+      "follow_up": "अब इन flashcards को मुश्किल से आसान के क्रम में लगाइए, और 3 दिन का revision plan बनाइए।",
+      "check": "Chapter खोलकर हर definition और formula मिलाइए। जो number, तारीख़ या नाम AI ने दिया है और chapter में नहीं है — हटा दीजिए।",
+      "never_share": "दूसरे छात्रों के नाम, roll number, marks या कोई निजी record।",
+      "advanced": "अगर पूरा syllabus है तो एक ही बार में सब न दें — chapter-wise कीजिए, और हर kit को एक folder में क्रम से रखिए।"
+    },
+    {
+      "id": "email-to-actions",
+      "audiences": [
+        "professional",
+        "founder"
+      ],
+      "problems": [
+        "email",
+        "productivity",
+        "meetings"
+      ],
+      "title": "Email thread से जवाब और action list",
+      "who": "वह professional जिसका दिन लंबे threads पढ़ने में जाता है।",
+      "problem": "20 reply वाला thread पढ़कर तय करना पड़ता है कि किसने क्या माँगा और मेरा हिस्सा क्या है — हर बार शुरू से।",
+      "tool": "कोई भी free AI chat। निजी जानकारी हटाकर ही text चिपकाइए।",
+      "input": "Thread का text, नाम/नंबर/पते हटाकर।",
+      "steps": [
+        "Thread चिपकाकर सार, माँगें और अपने काम निकालिए।",
+        "उसी सार से reply का पहला draft बनवाइए — जहाँ आपको तय करना है वहाँ खाली जगह छोड़ने को कहिए।",
+        "Draft खुद पढ़िए, तय बातें भरिए, फिर भेजिए। भेजने का फ़ैसला आपका है।"
+      ],
+      "prompt": "GOAL: नीचे दिए email thread का सार और मेरे हिस्से के काम निकालिए।\nINPUT: [thread चिपकाइए — नाम, नंबर, पते हटा दें]\nCONSTRAINTS: कोई अनुमान न लगाएँ; जो साफ़ नहीं है उसे 'unclear' में डालें; 150 शब्द से कम।\nOUTPUT: (1) फ़ैसला क्या चाहिए (2) किसने क्या माँगा (3) मेरे काम — deadline के साथ table में (4) unclear बातें।\nCHECK: कोई तारीख़ या आँकड़ा साफ़ न हो तो अलग लिखें।",
+      "follow_up": "अब इसका reply draft कीजिए — 120 शब्द से कम, हर माँग का जवाब, और जहाँ मुझे decide करना है वहाँ [ ] छोड़ दें।",
+      "check": "हर तारीख़, आँकड़ा और वादा thread में मिलाइए। किसी के नाम से कोई commitment न जाए जो thread में नहीं है।",
+      "never_share": "Client के नाम, contract की शर्तें, salary, बैंक detail, या कोई confidential attachment।",
+      "advanced": "जो सवाल हर हफ़्ते आते हैं उनके जवाब एक फ़ाइल में जमा कीजिए — अगली बार draft वहीं से बनेगा, तेज़ और एक जैसा।"
+    },
+    {
+      "id": "customer-question-desk",
+      "audiences": [
+        "small-business",
+        "freelancer"
+      ],
+      "problems": [
+        "business",
+        "email",
+        "productivity"
+      ],
+      "title": "ग्राहक के सवालों का तैयार desk",
+      "who": "वह दुकान, salon, coaching या freelancer जिसके पास दिन भर एक जैसे सवाल आते हैं।",
+      "problem": "\"दाम क्या है?\", \"कितना समय लगेगा?\" — वही सवाल दिन में दस बार, और हर बार जवाब हाथ से टाइप करना पड़ता है।",
+      "tool": "कोई भी free AI chat + WhatsApp Business के quick replies। WhatsApp setup की detail /services/whatsapp-business/ पर है।",
+      "input": "अपनी services और दाम की list, और पिछले कुछ असली सवाल (ग्राहक का नाम/नंबर हटाकर)।",
+      "steps": [
+        "अपनी service और दाम की list एक जगह लिखिए — यही AI का आधार बनेगी।",
+        "पिछले 10 आम सवाल चिपकाकर हर एक का छोटा जवाब बनवाइए, सिर्फ़ अपनी list के अंदर से।",
+        "जवाब खुद पढ़कर ठीक कीजिए, फिर WhatsApp के quick replies में डालिए।"
+      ],
+      "prompt": "GOAL: मेरे ग्राहकों के आम सवालों के तैयार जवाब बनाइए।\nCONTEXT: मेरा business [type] है, [शहर] में।\nINPUT: मेरी services और दाम: [list] · आम सवाल: [list — ग्राहक का नाम/नंबर हटाकर]\nCONSTRAINTS: हर जवाब 60 शब्द से कम, सादी Hindi; कोई दाम, समय या वादा न लिखें जो मेरी list में नहीं है।\nOUTPUT: एक table — सवाल | तैयार जवाब | अगला सवाल जो मुझे पूछना चाहिए।\nCHECK: जिन सवालों का जवाब मेरी list से नहीं बनता, उन्हें अलग दिखाइए।",
+      "follow_up": "अब इनमें से 5 सबसे आम को WhatsApp quick replies के छोटे रूप में लिखिए — 40 शब्द से कम।",
+      "check": "हर दाम और समय अपनी list से मिलाइए। एक भी जवाब ऐसा न जाए जिसे आप निभा न सकें।",
+      "never_share": "ग्राहकों के नाम, नंबर, पते, order history या payment detail।",
+      "advanced": "जब list बदले, जवाब दोबारा बनवाइए — दाम पुराना रह जाना सबसे आम गलती है।"
+    }
+  ],
+  "checklists": [
+    {
+      "id": "verify",
+      "title": "AI का जवाब जाँचने के 6 step",
+      "intro": "AI अच्छा पहला draft देता है, आख़िरी फ़ैसला नहीं। ये छह step हर बार लगाइए।",
+      "items": [
+        "ज़रूरी facts अलग कीजिए — कौन-सी बात पर आगे कोई फ़ैसला टिका है।",
+        "तारीख़ देखिए — AI की जानकारी पुरानी हो सकती है; नियम, दाम और scheme बदलते हैं।",
+        "Source खोलिए — link दिया है तो खुद खोलकर पढ़िए; न दिया हो तो माँगिए।",
+        "हिसाब खुद कीजिए — कोई भी जोड़, प्रतिशत या दाम calculator से मिलाइए।",
+        "क्या छूट गया देखिए — AI वही बताता है जो पूछा गया; शर्तें और अपवाद अक्सर छूटते हैं।",
+        "बड़ा फ़ैसला खुद लीजिए — पैसा, सेहत, कानून या किसी और के भविष्य से जुड़ा हो तो expert से पूछिए।"
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "AI में क्या share नहीं करना चाहिए",
+      "intro": "जो बात आप किसी अजनबी को chat में नहीं भेजेंगे, वह AI में भी न डालिए।",
+      "items": [
+        "Password और OTP — कभी नहीं, किसी हाल में नहीं।",
+        "Bank account, UPI PIN, card number या कोई payment detail।",
+        "Aadhaar, PAN या कोई ID number, जब तक बिल्कुल ज़रूरी न हो।",
+        "Client की निजी जानकारी या ऐसी बात जो contract में confidential लिखी है।",
+        "Business के अंदर के आँकड़े — margin, cost, supplier के दाम।",
+        "Medical report या किसी की सेहत की detail।",
+        "छात्रों या कर्मचारियों के नाम, marks, salary या record।",
+        "किसी और का फ़ोन नंबर, पता या photo, बिना उनकी मर्ज़ी।"
+      ]
+    }
+  ],
+  "ladder": {
+    "title": "AI इस्तेमाल की 5 सीढ़ियाँ",
+    "intro": "हर किसी को सबसे ऊपर पहुँचने की ज़रूरत नहीं। जहाँ आपका काम बनता है, वहीं रुक जाना भी ठीक है।",
+    "levels": [
+      {
+        "n": 1,
+        "title": "AI से पूछना",
+        "what": "एक-एक सवाल पूछते हैं, हर बार नए सिरे से।",
+        "when": "जब काम कभी-कभी का हो।"
+      },
+      {
+        "n": 2,
+        "title": "ढाँचे वाला prompt",
+        "what": "GOAL, CONTEXT, INPUT और format देकर पूछते हैं।",
+        "when": "जब वही काम हफ़्ते में एक-दो बार आता हो।"
+      },
+      {
+        "n": 3,
+        "title": "Workflow",
+        "what": "एक काम को कई step में बाँटते हैं — हर step का अपना prompt।",
+        "when": "जब काम बड़ा हो और एक जवाब में न बने।"
+      },
+      {
+        "n": 4,
+        "title": "दोहराने लायक system",
+        "what": "Template, checklist और तय format फ़ाइल में रख लेते हैं।",
+        "when": "जब वही काम रोज़ या हर हफ़्ते आता हो।"
+      },
+      {
+        "n": 5,
+        "title": "AI + इंसान, साथ में",
+        "what": "दोहराने वाला हिस्सा AI करता है; फ़ैसला इंसान लेता है, हर बार।",
+        "when": "जब काम की मात्रा ज़्यादा हो और गलती की क़ीमत भी।"
+      }
+    ]
+  },
+  "matrix": {
+    "title": "कौन-सा काम AI का, कौन-सा आपका",
+    "intro": "AI draft बनाता है। इंसान जाँचता है। फ़ैसला इंसान का रहता है।",
+    "legend": [
+      {
+        "k": "ai",
+        "label": "AI मदद कर सकता है"
+      },
+      {
+        "k": "verify",
+        "label": "इंसान जाँचे"
+      },
+      {
+        "k": "human",
+        "label": "फ़ैसला इंसान का"
+      }
+    ],
+    "rows": [
+      {
+        "task": "Notes का सार बनाना",
+        "draft": "ai",
+        "verify": "verify",
+        "automate": "हाँ",
+        "privacy": "कम"
+      },
+      {
+        "task": "Email का draft",
+        "draft": "ai",
+        "verify": "verify",
+        "automate": "हाँ",
+        "privacy": "मध्यम"
+      },
+      {
+        "task": "Ideas सोचना",
+        "draft": "ai",
+        "verify": "verify",
+        "automate": "हाँ",
+        "privacy": "कम"
+      },
+      {
+        "task": "Research के sources ढूँढना",
+        "draft": "ai",
+        "verify": "verify",
+        "automate": "आंशिक — link खुद खोलिए",
+        "privacy": "कम"
+      },
+      {
+        "task": "ग्राहक को जवाब",
+        "draft": "ai",
+        "verify": "verify",
+        "automate": "आंशिक — भेजने से पहले पढ़िए",
+        "privacy": "मध्यम"
+      },
+      {
+        "task": "Business का फ़ैसला",
+        "draft": "ai",
+        "verify": "human",
+        "automate": "नहीं",
+        "privacy": "ज़्यादा"
+      },
+      {
+        "task": "पैसे का फ़ैसला",
+        "draft": "ai",
+        "verify": "human",
+        "automate": "नहीं",
+        "privacy": "ज़्यादा"
+      },
+      {
+        "task": "कानूनी मामला",
+        "draft": "ai",
+        "verify": "human",
+        "automate": "नहीं — वकील से पूछिए",
+        "privacy": "ज़्यादा"
+      },
+      {
+        "task": "सेहत का फ़ैसला",
+        "draft": "ai",
+        "verify": "human",
+        "automate": "नहीं — डॉक्टर से पूछिए",
+        "privacy": "ज़्यादा"
+      },
+      {
+        "task": "सार्वजनिक दावा या आँकड़ा",
+        "draft": "ai",
+        "verify": "human",
+        "automate": "नहीं",
+        "privacy": "मध्यम"
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "student",
+      "title": "Student — chapter से revision तक",
+      "manual": [
+        "chapter",
+        "notes",
+        "सवाल",
+        "revision"
+      ],
+      "assisted": [
+        "chapter",
+        "AI समझाता है",
+        "notes",
+        "quiz",
+        "flashcards",
+        "revision plan"
+      ],
+      "gain": "कम manual step, पहला draft जल्दी, दोहराने लायक ढाँचा"
+    },
+    {
+      "id": "professional",
+      "title": "Professional — email से action तक",
+      "manual": [
+        "email",
+        "पढ़ना",
+        "reply लिखना",
+        "काम निकालना",
+        "क्रम लगाना"
+      ],
+      "assisted": [
+        "email",
+        "AI सार",
+        "reply draft",
+        "action list"
+      ],
+      "gain": "पहला draft जल्दी, एक जैसा format, कुछ छूटने का डर कम"
+    },
+    {
+      "id": "creator",
+      "title": "Creator — topic से Shorts तक",
+      "manual": [
+        "topic",
+        "research",
+        "script",
+        "title",
+        "thumbnail",
+        "repurpose"
+      ],
+      "assisted": [
+        "topic",
+        "AI research notes",
+        "hook options",
+        "script ढाँचा",
+        "title options",
+        "thumbnail brief",
+        "Shorts cut"
+      ],
+      "gain": "ज़्यादा options में से चुनना, दोहराने लायक ढाँचा"
+    },
+    {
+      "id": "small-business",
+      "title": "Business — सवाल से जवाब तक",
+      "manual": [
+        "ग्राहक का सवाल",
+        "मालिक हर बार जवाब टाइप करता है"
+      ],
+      "assisted": [
+        "ग्राहक का सवाल",
+        "AI draft",
+        "service व दाम की list से मिलान",
+        "सुझाया गया जवाब"
+      ],
+      "gain": "एक जैसा जवाब, दोहराने में आसानी, दाम में गलती कम"
+    }
+  ],
+  "workflow_tests": {
+    "_readme": "Infrastructure for Moodily's OWN future experiments. Nothing here is published until a real test has been run and recorded. Required per entry: workflow, manual_time, ai_assisted_time, tool, date, conditions, sample_size, notes. build.py refuses to render an entry missing any of them, and any published result is labelled 'MOODILY WORKFLOW TEST' — never an industry fact.",
+    "tests": []
+  }
+}
