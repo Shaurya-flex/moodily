@@ -67,6 +67,16 @@ HI_MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप
 HI_DAYS = ["सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार", "रविवार"]
 
 
+def offer_urgency_ok():
+    """Countdown + slot counter render ONLY when the owner has confirmed the offer is real and payable.
+
+    Gate (src/site.json -> offer.urgency_confirmed). Until it is true the page still shows the
+    introductory pricing and its terms, but no timer and no slot counter — an unverified
+    scarcity claim is a dark pattern, and a discount nobody can actually pay for is worse.
+    """
+    return bool(OFFER.get("urgency_confirmed"))
+
+
 def _offer_state():
     """Offer is shown only while active, inside its window and with real slots left. Re-evaluated on every build."""
     if not OFFER.get("active"):
@@ -116,6 +126,9 @@ def offer_pay_button(svc, cls="btn btn-primary"):
 
 
 def offer_meta_html():
+    if not offer_urgency_ok():
+        return ('<p class="offer-note offer-only">Founding client introductory pricing · '
+                '<a href="/offers/{id}/">शर्तें</a></p>').format(id=OFFER["id"])
     return ('<p class="offer-note offer-only"><strong>{left}/{total}</strong> founding slots बाकी · समय बाकी: <span data-countdown>{deadline} तक</span> · '
             '<a href="/offers/{id}/">शर्तें</a></p>').format(left=OFFER_STATE["left"], total=OFFER["slots_total"], deadline=e(offer_deadline_hi()), id=OFFER["id"])
 
@@ -125,10 +138,12 @@ def offer_banner(route):
         return ""
     return ('<aside class="offer-banner offer-only" aria-label="{name} offer"><div class="container offer-inner">'
             '<p><span class="badge badge-offer">{pct}% OFF</span> <strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर {pct}% छूट</p>'
-            '<p class="offer-meta"><strong>{left}/{total}</strong> slots बाकी · समय बाकी: <span data-countdown>{deadline} तक</span></p>'
+            '{meta}'
             '<a class="btn btn-sm offer-btn" href="/offers/{id}/" data-track="offer_cta_click" data-label="banner">Offer देखें →</a></div></aside>').format(
-        name=e(OFFER["name"]), pct=OFFER["discount_pct"], total=OFFER["slots_total"], left=OFFER_STATE["left"],
-        deadline=e(offer_deadline_hi()), id=OFFER["id"])
+        name=e(OFFER["name"]), pct=OFFER["discount_pct"], total=OFFER["slots_total"], id=OFFER["id"],
+        meta=('<p class="offer-meta"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span data-countdown>{} तक</span></p>'.format(
+            OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
+            else '<p class="offer-meta">Introductory pricing · <a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"])))
 
 
 def e(value):
@@ -627,11 +642,14 @@ def c_offer_details(args, ctx):
     return ('<section class="offer-section offer-only" id="offer-{id}" aria-labelledby="offer-h"><div class="container">'
             '<div class="section-head"><p class="eyebrow">{name} · सिर्फ़ पहले {total} ग्राहक</p>'
             '<h2 id="offer-h">{n} starter packages पर {pct}% छूट</h2>'
-            '<p class="lead"><strong>{left}/{total}</strong> slots बाकी · समय बाकी: <span class="countdown" data-countdown>{deadline} तक</span></p>'
+            '{urgency}'
             '<p class="muted small">Scope वही जो regular package में है — सिर्फ़ दाम कम। Slot पूरा payment मिलने पर पक्का होता है। <a href="/offers/{id}/">पूरी शर्तें</a></p></div>'
             '<div class="grid grid-3">{cards}</div></div></section>').format(
         id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]), pct=OFFER["discount_pct"],
-        left=OFFER_STATE["left"], deadline=e(offer_deadline_hi()), cards="".join(cards))
+        cards="".join(cards),
+        urgency=('<p class="lead"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span class="countdown" data-countdown>{} तक</span></p>'.format(
+            OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
+            else '<p class="lead">Founding client introductory pricing — पहले {} ग्राहकों के लिए।</p>'.format(OFFER["slots_total"])))
 
 
 def c_offer_terms(args, ctx):
@@ -1084,12 +1102,13 @@ def c_packages(args, ctx):
         items = "".join("<li>{}</li>".format(e(d)) for d in svc["deliverables"][:5])
         out.append(
             '<article class="pkg{lead}" id="pkg-{id}"{attrs} data-service-id="{id}">'
-            '<h3>{name}</h3><p class="pkg-for">{tagline}</p>{price}'
+            '<h3>{name}</h3><p class="pkg-for">{who}</p><p class="pkg-outcome">{tagline}</p>{price}'
             '<p class="small muted">{mode}</p><ul class="ticks">{items}</ul>'
-            '<p class="pkg-meta">{timeline} · {revisions}</p>'
+            '<p class="pkg-meta"><span>⏱ {timeline}</span><span>↻ {revisions}</span></p>'
             '<div class="card-actions"><a class="btn btn-primary" href="/contact/?service={id}" data-track="quote_start" data-label="pkg:{id}">Requirement बताएं</a>'
             '<a class="btn btn-outline" href="{page}#{id}" data-track="service_card_click" data-label="pkg-detail:{id}">पूरा scope →</a></div></article>'.format(
                 lead=" pkg-lead" if sid == lead else "", id=sid, attrs=card_attrs(svc), name=e(svc["name"]), tagline=e(svc["tagline"]),
+                who=e(svc["for"].split("।")[0].split(" जो ")[0].strip(" ,।")[:88]),
                 price=price_html(svc), mode=e(PRICE_MODES[svc["price_mode"]]), items=items,
                 timeline=e(svc["timeline"]), revisions=e(svc["revisions"]), page=svc["page"]))
     return '<div class="pkg-grid">{}</div>{}'.format("".join(out), scope_note_html())
@@ -1145,6 +1164,120 @@ def c_promises(args, ctx):
         w="".join("<li>{}</li>".format(e(x)) for x in will), n="".join("<li>{}</li>".format(e(x)) for x in wont))
 
 
+# ------------------------------------------------- visual storytelling components
+# Tiny inline SVG mockups. Inline so they theme with currentColor, add no requests and
+# no image files to the repo. Every one is aria-hidden with the meaning carried in text.
+def _mock(kind):
+    box = '<svg class="ba-mock" viewBox="0 0 320 132" role="img" aria-hidden="true" focusable="false">'
+    bg = '<rect width="320" height="132" fill="var(--surface-sunken)"/>'
+    def bar(x, y, w, h, c="var(--border-strong)", r=3):
+        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, r, c)
+    P, A, G = "var(--primary)", "var(--accent)", "var(--success)"
+    if kind == "gbp-before":
+        inner = bar(16, 16, 96, 60, "var(--border)") + bar(124, 18, 120, 9) + bar(124, 34, 90, 7) + bar(124, 48, 150, 7) + bar(16, 88, 130, 8) + bar(16, 104, 80, 8)
+    elif kind == "gbp-after":
+        inner = (bar(16, 16, 96, 60, P, 6) + bar(124, 18, 150, 9, "var(--text)") + bar(124, 34, 110, 7) + bar(124, 48, 170, 7)
+                 + bar(124, 62, 60, 14, G, 7) + bar(16, 88, 130, 8, P) + bar(158, 88, 60, 8, A) + bar(16, 104, 180, 8))
+    elif kind == "wa-before":
+        inner = bar(16, 16, 288, 26, "var(--border)") + bar(16, 52, 180, 8) + bar(16, 70, 140, 8) + bar(16, 96, 100, 20, "var(--border)", 10)
+    elif kind == "wa-after":
+        inner = (bar(16, 16, 288, 26, "var(--surface)", 6) + bar(24, 24, 120, 10, "var(--text)") + bar(16, 52, 130, 22, G, 11)
+                 + bar(158, 52, 130, 22, P, 11) + bar(16, 86, 288, 30, "var(--surface)", 6) + bar(24, 96, 200, 10) + bar(236, 94, 60, 14, A, 7))
+    elif kind == "doc-before":
+        inner = bar(16, 14, 60, 104, "var(--border)") + bar(90, 18, 150, 9) + bar(90, 34, 120, 7) + bar(90, 48, 190, 7) + bar(90, 62, 100, 7)
+    elif kind == "doc-after":
+        inner = (bar(16, 14, 60, 104, P, 6) + bar(90, 18, 190, 9, "var(--text)") + bar(90, 34, 150, 7) + bar(90, 48, 200, 7)
+                 + bar(90, 66, 88, 18, A, 9) + bar(186, 66, 88, 18, "var(--surface)", 9) + bar(90, 94, 190, 7) + bar(90, 108, 120, 7))
+    else:
+        inner = ""
+    return box + bg + inner + "</svg>"
+
+
+BA_EXAMPLES = [
+    {"h": "दुकान / local business", "sub": "एक ऐसी दुकान जो Google पर अधूरी दिखती है",
+     "mock": "gbp", "before": ["Google listing अधूरी — गलत समय, पुराना नंबर", "WhatsApp पर enquiry का कोई साफ़ रास्ता नहीं",
+                               "न website, न digital catalogue", "हर जगह अलग-अलग नाम और logo"],
+     "after": ["Google Business Profile पूरी — photos, services, सही समय", "WhatsApp पर एक साफ़ enquiry button",
+               "Digital catalogue जो chat में भेजा जा सके", "Landing page और counter पर review QR"]},
+    {"h": "Coaching / library", "sub": "एक coaching centre जहाँ हर जानकारी फ़ोन पर ही मिलती है",
+     "mock": "wa", "before": ["Batch और fees की जानकारी सिर्फ़ call पर", "कोई course brochure नहीं",
+                              "Enquiry कहाँ आई, कहाँ गई — पता नहीं", "Study material बिखरा हुआ"],
+     "after": ["Course और batch page, fees के साथ", "WhatsApp enquiry जो अपने आप record होती है",
+               "Digital brochure — PDF और link दोनों", "Google पर centre दिखता है, study resources एक जगह"]},
+    {"h": "Professional / creator", "sub": "एक consultant जिसका काम अच्छा है पर दिखता नहीं",
+     "mock": "doc", "before": ["सालों का knowledge files में बिखरा", "Presentation हर बार नए सिरे से बनती है",
+                               "कोई ऐसा asset नहीं जो lead लाए", "पूछने वाले को भेजने के लिए कुछ नहीं"],
+     "after": ["एक website जो काम का सबूत देती है", "तैयार PPT / pitch deck template",
+               "Lead magnet — guide, checklist या report", "Content assets और एक structured enquiry form"]},
+]
+
+
+def c_before_after_saathi(args, ctx):
+    """Illustrative before → after for three buyer types. Service examples, not client results."""
+    out = []
+    for i, x in enumerate(BA_EXAMPLES, 1):
+        out.append(
+            '<article class="ba-card"><header><h3>{h}</h3><p>{sub}</p></header><div class="ba-split">'
+            '<div class="ba-side is-before"><p class="ba-label is-before">पहले</p>{mb}<ul>{before}</ul></div>'
+            '<div class="ba-step" aria-hidden="true"><span>→</span></div>'
+            '<div class="ba-side is-after"><p class="ba-label is-after">Moodily के बाद</p>{ma}<ul>{after}</ul></div>'
+            '</div></article>'.format(
+                h=e(x["h"]), sub=e(x["sub"]), mb=_mock(x["mock"] + "-before"), ma=_mock(x["mock"] + "-after"),
+                before="".join("<li>{}</li>".format(e(b)) for b in x["before"]),
+                after="".join("<li>{}</li>".format(e(a)) for a in x["after"])))
+    note = ('<p class="small muted" style="margin-top:16px">ये तीनों उदाहरण हैं — यह दिखाने के लिए कि किस तरह का काम होता है। '
+            'किसी client का नाम, number या result यहाँ नहीं है। असली काम <a href="#work">samples</a> और '
+            '<a href="/case-studies/">case studies</a> में है।</p>')
+    return '<div class="ba-saathi">{}</div>{}'.format("".join(out), note)
+
+
+# icon set — 24px line glyphs, one path each, inherit currentColor
+_ICONS = {
+    "globe": "M12 3a9 9 0 100 18 9 9 0 000-18zm0 0c2.5 2.3 3.8 5.3 3.8 9s-1.3 6.7-3.8 9m0-18C9.5 5.3 8.2 8.3 8.2 12s1.3 6.7 3.8 9M3.3 9h17.4M3.3 15h17.4",
+    "pin": "M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11zm0-8.2a2.8 2.8 0 110-5.6 2.8 2.8 0 010 5.6z",
+    "chat": "M21 11.5A7.5 8.5 0 0112 20a9.7 9.7 0 01-3.4-.6L3 21l1.7-4.6A8.3 8.3 0 013 11.5 7.5 8.5 0 0112 3a7.5 8.5 0 019 8.5z",
+    "deck": "M3 4h18v11H3zM3 15l9 5 9-5M9 8.5h6M9 11.5h4",
+    "book": "M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4zm16 0h-7a2 2 0 00-2 2v14a2 2 0 012-2h7z",
+    "grid": "M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z",
+    "mail": "M3 6h18v12H3zm0 .6l9 6.6 9-6.6",
+    "image": "M3 5h18v14H3zm3.5 4.5a1.4 1.4 0 102.8 0 1.4 1.4 0 00-2.8 0zM3 16l5.2-4.6L13 16m0 0l3.3-2.8L21 17",
+    "file": "M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8zm0 0v5h5M8.5 13h7M8.5 16.5h5",
+    "search": "M11 4a7 7 0 100 14 7 7 0 000-14zm5 12l4.5 4.5",
+    "spark": "M12 3l2 5.4L19.4 10 14 12l-2 5.4L10 12 4.6 10 10 8.4zM18.5 16l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z",
+    "flow": "M6 4h5v5H6zm7 11h5v5h-5zM8.5 9v4a2 2 0 002 2h2.5M15.5 4h3v3h-3z",
+}
+
+CREATES = [
+    ("globe", "Website", "Landing page से business website तक", "business-website"),
+    ("pin", "Google Business", "Maps पर सही दिखना", "google-business-fix"),
+    ("chat", "WhatsApp Setup", "Catalogue + quick replies", "whatsapp-business-setup"),
+    ("deck", "PPT / Deck", "Formatting से pitch deck तक", "presentation-design-only"),
+    ("file", "Brochure", "Print और WhatsApp दोनों के लिए", "business-brochure"),
+    ("grid", "Catalogue", "Product list जो भेजी जा सके", "product-catalogue"),
+    ("mail", "Invitation", "Static और animated", "invitation-digital"),
+    ("image", "Poster / Creative", "Social और print", "print-design-single"),
+    ("book", "Study PDF", "Chapter से पूरा learning kit", "education-content-pack"),
+    ("search", "Research", "Market और competitor brief", "research-intelligence-sprint"),
+    ("spark", "Logo / Brand Kit", "एक जैसी पहचान हर जगह", "logo-starter"),
+    ("flow", "AI Workflow", "दोहराने वाला काम automate", "ai-automation-starter"),
+]
+
+
+def c_creates(args, ctx):
+    """A visual answer to 'what do I actually receive?' — concrete outputs, each linked and priced."""
+    tiles = []
+    for icon, name, sub, sid in CREATES:
+        svc = SERVICES.get(sid)
+        price = price_text(svc) + " से" if svc and svc.get("price_from") else "Custom quote"
+        href = "{}#{}".format(svc["page"], sid) if svc else "/services/"
+        tiles.append(
+            '<a class="create-tile" href="{href}" data-track="service_card_click" data-label="creates:{sid}">'
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
+            'stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="{d}"/></svg>'
+            '<span>{name}<em>{price}</em></span></a>'.format(href=e(href), sid=sid, d=_ICONS[icon], name=e(name), price=e(price)))
+    return '<div class="creates">{}</div>'.format("".join(tiles))
+
+
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
@@ -1156,7 +1289,7 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
+    "packages": c_packages, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1280,6 +1413,8 @@ NAV = [
     ("/services/", "Services", "सेवाएँ"), ("/case-studies/", "Samples", "काम"), ("/insights/", "Insights", "Insights"),
     ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
+# the inline desktop row stays short so the header never wraps; the rest is in the Menu popover
+NAV_DESKTOP = [("/services/", "Services"), ("/case-studies/", "Samples"), ("/services/#prices", "Pricing"), ("/learn/", "Learn")]
 SERVICE_NAV = [
     ("/services/local-business-digitalization/", "Local Business Digitalization"), ("/services/google-business-profile/", "Google Business Profile"),
     ("/services/whatsapp-business/", "WhatsApp Business"), ("/services/business-website/", "Business Website"),
@@ -1300,6 +1435,7 @@ def header(route, meta):
         return ' aria-current="page"' if route.startswith(href) and href != "/" else ""
 
     links = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(en)) for h, en, hi in NAV)
+    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h.split("#")[0]), e(t)) for h, t in NAV_DESKTOP)
     svc = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h) if h != "/services/" or route == "/services/" else "", e(t)) for h, t in SERVICE_NAV)
     lang_btn = ('<button class="lang-toggle" type="button" id="langToggle" data-track="language_switch" aria-label="Switch language Hindi/English">हिं / EN</button>'
                 if meta.get("bilingual") else "")
@@ -1307,18 +1443,22 @@ def header(route, meta):
 <header class="site-header"><div class="container nav">
   <a class="logo" href="/" aria-label="Moodily home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="dot" aria-hidden="true"></span></a>
   <nav aria-label="Primary" class="nav-main">
-    <ul class="nav-desktop">{links}<li><a href="/contact/"{contact}>Contact</a></li></ul>
-    <details class="menu"><summary aria-label="Menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
-      <div class="menu-panel">
-        <ul class="nav-links">{links}<li><a href="/about/"{about}>About</a></li><li><a href="/contact/"{contact}>Contact</a></li>
+    <ul class="nav-desktop">{top}</ul>
+    <details class="menu" id="siteMenu"><summary aria-haspopup="menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
+      <div class="menu-panel" role="menu" aria-label="Site navigation">
+        <button class="menu-close" type="button" data-menu-close aria-label="Menu बंद करें">&times;</button>
+        <ul class="nav-links">{links}<li><a href="/services/#prices">Pricing</a></li><li><a href="/tools/"{tools}>Tools</a></li>
+          <li><a href="/about/"{about}>About</a></li><li><a href="/contact/"{contact}>Contact</a></li>
           <li><a href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="menu-audit">Free Digital Audit</a></li></ul>
         <p class="menu-heading">Services</p><ul class="nav-sub">{svc}</ul>
+        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/contact/" data-track="quote_start" data-label="menu-requirement">Requirement बताएं</a>{menuwa}</div>
       </div>
     </details>
   </nav>
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
     <a class="btn btn-warm btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav-requirement">Requirement बताएं</a></div>
-</div></header>""".format(links=links, svc=svc, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"))
+</div></header>""".format(links=links, svc=svc, top=top, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"), tools=cur("/tools/"),
+               menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
 
 
 def footer():

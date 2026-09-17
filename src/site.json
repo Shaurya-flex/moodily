@@ -53,6 +53,8 @@
     "ends_at": "2026-09-20T23:59:59+05:30",
     "slots_total": 10,
     "slots_taken": 0,
+    "urgency_confirmed": false,
+    "_urgency_readme": "Set true ONLY when all three are true: the 10-slot limit is a real commitment, slots_taken is kept current after every confirmed booking, and a customer can actually pay the discounted price (payments.api_base live, or offer.payment_links filled). While false the site shows the introductory pricing and its terms but no countdown and no slot counter — unverified scarcity is a dark pattern.",
     "_slots_readme": "Update slots_taken after every confirmed paid booking, then rebuild and push. The counter must always be true (CCPA dark-patterns guidelines prohibit false urgency/scarcity).",
     "services": [
       "digital-business-starter",

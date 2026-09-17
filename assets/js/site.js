@@ -49,6 +49,93 @@
     store('moodily_theme', next);
   });
 
+  // ---------- menu: popover on desktop, drawer on phones.
+  // <details> still works with JS off; this adds backdrop, Escape, click-outside,
+  // focus management and a body-scroll lock while it is open.
+  var menu = document.getElementById('siteMenu');
+  if (menu) {
+    var summary = menu.querySelector('summary');
+    var panel = menu.querySelector('.menu-panel');
+    var backdrop = null, scrollY = 0;
+
+    function focusables() {
+      return panel.querySelectorAll('a[href],button:not([disabled]),input,select,textarea');
+    }
+    function lock() {
+      scrollY = window.scrollY;
+      body.style.position = 'fixed';
+      body.style.top = -scrollY + 'px';
+      body.style.width = '100%';
+    }
+    function unlock() {
+      body.style.position = body.style.top = body.style.width = '';
+      window.scrollTo(0, scrollY);
+    }
+    var isDrawer = function () { return window.matchMedia('(max-width:719px)').matches; };
+
+    function open() {
+      backdrop = document.createElement('button');
+      backdrop.className = 'menu-backdrop';
+      backdrop.setAttribute('aria-label', 'Menu बंद करें');
+      backdrop.addEventListener('click', function () { close(true); });
+      menu.parentNode.insertBefore(backdrop, menu);
+      if (isDrawer()) lock();
+      var first = focusables()[0];
+      if (first) first.focus();
+    }
+    function close(refocus) {
+      if (!menu.open) return;
+      menu.open = false;
+      if (backdrop) { backdrop.remove(); backdrop = null; }
+      unlock();
+      if (refocus && summary) summary.focus();
+    }
+
+    menu.addEventListener('toggle', function () { if (menu.open) open(); else close(false); });
+
+    document.addEventListener('keydown', function (ev) {
+      if (!menu.open) return;
+      if (ev.key === 'Escape') { ev.preventDefault(); close(true); return; }
+      if (ev.key !== 'Tab') return;
+      var f = focusables();
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+      else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+    });
+
+    document.addEventListener('click', function (ev) {
+      if (!menu.open) return;
+      if (summary && summary.contains(ev.target)) return;      // the toggle handles itself
+      if (menu.contains(ev.target)) { if (ev.target.closest('a,[data-menu-close]')) close(false); return; }
+      close(false);
+    });
+
+    // a drawer left open across the desktop breakpoint would strand the scroll lock
+    window.addEventListener('resize', function () { if (menu.open && !isDrawer()) unlock(); });
+  }
+
+  // ---------- WhatsApp FAB: shrink to an icon while scrolling, step aside over the footer
+  var fab = document.querySelector('.fab-wa');
+  if (fab && 'IntersectionObserver' in window) {
+    var footer = document.querySelector('.site-footer');
+    if (footer) {
+      new IntersectionObserver(function (es) {
+        fab.classList.toggle('is-parked', es[0].isIntersecting);
+      }, { rootMargin: '0px 0px -40px 0px' }).observe(footer);
+    }
+    var lastY = window.scrollY, ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        fab.classList.toggle('is-compact', window.scrollY > 320 && window.scrollY > lastY);
+        lastY = window.scrollY;
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
   // ---------- language (only on bilingual pages)
   var langBtn = document.getElementById('langToggle');
   if (langBtn) langBtn.addEventListener('click', function () {
