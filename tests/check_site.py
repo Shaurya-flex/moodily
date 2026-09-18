@@ -23,6 +23,8 @@ BANNED = [
 RAW_BANNED = [
     (r"wa\.me/9?1?X+", "placeholder WhatsApp number"), (r"rzp_live_", "placeholder payment key"),
     (r"<!--@", "unrendered component token"), (r"_todo", "TODO field leaked into page"),
+    # retired 2026-08 positioning — Moodily is a digital-services platform; these must not return in copy, metadata or schema
+    (r"(?i)AI Seekho|Kamai Karo|कमाई करो|Future Bano|AI skilling", "retired Moodily slogan/positioning"),
 ]
 
 

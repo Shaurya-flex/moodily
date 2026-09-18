@@ -30,6 +30,15 @@ MANIFEST = ROOT / ".build-manifest.json"
 TODAY = date.today().isoformat()
 
 
+def footer_note(route):
+    """The course-provider disclaimer belongs where courses are listed; elsewhere the footer stays service-first."""
+    if route.startswith(("/learn/", "/resources/", "/tools/")):
+        return ("Moodily curates learning paths using courses offered by recognised providers. Certificates, where applicable, are issued "
+                "by the respective providers. Moodily has no official partnership with the providers listed unless stated. "
+                "Some tool links may be affiliate links and are labelled.")
+    return "Moodily — practical digital services in Hindi + English. Some tool links may be affiliate links and are labelled."
+
+
 def load(rel):
     return json.loads((SRC / rel).read_text(encoding="utf-8"))
 
@@ -2059,11 +2068,15 @@ def render_tokens(body, ctx):
 
 
 # ---------------------------------------------------------------- schema
+# One entity definition, reused by Organization and WebSite schema (keep in step with the homepage hero, About and footer).
+ORG_DESCRIPTION = "Moodily is a digital-services platform that helps businesses, professionals, creators, educators, students and individuals get practical digital work done — Google Business Profile, WhatsApp Business, websites and landing pages, presentations, brochures and catalogues, invitations and design, educational material, research and AI-assisted workflows. Hindi + English. It also runs Moodily Learn, an optional free AI learning path."
+
+
 def org_schema():
     org = {
         "@type": "Organization", "@id": ORG_ID, "name": SITE["name"], "alternateName": SITE["alternate_names"],
         "url": BASE + "/", "logo": {"@type": "ImageObject", "url": BASE + "/assets/img/moodily-logo-512.png", "width": 512, "height": 512},
-        "description": "Bilingual (Hindi + English) platform for free AI learning, digital business services, research and knowledge products in India.",
+        "description": ORG_DESCRIPTION,
         "disambiguatingDescription": SITE["disambiguation"], "email": SITE["email"], "areaServed": ["IN", "Worldwide"],
         "knowsLanguage": ["hi", "en"],
         "department": [{"@type": "Organization", "name": v} for v in DIVISIONS.values()],
@@ -2092,7 +2105,8 @@ def page_schema(meta, route, ctx):
         graph.append(org_schema())
     if route == "/":
         graph.append({"@type": "WebSite", "@id": BASE + "/#website", "url": BASE + "/", "name": SITE["name"],
-                      "alternateName": SITE["alternate_names"], "inLanguage": ["hi-IN", "en-IN"], "publisher": {"@id": ORG_ID}})
+                      "alternateName": SITE["alternate_names"], "description": ORG_DESCRIPTION,
+                      "inLanguage": ["hi-IN", "en-IN"], "publisher": {"@id": ORG_ID}})
     crumbs = meta.get("breadcrumbs")
     if crumbs:
         items = [{"@type": "ListItem", "position": 1, "name": "Home", "item": BASE + "/"}]
@@ -2198,12 +2212,12 @@ def footer(route=""):
     return """<footer class="site-footer"><div class="container">
   <div class="footer-grid">
     <div><a class="logo" href="/">Moodily<span class="dot" aria-hidden="true"></span></a>
-      <p class="muted small">Moodily.in — सीखें. डिजिटल बनें. बढ़ें.<br>Learn · Build · Digitize · Sell · Grow</p>
+      <p class="muted small">Moodily — businesses, professionals, creators, educators और रोज़मर्रा की ज़रूरतों के लिए practical digital services.</p>
       <p class="small"><a href="mailto:{email}">{email}</a></p>
       {wa}
     </div>
     <div><h2 class="footer-h">Moodily</h2><ul>
-      <li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
+      <li><a href="/digital-saathi/">Moodily Digital Saathi</a></li><li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li>
       <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
       <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
@@ -2211,10 +2225,10 @@ def footer(route=""):
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
       <li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li><li><a href="/refund/">Refund policy</a></li>{affiliate}</ul></div>
   </div>
-  <p class="footer-note small muted">Moodily curates learning paths using courses offered by recognised providers. Certificates, where applicable, are issued by the respective providers. Moodily has no official partnership with the providers listed unless stated. Some tool links may be affiliate links and are labelled.</p>
+  <p class="footer-note small muted">{note}</p>
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
 </div></footer>
-{sticky}""".format(
+{sticky}""".format(note=footer_note(route), 
         email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm"),
         affiliate='<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>' if amazon_public() else "",
         sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text())), icon=WA_ICON))
