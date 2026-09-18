@@ -1,23 +1,19 @@
 # 15 — Google still shows the old Moodily: root cause and reindex steps
 
-## Root cause (verified 2026-09-18)
+## Diagnosis (2026-09-18)
 
-- Google shows this text: "AI Seekho. Kamai Karo. India ka Future Bano" / "Free AI skilling roadmap… LinkedIn ghostwriting from ₹15,000/month. AI workflow setup from ₹7,500. IIT Madras + Government of India certificates."
-- That text is, **word for word, the `<title>` and meta description of the first homepage**, uploaded 2026-08-26 (commit d7b359e). That version was a single-page site.
-- Live https://moodily.in/ already serves the new service-led homepage (GitHub Pages, `last-modified` 2026-09-18, no service worker).
-- **So this is not a deployment problem.** Google has not yet recrawled and reprocessed "/".
-- A few live signals still leaned the old way. This branch fixes them:
-  - Organization schema: "platform for free AI learning…"
-  - About title and lead: Learn first
-  - Footer: "सीखें. डिजिटल बनें. बढ़ें. Learn · Build…"
-  - A course-provider "no official partnership" note on every page
-  - /learn/ H1: "AI Seekho. Kamai Karo."
+**Stale Google index / search presentation + residual legacy entity signals.**
+
+- The live homepage is already the new, service-led version (GitHub Pages, `last-modified` 2026-09-18, no service worker, so this is not a deploy or cache problem).
+- Google Search and AI Overview still describe the older positioning. That text matches the `<title>`/meta of the first homepage (2026-08-26, commit d7b359e). However, **what Google last crawled and indexed can only be confirmed in Search Console → URL Inspection**, and Google can reconstruct or rewrite snippets from several sources.
+- Several secondary site signals still carried the old identity: the Organization schema ("free AI learning"), the About title and lead, the footer tagline, a site-wide course-provider note, and the /learn/ slogan. PR #14 fixes all of them.
+- CI now fails if the retired slogans ("AI Seekho", "Kamai Karo", "Future Bano", "AI skilling") reappear anywhere in the built site.
 
 ## What each old claim is today
 
 | Google claim | Status | Where it lives now |
 |---|---|---|
-| Free AI skilling roadmap | Still true, **secondary** | Only /learn/ ("Moodily Learn — a free AI learning path"); the slogan is a small motto there |
+| Free AI skilling roadmap | Still offered as an optional, **secondary** section | /learn/ ("Moodily Learn — learn practical AI and digital workflows"). The slogan was removed everywhere. /learn/, /resources/ and /tools/ stay indexable and each states that it is secondary to services. |
 | LinkedIn ghostwriting ₹15,000/month | Current service, **secondary** | /services/professionals/ and the services list |
 | AI workflow setup ₹7,500 | Current service, **secondary** | /services/ai-workflows/ and one tile among 15 on the homepage |
 | IIT Madras + Govt of India certificates | **Legacy, removed.** CI (`check_site.py`) bans the claim | Nowhere public. "Government of India" appears only as a Copyright Office citation in 2 guides |

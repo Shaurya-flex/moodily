@@ -947,4 +947,4 @@ details.evidence-note p{margin:10px 0 0}
 .res-tile:hover{border-color:var(--primary);background:var(--primary-soft)}
 .res-kind{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)}
 .res-tile strong{font-size:.98rem}
-.learn-motto{font-weight:700;font-size:1.05rem;margin:4px 0 10px;color:var(--ink-2)}
+.secondary-path{margin:4px 0 12px}
