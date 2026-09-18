@@ -366,7 +366,7 @@
               name: order.name || 'Moodily',
               description: order.description,
               notes: { service_id: serviceId },
-              theme: { color: '#7B2FFF' },
+              theme: { color: '#5b3fd9' },  // --primary (light theme); the modal has no dark mode
               handler: function (resp) {
                 btn.textContent = 'Payment verify हो रहा है…';
                 postJSON(base + '/api/verify-payment', {
