@@ -101,5 +101,105 @@ class VerifyTests(unittest.TestCase):
         self.assertEqual(cm.exception.status, 400)
 
 
+DEP_CATALOG = {"currency": "INR", "deposits": {
+    "card": {"name": "Digital Visiting Card", "total_paise": 49900, "deposit_paise": 25000, "balance_paise": 24900},
+    "broken": {"name": "Broken", "total_paise": 1000, "deposit_paise": 600, "balance_paise": 600}}}
+CUSTOMER = {"name": "Asha Verma", "phone": "+91 98765 43210", "email": "asha@example.com"}
+ORDER_ID = "order_ABCDEFGHIJ1234"
+NOTES = {"moodily_order_id": "MDLY-20260918-ABCDEF", "kind": "deposit", "service_id": "card", "service_name": "Digital Visiting Card",
+         "total_paise": "49900", "deposit_paise": "25000", "balance_paise": "24900",
+         "customer_name": "Asha", "customer_phone": "919876543210", "customer_email": "asha@example.com"}
+
+
+def order_opener(order):
+    def opener(req, timeout):
+        return FakeResponse(json.dumps(order).encode())
+    return opener
+
+
+class DepositTests(unittest.TestCase):
+    def test_deposit_split_and_client_amount_ignored(self):
+        sent = {}
+
+        def opener(req, timeout):
+            sent["body"] = json.loads(req.data)
+            return FakeResponse(json.dumps({"id": ORDER_ID, "amount": sent["body"]["amount"], "currency": "INR"}).encode())
+
+        out = ds.create_deposit_order({"service_id": "card", "amount": 100, "customer": CUSTOMER}, "rzp_test_k", SECRET, DEP_CATALOG, opener)
+        self.assertEqual(sent["body"]["amount"], 25000)
+        self.assertEqual(sent["body"]["receipt"], out["moodily_order_id"])
+        self.assertEqual(sent["body"]["notes"]["kind"], "deposit")
+        self.assertEqual((out["amount"], out["total_paise"], out["balance_paise"]), (25000, 49900, 24900))
+        self.assertEqual(out["prefill"]["contact"], "919876543210")
+        self.assertNotIn(SECRET, json.dumps(out))
+
+    def test_order_id_format_uses_ist_date(self):
+        # 20:00 UTC on 17 Sep is 01:30 IST on 18 Sep
+        oid = ds.moodily_order_id(datetime(2026, 9, 17, 20, 0, tzinfo=timezone.utc))
+        self.assertRegex(oid, r"^MDLY-20260918-[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$")
+
+    def test_invalid_service_customer_and_catalogue(self):
+        cases = [({"service_id": "nope", "customer": CUSTOMER}, 400), ({"service_id": "broken", "customer": CUSTOMER}, 500),
+                 ({"service_id": "card"}, 400), ({"service_id": "card", "customer": dict(CUSTOMER, name="A")}, 400),
+                 ({"service_id": "card", "customer": dict(CUSTOMER, phone="123")}, 400),
+                 ({"service_id": "card", "customer": dict(CUSTOMER, email="x")}, 400)]
+        for body, status in cases:
+            with self.assertRaises(ds.ApiError) as cm:
+                ds.create_deposit_order(body, "k", SECRET, DEP_CATALOG, None)
+            self.assertEqual(cm.exception.status, status, body)
+
+    def test_mode_mismatch_and_live_guard(self):
+        with self.assertRaises(ds.ApiError) as cm:
+            ds.check_keys({"RAZORPAY_KEY_ID": "rzp_test_x", "RAZORPAY_KEY_SECRET": "s", "PAYMENT_MODE": "live"})
+        self.assertEqual(cm.exception.status, 500)
+        with self.assertRaises(ds.ApiError) as cm:
+            ds.check_keys({"RAZORPAY_KEY_ID": "rzp_live_x", "RAZORPAY_KEY_SECRET": "s"})
+        self.assertEqual(cm.exception.status, 403)
+        self.assertEqual(ds.check_keys({"RAZORPAY_KEY_ID": "rzp_test_x", "RAZORPAY_KEY_SECRET": "s", "PAYMENT_MODE": "test"})[0], "rzp_test_x")
+
+    def test_verify_returns_summary_without_pii(self):
+        sig = hmac.new(SECRET.encode(), "{}|pay_1".format(ORDER_ID).encode(), hashlib.sha256).hexdigest()
+        body = {"razorpay_order_id": ORDER_ID, "razorpay_payment_id": "pay_1", "razorpay_signature": sig}
+        out = ds.verify_deposit(body, "k", SECRET, order_opener({"id": ORDER_ID, "amount": 25000, "status": "paid", "notes": NOTES}))
+        self.assertTrue(out["verified"])
+        self.assertEqual(out["moodily_order_id"], "MDLY-20260918-ABCDEF")
+        self.assertNotRegex(json.dumps(out), r"(?i)asha|98765")
+        with self.assertRaises(ds.ApiError):
+            ds.verify_deposit(dict(body, razorpay_signature="f" * 64), "k", SECRET, None)
+
+    def test_status_no_pii_and_deposit_only(self):
+        out = ds.deposit_status(ORDER_ID, "k", SECRET, order_opener({"id": ORDER_ID, "amount": 25000, "status": "paid", "notes": NOTES}))
+        self.assertTrue(out["paid"])
+        self.assertNotRegex(json.dumps(out), r"(?i)asha")
+        pending = ds.deposit_status(ORDER_ID, "k", SECRET, order_opener({"id": ORDER_ID, "status": "attempted", "notes": NOTES}))
+        self.assertFalse(pending["paid"])
+        for oid, order, status in ((ORDER_ID, {"id": ORDER_ID, "status": "paid", "notes": {"offer_id": "founding-10"}}, 404),
+                                   ("../payments", {}, 400), ("order_short", {}, 400)):
+            with self.assertRaises(ds.ApiError) as cm:
+                ds.deposit_status(oid, "k", SECRET, order_opener(order))
+            self.assertEqual(cm.exception.status, status)
+
+    def test_webhook_signature_and_retry(self):
+        raw = json.dumps({"event": "payment.captured", "payload": {"payment": {"entity": {"order_id": ORDER_ID, "notes": {"moodily_order_id": "MDLY-20260918-ABCDEF"}}}}}).encode()
+        whs = "unit_webhook_secret"
+        sig = hmac.new(whs.encode(), raw, hashlib.sha256).hexdigest()
+        first, retry = ds.handle_webhook(raw, sig, whs), ds.handle_webhook(raw, sig, whs)
+        self.assertEqual(first, retry)
+        self.assertEqual(first["moodily_order_id"], "MDLY-20260918-ABCDEF")
+        for s, secret, status in (("0" * 64, whs, 400), (None, whs, 400), (sig, "", 500),
+                                  (hmac.new(SECRET.encode(), raw, hashlib.sha256).hexdigest(), whs, 400)):
+            with self.assertRaises(ds.ApiError) as cm:
+                ds.handle_webhook(raw, s, secret)
+            self.assertEqual(cm.exception.status, status)
+
+    def test_health_never_contains_values(self):
+        env = {"RAZORPAY_KEY_ID": "rzp_test_abc", "RAZORPAY_KEY_SECRET": "sek", "RAZORPAY_WEBHOOK_SECRET": "whsek", "PAYMENT_MODE": "test"}
+        out = ds.health(env)
+        self.assertTrue(out["mode_matches_key"] and out["webhook_secret_configured"])
+        for v in env.values():
+            if v != "test":
+                self.assertNotIn(v, json.dumps(out))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

@@ -5,7 +5,10 @@ compatibility_date = "2026-09-01"
 [vars]
 ALLOWED_ORIGINS = "https://moodily.in,https://www.moodily.in"
 CATALOG_URL = "https://moodily.in/assets/data/checkout-prices.json"
+# "test" or "live" — the Worker refuses to run if the RAZORPAY_KEY_ID prefix does not match.
+PAYMENT_MODE = "test"
 
 # Secrets are NOT stored here. Set them once from this folder:
 #   npx wrangler secret put RAZORPAY_KEY_ID
 #   npx wrangler secret put RAZORPAY_KEY_SECRET
+#   npx wrangler secret put RAZORPAY_WEBHOOK_SECRET   (the secret you type when adding the webhook in Razorpay Dashboard)

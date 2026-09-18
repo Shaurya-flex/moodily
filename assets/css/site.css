@@ -948,3 +948,17 @@ details.evidence-note p{margin:10px 0 0}
 .res-kind{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)}
 .res-tile strong{font-size:.98rem}
 .secondary-path{margin:4px 0 12px}
+/* ---------- 50% deposit checkout */
+.deposit-cta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.deposit-cta .deposit-note{flex-basis:100%;margin:0}
+.checkout{margin-top:8px}
+.checkout [hidden]{display:none!important} /* display:flex/grid on .btn-row, forms and grids must not un-hide */
+.checkout-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start}
+.checkout-summary h2{margin:4px 0 14px;font-size:1.35rem}
+.checkout-pay form{display:grid;gap:14px}
+.checkout-pay .field{margin:0}
+.checkout-pay .btn-row{margin:0}
+.checkout .test-mode{border-left:4px solid var(--chilli)}
+#orderConfirmed .facts.card{padding:18px 20px;margin:16px 0 24px}
+#ocId{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;word-break:break-all}
+@media (max-width:760px){.checkout-grid{grid-template-columns:1fr;gap:20px}}

@@ -424,6 +424,245 @@
     }
   }
 
+  // ---------- 50% deposit checkout (/checkout/) and order confirmation (/order-confirmed/)
+  // The browser never decides an amount: the server prices every order from checkout-prices.json.
+  // Analytics carry the service id only — never a name, phone, email or order id.
+  var co = document.getElementById('depositCheckout');
+  var oc = document.getElementById('orderConfirmed');
+  if (co || oc) {
+    var host = co || oc;
+    var apiAttr = host.getAttribute('data-api') || '';
+    var apiBase = apiAttr === '/' ? '' : apiAttr.replace(/\/$/, '');
+    var waNum = host.getAttribute('data-wa') || '';
+    var rupees = function (paise) { return '₹' + Math.round((paise || 0) / 100).toLocaleString('en-IN'); };
+    var waLink = function (text) { return 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(text); };
+    var show = function (id, on) { var el = document.getElementById(id); if (el) el.hidden = !on; };
+    var setText = function (id, t) { var el = document.getElementById(id); if (el) el.textContent = t; };
+    var api = function (method, path, data) {
+      return fetch(apiBase + path, method === 'POST'
+        ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }
+        : { headers: { Accept: 'application/json' } })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (b) {
+            if (!r.ok) { var err = new Error(b.error || 'Server error (' + r.status + ')'); err.status = r.status; throw err; }
+            return b;
+          });
+        });
+    };
+    var ORDER_RE = /^order_[A-Za-z0-9]{14}$/;
+    var params = new URLSearchParams(location.search);
+  }
+
+  if (co) {
+    var serviceId = (params.get('service') || '').replace(/[^a-z0-9-]/g, '').slice(0, 60);
+    var enabled = co.getAttribute('data-enabled') === '1';
+    fetch('/assets/data/checkout-prices.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('catalogue'); return r.json(); })
+      .then(function (cat) {
+        var item = serviceId && (cat.deposits || {})[serviceId];
+        show('coLoading', false);
+        if (!item) { show('coMissing', true); return; }
+        show('coMain', true);
+        setText('coName', item.name);
+        setText('coTotal', rupees(item.total_paise));
+        setText('coDeposit', rupees(item.deposit_paise));
+        setText('coBalance', rupees(item.balance_paise));
+        setText('coTimeline', item.timeline || '—');
+        setText('coRevisions', item.revisions || '—');
+        document.getElementById('coDetails').setAttribute('href', item.page || '/services/');
+        var waText = 'Namaste Moodily,\nMujhe "' + item.name + '" (' + rupees(item.total_paise) + ') ke baare mein madad chahiye.';
+        document.getElementById('coWa').setAttribute('href', waLink(waText));
+        document.getElementById('coOfflineWa').setAttribute('href', waLink(waText));
+        document.getElementById('coQuote').setAttribute('href', '/contact/?service=' + encodeURIComponent(serviceId));
+        if (!enabled) { show('coOffline', true); return; }
+        show('coForm', true);
+        show('coTest', true);
+        track('checkout_start', { label: serviceId });
+        initPay(item);
+      })
+      .catch(function () {
+        show('coLoading', false);
+        show('coMissing', true);
+      });
+  }
+
+  function initPay(item) {
+    var form = document.getElementById('coForm');
+    var btn = document.getElementById('coPay');
+    var msg = document.getElementById('coMsg');
+    var payLabel = rupees(item.deposit_paise) + ' देकर Order Confirm करें';
+    btn.textContent = payLabel;
+    setText('coNote', 'बाकी ' + rupees(item.balance_paise) + ' final delivery से पहले · कुल ' + rupees(item.total_paise));
+    var busy = false;
+    var cached = null; // { key, order } — a retry after cancel/failure reuses the same Razorpay order + Moodily ID
+    var say = function (text) { msg.textContent = text; msg.hidden = !text; show('coHelp', !!text); };
+    var reset = function () { busy = false; btn.disabled = false; btn.textContent = payLabel; };
+    var fields = { name: document.getElementById('co-name'), phone: document.getElementById('co-phone'), email: document.getElementById('co-email') };
+    var terms = document.getElementById('co-terms');
+
+    var validate = function () {
+      var c = { name: fields.name.value.trim(), phone: fields.phone.value.replace(/[\s()+-]/g, ''), email: fields.email.value.trim() };
+      var bad = null;
+      var mark = function (el, ok) { el.setAttribute('aria-invalid', ok ? 'false' : 'true'); if (!ok && !bad) bad = el; };
+      mark(fields.name, c.name.length >= 2 && c.name.length <= 80);
+      mark(fields.phone, /^\d{10,13}$/.test(c.phone));
+      mark(fields.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email));
+      if (bad) { bad.focus(); say('कृपया नाम, सही WhatsApp number (10 अंक) और email भरें।'); return null; }
+      if (!terms.checked) { terms.focus(); say('आगे बढ़ने के लिए Terms और Refund Policy से सहमति ज़रूरी है।'); return null; }
+      return c;
+    };
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (busy) return; // double-click / double-submit guard
+      var customer = validate();
+      if (!customer) return;
+      busy = true;
+      btn.disabled = true;
+      btn.textContent = 'Checkout खुल रहा है…';
+      say('');
+      var key = JSON.stringify([serviceId, customer]);
+      var orderP = cached && cached.key === key ? Promise.resolve(cached.order)
+        : api('POST', '/api/payment/create-order', { service_id: serviceId, customer: customer });
+      Promise.all([loadCheckout(), orderP]).then(function (res) {
+        var order = res[1];
+        cached = { key: key, order: order };
+        try { sessionStorage.setItem('moodily_pending', JSON.stringify({ order_id: order.order_id, service: serviceId })); } catch (e) {}
+        var failed = false;
+        var rzp = new window.Razorpay({
+          key: order.key_id,
+          amount: order.amount,
+          currency: order.currency,
+          order_id: order.order_id,
+          name: order.name || 'Moodily',
+          description: order.description,
+          prefill: order.prefill,
+          notes: { moodily_order_id: order.moodily_order_id, service_id: serviceId },
+          theme: { color: '#5b3fd9' },
+          retry: { enabled: true },
+          handler: function (resp) {
+            btn.textContent = 'Payment verify हो रहा है…';
+            btn.disabled = true;
+            var statusUrl = '/order-confirmed/?order=' + encodeURIComponent(resp.razorpay_order_id);
+            api('POST', '/api/payment/verify', {
+              razorpay_order_id: resp.razorpay_order_id,
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_signature: resp.razorpay_signature
+            }).then(function (v) {
+              track('payment_success_verified', { label: serviceId });
+              try {
+                sessionStorage.setItem('moodily_deposit', JSON.stringify({
+                  order_id: v.order_id, payment_id: v.payment_id, moodily_order_id: v.moodily_order_id || order.moodily_order_id,
+                  service_id: serviceId, service_name: item.name, deposit_paise: item.deposit_paise,
+                  balance_paise: item.balance_paise, total_paise: item.total_paise, form_category: item.form_category || '', verified: true
+                }));
+                sessionStorage.removeItem('moodily_pending');
+              } catch (e) {}
+              location.href = statusUrl;
+            }).catch(function () {
+              // Signature check failed or the network dropped: never claim success here — let the status page ask Razorpay.
+              track('payment_verify_failed', { label: serviceId });
+              reset();
+              say('Payment verify नहीं हो सका। अगर पैसा कट गया है तो घबराएँ नहीं — Payment ID ' + resp.razorpay_payment_id + ' के साथ WhatsApp करें।');
+              var link = document.createElement('a');
+              link.href = statusUrl;
+              link.textContent = ' Payment status जाँचें →';
+              msg.appendChild(link);
+            });
+          },
+          modal: {
+            ondismiss: function () {
+              if (!failed) track('payment_cancelled', { label: serviceId });
+              reset();
+              if (!failed) say('Payment cancel हो गया — कोई पैसा नहीं कटा। आप दोबारा कोशिश कर सकते हैं या WhatsApp पर पूछ सकते हैं।');
+            }
+          }
+        });
+        rzp.on('payment.failed', function (r) {
+          failed = true;
+          track('payment_failed', { label: serviceId, reason: (r.error && r.error.reason) || '' });
+          say('Payment fail हुआ: ' + ((r.error && r.error.description) || 'कृपया दोबारा कोशिश करें') + '। पैसा कटा हो तो bank उसे अपने-आप लौटा देता है।');
+        });
+        rzp.open();
+        track('razorpay_open', { label: serviceId });
+        btn.textContent = payLabel;
+      }).catch(function (err) {
+        reset();
+        say('Checkout शुरू नहीं हो सका: ' + err.message + '। दोबारा कोशिश करें या WhatsApp करें।');
+      });
+    });
+  }
+
+  function loadCheckout() {
+    return new Promise(function (resolve, reject) {
+      if (window.Razorpay) return resolve();
+      var s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error('Razorpay checkout load नहीं हुआ')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  if (oc) {
+    var orderId = params.get('order') || '';
+    var saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem('moodily_deposit') || 'null'); } catch (e) {}
+    if (!ORDER_RE.test(orderId)) {
+      if (saved && saved.verified && ORDER_RE.test(saved.order_id || '')) orderId = saved.order_id;
+      else { var pend = null; try { pend = JSON.parse(sessionStorage.getItem('moodily_pending') || 'null'); } catch (e) {} if (pend && ORDER_RE.test(pend.order_id || '')) orderId = pend.order_id; }
+    }
+    var render = function (d) {
+      show('ocLoading', false);
+      show('ocPaid', true);
+      setText('ocId', d.moodily_order_id || '—');
+      setText('ocService', d.service_name || d.service_id || '');
+      setText('ocDeposit', rupees(d.deposit_paise));
+      setText('ocBalance', rupees(d.balance_paise));
+      var resume = location.origin + '/order-confirmed/?order=' + d.order_id;
+      var r = document.getElementById('ocResume');
+      r.href = resume;
+      r.textContent = resume;
+      document.getElementById('ocWa').setAttribute('href', waLink('Namaste Moodily,\nMaine advance payment kar diya hai.\nOrder ID: ' + (d.moodily_order_id || '') +
+        '\nService: ' + (d.service_name || d.service_id || '') + '\nAdvance: ' + rupees(d.deposit_paise) + (d.payment_id ? '\nPayment ID: ' + d.payment_id : '')));
+      var form = oc.getAttribute('data-form');
+      var brief = document.getElementById('ocBrief');
+      if (form) {
+        var q = ['usp=pp_url'];
+        var add = function (attr, val) { var id = oc.getAttribute('data-entry-' + attr); if (id && val) q.push(encodeURIComponent(id) + '=' + encodeURIComponent(val)); };
+        add('service-category', d.form_category);
+        add('sub-service', d.service_name);
+        add('offer-code', d.moodily_order_id);
+        add('sample-or-estimate', 'Advance ' + rupees(d.deposit_paise) + ' paid · balance ' + rupees(d.balance_paise) + ' before final delivery · ' + d.order_id);
+        brief.setAttribute('href', form + '?' + q.join('&'));
+      } else {
+        brief.setAttribute('href', waLink('Namaste Moodily,\nOrder ID: ' + (d.moodily_order_id || '') + '\nProject brief bhejna hai.'));
+      }
+    };
+    var fail = function (pending) {
+      show('ocLoading', false);
+      show(pending ? 'ocPending' : 'ocUnknown', true);
+    };
+    if (saved && saved.verified && saved.order_id === orderId) {
+      render(saved); // verified by the server moments ago, in this tab
+    } else if (orderId && oc.getAttribute('data-api')) {
+      api('GET', '/api/payment/status/' + encodeURIComponent(orderId)).then(function (d) {
+        if (!d.paid) {
+          if (d.service_id) document.getElementById('ocRetry').setAttribute('href', '/checkout/?service=' + encodeURIComponent(d.service_id));
+          return fail(true);
+        }
+        return fetch('/assets/data/checkout-prices.json').then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (cat) {
+          var item = (cat.deposits || {})[d.service_id] || {};
+          d.form_category = item.form_category || '';
+          d.service_name = d.service_name || item.name || '';
+          render(d);
+        });
+      }).catch(function (err) { fail(err.status === 400 || err.status === 404 ? false : true); });
+    } else {
+      fail(false);
+    }
+  }
+
   // ---------- learn: expand/collapse + private star rating (kept from original site)
   document.querySelectorAll('[data-stages]').forEach(function (btn) {
     btn.addEventListener('click', function () {
