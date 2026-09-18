@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Secret scan (no Razorpay key or .env file may enter the repo)
+        run: python scripts/secret_scan.py
       - name: Build
         run: python build.py
       - name: Generated HTML must be committed

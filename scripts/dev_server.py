@@ -119,6 +119,10 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ApiError(404, "Not found")
             if not key_id or not key_secret:
                 raise ApiError(500, "Payment server not configured (.env missing)")
+            if key_id.startswith("rzp_live_") and os.environ.get("MOODILY_ALLOW_LIVE_LOCAL") != "1":
+                # A local "test" with live keys creates a real order and charges a real card.
+                raise ApiError(403, "Live Razorpay keys are loaded — local checkout is disabled to avoid real charges. "
+                                    "Use test keys in .env, or set MOODILY_ALLOW_LIVE_LOCAL=1 for one deliberate live test.")
             length = min(int(self.headers.get("Content-Length") or 0), 10000)
             try:
                 body = json.loads(self.rfile.read(length) or b"{}")
@@ -147,8 +151,13 @@ class Handler(SimpleHTTPRequestHandler):
 def main():
     load_env()
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8124
+    kid = os.environ.get("RAZORPAY_KEY_ID") or ""
+    mode = ("LIVE — real charges" + (" (ALLOWED by MOODILY_ALLOW_LIVE_LOCAL=1)" if os.environ.get("MOODILY_ALLOW_LIVE_LOCAL") == "1"
+                                     else ", local checkout BLOCKED") if kid.startswith("rzp_live_")
+            else "test" if kid.startswith("rzp_test_") else "")
+    # prints the mode only — never the key or secret
     print("Moodily dev server: http://localhost:{} · Razorpay keys {}".format(
-        port, "loaded" if os.environ.get("RAZORPAY_KEY_ID") and os.environ.get("RAZORPAY_KEY_SECRET") else "MISSING — create .env"))
+        port, ("loaded, " + mode) if kid and os.environ.get("RAZORPAY_KEY_SECRET") else "MISSING — create .env"), flush=True)
     ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, directory=str(ROOT))).serve_forever()
 
 
