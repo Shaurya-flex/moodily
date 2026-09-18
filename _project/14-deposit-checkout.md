@@ -1,7 +1,7 @@
 # 14 — 50% deposit checkout: owner SOP
 
 **Status:** built and tested on branch `feature/deposit-checkout`, with **payments OFF on the public site**.
-The pay buttons appear only when `payments.mode` is `"live"` **and** `payments.api_base` points to a deployed backend.
+A pay button needs three things: (1) the build is allowed (`payments.mode` is `"live"`, or a local test flag is set); (2) `payments.api_base` points to a deployed backend; (3) **at runtime**, `GET /api/payment/health` returns `ready: true`. That means the keys and secret are configured, `PAYMENT_MODE` matches the key, Razorpay accepted the credentials (read-only probe, cached 5 min), and the catalogue loaded. Otherwise visitors keep the quote CTA, and /checkout/ shows "Payment setup in progress".
 
 ## How it works
 
@@ -75,7 +75,7 @@ A brief without a matching **paid** Razorpay order is just an enquiry. Always co
 
 ## Recommended Google Form changes (owner, in the Form editor)
 
-- Add a short-answer question **"Moodily Order ID"**, and send its `entry.NNNN` id so it can be prefilled. Until then, the Order ID goes into "Offer / Package Code".
+- Add a short-answer question **"Moodily Order ID"**, with the helper text "Payment के बाद Moodily द्वारा दिया गया order reference." Optionally also add **"Advance Payment Reference"**. Put their verified ids in `src/data/intake.json` → `entry_ids.moodily_order_id` / `advance_payment_reference`. Once set, the Order ID prefills that field and Offer Code gets `deposit:<service>`. Until then, the Order ID goes into "Offer / Package Code".
 - Optional: add an "Order status" column in the linked Sheet for the statuses above.
 
 ## Not done / needs you

@@ -424,6 +424,39 @@
     }
   }
 
+  // ---------- payment readiness guard: a pay button appears ONLY after the backend proves it is ready
+  // (keys + secret configured server-side, mode matches, Razorpay credentials accepted, catalogue loaded).
+  function paymentsReady(apiAttr, mode) {
+    var base = apiAttr === '/' ? '' : (apiAttr || '').replace(/\/$/, '');
+    if (!apiAttr) return Promise.resolve(false);
+    var cacheKey = 'moodily_pay_ready';
+    try {
+      var c = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+      if (c && c.api === apiAttr && c.mode === mode && Date.now() - c.at < 300000) return Promise.resolve(c.ok);
+    } catch (e) {}
+    var timeout = new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 6000); });
+    var check = fetch(base + '/api/payment/health', { headers: { Accept: 'application/json' }, cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    return Promise.race([check, timeout]).then(function (h) {
+      var ok = !!(h && h.ready === true && h.order_endpoint_ready && h.verify_endpoint_ready && h.key_id_configured &&
+        h.key_secret_configured && h.mode_matches_key && h.expected_mode === mode && h.key_mode === mode && h.deposit_services > 0);
+      try { if (h) sessionStorage.setItem(cacheKey, JSON.stringify({ api: apiAttr, mode: mode, ok: ok, at: Date.now() })); } catch (e) {}
+      return ok;
+    });
+  }
+  var payGuards = document.querySelectorAll('[data-pay-guard]');
+  if (payGuards.length) {
+    paymentsReady(payGuards[0].getAttribute('data-api'), payGuards[0].getAttribute('data-mode')).then(function (ok) {
+      if (!ok) return; // stay on the quote CTA
+      payGuards.forEach(function (g) {
+        g.hidden = false;
+        var q = document.querySelector('[data-quote-for="' + g.getAttribute('data-pay-guard') + '"]');
+        if (q) { q.classList.remove('btn-primary'); q.classList.add('btn-outline'); }
+      });
+    });
+  }
+
   // ---------- 50% deposit checkout (/checkout/) and order confirmation (/order-confirmed/)
   // The browser never decides an amount: the server prices every order from checkout-prices.json.
   // Analytics carry the service id only — never a name, phone, email or order id.
@@ -475,10 +508,13 @@
         document.getElementById('coOfflineWa').setAttribute('href', waLink(waText));
         document.getElementById('coQuote').setAttribute('href', '/contact/?service=' + encodeURIComponent(serviceId));
         if (!enabled) { show('coOffline', true); return; }
-        show('coForm', true);
-        show('coTest', true);
-        track('checkout_start', { label: serviceId });
-        initPay(item);
+        return paymentsReady(co.getAttribute('data-api'), co.getAttribute('data-mode')).then(function (ok) {
+          if (!ok) { show('coOffline', true); return; } // "Payment setup in progress" — never a dead checkout
+          show('coForm', true);
+          show('coTest', true);
+          track('checkout_start', { label: serviceId });
+          initPay(item);
+        });
       })
       .catch(function () {
         show('coLoading', false);
@@ -630,9 +666,13 @@
       if (form) {
         var q = ['usp=pp_url'];
         var add = function (attr, val) { var id = oc.getAttribute('data-entry-' + attr); if (id && val) q.push(encodeURIComponent(id) + '=' + encodeURIComponent(val)); };
+        var dedicated = !!oc.getAttribute('data-entry-moodily-order-id');
         add('service-category', d.form_category);
         add('sub-service', d.service_name);
-        add('offer-code', d.moodily_order_id);
+        // Primary correlation key: the dedicated "Moodily Order ID" question once its entry id is configured.
+        add('moodily-order-id', d.moodily_order_id);
+        add('offer-code', dedicated ? (d.service_id ? 'deposit:' + d.service_id : '') : d.moodily_order_id);
+        add('advance-payment-reference', d.payment_id ? d.payment_id + ' · ' + d.order_id : d.order_id);
         add('sample-or-estimate', 'Advance ' + rupees(d.deposit_paise) + ' paid · balance ' + rupees(d.balance_paise) + ' before final delivery · ' + d.order_id);
         brief.setAttribute('href', form + '?' + q.join('&'));
       } else {

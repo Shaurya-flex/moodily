@@ -194,8 +194,15 @@ class DepositTests(unittest.TestCase):
 
     def test_health_never_contains_values(self):
         env = {"RAZORPAY_KEY_ID": "rzp_test_abc", "RAZORPAY_KEY_SECRET": "sek", "RAZORPAY_WEBHOOK_SECRET": "whsek", "PAYMENT_MODE": "test"}
-        out = ds.health(env)
-        self.assertTrue(out["mode_matches_key"] and out["webhook_secret_configured"])
+        ds._GATEWAY.update(at=0, ok=False, key="")
+        out = ds.health(env, opener=lambda req, timeout: FakeResponse(b"{}"))
+        self.assertTrue(out["mode_matches_key"] and out["webhook_secret_configured"] and out["ready"])
+        ds._GATEWAY.update(at=0, ok=False, key="")
+
+        def denied(req, timeout):
+            raise urllib.error.HTTPError(ds.ORDERS_URL, 401, "Unauthorized", {}, None)
+        self.assertFalse(ds.health(env, opener=denied)["ready"])
+        self.assertFalse(ds.health(dict(env, PAYMENT_MODE="live"), opener=denied)["ready"])
         for v in env.values():
             if v != "test":
                 self.assertNotIn(v, json.dumps(out))

@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
-import worker from "../worker/src/index.js";
+import worker, { _resetHealthCache } from "../worker/src/index.js";
 
 const ENV = { RAZORPAY_KEY_ID: "rzp_test_unit", RAZORPAY_KEY_SECRET: "unit_test_secret", ALLOWED_ORIGINS: "https://moodily.in", CATALOG_URL: "https://moodily.in/catalog.json" };
 const future = new Date(Date.now() + 2 * 864e5).toISOString();
@@ -96,6 +96,7 @@ function depFetch({ orderStatus = 200, order = null } = {}) {
     calls.push({ url, init });
     if (url === ENV.CATALOG_URL) return Response.json(depCatalog);
     if (orderStatus !== 200) return new Response("{}", { status: orderStatus });
+    if (url.includes("/orders?count=1")) return new Response("{}", { status: orderStatus === 200 ? 200 : orderStatus });
     if (init.method === "POST") {
       const b = JSON.parse(init.body);
       return Response.json({ id: ORDER_ID, amount: b.amount, currency: "INR", notes: b.notes, status: "created" });
@@ -190,14 +191,25 @@ test("webhook: raw-body HMAC, retries idempotent, wrong/missing secret rejected"
 });
 
 test("health reports configuration without values", async () => {
+  _resetHealthCache();
   const res = await worker.fetch(get("/api/payment/health"), DEP_ENV, {}, depFetch());
   const data = await res.json();
   assert.equal(data.key_mode, "test");
   assert.equal(data.mode_matches_key, true);
   assert.equal(data.deposit_services, 2);
   assert.equal(data.webhook_secret_configured, true);
+  assert.equal(data.gateway_auth_ok, true);
+  assert.equal(data.ready, true);
   const text = JSON.stringify(data);
   for (const v of [DEP_ENV.RAZORPAY_KEY_SECRET, DEP_ENV.RAZORPAY_WEBHOOK_SECRET, DEP_ENV.RAZORPAY_KEY_ID]) assert.ok(!text.includes(v));
   const mismatch = await (await worker.fetch(get("/api/payment/health"), { ...DEP_ENV, PAYMENT_MODE: "live" }, {}, depFetch())).json();
   assert.equal(mismatch.mode_matches_key, false);
+  assert.equal(mismatch.ready, false);
+  _resetHealthCache();
+  const badCreds = await (await worker.fetch(get("/api/payment/health"), DEP_ENV, {}, depFetch({ orderStatus: 401 }))).json();
+  assert.equal(badCreds.gateway_auth_ok, false);
+  assert.equal(badCreds.ready, false);
+  _resetHealthCache();
+  const unset = await (await worker.fetch(get("/api/payment/health"), { ...DEP_ENV, PAYMENT_MODE: "" }, {}, depFetch())).json();
+  assert.equal(unset.ready, false);
 });

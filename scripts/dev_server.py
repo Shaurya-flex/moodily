@@ -172,7 +172,7 @@ def create_deposit_order(body, key_id, key_secret, catalog, opener=urllib.reques
     item = resolve_deposit(catalog, service_id)  # any client "amount" is ignored on purpose
     customer = clean_customer((body or {}).get("customer"))
     moid = moodily_order_id(now)
-    notes = {"moodily_order_id": moid, "kind": "deposit", "service_id": service_id, "service_name": item["name"][:250],
+    notes = {"moodily_order_id": moid, "kind": "deposit", "service_id": service_id, "package_id": service_id, "service_name": item["name"][:250],
              "total_paise": str(item["total_paise"]), "deposit_paise": str(item["deposit_paise"]),
              "balance_paise": str(item["balance_paise"]), "customer_name": customer["name"],
              "customer_phone": customer["phone"], "customer_email": customer["email"]}
@@ -238,19 +238,45 @@ def handle_webhook(raw, signature, webhook_secret):
             "moodily_order_id": notes.get("moodily_order_id", "") if isinstance(notes, dict) else ""}
 
 
-def health(env=os.environ):
-    kid = env.get("RAZORPAY_KEY_ID") or ""
+_GATEWAY = {"at": 0.0, "ok": False, "key": ""}
+
+
+def gateway_auth_ok(key_id, key_secret, opener=urllib.request.urlopen):
+    """Read-only credential probe (lists one order), cached 5 minutes per key."""
+    if not key_id or not key_secret:
+        return False
+    now = time.time()
+    if _GATEWAY["key"] == key_id and now - _GATEWAY["at"] < 300:
+        return _GATEWAY["ok"]
+    req = urllib.request.Request(ORDERS_URL + "?count=1", headers={"Authorization": _auth(key_id, key_secret)})
+    try:
+        with opener(req, timeout=10):
+            ok = True
+    except (urllib.error.URLError, OSError, ValueError):
+        ok = False
+    _GATEWAY.update(at=now, ok=ok, key=key_id)
+    return ok
+
+
+def health(env=os.environ, opener=urllib.request.urlopen):
+    kid, secret = env.get("RAZORPAY_KEY_ID") or "", env.get("RAZORPAY_KEY_SECRET") or ""
     try:
         cat = json.loads(CATALOG.read_text(encoding="utf-8"))
         reachable, count = True, len(cat.get("deposits") or {})
     except (OSError, ValueError):
         reachable, count = False, 0
     expected = env.get("PAYMENT_MODE") or ""
+    keys_ok = bool(kid and secret)
+    mode_ok = bool(expected) and expected == key_mode(kid)
+    gw = gateway_auth_ok(kid, secret, opener) if keys_ok and mode_ok else False
+    order_ready = keys_ok and mode_ok and gw and reachable and count > 0
     return {"service": "moodily-payments (local)", "expected_mode": expected or "unset", "key_mode": key_mode(kid),
-            "key_id_configured": bool(kid), "key_secret_configured": bool(env.get("RAZORPAY_KEY_SECRET")),
+            "key_id_configured": bool(kid), "key_secret_configured": bool(secret),
             "webhook_secret_configured": bool(env.get("RAZORPAY_WEBHOOK_SECRET")),
-            "mode_matches_key": not expected or expected == key_mode(kid), "catalogue_reachable": reachable,
-            "deposit_services": count, "order_endpoint": "/api/payment/create-order",
+            "mode_matches_key": mode_ok, "gateway_auth_ok": gw, "catalogue_reachable": reachable,
+            "deposit_services": count, "order_endpoint_ready": order_ready, "verify_endpoint_ready": keys_ok and mode_ok,
+            "webhook_endpoint_ready": bool(env.get("RAZORPAY_WEBHOOK_SECRET")), "ready": order_ready,
+            "order_endpoint": "/api/payment/create-order",
             "verify_endpoint": "/api/payment/verify", "webhook_endpoint": "/api/payment/webhook"}
 
 

@@ -951,6 +951,11 @@ details.evidence-note p{margin:10px 0 0}
 /* ---------- 50% deposit checkout */
 .deposit-cta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
 .deposit-cta .deposit-note{flex-basis:100%;margin:0}
+.deposit-cta[hidden]{display:none!important}
+.deposit-split{flex-basis:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 16px;margin:0 0 6px;padding:12px 14px;border:1px solid var(--line-2);border-radius:var(--r-input)}
+.deposit-split dt{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2)}
+.deposit-split dd{margin:2px 0 0}
+@media (max-width:520px){.deposit-split{grid-template-columns:1fr}}
 .checkout{margin-top:8px}
 .checkout [hidden]{display:none!important} /* display:flex/grid on .btn-row, forms and grids must not un-hide */
 .checkout-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start}

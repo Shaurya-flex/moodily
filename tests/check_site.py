@@ -240,6 +240,9 @@ def check_deposits(pages):
     for rel, (_, text) in pages.items():
         if not live and ("TEST MODE</span>" in text or 'data-enabled="1"' in text or 'class="deposit-cta"' in text):
             fail(rel, "test-mode deposit checkout in a committed build (rebuild without MOODILY_SHOW_TEST_PAYMENTS)")
+        for m in re.finditer(r'<div class="deposit-cta"[^>]*>', text):
+            if " hidden" not in m.group(0) or "data-pay-guard=" not in m.group(0):
+                fail(rel, "deposit CTA must render hidden behind the payment health guard")
     cat = json.loads((ROOT / "assets" / "data" / "checkout-prices.json").read_text(encoding="utf-8"))
     services = {s["id"]: s for s in json.loads((ROOT / "src" / "data" / "services.json").read_text(encoding="utf-8"))["services"]}
     for sid, d in (cat.get("deposits") or {}).items():

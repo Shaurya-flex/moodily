@@ -162,16 +162,24 @@ def payments_api():
     return os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
 
 
-def deposit_cta(svc, cls="btn btn-primary", size=""):
-    """The one primary commercial action for an eligible service: 50% now, balance shown in the same breath."""
+def deposit_cta(svc, cls="btn btn-primary", size="", compact=False):
+    """The one primary commercial action for an eligible service: 50% now, balance shown in the same breath.
+    Rendered hidden: site.js reveals it only after the payment backend's /api/payment/health reports ready,
+    so a visitor never sees a pay button that cannot work (no JS or backend down = the quote CTA stays)."""
     if not (payments_enabled() and deposit_eligible(svc)):
         return ""
     total, dep, bal = deposit_split(svc["price_from"])
     test = ' <span class="badge">TEST MODE</span>' if PAYMENTS.get("mode") != "live" else ""
-    return ('<div class="deposit-cta"><a class="{cls}{size}" href="/checkout/?service={id}" data-track="deposit_cta_click" '
+    split = "" if compact else (
+        '<dl class="deposit-split"><div><dt>Total project price</dt><dd>₹{total}</dd></div>'
+        '<div><dt>अभी 50% advance</dt><dd><strong>₹{dep}</strong></dd></div>'
+        '<div><dt>Balance — final delivery से पहले</dt><dd>₹{bal}</dd></div></dl>').format(total=inr(total), dep=inr(dep), bal=inr(bal))
+    return ('<div class="deposit-cta" data-pay-guard="{id}" data-api="{api}" data-mode="{mode}" hidden>{split}'
+            '<a class="{cls}{size}" href="/checkout/?service={id}" data-track="deposit_cta_click" '
             'data-label="{id}">₹{dep} देकर Order Confirm करें</a>{test}'
-            '<p class="small muted deposit-note">कुल ₹{total} · बाकी ₹{bal} final delivery से पहले</p></div>').format(
-        cls=cls, size=size, id=svc["id"], dep=inr(dep), total=inr(total), bal=inr(bal), test=test)
+            '<p class="small muted deposit-note">कुल ₹{total} · बाकी ₹{bal} final delivery से पहले · कोई hidden charge नहीं</p></div>').format(
+        cls=cls, size=size, id=svc["id"], dep=inr(dep), total=inr(total), bal=inr(bal), test=test, split=split,
+        api=e(payments_api()), mode=e(PAYMENTS.get("mode", "test")))
 
 
 def offer_price(svc):
@@ -367,7 +375,7 @@ def service_card(svc, ctx):
         '</article>'
     ).format(feat=" featured" if svc.get("featured") else "", attrs=card_attrs(svc), div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
              tag=e(svc["tagline"]), price=price_html(svc), items=items, timeline=e(svc["timeline"]), page=svc["page"], id=svc["id"],
-             details=lab["details"], offer_btn=(deposit_cta(svc) or (offer_pay_button(svc) if in_offer(svc) else "")))
+             details=lab["details"], offer_btn=(deposit_cta(svc, compact=True) or (offer_pay_button(svc) if in_offer(svc) else "")))
 
 
 def service_wa(svc, label, cls, track):
@@ -382,13 +390,15 @@ def service_ctas(svc):
     lab = L[svc["lang"]]
     offer = in_offer(svc)
     pay = deposit_cta(svc)
-    # When a deposit path exists it is THE primary action; the quote link steps down to a quiet secondary.
-    quote_cls = "btn btn-outline" if pay else "btn btn-primary"
+    # The quote link is primary until the payment guard confirms the backend; then site.js demotes it
+    # (data-quote-for) so the verified deposit path becomes THE primary action.
+    quote_cls = "btn btn-primary"
     quote_lbl = ("मुफ़्त Audit माँगें" if svc.get("price_unit") == "free"
                  else lab["quote"] if deposit_eligible(svc) else lab["exact_quote"])
     out = [pay, offer_pay_button(svc) if offer else "",
-           '<a class="{}{}" href="/contact/?service={}" data-track="pricing_click" data-label="{}">{}</a>'.format(
-               quote_cls, " regular-only" if offer else "", svc["id"], svc["id"], quote_lbl),
+           '<a class="{}{}" href="/contact/?service={}"{} data-track="pricing_click" data-label="{}">{}</a>'.format(
+               quote_cls, " regular-only" if offer else "", svc["id"], ' data-quote-for="{}"'.format(svc["id"]) if pay else "",
+               svc["id"], quote_lbl),
            service_wa(svc, lab["wa"], "btn btn-wa", svc["id"]),
            '<a class="btn btn-outline btn-sm" href="#samples" data-track="portfolio_open" data-label="{}">{}</a>'.format(svc["id"], lab["sample_btn"])]
     if svc.get("price_unit") not in ESTIMATOR["excluded_price_units"]:
@@ -750,7 +760,7 @@ def _checkout_attrs():
     ids = {k: v for k, v in INTAKE.get("entry_ids", {}).items() if not k.startswith("_")}
     attrs = {"data-api": api, "data-enabled": "1" if live else "0", "data-mode": PAYMENTS.get("mode", "test"),
              "data-wa": SITE["whatsapp"]["number"], "data-form": INTAKE.get("form_url") or ""}
-    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate"):
+    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate", "moodily_order_id", "advance_payment_reference"):
         attrs["data-entry-" + key.replace("_", "-")] = ids.get(key, "")
     return " ".join('{}="{}"'.format(k, e(v)) for k, v in attrs.items())
 
@@ -797,7 +807,7 @@ def c_deposit_checkout(args, ctx):
         <p class="small muted">Payment Razorpay के secure checkout से होता है — UPI, card, netbanking। Moodily आपकी card/UPI details कभी नहीं देखता।</p>
       </form>
       <div id="coOffline" hidden>
-        <p class="notice">Online advance payment अभी शुरू नहीं हुआ है। इसी service के लिए exact quote लें या WhatsApp करें — हम payment link भेज देंगे।</p>
+        <p class="notice"><strong>Payment setup in progress.</strong> Online advance payment अभी उपलब्ध नहीं है। इसी service के लिए exact quote लें या WhatsApp करें — हम payment link भेज देंगे।</p>
         <p class="btn-row"><a class="btn btn-primary" id="coQuote" href="/contact/">Exact Quote लें</a>
           <a class="btn btn-wa" id="coOfflineWa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="checkout-offline">WhatsApp करें</a></p>
       </div>
@@ -925,7 +935,7 @@ def validate_form_prefill():
         got = form_category_for(svc)
         if got and got not in opts:
             raise SystemExit("intake.json: service '{}' maps to '{}', which the Form does not offer".format(svc["id"], got))
-    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate"):
+    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate", "moodily_order_id", "advance_payment_reference"):
         eid = INTAKE.get("entry_ids", {}).get(key, "")
         if eid and not re.fullmatch(r"entry\.\d+", str(eid)):
             raise SystemExit("intake.json: entry_ids['{}'] = '{}' is not an entry.NNNN id".format(key, eid))
