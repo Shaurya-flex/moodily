@@ -7,9 +7,9 @@
     "sub_service": "entry.1367803601",
     "offer_code": "entry.154582414",
     "sample_or_estimate": "entry.1896344087",
-    "moodily_order_id": "",
-    "advance_payment_reference": "",
-    "_readme_order_id": "moodily_order_id / advance_payment_reference: fill ONLY with verified entry.NNNN ids from a pre-filled link after adding the 'Moodily Order ID' (and optional 'Advance Payment Reference') short-answer questions. Empty = the order id goes into offer_code instead."
+    "moodily_order_id": "entry.1610653200",
+    "advance_payment_reference": "entry.1212902667",
+    "_readme_order_id": "Verified 2026-09-18 on the public /viewform ('Moodily — Digital Service Requirement'): Moodily Order ID = primary payment↔brief key; Advance Payment Reference = Razorpay payment/order id."
   },
   "_todo_entry_ids": "OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).",
   "categories": {
