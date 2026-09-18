@@ -185,12 +185,21 @@ section{padding:var(--space-section) 0}
 section+section{border-top:1px solid var(--line)}
 .section-head{margin:0 0 clamp(22px,2.4vw,34px)}
 .section-head>*{max-width:62ch}
+/* headings wrap on their own terms: balance the lines instead of stranding one word */
+.section-head>h2,.hero h1,.final-cta h2{text-wrap:balance}
 @media (min-width:900px){
-  .section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:8px 48px;align-items:end}
-  .section-head>h2{margin-bottom:0;max-width:20ch}
+  .section-head{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:8px clamp(32px,3vw,56px);align-items:end}
+  /* 26ch fits every current Moodily heading on one line; 20ch stranded a single word */
+  .section-head>h2{margin-bottom:0;max-width:26ch}
   .section-head>p{margin-bottom:0;padding-bottom:.25em}
-  .section-head.center{display:block}
+  /* a head with no description must not sit in half a grid — it reads as lopsided */
+  .section-head:not(:has(p)){display:block}
+  .section-head:not(:has(p))>h2{max-width:34ch}
 }
+/* centred heads: FAQ and the closing blocks */
+.section-head.center{display:block;text-align:center}
+.section-head.center>h2{max-width:26ch;margin-inline:auto}
+.section-head.center>p{max-width:56ch;margin-inline:auto}
 .section-head.center{margin-left:auto;margin-right:auto;text-align:center}
 .section-head p{margin-bottom:0}
 .page-hero{padding:clamp(28px,3.4vw,48px) 0 clamp(20px,2.4vw,32px);border-top:0}
@@ -199,9 +208,18 @@ section+section{border-top:1px solid var(--line)}
 
 /* hero */
 .hero{padding:clamp(32px,4vw,60px) 0 clamp(36px,4vw,60px);border-top:0}
-.hero h1{max-width:18ch;text-wrap:balance}
+.hero h1{max-width:26ch;text-wrap:balance;letter-spacing:-.015em;font-size:clamp(1.95rem,3.3vw,2.5rem)}
+/* Sized to the balanced hero column: at 2.5rem the longer sentence needs ~581px inside a 598px
+   track, so each sentence keeps its own line. Larger caps re-split it mid-phrase. */
+/* Two deliberate lines, one sentence each — never three ragged ones. Above 900px the grid
+   column already bounds the line, so a ch cap would only re-introduce a mid-sentence break. */
+@media (min-width:900px){.hero h1{max-width:none}.hero h1 span{display:block}}
 .hero h1 span{color:var(--indigo)}
-.herogrid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(28px,3.4vw,52px);align-items:center}
+.hero .lead{max-width:48ch;text-wrap:pretty}
+.herogrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,3.4vw,56px);align-items:center}
+/* the copy column gets a measure rather than filling its track, so the two sides carry
+   comparable visual weight instead of one looking stretched and the other squeezed */
+.herogrid>div:first-child{max-width:40rem}
 @media (max-width:900px){.herogrid{grid-template-columns:1fr;gap:28px}}
 .trust-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:22px;padding:0;list-style:none;font-size:.9rem;color:var(--ink-2)}
 .trust-row li::before{content:"✓ ";color:var(--leaf);font-weight:700}
@@ -310,10 +328,15 @@ details.not-included ul{margin-top:10px}
 .ev-fact{background:#15803d}.ev-inf{background:#2b3a8f}.ev-hyp{background:#8a5d10}.ev-unv{background:#6b7280}
 
 /* faq */
-.faq-list{display:grid;gap:10px;max-width:840px}
-.faq{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:0 20px}
-.faq summary{cursor:pointer;font-weight:600;padding:16px 0;list-style-position:outside}
-.faq p{margin:0 0 16px;color:var(--ink-2)}
+.faq-list{display:grid;gap:10px;max-width:820px;margin-inline:auto}
+.faq{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:0 clamp(18px,2vw,24px);transition:border-color .18s ease}
+.faq:hover{border-color:var(--border-strong)}
+.faq[open]{border-color:var(--primary)}
+.faq summary{cursor:pointer;font-weight:600;padding:16px 4px 16px 0;list-style:none;display:flex;gap:14px;align-items:flex-start;line-height:1.45}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";margin-left:auto;flex:none;font-family:var(--font-display);font-size:1.35rem;line-height:1;color:var(--primary);transition:transform .2s ease}
+.faq[open] summary::after{content:"\2212"}
+.faq p{margin:0 0 18px;color:var(--text-muted);max-width:66ch}
 
 /* final cta — a calm panel, not a gradient slab */
 .final-cta{background:linear-gradient(140deg,var(--panel),var(--panel-2));color:#fff;text-align:center;border-top:0}
@@ -417,12 +440,15 @@ legend{font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-b
 /* founding offer */
 html:not(.offer-ended) .regular-only{display:none!important}
 html.offer-ended .offer-only{display:none!important}
-.offer-banner{background:linear-gradient(100deg,var(--panel),var(--panel-2));color:#fff}
-.offer-inner{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 20px}
-.offer-banner p{margin:0;color:#fff;font-size:.93rem}
-.offer-banner a:not(.btn){color:#fff}
-.offer-banner .badge-offer{background:var(--accent);color:var(--accent-on);border-color:transparent}
-.offer-btn{background:#fff;color:#1d1a3d!important;margin-left:auto;border-color:transparent}
+.offer-banner{background:var(--surface-sunken);color:var(--text);border-bottom:1px solid var(--border)}
+[data-theme="dark"] .offer-banner{background:var(--surface)}
+.offer-inner{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;padding:8px 20px;font-size:.9rem}
+.offer-banner p{margin:0;color:var(--text-muted);font-size:.88rem}
+.offer-banner p strong{color:var(--text)}
+.offer-banner a:not(.btn){color:var(--text-muted)}
+.offer-banner .badge-offer{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-size:.72rem}
+.offer-btn{background:transparent;color:var(--primary)!important;margin-left:auto;border:1px solid var(--border-strong)}
+.offer-btn:hover{border-color:var(--primary);background:var(--primary-soft)}
 .badge-offer{background:var(--accent);color:var(--accent-on);border-color:transparent;margin:0 6px 0 0}
 .price-was{color:var(--ink-2);font-size:1rem;font-weight:600;text-decoration:line-through}
 .offer-note{font-size:.9rem;color:var(--ink-2);margin:6px 0 0}
@@ -685,6 +711,7 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
 
 /* ---------------------------------------------------------------- scorecard on new tokens */
 .scorecard{background:var(--surface-elevated);box-shadow:var(--shadow)}
+@media (max-width:899px){.scorecard{margin-top:6px}}
 .score-num{color:var(--primary)}
 .score-done{background:var(--success-soft);color:var(--success)}
 .score-part{background:var(--warning-soft);color:var(--warning)}
@@ -736,13 +763,14 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
    Every number carries its source, year and link. No number ships without one. */
 .evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
 @media (max-width:900px){.evidence-grid{grid-template-columns:1fr}}
-.evidence{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px)}
-.evidence-num{font-family:var(--font-display);font-size:clamp(2rem,4vw,2.6rem);font-weight:700;line-height:1;color:var(--primary);margin:0 0 8px}
+.evidence{display:flex;flex-direction:column;background:transparent;border:0;border-top:2px solid var(--border);border-radius:0;padding:clamp(16px,1.8vw,20px) 0 0}
+.evidence-num{font-family:var(--font-display);font-size:clamp(1.9rem,3.4vw,2.35rem);font-weight:700;line-height:1;color:var(--primary);margin:0 0 6px}
 .evidence-claim{margin:0 0 12px;font-size:.97rem}
 .evidence-src{margin:auto 0 0;padding-top:12px;border-top:1px solid var(--border);font-size:.82rem;color:var(--text-muted)}
 .evidence-src a{color:var(--text-muted);text-decoration:underline}
 .evidence-src a:hover{color:var(--primary)}
 .means{background:var(--primary-soft);border:1px solid var(--border);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px);margin-top:var(--space-gap)}
+.evidence-grid{gap:clamp(20px,2.4vw,32px)}
 .means h3{margin:0 0 10px;font-size:1.06rem}
 .means dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 24px;margin:0}
 @media (max-width:760px){.means dl{grid-template-columns:1fr}}
@@ -775,3 +803,147 @@ details.more summary{cursor:pointer;font-size:.85rem;color:var(--ink-2);margin-b
 .paid-link{font-size:.82em;font-weight:700;color:var(--text-muted);white-space:nowrap}
 .amazon-link{font-weight:600}
 .amazon-link.is-off{font-weight:600;color:var(--text)}
+
+/* ---------------------------------------------------------------- homepage polish
+   Sub-headings inside merged sections: a clear second level without a new section break. */
+.sub-h{font-size:1.06rem;margin:0 0 14px;color:var(--text)}
+.sub-section>.sub-h{padding-top:clamp(18px,2vw,26px);border-top:1px solid var(--border);margin-top:clamp(10px,1.4vw,18px)}
+.faq-more{text-align:center;margin-top:22px}
+
+/* before/after: each mockup is captioned as a sample, and the two sides now differ by
+   content rather than by a grey filter — so the "before" text stays readable. */
+.ba-fig{margin:0 0 14px}
+.ba-fig .ba-mock{margin:0}
+.ba-fig figcaption{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-top:6px}
+.ba-side.is-before .ba-mock{filter:saturate(.25);opacity:.9}
+.ba-note{margin-top:16px}
+@media (min-width:761px){
+  /* keep the two sides the same height so the arrow sits on the seam */
+  .ba-side{display:flex;flex-direction:column}
+}
+
+/* evidence: number -> what it measures -> what to do, inside one card */
+.evidence-num{margin-bottom:6px}
+.evidence-claim{margin:0 0 10px;font-size:1rem;line-height:1.5}
+.evidence-src{margin:0;padding:0 0 12px;border:0;font-size:.78rem;color:var(--text-muted)}
+.evidence-act{margin-top:auto;padding-top:12px}
+.evidence-act-h{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin:0 0 6px}
+.evidence-act p{margin:0 0 6px;font-size:.94rem}
+.evidence-act p.small{margin:0;line-height:1.7}
+.evidence-note{margin-top:16px;max-width:76ch}
+
+/* evidence methodology: available, not shouted */
+details.evidence-note{margin-top:20px;max-width:76ch}
+details.evidence-note>summary{cursor:pointer;font-size:.85rem;color:var(--text-muted);font-weight:600}
+details.evidence-note>summary:hover{color:var(--primary)}
+details.evidence-note p{margin:10px 0 0}
+
+/* ---------------------------------------------------------------- practical AI resources
+   Built from the existing tokens and card system — no new design language, no chart library. */
+.res-teaser{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.res-teaser{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.res-teaser{grid-template-columns:1fr}}
+.res-teaser-card{display:flex;flex-direction:column;gap:4px;min-height:var(--tap);padding:18px;
+  border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);color:var(--text)!important;
+  text-decoration:none;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.res-teaser-card:hover{border-color:var(--primary);background:var(--primary-soft)}
+@media (prefers-reduced-motion:no-preference){.res-teaser-card:hover{transform:translateY(-2px)}}
+.res-teaser-emoji{font-size:1.7rem;line-height:1}
+.res-teaser-card strong{font-family:var(--font-display);font-size:1.02rem;margin-top:4px}
+
+/* prompt framework: six boxes */
+.fw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.fw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.fw-grid{grid-template-columns:1fr}}
+.fw-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px}
+.fw-k{font-family:var(--font-display);font-weight:700;font-size:1rem;margin:0 0 6px;color:var(--primary)}
+.fw-k span{display:block;font-family:var(--font);font-weight:600;font-size:.82rem;color:var(--text-muted)}
+.fw-ask{margin:0 0 10px;font-size:.93rem}
+.fw-eg{margin:0;font-size:.88rem;color:var(--text-muted);padding-top:10px;border-top:1px solid var(--border)}
+.fw-eg span{display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.fw-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-gap);margin-top:var(--space-gap)}
+@media (max-width:760px){.fw-compare{grid-template-columns:1fr}}
+.fw-bad{background:var(--surface-sunken)}
+.fw-good{border-color:var(--success)}
+
+/* copy-paste prompt blocks */
+.prompt{margin:14px 0}
+.prompt-text{margin:0;padding:14px 16px;background:var(--surface-sunken);border:1px solid var(--border);
+  border-radius:var(--r-card);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem;
+  line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.prompt-text:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.prompt-copy{margin-top:10px}
+.prompt-copy[data-copied]{border-color:var(--success);color:var(--success)!important}
+
+/* workflows */
+.res-workflow-list{display:grid;gap:var(--space-gap)}
+.res-workflow{scroll-margin-top:86px}
+.res-workflow h3{font-size:1.2rem}
+.res-steps{list-style:none;padding:0;margin:0 0 4px;display:grid;gap:12px}
+.res-steps li{display:flex;gap:14px;align-items:flex-start}
+.res-steps p{margin:0;font-size:.95rem}
+.res-check{margin-top:14px;padding:14px 16px;border-radius:var(--r-card);background:var(--surface-sunken);border:1px solid var(--border)}
+.res-check p{margin:0 0 8px;font-size:.92rem}
+.res-check p:last-child{margin-bottom:0}
+.human-check{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.8rem!important;
+  letter-spacing:.03em;padding:5px 12px;border-radius:var(--r-pill);background:var(--success-soft);color:var(--success)}
+.human-check::before{content:"✓";font-weight:700}
+
+/* prompt cards */
+.res-prompt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.res-prompt-grid{grid-template-columns:1fr}}
+.res-prompt{scroll-margin-top:86px}
+.res-prompt h3{font-size:1.08rem}
+.res-prompt[hidden],.res-workflow[hidden],.res-tile[hidden]{display:none}
+
+/* manual vs AI-assisted lanes */
+.flow-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:900px){.flow-grid{grid-template-columns:1fr}}
+.flow-row{margin-bottom:14px}
+.flow-lane{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0;margin:0}
+.flow-step{display:inline-flex;align-items:center;padding:7px 12px;border-radius:var(--r-pill);
+  background:var(--surface-sunken);border:1px solid var(--border);font-size:.85rem}
+.flow-lane.is-assisted .flow-step{background:var(--primary-soft);border-color:transparent;color:var(--primary)}
+/* dark: primary on primary-soft measures ~4.3:1 at this size, so use the lighter tint */
+[data-theme="dark"] .flow-lane.is-assisted .flow-step:not(.is-check){color:var(--primary-hover)}
+/* the approve pill must out-rank the assisted-lane rule, or it never turns green */
+.flow-lane .flow-step.is-check{background:var(--success-soft);border-color:transparent;color:var(--success);font-weight:700}
+.flow-lane li+li::before{content:"→";margin-right:6px;color:var(--text-muted);font-size:.9rem}
+.flow-gain{margin:0;padding-top:12px;border-top:1px solid var(--border)}
+
+/* adoption ladder */
+.ladder{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.ladder{grid-template-columns:1fr}}
+.ladder-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;
+  border-top:3px solid var(--primary)}
+.ladder-step:nth-child(1){border-top-color:var(--border-strong)}
+.ladder-step:nth-child(2){border-top-color:var(--secondary)}
+.ladder-step:nth-child(4){border-top-color:var(--accent)}
+.ladder-step:nth-child(5){border-top-color:var(--success)}
+.ladder-n{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin:0 0 4px}
+.ladder-t{font-family:var(--font-display);font-weight:700;font-size:1.02rem;margin:0 0 8px}
+.ladder-step p.small{margin:0 0 8px}
+.ladder-step p.small.muted span{font-weight:700;text-transform:uppercase;font-size:.68rem;letter-spacing:.06em}
+
+/* human vs AI matrix */
+.matrix th[scope="row"]{font-weight:600;max-width:22ch}
+.mx{display:inline-block;font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);white-space:nowrap}
+.mx-ai{background:var(--primary-soft);color:var(--primary)}
+.mx-verify{background:var(--warning-soft);color:var(--warning)}
+.mx-human{background:var(--danger-soft);color:var(--danger)}
+
+/* checklists */
+.res-check-card h3{font-size:1.06rem}
+.res-check-card{scroll-margin-top:86px}
+
+/* hub tiles */
+.res-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.res-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.res-tiles{grid-template-columns:1fr}}
+.res-tile{display:flex;flex-direction:column;gap:4px;min-height:var(--tap);padding:16px;border:1px solid var(--border);
+  border-radius:var(--r-card);background:var(--surface);color:var(--text)!important;text-decoration:none;
+  transition:border-color .18s ease,background .18s ease}
+.res-tile:hover{border-color:var(--primary);background:var(--primary-soft)}
+.res-kind{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)}
+.res-tile strong{font-size:.98rem}

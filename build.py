@@ -48,6 +48,7 @@ ROUTERS = load("data/routers.json")
 ESTIMATOR = load("data/estimator.json")
 REDIRECTS = {k: v for k, v in load("data/redirects.json").items() if not k.startswith("_")}
 EVIDENCE = load("data/evidence.json")
+RES = load("data/resources.json")
 AMAZON = SITE.get("amazon_associates") or {}
 SAMPLES = {x["id"]: x for x in load("data/samples.json")["samples"]}
 SCOPE_NOTE = SVC_DATA["scope_note"]
@@ -109,6 +110,13 @@ def in_offer(svc):
     return bool(OFFER_STATE and svc["id"] in OFFER["services"] and svc.get("price_from"))
 
 
+def offer_show_pct():
+    """A discount percentage is published only when the owner has confirmed it is true against a
+    FIXED regular price. These packages are 'starts_at', so the percentage is computed off a 'from'
+    figure and the delivered price varies — we show the real introductory price instead."""
+    return bool(OFFER.get("show_percentage"))
+
+
 def offer_price(svc):
     return svc["price_from"] * (100 - int(OFFER["discount_pct"])) // 100
 
@@ -143,13 +151,14 @@ def offer_banner(route):
     if not OFFER_STATE or route in NO_BANNER:
         return ""
     return ('<aside class="offer-banner offer-only" aria-label="{name} offer"><div class="container offer-inner">'
-            '<p><span class="badge badge-offer">{pct}% OFF</span> <strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर {pct}% छूट</p>'
+            '<p>{badge}<strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर introductory pricing</p>'
             '{meta}'
             '<a class="btn btn-sm offer-btn" href="/offers/{id}/" data-track="offer_cta_click" data-label="banner">Offer देखें →</a></div></aside>').format(
-        name=e(OFFER["name"]), pct=OFFER["discount_pct"], total=OFFER["slots_total"], id=OFFER["id"],
+        name=e(OFFER["name"]), total=OFFER["slots_total"], id=OFFER["id"],
+        badge=('<span class="badge badge-offer">{}% OFF</span> '.format(OFFER["discount_pct"]) if offer_show_pct() else ""),
         meta=('<p class="offer-meta"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span data-countdown>{} तक</span></p>'.format(
             OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
-            else '<p class="offer-meta">Introductory pricing · <a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"])))
+            else '<p class="offer-meta"><a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"])))
 
 
 def e(value):
@@ -278,9 +287,11 @@ def price_html(svc):
         "" if exact else '<span class="price-from">{}</span>'.format(lab["from_suffix"]))
     if not offer:
         return regular
-    return ('<p class="price offer-only"><span class="badge badge-offer">{pct}% OFF · {name}</span> <strong>₹{op}</strong> '
+    return ('<p class="price offer-only"><span class="badge badge-offer">{label}</span> <strong>₹{op}</strong> '
             '<s class="price-was"><span class="sr-only">Regular starting price </span>₹{reg}</s></p>').format(
-        pct=OFFER["discount_pct"], name=e(OFFER["name"]), op=inr(offer_price(svc)), reg=inr(svc["price_from"])) + regular
+        label=('{}% OFF · {}'.format(OFFER["discount_pct"], e(OFFER["name"])) if offer_show_pct()
+               else '{} · introductory'.format(e(OFFER["name"]))),
+        op=inr(offer_price(svc)), reg=inr(svc["price_from"])) + regular
 
 
 def card_attrs(svc):
@@ -599,8 +610,8 @@ def c_lead_form(args, ctx):
                                             "यह form WhatsApp पर भेजा जाएगा — button दबाते ही आपकी भरी हुई जानकारी के साथ "
                                             "WhatsApp खुलेगा, बस Send दबाइए। तब तक Moodily तक कुछ नहीं पहुँचता।"),
                                 budgets=opt(budgets), services=service_opts, offer_id=e(OFFER["id"]) if OFFER_STATE else "",
-                                offer_note=e("आप {} offer ({}% छूट) के लिए enquiry कर रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।".format(
-                                    OFFER.get("name", ""), OFFER.get("discount_pct", ""))))
+                                offer_note=e("आप {} introductory pricing के लिए enquiry कर रहे हैं। Slot पूरा payment मिलने पर ही पक्का होता है।".format(
+                                    OFFER.get("name", ""))))
 
 
 FORM_TEMPLATE = """
@@ -656,11 +667,13 @@ def c_offer_details(args, ctx):
                          btn=offer_pay_button(s), page=s["page"], id=s["id"]))
     return ('<section class="offer-section offer-only" id="offer-{id}" aria-labelledby="offer-h"><div class="container">'
             '<div class="section-head"><p class="eyebrow">{name} · सिर्फ़ पहले {total} ग्राहक</p>'
-            '<h2 id="offer-h">{n} starter packages पर {pct}% छूट</h2>'
+            '<h2 id="offer-h">{heading}</h2>'
             '{urgency}'
             '<p class="muted small">Scope वही जो regular package में है — सिर्फ़ दाम कम। Slot पूरा payment मिलने पर पक्का होता है। <a href="/offers/{id}/">पूरी शर्तें</a></p></div>'
             '<div class="grid grid-3">{cards}</div></div></section>').format(
-        id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]), pct=OFFER["discount_pct"],
+        id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]),
+        heading=('{} starter packages पर {}% छूट'.format(len(OFFER["services"]), OFFER["discount_pct"]) if offer_show_pct()
+                 else 'Founding client pricing — {} starter packages'.format(len(OFFER["services"]))),
         cards="".join(cards),
         urgency=('<p class="lead"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span class="countdown" data-countdown>{} तक</span></p>'.format(
             OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
@@ -672,7 +685,8 @@ def c_offer_terms(args, ctx):
     deadline = e(offer_deadline_hi()) if OFFER_STATE else e(OFFER.get("ends_at", ""))
     total, pct = OFFER.get("slots_total"), OFFER.get("discount_pct")
     items = [
-        "{} offer: {} पर regular starting price से {}% छूट।".format(e(OFFER.get("name")), names, pct),
+        ("{} offer: {} पर regular starting price से {}% छूट।".format(e(OFFER.get("name")), names, pct) if offer_show_pct()
+         else "{}: {} पर founding client introductory pricing — regular starting price से कम।".format(e(OFFER.get("name")), names)),
         "कुल {} founding slots — इन packages को मिलाकर। Offer {} तक या सभी slots भरने तक, जो पहले हो।".format(total, deadline),
         "Slot तभी पक्का होता है जब founding price का पूरा payment मिल जाए। सिर्फ़ enquiry या WhatsApp message से slot reserve नहीं होता।",
         "हर business के लिए एक founding slot।",
@@ -1270,41 +1284,103 @@ def c_promises(args, ctx):
 # Tiny inline SVG mockups. Inline so they theme with currentColor, add no requests and
 # no image files to the repo. Every one is aria-hidden with the meaning carried in text.
 def _mock(kind):
-    box = '<svg class="ba-mock" viewBox="0 0 320 132" role="img" aria-hidden="true" focusable="false">'
-    bg = '<rect width="320" height="132" fill="var(--surface-sunken)"/>'
-    def bar(x, y, w, h, c="var(--border-strong)", r=3):
-        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, r, c)
-    P, A, G = "var(--primary)", "var(--accent)", "var(--success)"
-    if kind == "gbp-before":
-        inner = bar(16, 16, 96, 60, "var(--border)") + bar(124, 18, 120, 9) + bar(124, 34, 90, 7) + bar(124, 48, 150, 7) + bar(16, 88, 130, 8) + bar(16, 104, 80, 8)
-    elif kind == "gbp-after":
-        inner = (bar(16, 16, 96, 60, P, 6) + bar(124, 18, 150, 9, "var(--text)") + bar(124, 34, 110, 7) + bar(124, 48, 170, 7)
-                 + bar(124, 62, 60, 14, G, 7) + bar(16, 88, 130, 8, P) + bar(158, 88, 60, 8, A) + bar(16, 104, 180, 8))
-    elif kind == "wa-before":
-        inner = bar(16, 16, 288, 26, "var(--border)") + bar(16, 52, 180, 8) + bar(16, 70, 140, 8) + bar(16, 96, 100, 20, "var(--border)", 10)
-    elif kind == "wa-after":
-        inner = (bar(16, 16, 288, 26, "var(--surface)", 6) + bar(24, 24, 120, 10, "var(--text)") + bar(16, 52, 130, 22, G, 11)
-                 + bar(158, 52, 130, 22, P, 11) + bar(16, 86, 288, 30, "var(--surface)", 6) + bar(24, 96, 200, 10) + bar(236, 94, 60, 14, A, 7))
-    elif kind == "doc-before":
-        inner = bar(16, 14, 60, 104, "var(--border)") + bar(90, 18, 150, 9) + bar(90, 34, 120, 7) + bar(90, 48, 190, 7) + bar(90, 62, 100, 7)
-    elif kind == "doc-after":
-        inner = (bar(16, 14, 60, 104, P, 6) + bar(90, 18, 190, 9, "var(--text)") + bar(90, 34, 150, 7) + bar(90, 48, 200, 7)
-                 + bar(90, 66, 88, 18, A, 9) + bar(186, 66, 88, 18, "var(--surface)", 9) + bar(90, 94, 190, 7) + bar(90, 108, 120, 7))
-    else:
-        inner = ""
-    return box + bg + inner + "</svg>"
+    """Illustrative interface mockups, inline SVG. Never a real screenshot, never real client data.
+
+    'before' states are deliberately sparse: missing photos, blank fields, no way to act.
+    'after' states show what a finished Moodily handover actually looks like — a business that can
+    be found, judged and contacted. Every one is captioned as a sample in the markup around it.
+    """
+    P, A, G, S = "var(--primary)", "var(--accent)", "var(--success)", "var(--secondary)"
+    MUT, LINE, CARD, SUNK = "var(--border-strong)", "var(--border)", "var(--surface)", "var(--surface-sunken)"
+
+    def r(x, y, w, h, c=MUT, rad=3):
+        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, rad, c)
+
+    def star(cx, cy, c=A, sc=1.0):
+        pts = "0,-5 1.5,-1.6 5,-1.6 2.2,0.7 3.1,4.2 0,2.2 -3.1,4.2 -2.2,0.7 -5,-1.6 -1.5,-1.6"
+        return '<polygon points="{}" fill="{}" transform="translate({},{}) scale({})"/>'.format(pts, c, cx, cy, sc)
+
+    def stars(x, y, n=5, filled=5):
+        return "".join(star(x + i * 13, y, A if i < filled else LINE) for i in range(n))
+
+    def pin(cx, cy, c=A):
+        return ('<path d="M{cx} {t}c-4.4 0-8 3.6-8 8 0 5.6 8 13 8 13s8-7.4 8-13c0-4.4-3.6-8-8-8z" fill="{c}"/>'
+                '<circle cx="{cx}" cy="{ic}" r="3" fill="#fff"/>').format(cx=cx, t=cy - 10, ic=cy - 2, c=c)
+
+    def chip(x, y, w, c, label_c=None):
+        return r(x, y, w, 15, c, 7)
+
+    # a faint map backdrop: roads only, no real geography
+    def maplet(x, y, w, h):
+        return (r(x, y, w, h, SUNK, 6)
+                + '<path d="M{a} {b}h{w}M{a} {c}h{w}M{d} {y}v{h}M{e} {y}v{h}" stroke="{l}" stroke-width="2" fill="none" opacity=".9"/>'.format(
+                    a=x, b=y + h * 0.34, c=y + h * 0.7, w=w, d=x + w * 0.3, e=x + w * 0.68, y=y, h=h, l=LINE))
+
+    M = {}
+    # ---- local business: an unfindable shop vs a shop you can find, judge and contact
+    M["gbp-before"] = (r(14, 14, 78, 54, LINE, 6) + '<text x="53" y="45" font-size="11" fill="{}" text-anchor="middle">no photo</text>'.format(MUT)
+                       + r(102, 16, 104, 10, MUT) + r(102, 32, 62, 7) + r(102, 46, 44, 7)
+                       + stars(108, 62, 5, 0) + r(176, 57, 30, 8)
+                       + r(14, 80, 120, 8) + r(14, 94, 86, 8)
+                       + r(14, 112, 238, 22, SUNK, 11) + '<text x="133" y="127" font-size="10" fill="{}" text-anchor="middle">कोई action button नहीं</text>'.format(MUT))
+    M["gbp-after"] = (maplet(14, 12, 104, 74) + pin(66, 56, A)
+                      + r(126, 14, 110, 11, "var(--text)") + stars(128, 36) + r(196, 31, 40, 9, G, 4)
+                      + r(126, 50, 92, 7) + r(126, 62, 66, 7)
+                      + r(126, 76, 26, 26, LINE, 4) + r(156, 76, 26, 26, LINE, 4) + r(186, 76, 26, 26, LINE, 4) + r(216, 76, 26, 26, LINE, 4)
+                      + chip(14, 96, 48, P) + chip(66, 96, 48, G)
+                      + chip(14, 116, 74, P) + chip(94, 116, 74, G) + chip(174, 116, 78, A))
+    # ---- coaching / library: fees on the phone vs a page that answers and captures
+    M["wa-before"] = (r(14, 14, 238, 26, LINE, 6) + '<text x="133" y="31" font-size="10" fill="{}" text-anchor="middle">"fees kitni hai?" — हर बार call</text>'.format(MUT)
+                      + r(14, 50, 150, 8) + r(14, 64, 116, 8) + r(14, 78, 134, 8)
+                      + r(14, 100, 96, 22, SUNK, 11) + '<text x="62" y="115" font-size="10" fill="{}" text-anchor="middle">no page</text>'.format(MUT))
+    M["wa-after"] = (r(14, 12, 238, 30, CARD, 6) + r(24, 20, 104, 12, "var(--text)") + chip(200, 19, 44, G)
+                     + r(14, 50, 114, 34, SUNK, 6) + r(24, 58, 60, 8, P) + r(24, 70, 84, 6)
+                     + r(138, 50, 114, 34, SUNK, 6) + r(148, 58, 60, 8, P) + r(148, 70, 84, 6)
+                     + r(14, 92, 238, 20, CARD, 6) + r(24, 99, 120, 7) + chip(196, 94, 48, A)
+                     + chip(14, 118, 114, P) + chip(138, 118, 114, G))
+    # ---- professional / creator: scattered files vs a presence that sells for you
+    M["doc-before"] = (r(14, 14, 56, 46, LINE, 4) + r(78, 14, 56, 46, LINE, 4) + r(142, 14, 56, 46, LINE, 4) + r(206, 14, 46, 46, LINE, 4)
+                       + '<text x="133" y="80" font-size="10" fill="{}" text-anchor="middle">files इधर-उधर</text>'.format(MUT)
+                       + r(14, 92, 150, 8) + r(14, 106, 104, 8) + r(14, 120, 128, 8))
+    M["doc-after"] = (r(14, 12, 238, 20, CARD, 6) + r(24, 18, 44, 8, "var(--text)") + chip(206, 15, 38, A)
+                      + r(14, 40, 140, 12, "var(--text)") + r(14, 58, 104, 7) + r(14, 70, 122, 7)
+                      + chip(14, 84, 70, P) + chip(90, 84, 64, G)
+                      + r(166, 40, 86, 62, SUNK, 6) + r(176, 50, 66, 8, P) + r(176, 62, 52, 6) + r(176, 74, 66, 6) + chip(176, 86, 46, A)
+                      + r(14, 112, 238, 22, SUNK, 6) + r(24, 120, 96, 7) + chip(196, 115, 48, G))
+    art = M.get(kind, "")
+    # a dashed frame + an in-image tag: this is a Moodily diagram, not a product screenshot
+    frame = ('<rect x="1.5" y="1.5" width="263" height="145" rx="9" fill="var(--surface-sunken)" '
+             'stroke="var(--border-strong)" stroke-width="1.5" stroke-dasharray="6 4"/>')
+    tag = ('<g transform="translate(200,6)"><rect width="60" height="14" rx="7" fill="var(--primary-soft)"/>'
+           '<text x="30" y="10" font-size="8" letter-spacing="1.2" text-anchor="middle" '
+           'fill="var(--primary)" font-family="sans-serif">NAMUNA</text></g>')
+    return ('<svg class="ba-mock" viewBox="0 0 266 154" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet">'
+            '{}<g transform="translate(0,6)">{}</g>{}</svg>').format(
+        e(BA_MOCK_ALT.get(kind, "Illustrative interface sample")), frame, art, tag)
+
+
+BA_MOCK_ALT = {
+    "gbp-before": "नमूना: अधूरी business listing — कोई photo नहीं, कोई rating नहीं, कोई action button नहीं",
+    "gbp-after": "नमूना: पूरी business listing — map पर pin, rating, photos और call/WhatsApp/directions buttons",
+    "wa-before": "नमूना: fees और batch की जानकारी सिर्फ़ call पर, कोई course page नहीं",
+    "wa-after": "नमूना: course और batch cards, WhatsApp enquiry button और brochure download",
+    "doc-before": "नमूना: काम बिखरी हुई files में, भेजने लायक कुछ नहीं",
+    "doc-after": "नमूना: एक page जो काम दिखाता है, साथ में lead magnet और enquiry form",
+}
+
 
 
 BA_EXAMPLES = [
     {"h": "दुकान / local business", "sub": "एक ऐसी दुकान जो Google पर अधूरी दिखती है",
      "mock": "gbp", "before": ["Google listing अधूरी — गलत समय, पुराना नंबर", "WhatsApp पर enquiry का कोई साफ़ रास्ता नहीं",
                                "न website, न digital catalogue", "हर जगह अलग-अलग नाम और logo"],
-     "after": ["Google Business Profile पूरी — photos, services, सही समय", "WhatsApp पर एक साफ़ enquiry button",
-               "Digital catalogue जो chat में भेजा जा सके", "Landing page और counter पर review QR"]},
+     "after": ["Google Maps पर pin, सही समय और directions", "Photos, services और rate list — सब listing पर",
+               "Call · WhatsApp · Directions — तीनों एक tap पर", "Counter पर review QR, ताकि rating असली ग्राहकों से बने",
+               "Digital catalogue जो chat में भेजा जा सके"]},
     {"h": "Coaching / library", "sub": "एक coaching centre जहाँ हर जानकारी फ़ोन पर ही मिलती है",
      "mock": "wa", "before": ["Batch और fees की जानकारी सिर्फ़ call पर", "कोई course brochure नहीं",
                               "Enquiry कहाँ आई, कहाँ गई — पता नहीं", "Study material बिखरा हुआ"],
-     "after": ["Course और batch page, fees के साथ", "WhatsApp enquiry जो अपने आप record होती है",
+     "after": ["Course और batch cards, fees लिखी हुई", "WhatsApp enquiry button — हर पूछने वाला record होता है",
                "Digital brochure — PDF और link दोनों", "Google पर centre दिखता है, study resources एक जगह"]},
     {"h": "Manufacturer / B2B", "sub": "एक manufacturer जो अब तक marketplace और जान-पहचान पर चलता है",
      "mock": "doc", "before": ["Catalogue हर buyer को हाथ से भेजना पड़ता है", "अपनी कोई website नहीं — सिर्फ़ marketplace listing",
@@ -1319,8 +1395,8 @@ BA_EXAMPLES = [
     {"h": "Professional / creator", "sub": "एक consultant जिसका काम अच्छा है पर दिखता नहीं",
      "mock": "doc", "before": ["सालों का knowledge files में बिखरा", "Presentation हर बार नए सिरे से बनती है",
                                "कोई ऐसा asset नहीं जो lead लाए", "पूछने वाले को भेजने के लिए कुछ नहीं"],
-     "after": ["एक website जो काम का सबूत देती है", "तैयार PPT / pitch deck template",
-               "Lead magnet — guide, checklist या report", "Content assets और एक structured enquiry form"]},
+     "after": ["एक page जो काम का सबूत देता है", "तैयार PPT / pitch deck template",
+               "Lead magnet — guide, checklist या report", "Structured enquiry form, ताकि कोई पूछने वाला छूटे नहीं"]},
 ]
 
 
@@ -1330,16 +1406,17 @@ def c_before_after_saathi(args, ctx):
     for i, x in enumerate(BA_EXAMPLES, 1):
         out.append(
             '<article class="ba-card"><header><h3>{h}</h3><p>{sub}</p></header><div class="ba-split">'
-            '<div class="ba-side is-before"><p class="ba-label is-before">पहले</p>{mb}<ul>{before}</ul></div>'
+            '<div class="ba-side is-before"><p class="ba-label is-before">पहले</p><figure class="ba-fig">{mb}'
+            '<figcaption>नमूना चित्र · illustrative</figcaption></figure><ul>{before}</ul></div>'
             '<div class="ba-step" aria-hidden="true"><span>→</span></div>'
-            '<div class="ba-side is-after"><p class="ba-label is-after">Moodily के बाद</p>{ma}<ul>{after}</ul></div>'
+            '<div class="ba-side is-after"><p class="ba-label is-after">Moodily के बाद</p><figure class="ba-fig">{ma}'
+            '<figcaption>नमूना चित्र · illustrative</figcaption></figure><ul>{after}</ul></div>'
             '</div></article>'.format(
                 h=e(x["h"]), sub=e(x["sub"]), mb=_mock(x["mock"] + "-before"), ma=_mock(x["mock"] + "-after"),
                 before="".join("<li>{}</li>".format(e(b)) for b in x["before"]),
                 after="".join("<li>{}</li>".format(e(a)) for a in x["after"])))
-    note = ('<p class="small muted" style="margin-top:16px">ये तीनों उदाहरण हैं — यह दिखाने के लिए कि किस तरह का काम होता है। '
-            'किसी client का नाम, number या result यहाँ नहीं है। असली काम <a href="#work">samples</a> और '
-            '<a href="/case-studies/">case studies</a> में है।</p>')
+    note = ('<p class="small muted ba-note">ऊपर के चित्र नमूने हैं — किसी client का नाम, number या result नहीं। '
+            'असली काम <a href="#work">samples</a> और <a href="/case-studies/">case studies</a> में देखिए।</p>')
     return '<div class="ba-saathi">{}</div>{}'.format("".join(out), note)
 
 
@@ -1558,31 +1635,40 @@ def c_sample_grid(args, ctx):
 
 
 def c_evidence(args, ctx):
-    """Verified, India-specific numbers only. A card without source + year + link is a build error."""
+    """Verified India-only numbers, each paired with the action it implies.
+
+    One card = one number + what it measures + what to do about it + the source. Pairing the
+    'so what' with the number (instead of a separate block of three) keeps it useful rather than
+    reading like a report dump. A card missing source, year or link is a build error.
+    """
+    means = {m.get("card"): m for m in EVIDENCE["means"] if m.get("card")}
     cards = []
     for cd in EVIDENCE["cards"]:
         for key in ("number", "claim", "source", "year", "url", "context"):
             if not cd.get(key):
                 raise SystemExit("evidence.json: {} is missing {} — a number without a checkable source is not published".format(cd.get("id"), key))
+        act = means.get(cd["id"])
+        action = ""
+        if act:
+            # one best next action reads stronger than three competing links
+            first = next((x for x in act.get("services", []) if x in SERVICES), None)
+            link = ('<a href="{}#{}" data-track="service_card_click" data-label="evidence:{}">{} →</a>'.format(
+                SERVICES[first]["page"], first, first, e(SERVICES[first]["name"])) if first else "")
+            action = ('<div class="evidence-act"><p class="evidence-act-h">आपको क्या करना चाहिए</p>'
+                      '<p>{do}</p><p class="small">{link}</p></div>').format(do=e(act["solution"]), link=link)
         cards.append(
-            '<article class="evidence" data-view="evidence_card_view|{id}"><p class="evidence-num">{num}</p>'
-            '<p class="evidence-claim">{claim}</p><p class="small muted">{ctx}</p>'
-            '<p class="evidence-src">Source: <a href="{url}" rel="nofollow noopener" target="_blank">{src}</a> · {year}</p></article>'.format(
-                id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=e(cd["context"]),
-                url=e(cd["url"]), src=e(cd["source"]), year=e(cd["year"])))
-    means = []
-    for m in EVIDENCE["means"]:
-        links = " · ".join('<a href="{}#{}">{}</a>'.format(SERVICES[s]["page"], s, e(SERVICES[s]["name"]))
-                           for s in m["services"] if s in SERVICES)
-        means.append('<div class="means"><h3>आपके business के लिए इसका मतलब</h3><dl>'
-                     '<div><dt>क्या हो रहा है</dt><dd>{t}</dd></div>'
-                     '<div><dt>आपके लिए मतलब</dt><dd>{i}</dd></div>'
-                     '<div><dt>क्या करें</dt><dd>{s}<br><span class="small">{l}</span></dd></div></dl></div>'.format(
-                         t=e(m["trend"]), i=e(m["implication"]), s=e(m["solution"]), l=links))
-    note = ('<p class="small muted" style="margin-top:16px">हर आँकड़ा भारत का है, source और साल के साथ। '
-            'दूसरे देश का आँकड़ा भारत के नाम पर नहीं दिखाया जाता। पिछली जाँच: {} · अगली जाँच: {}।</p>').format(
-        e(EVIDENCE["last_reviewed"]), e(EVIDENCE["review_due"]))
-    return '<div class="evidence-grid">{}</div>{}{}'.format("".join(cards), "".join(means), note)
+            '<article class="evidence" data-view="evidence_card_view|{id}">'
+            '<p class="evidence-num">{num}</p><p class="evidence-claim">{claim}</p>'
+            '<p class="evidence-src">{src} · {year} · <a href="{url}" rel="nofollow noopener" target="_blank">source</a></p>'
+            '{action}</article>'.format(
+                id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]),
+                url=e(cd["url"]), src=e(cd["source"].split(",")[0]), year=e(cd["year"]), action=action))
+    note = ('<details class="evidence-note"><summary>ये आँकड़े कहाँ से आए?</summary>'
+            '<p class="small muted">हर आँकड़ा भारत का है, source और साल के साथ — दूसरे देश का आँकड़ा भारत के नाम पर '
+            'नहीं दिखाया जाता। ये बाज़ार के आँकड़े हैं, किसी एक business के नतीजे की guarantee नहीं। '
+            'पिछली जाँच: {}।</p></details>').format(e(EVIDENCE["last_reviewed"]))
+    return '<div class="evidence-grid">{}</div>{}'.format("".join(cards), note)
+
 
 
 # ------------------------------------------------- Amazon Associates (inert until configured)
@@ -1687,6 +1773,236 @@ def form_prefill_url(svc=None, sample=None, unsure=False):
     return "{}?{}".format(base, "&".join(["usp=pp_url"] + params))
 
 
+# ------------------------------------------------- practical AI resource layer
+# No performance claim ever renders here. Benefits are qualitative only; a workflow missing any
+# required field is a build error, and a timing result is published only when a real Moodily test
+# recorded it (workflow_tests is empty until then).
+WF_REQUIRED = ("title", "who", "problem", "tool", "input", "steps", "prompt", "follow_up", "check", "never_share", "advanced")
+RES_AUD = collections.OrderedDict((a["id"], a) for a in RES["audiences"])
+RES_PROB = collections.OrderedDict((x["id"], x["label"]) for x in RES["problems"])
+BANNED_CLAIM = re.compile(r"(\d+\s*%\s*(time|faster|productiv)|\d+\s*x\s*(faster|productiv)|saves?\s+\d+\s*%)", re.I)
+
+
+def validate_resources():
+    # scan only what can reach a visitor — _readme / _todo notes may quote a banned phrase as an example
+    def publishable(node):
+        if isinstance(node, dict):
+            return [publishable(v) for k, v in node.items() if not k.startswith("_")]
+        if isinstance(node, list):
+            return [publishable(v) for v in node]
+        return node
+    blob = json.dumps(publishable(RES), ensure_ascii=False)
+    m = BANNED_CLAIM.search(blob)
+    if m:
+        raise SystemExit("resources.json: unsupported performance claim {!r} — state benefits qualitatively".format(m.group(0)))
+    for w in RES["workflows"]:
+        for k in WF_REQUIRED:
+            if not w.get(k):
+                raise SystemExit("resources.json: workflow '{}' is missing {}".format(w.get("id"), k))
+        if len(w["steps"]) < 3:
+            raise SystemExit("resources.json: workflow '{}' needs at least 3 steps".format(w["id"]))
+    for coll, key in (("prompts", "prompt"), ("workflows", "prompt")):
+        for x in RES[coll]:
+            for a in x.get("audiences", []):
+                if a not in RES_AUD:
+                    raise SystemExit("resources.json: {} '{}' has unknown audience {}".format(coll, x["id"], a))
+            for pr in x.get("problems", []):
+                if pr not in RES_PROB:
+                    raise SystemExit("resources.json: {} '{}' has unknown problem {}".format(coll, x["id"], pr))
+    for t in RES["workflow_tests"]["tests"]:
+        for k in ("workflow", "manual_time", "ai_assisted_time", "tool", "date", "conditions", "sample_size", "notes"):
+            if not t.get(k):
+                raise SystemExit("resources.json: workflow_test is missing {} — an untested timing is never published".format(k))
+
+
+def yt_link(label=None, cls="small"):
+    """Renders only when the owner has supplied the real channel URL. No figures, ever."""
+    yt = RES.get("youtube") or {}
+    if not yt.get("url"):
+        return ""
+    return '<a class="{}" href="{}" rel="noopener" target="_blank" data-track="youtube_click" data-label="resources">{}</a>'.format(
+        cls, e(yt["url"]), e(label or yt["name"]))
+
+
+def _copy_block(text, label):
+    """A copy-to-clipboard prompt box. The button only reports that a copy happened — never the text."""
+    return ('<div class="prompt"><pre class="prompt-text" tabindex="0">{txt}</pre>'
+            '<button class="btn btn-outline btn-sm prompt-copy" type="button" data-copy '
+            'data-track="prompt_copy" data-label="{id}">Prompt copy करें</button></div>').format(txt=e(text), id=e(label))
+
+
+def c_prompt_framework(args, ctx):
+    f = RES["framework"]
+    boxes = "".join(
+        '<article class="fw-box"><p class="fw-k">{k}<span>{hi}</span></p><p class="fw-ask">{ask}</p>'
+        '<p class="fw-eg"><span>उदाहरण</span>{eg}</p></article>'.format(
+            k=e(b["k"]), hi=e(b["hi"]), ask=e(b["ask"]), eg=e(b["eg"])) for b in f["boxes"])
+    return ('<p class="lead">{intro}</p><div class="fw-grid">{boxes}</div>'
+            '<div class="fw-compare"><div class="card fw-bad"><p class="ba-label is-before">कमज़ोर prompt</p>'
+            '<pre class="prompt-text">{bad}</pre><p class="small muted">{badw}</p></div>'
+            '<div class="card fw-good"><p class="ba-label is-after">छह खाने वाला prompt</p>'
+            '<pre class="prompt-text">{better}</pre><p class="small muted">{betterw}</p></div></div>').format(
+        intro=e(f["intro"]), boxes=boxes, bad=e(f["bad"]), badw=e(f["bad_why"]),
+        better=e(f["better"]), betterw=e(f["better_why"]))
+
+
+def c_prompt_pack(args, ctx):
+    ids = split_ids(args.get("ids")) or [x["id"] for x in RES["prompts"]]
+    out = []
+    for pid in ids:
+        pr = next((x for x in RES["prompts"] if x["id"] == pid), None)
+        if not pr:
+            raise SystemExit("@prompt-pack: unknown prompt {} in {}".format(pid, ctx["file"]))
+        tags = "".join('<li>{} {}</li>'.format(RES_AUD[a]["emoji"], e(RES_AUD[a]["label"])) for a in pr["audiences"])
+        out.append(
+            '<article class="card res-prompt" id="p-{id}" data-aud="{aud}" data-prob="{prob}">'
+            '<h3>{title}</h3><p class="small muted">{why}</p><ul class="chips">{tags}</ul>{copy}'
+            '<details class="not-included"><summary>अगला prompt</summary><pre class="prompt-text">{follow}</pre></details>'
+            '</article>'.format(
+                id=pr["id"], aud=" ".join(pr["audiences"]), prob=" ".join(pr["problems"]), title=e(pr["title"]),
+                why=e(pr["why"]), tags=tags, copy=_copy_block(pr["prompt"], pr["id"]), follow=e(pr["follow_up"])))
+    return '<div class="res-prompt-grid" data-res-grid>{}</div>'.format("".join(out))
+
+
+def c_workflow(args, ctx):
+    ids = split_ids(args.get("ids")) or [x["id"] for x in RES["workflows"]]
+    out = []
+    for wid in ids:
+        w = next((x for x in RES["workflows"] if x["id"] == wid), None)
+        if not w:
+            raise SystemExit("@workflow: unknown workflow {} in {}".format(wid, ctx["file"]))
+        steps = "".join('<li><span class="step-num">{}</span><p>{}</p></li>'.format(i, e(t))
+                        for i, t in enumerate(w["steps"], 1))
+        rows = [("किसके लिए?", w["who"]), ("क्या समस्या हल होती है?", w["problem"]),
+                ("कौन-सा free tool?", w["tool"]), ("क्या तैयार रखें?", w["input"])]
+        dl = "".join('<div><dt>{}</dt><dd>{}</dd></div>'.format(k, e(v)) for k, v in rows)
+        return_chk = next((c for c in RES["checklists"] if c["id"] == "verify"), None)
+        out.append(
+            '<article class="card res-workflow" id="w-{id}" data-aud="{aud}" data-prob="{prob}" '
+            'data-view="workflow_view|{id}"><h3>{title}</h3><dl class="answer-dl">{dl}</dl>'
+            '<ol class="res-steps">{steps}</ol>{copy}'
+            '<details class="not-included"><summary>अगला prompt</summary><pre class="prompt-text">{follow}</pre></details>'
+            '<div class="res-check"><p class="human-check">{hc}</p><p><strong>Output कैसे जाँचें:</strong> {check}</p>'
+            '<p><strong>यह न भेजें:</strong> {never}</p>{chklink}</div>'
+            '<details class="not-included"><summary>आगे बढ़ना हो तो</summary><p>{adv}</p></details>'
+            '</article>'.format(
+                id=w["id"], aud=" ".join(w["audiences"]), prob=" ".join(w["problems"]), title=e(w["title"]), dl=dl,
+                steps=steps, copy=_copy_block(w["prompt"], w["id"]), follow=e(w["follow_up"]),
+                hc=HUMAN_CHECK_TEXT, check=e(w["check"]), never=e(w["never_share"]), adv=e(w["advanced"]),
+                chklink='<p class="small"><a href="/resources/ai-daily-life-starter/#verify">जाँच की पूरी list →</a></p>' if return_chk else ""))
+    return '<div class="res-workflow-list" data-res-grid>{}</div>'.format("".join(out))
+
+
+HUMAN_CHECK_TEXT = "AI draft बनाता है · आप approve करते हैं"
+
+
+def c_flow_diagram(args, ctx):
+    ids = split_ids(args.get("ids")) or [x["id"] for x in RES["diagrams"]]
+    out = []
+    for did in ids:
+        g = next((x for x in RES["diagrams"] if x["id"] == did), None)
+        if not g:
+            raise SystemExit("@flow-diagram: unknown diagram {} in {}".format(did, ctx["file"]))
+
+        def lane(items, kind, last_is_check=False):
+            cells = []
+            for i, t in enumerate(items):
+                cells.append('<li class="flow-step">{}</li>'.format(e(t)))
+            if last_is_check:
+                cells.append('<li class="flow-step is-check">{}</li>'.format(e("आप approve करें")))
+            return '<ol class="flow-lane is-{}">{}</ol>'.format(kind, "".join(cells))
+        out.append(
+            '<article class="card flow-card" data-view="workflow_view|diagram-{id}"><h3>{title}</h3>'
+            '<div class="flow-row"><p class="ba-label is-before">अभी — हाथ से</p>{manual}</div>'
+            '<div class="flow-row"><p class="ba-label is-after">AI की मदद से</p>{assisted}</div>'
+            '<p class="small muted flow-gain">{gain}</p></article>'.format(
+                id=g["id"], title=e(g["title"]), manual=lane(g["manual"], "manual"),
+                assisted=lane(g["assisted"], "assisted", last_is_check=True), gain=e(g["gain"])))
+    return '<div class="flow-grid">{}</div>'.format("".join(out))
+
+
+def c_ai_ladder(args, ctx):
+    L = RES["ladder"]
+    steps = "".join(
+        '<li class="ladder-step"><p class="ladder-n">Level {n}</p><p class="ladder-t">{title}</p>'
+        '<p class="small">{what}</p><p class="small muted"><span>कब</span> {when}</p></li>'.format(
+            n=x["n"], title=e(x["title"]), what=e(x["what"]), when=e(x["when"])) for x in L["levels"])
+    return '<p class="lead">{}</p><ol class="ladder">{}</ol>'.format(e(L["intro"]), steps)
+
+
+def c_task_matrix(args, ctx):
+    M = RES["matrix"]
+    lab = {x["k"]: x["label"] for x in M["legend"]}
+    rows = "".join(
+        '<tr><th scope="row">{t}</th><td><span class="mx mx-{d}">{dl}</span></td>'
+        '<td><span class="mx mx-{v}">{vl}</span></td><td>{a}</td><td>{p}</td></tr>'.format(
+            t=e(r["task"]), d=r["draft"], dl=e(lab[r["draft"]]), v=r["verify"], vl=e(lab[r["verify"]]),
+            a=e(r["automate"]), p=e(r["privacy"])) for r in M["rows"])
+    return ('<p class="lead">{intro}</p><div class="table-wrap"><table class="price-table matrix">'
+            '<thead><tr><th scope="col">काम</th><th scope="col">Draft</th><th scope="col">जाँच</th>'
+            '<th scope="col">दोहराने लायक?</th><th scope="col">निजी जानकारी का ख़तरा</th></tr></thead>'
+            '<tbody>{rows}</tbody></table></div>').format(intro=e(M["intro"]), rows=rows)
+
+
+def c_checklist(args, ctx):
+    cid = args.get("id")
+    cl = next((x for x in RES["checklists"] if x["id"] == cid), None)
+    if not cl:
+        raise SystemExit("@checklist: unknown id {} in {}".format(cid, ctx["file"]))
+    items = "".join("<li>{}</li>".format(e(i)) for i in cl["items"])
+    cls = "crosses" if cid == "privacy" else "ticks"
+    return '<div class="card res-check-card" id="{id}"><h3>{t}</h3><p class="muted">{i}</p><ul class="{c}">{items}</ul></div>'.format(
+        id=cl["id"], t=e(cl["title"]), i=e(cl["intro"]), c=cls, items=items)
+
+
+def c_resource_index(args, ctx):
+    """Hub listing: filter by who you are and by the problem. Prompts and workflows in one grid."""
+    cards = []
+    for w in RES["workflows"]:
+        cards.append(("workflow", w["id"], w["title"], w["problem"], w["audiences"], w["problems"]))
+    for pr in RES["prompts"]:
+        cards.append(("prompt", pr["id"], pr["title"], pr["why"], pr["audiences"], pr["problems"]))
+    tiles = "".join(
+        '<a class="res-tile" href="/resources/ai-daily-life-starter/#{anchor}" data-aud="{aud}" data-prob="{prob}" '
+        'data-track="resource_card_click" data-label="{id}"><span class="res-kind">{kind}</span>'
+        '<strong>{title}</strong><span class="small muted">{sub}</span></a>'.format(
+            anchor=("w-" if kind == "workflow" else "p-") + rid, aud=" ".join(aud), prob=" ".join(prob),
+            id=rid, kind="Workflow" if kind == "workflow" else "Prompt", title=e(title), sub=e(sub[:96]))
+        for kind, rid, title, sub, aud, prob in cards)
+    achips = "".join('<button class="chip-btn" type="button" data-res-aud="{}" aria-pressed="false">{} {}</button>'.format(
+        a["id"], a["emoji"], e(a["label"])) for a in RES["audiences"])
+    pchips = "".join('<button class="chip-btn" type="button" data-res-prob="{}" aria-pressed="false">{}</button>'.format(
+        k, e(v)) for k, v in RES_PROB.items())
+    return ('<div class="sample-filters">'
+            '<p class="filter-label" id="rl-who">आप कौन हैं</p><div class="chip-row" role="group" aria-labelledby="rl-who">'
+            '<button class="chip-btn" type="button" data-res-aud="" aria-pressed="true">सभी</button>{a}</div>'
+            '<p class="filter-label" id="rl-what">क्या करना है</p><div class="chip-row" role="group" aria-labelledby="rl-what">'
+            '<button class="chip-btn" type="button" data-res-prob="" aria-pressed="true">सभी</button>{p}</div>'
+            '<p class="small muted" data-res-count aria-live="polite"></p></div>'
+            '<div class="res-tiles" data-res-tiles>{t}</div>'
+            '<p class="notice small" data-res-empty hidden>इस combination में अभी कुछ नहीं है — '
+            '<a href="/contact/?service=custom">बताइए क्या चाहिए</a>, हम इसी तरह का resource बनाएँगे।</p>').format(
+        a=achips, p=pchips, t=tiles)
+
+
+def c_resources_teaser(args, ctx):
+    """Compact homepage teaser: the 'teach me' path, distinct from Digital Saathi's 'do it for me'."""
+    cards = [("🎓", "Study with AI", "Chapter से notes, quiz और revision plan", "student"),
+             ("💼", "Work with AI", "Email, meeting notes और action list", "professional"),
+             ("🎥", "Create with AI", "Topic से script, hook और Shorts", "creator"),
+             ("🏪", "Business with AI", "ग्राहक के सवालों के तैयार जवाब", "small-business")]
+    tiles = "".join(
+        '<a class="res-teaser-card" href="/resources/?who={who}" data-track="resource_card_click" data-label="teaser:{who}">'
+        '<span class="res-teaser-emoji" aria-hidden="true">{em}</span><strong>{t}</strong>'
+        '<span class="small muted">{s}</span></a>'.format(em=em, t=e(t), s=e(sub), who=who)
+        for em, t, sub, who in cards)
+    yt = yt_link("AI with SaurabhKr देखें", "small")
+    return ('<div class="res-teaser">{tiles}</div>'
+            '<p class="btn-row"><a class="btn btn-outline" href="/resources/" data-track="resources_view" '
+            'data-label="home-teaser">Free AI Resources देखें →</a>{yt}</p>').format(
+        tiles=tiles, yt=' <span class="small muted">{}</span>'.format(yt) if yt else "")
+
+
 FEATURE_GATES = {"amazon_associates": amazon_public}
 
 COMPONENTS = {
@@ -1700,7 +2016,10 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
+    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
+    "workflow": c_workflow, "flow-diagram": c_flow_diagram, "ai-ladder": c_ai_ladder,
+    "task-matrix": c_task_matrix, "checklist": c_checklist, "resource-index": c_resource_index,
+    "resources-teaser": c_resources_teaser, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -1822,7 +2141,8 @@ def page_schema(meta, route, ctx):
 # ---------------------------------------------------------------- layout
 NAV = [
     ("/services/", "Services", "सेवाएँ"), ("/samples/", "Samples", "Samples"), ("/case-studies/", "Case studies", "काम"),
-    ("/insights/", "Insights", "Insights"), ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
+    ("/resources/", "AI Resources", "AI Resources"), ("/insights/", "Insights", "Insights"),
+    ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
 # the inline desktop row stays short so the header never wraps; the rest is in the Menu popover
 NAV_DESKTOP = [("/services/", "Services"), ("/samples/", "Samples"), ("/services/#prices", "Pricing"), ("/learn/", "Learn")]
@@ -1883,7 +2203,7 @@ def footer(route=""):
       {wa}
     </div>
     <div><h2 class="footer-h">Moodily</h2><ul>
-      <li><a href="/learn/">Moodily Learn</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
+      <li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li><li><a href="/digital-saathi/">Moodily Digital Saathi</a></li>
       <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
       <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
@@ -2219,6 +2539,7 @@ def main():
     validate_commerce()
     validate_amazon()
     validate_form_prefill()
+    validate_resources()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 

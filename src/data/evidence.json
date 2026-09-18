@@ -6,49 +6,63 @@
     {
       "id": "internet-subscribers",
       "number": "109 करोड़",
-      "claim": "भारत में internet subscribers — यानी आपका ग्राहक पहले से online है, चाहे वह छोटे शहर में हो या गाँव में।",
+      "claim": "भारत में internet subscribers — आपका ग्राहक पहले से online है, गाँव में भी।",
       "source": "TRAI, Indian Telecom Services Performance Indicator Report (Jan–Mar 2026), PIB",
       "year": "2026",
       "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2276780",
-      "context": "31 मार्च 2026 तक कुल 1,092.79 million internet subscribers — दिसंबर 2025 के 1,028.61 million से 6.24% ज़्यादा।"
+      "context": "31 मार्च 2026 तक 1,092.79 million subscribers।"
     },
     {
       "id": "rural-share",
       "number": "57%",
-      "claim": "भारत के active internet users गाँव और छोटे शहरों में हैं — करीब 54.8 करोड़ लोग।",
+      "claim": "active internet users गाँव और छोटे शहरों में — करीब 54.8 करोड़ लोग।",
       "source": "IAMAI–Kantar, Internet in India Report 2025",
       "year": "2025",
       "url": "https://www.iamai.in/",
-      "context": "958 million active internet users में से 57% rural — rural growth urban से तेज़ बताया गया है। Report जनवरी 2026 में जारी हुई।"
+      "context": "958 million active users में से 57% rural।"
     },
     {
       "id": "short-video",
       "number": "61%",
-      "claim": "Internet इस्तेमाल करने वाले short video देखते हैं — इसलिए Reel और short content खोज का रास्ता बन चुके हैं।",
+      "claim": "internet users short video देखते हैं — खोज अब video से भी होती है।",
       "source": "IAMAI–Kantar, Internet in India Report 2025",
       "year": "2025",
       "url": "https://www.iamai.in/",
-      "context": "2025 में 588 million लोगों ने short-video content देखा — rural users urban से थोड़े ज़्यादा।"
+      "context": "2025 में 588 million लोगों ने short video देखा।"
     }
   ],
   "means": [
     {
       "trend": "ग्राहक अब पहले Google, Maps और WhatsApp पर देखता है, फिर दुकान तक आता है।",
       "implication": "आपकी सही जानकारी ढूँढना आसान होना चाहिए — नाम, समय, नंबर, रास्ता, दाम।",
-      "solution": "Google Business Profile + WhatsApp + एक landing page",
-      "services": ["google-business-fix", "whatsapp-business-setup", "landing-page"]
+      "solution": "अपनी सही जानकारी Google पर डालिए — नाम, समय, नंबर, रास्ता, दाम।",
+      "services": [
+        "google-business-fix",
+        "whatsapp-business-setup",
+        "landing-page"
+      ],
+      "card": "internet-subscribers"
     },
     {
       "trend": "Internet की सबसे तेज़ बढ़त गाँव और छोटे शहरों में है।",
       "implication": "आपका ग्राहक हिंदी में खोजता है और phone पर देखता है — English-only, भारी website काम नहीं करती।",
-      "solution": "Hindi + English, phone-first page और WhatsApp catalogue",
-      "services": ["landing-page", "product-catalogue", "whatsapp-business-setup"]
+      "solution": "Hindi में और phone पर खुलने लायक page रखिए, भारी website नहीं।",
+      "services": [
+        "landing-page",
+        "product-catalogue",
+        "whatsapp-business-setup"
+      ],
+      "card": "rural-share"
     },
     {
       "trend": "Short video अब खोज और भरोसे दोनों का रास्ता है।",
       "implication": "एक बार का photo shoot काफ़ी नहीं — लगातार दिखने लायक content चाहिए।",
-      "solution": "Social campaign pack या monthly content",
-      "services": ["social-campaign-kit", "content-growth-retainer"]
+      "solution": "एक बार का shoot नहीं — लगातार दिखने लायक content चाहिए।",
+      "services": [
+        "social-campaign-kit",
+        "content-growth-retainer"
+      ],
+      "card": "short-video"
     }
   ]
 }
