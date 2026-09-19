@@ -12,14 +12,38 @@
   }
   window.moodilyTrack = track;
 
+  // v1-2026 funnel names pushed alongside the older event names, so existing GTM triggers keep working.
+  var EVENT_ALIASES = { whatsapp_click: 'whatsapp_contact_clicked', free_audit_click: 'free_audit_started' };
   document.addEventListener('click', function (ev) {
     var el = ev.target.closest('[data-track]');
     if (!el) return;
-    track(el.getAttribute('data-track'), {
-      label: el.getAttribute('data-label') || '',
-      link_url: el.getAttribute('href') || ''
-    });
+    var name = el.getAttribute('data-track');
+    var params = { label: el.getAttribute('data-label') || '', link_url: el.getAttribute('href') || '' };
+    track(name, params);
+    if (EVENT_ALIASES[name]) track(EVENT_ALIASES[name], params);
+    // Outbound Razorpay Payment Link (opens in a new tab, so this always fires before the checkout loads).
+    // Product key + amount only — never personal data.
+    if (el.hasAttribute('data-pay')) {
+      track('payment_outbound_clicked', { product: el.getAttribute('data-pay'), amount: Number(el.getAttribute('data-amount')) || 0, label: params.label });
+    }
   });
+
+  // Product views: once per product per page, when half the card is on screen.
+  var productViews = document.querySelectorAll('[data-product-view]');
+  if (productViews.length && 'IntersectionObserver' in window) {
+    var seenViews = {};
+    var pvo = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var name = en.target.getAttribute('data-product-view');
+        pvo.unobserve(en.target);
+        if (seenViews[name]) return;
+        seenViews[name] = true;
+        track(name, { label: location.pathname });
+      });
+    }, { threshold: 0.5 });
+    productViews.forEach(function (el) { pvo.observe(el); });
+  }
 
   var body = document.body;
   if (body.hasAttribute('data-view-event')) {
@@ -774,6 +798,8 @@
       document.getElementById('thanksSent').hidden = false;
       document.getElementById('thanksMustWa').hidden = true;
     }
+    // Only the on-site fallback form lands here; Google Form submissions are counted from the Form's response sheet.
+    if (lead && lead.service === 'free-digital-audit') track('free_audit_completed', { label: 'site-form' });
     if (lead) {
       var msg = 'Namaste Moodily,\nMain ' + (lead.name || '') + ' (' + (lead.role || '') + ') hoon.\nMujhe ' + (lead.service_label || lead.service || '') + ' chahiye.' +
         (lead.sample ? '\nSample: moodily.in/samples/' + lead.sample + '/' : '') + '\nGoal: ' + (lead.goal || '') +

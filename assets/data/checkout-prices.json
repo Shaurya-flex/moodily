@@ -1,23 +1,10 @@
 {
   "currency": "INR",
-  "items": {
-    "digital-business-starter": {
-      "name": "Founding 10 — Google + WhatsApp Starter",
-      "amount_paise": 149900
-    },
-    "medical-store-digital-desk": {
-      "name": "Founding 10 — Medical Store Digital Desk",
-      "amount_paise": 299900
-    },
-    "professional-authority-pack": {
-      "name": "Founding 10 — Professional Authority Pack",
-      "amount_paise": 449900
-    }
-  },
+  "items": {},
   "offer": {
     "id": "founding-10",
     "active": true,
-    "ends_at": "2026-09-20T23:59:59+05:30",
+    "ends_at": null,
     "slots_left": 10
   }
 }

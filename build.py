@@ -74,32 +74,33 @@ ORG_ID = BASE + "/#organization"
 WARNINGS = []
 
 # ---------------------------------------------------------------- offer
-OFFER = SITE.get("offer") or {}
+PRICING = load("data/pricing.json")
+PRODUCTS = PRICING["products"]
+FOUNDING = PRICING["founding"]
+# FOUNDING_OFFER_ACTIVE / FOUNDING_SLOT_LIMIT / FOUNDING_SLOTS_CONFIRMED / FOUNDING_SLOTS_USED live in pricing.json -> founding.
+# The Founding offer is its own fixed-scope package now (not a % discount on catalogue services), so "services" is empty
+# and the old per-service offer pricing (in_offer / offer_price) never triggers.
+OFFER = {"id": FOUNDING["id"], "name": FOUNDING["name"], "services": [], "slots_total": int(FOUNDING["slot_limit"]),
+         "slots_taken": int(FOUNDING["slots_used"]), "payment_links": {}}
+PAY_BY_SERVICE = {p["service_id"]: k for k, p in PRODUCTS.items() if p.get("service_id")}
+RZP_LINK = re.compile(r"^https://rzp\.io/rzp/[A-Za-z0-9]+$")
 PAYMENTS = SITE.get("payments") or {}
 HI_MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
 HI_DAYS = ["सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार", "रविवार"]
 
 
 def offer_urgency_ok():
-    """Countdown + slot counter render ONLY when the owner has confirmed the offer is real and payable.
-
-    Gate (src/site.json -> offer.urgency_confirmed). Until it is true the page still shows the
-    introductory pricing and its terms, but no timer and no slot counter — an unverified
-    scarcity claim is a dark pattern, and a discount nobody can actually pay for is worse.
-    """
-    return bool(OFFER.get("urgency_confirmed"))
+    """A remaining-slot number is published ONLY when the owner has reconciled the real count
+    (pricing.json -> founding.slots_confirmed). There is never a countdown: the offer has no deadline."""
+    return bool(FOUNDING.get("slots_confirmed"))
 
 
 def _offer_state():
-    """Offer is shown only while active, inside its window and with real slots left. Re-evaluated on every build."""
-    if not OFFER.get("active"):
+    """FOUNDING_OFFER_ACTIVE and slots_used < slot_limit. No dates: the offer ends when F10 is served."""
+    if not FOUNDING.get("active"):
         return None
-    now = datetime.now(timezone.utc)
-    start, end = datetime.fromisoformat(OFFER["starts_at"]), datetime.fromisoformat(OFFER["ends_at"])
-    left = int(OFFER["slots_total"]) - int(OFFER["slots_taken"])
-    if now < start or now > end or left <= 0:
-        return None
-    return {"left": left, "end": end}
+    left = int(FOUNDING["slot_limit"]) - int(FOUNDING["slots_used"])
+    return {"left": left} if left > 0 else None
 
 
 OFFER_STATE = _offer_state()
@@ -107,12 +108,6 @@ OFFER_STATE = _offer_state()
 # floating WhatsApp button: a compliance page should read as clarity, not as a sales surface.
 LEGAL_ROUTES = {"/privacy/", "/terms/", "/refund/", "/affiliate-disclosure/"}
 NO_BANNER = LEGAL_ROUTES | {"/contact/thanks/", "/payment/success/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
-
-
-def offer_deadline_hi():
-    d = OFFER_STATE["end"]
-    return "{}, {} {} {}, {}:{:02d} {} IST".format(HI_DAYS[d.weekday()], d.day, HI_MONTHS[d.month - 1], d.year,
-                                                  d.hour % 12 or 12, d.minute, "PM" if d.hour >= 12 else "AM")
 
 
 def in_offer(svc):
@@ -149,29 +144,85 @@ def offer_pay_button(svc, cls="btn btn-primary"):
 
 
 def offer_meta_html():
-    if not offer_urgency_ok():
-        return ('<p class="offer-note offer-only">Founding client introductory pricing · '
-                '<a href="/offers/{id}/">शर्तें</a></p>').format(id=OFFER["id"])
-    return ('<p class="offer-note offer-only"><strong>{left}/{total}</strong> founding slots बाकी · समय बाकी: <span data-countdown>{deadline} तक</span> · '
-            '<a href="/offers/{id}/">शर्तें</a></p>').format(left=OFFER_STATE["left"], total=OFFER["slots_total"], deadline=e(offer_deadline_hi()), id=OFFER["id"])
+    slots = "<strong>{}/{}</strong> founding slots बाकी · ".format(OFFER_STATE["left"], OFFER["slots_total"]) if OFFER_STATE and offer_urgency_ok() else ""
+    return '<p class="offer-note offer-only">{}Founding 10 introductory offer · <a href="/offers/{}/">शर्तें</a></p>'.format(slots, OFFER["id"])
 
 
 def offer_banner(route):
     if not OFFER_STATE or route in NO_BANNER:
         return ""
+    fs = PRODUCTS["foundingStarter"]
+    slots = ("<p class=\"offer-meta\"><strong>{}/{}</strong> founding slots बाकी</p>".format(OFFER_STATE["left"], OFFER["slots_total"])
+             if offer_urgency_ok() else '<p class="offer-meta"><a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"]))
     return ('<aside class="offer-banner offer-only" aria-label="{name} offer"><div class="container offer-inner">'
-            '<p>{badge}<strong>{name}:</strong> पहले {total} ग्राहकों के लिए starter packages पर introductory pricing</p>'
+            '<p><strong>{name} introductory offer:</strong> Google + WhatsApp Starter ₹{price} — पहले {total} founding clients के लिए</p>'
             '{meta}'
             '<a class="btn btn-sm offer-btn" href="/offers/{id}/" data-track="offer_cta_click" data-label="banner">Offer देखें →</a></div></aside>').format(
-        name=e(OFFER["name"]), total=OFFER["slots_total"], id=OFFER["id"],
-        badge=('<span class="badge badge-offer">{}% OFF</span> '.format(OFFER["discount_pct"]) if offer_show_pct() else ""),
-        meta=('<p class="offer-meta"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span data-countdown>{} तक</span></p>'.format(
-            OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
-            else '<p class="offer-meta"><a href="/offers/{}/">पूरी शर्तें</a></p>'.format(OFFER["id"])))
+        name=e(OFFER["name"]), total=OFFER["slots_total"], id=OFFER["id"], price=inr(fs["price"]), meta=slots)
 
 
 def e(value):
     return html.escape("" if value is None else str(value), quote=True)
+
+
+# ---------------------------------------------------------------- v1-2026 pricing: checkout + CTAs
+def product_price(key):
+    p = PRODUCTS[key]
+    return p.get("price") if p.get("price") is not None else p.get("from_price")
+
+
+def bundle_saving(key):
+    """Individual total − bundle price, only for a real bundle of individually priced products. None otherwise."""
+    parts = PRODUCTS[key].get("bundle_of") or []
+    if not parts:
+        return None
+    total = sum(product_price(k) for k in parts)
+    saving = total - product_price(key)
+    return (total, saving) if saving > 0 else None
+
+
+def pay_cta(key, cls="btn btn-primary", label=None, where="", url_key=None, amount=None):
+    """Outbound Razorpay Payment Link: opens in a new tab, names the product and the exact amount, and fires its
+    funnel event + payment_outbound_clicked (site.js) before leaving. Only owner-approved rzp.io links are allowed."""
+    p = PRODUCTS[key]
+    url = p.get(url_key) if url_key else (p.get("payment_url") or p.get("full_payment_url"))
+    amt = amount or p["price"]
+    if not url or not RZP_LINK.match(url):
+        return ""
+    name = SERVICES[p["service_id"]]["name"] if p.get("service_id") else p.get("name", key)
+    return ('<a class="{cls}" href="{url}" target="_blank" rel="noopener noreferrer" data-pay="{key}" data-amount="{amt}" '
+            'data-track="{ev}" data-label="{where}" aria-label="{aria}">{label}</a>').format(
+        cls=cls, url=e(url), key=key, amt=amt, ev=p["events"]["click"], where=e(where or key),
+        aria=e("{} — ₹{} Razorpay पर pay करें (नई tab में खुलेगा)".format(name, inr(amt))),
+        label=e(label or "₹{} pay करें".format(inr(amt))))
+
+
+def starter_ctas(key, where):
+    """₹2,500 advance (fixed link) + ₹4,999 in full (fixed link), with the balance stated in the same breath."""
+    p = PRODUCTS[key]
+    bal = p["price"] - p["advance_amount"]
+    return (pay_cta(key, url_key="advance_payment_url", amount=p["advance_amount"], where=where + "-advance",
+                    label="₹{} project advance से शुरू करें".format(inr(p["advance_amount"])))
+            + '<p class="small muted pay-note">बाकी ₹{} final handover से पहले · कुल ₹{}</p>'.format(inr(bal), inr(p["price"]))
+            + pay_cta(key, cls="btn btn-outline", where=where + "-full", label="₹{} एक साथ pay करें".format(inr(p["price"])))
+            + PAY_NOTE)
+
+
+PAY_NOTE = '<p class="small muted pay-note">Razorpay secure checkout · नई tab में खुलेगा · UPI, card, netbanking</p>'
+
+
+def quote_cta(svc_id, cls="btn btn-primary", label="लिखित Quote लें", where="", event="growth_quote_requested"):
+    return '<a class="{}" href="/contact/?service={}" data-track="{}" data-label="{}">{}</a>'.format(cls, svc_id, event, e(where or svc_id), label)
+
+
+def saathi_cta(cls="btn btn-primary", where=""):
+    msg = "Namaste Moodily, mujhe Digital Saathi (₹9,999/month) ke baare mein baat karni hai. Business: "
+    return '<a class="{}" href="https://wa.me/{}?text={}" target="_blank" rel="noopener" data-track="digital_saathi_contact_clicked" data-label="{}">Digital Saathi पर बात करें</a>'.format(
+        cls, e(SITE["whatsapp"]["number"]), quote(msg), e(where or "saathi"))
+
+
+def view_attr(key):
+    return ' data-product-view="{}"'.format(PRODUCTS[key]["events"]["view"])
 
 
 def inr(n):
@@ -274,6 +325,8 @@ def price_label(svc):
 
 
 def client_provides(svc):
+    if svc.get("client_responsibilities"):
+        return "; ".join(svc["client_responsibilities"])
     return svc.get("client_provides") or CLIENT_PROVIDES.get(svc["category"], "")
 
 
@@ -330,13 +383,34 @@ def service_wa(svc, label, cls, track):
     return wa_button(label, ROLE_LABELS.get(svc["category"], "[role]"), name, cls, track)
 
 
+def primary_service_cta(svc):
+    """One primary action per service: pay (fixed-price product), talk (Digital Saathi), written quote (Growth) or ''."""
+    key = PAY_BY_SERVICE.get(svc["id"])
+    if not key:
+        return ""
+    p = PRODUCTS[key]
+    if p["cta"] == "pay" and p.get("advance_payment_url"):
+        return starter_ctas(key, "service:" + svc["id"])
+    if p["cta"] == "pay":
+        return pay_cta(key, where="service:" + svc["id"], label="₹{} pay करें — {}".format(inr(p["price"]), svc["name"])) + PAY_NOTE
+    if p["cta"] == "contact":
+        return saathi_cta(where="service:" + svc["id"])
+    if key == "localBusinessGrowth":
+        return quote_cta(svc["id"], where="service:" + svc["id"])
+    return ""
+
+
 def service_ctas(svc):
     lab = L[svc["lang"]]
     offer = in_offer(svc)
-    out = [offer_pay_button(svc) if offer else "",
-           '<a class="btn btn-primary{}" href="/contact/?service={}" data-track="pricing_click" data-label="{}">{}</a>'.format(
-               " regular-only" if offer else "", svc["id"], svc["id"],
-               "मुफ़्त Audit माँगें" if svc.get("price_unit") == "free" else lab["quote"]),
+    primary = primary_service_cta(svc)
+    is_audit = svc.get("price_unit") == "free"
+    out = [offer_pay_button(svc) if offer else "", primary,
+           '' if primary and PAY_BY_SERVICE.get(svc["id"]) in ("localBusinessGrowth",) else
+           '<a class="btn {}{}" href="/contact/?service={}" data-track="{}" data-label="{}">{}</a>'.format(
+               "btn-outline" if primary else "btn-primary", " regular-only" if offer else "", svc["id"],
+               "free_audit_started" if is_audit else "pricing_click", svc["id"],
+               "मुफ़्त Audit माँगें" if is_audit else ("सवाल पूछें / Requirement भेजें" if primary else lab["quote"])),
            service_wa(svc, lab["wa"], "btn btn-wa", svc["id"]),
            '<a class="btn btn-outline btn-sm" href="#samples" data-track="portfolio_open" data-label="{}">{}</a>'.format(svc["id"], lab["sample_btn"])]
     if svc.get("price_unit") not in ESTIMATOR["excluded_price_units"]:
@@ -366,6 +440,19 @@ def third_party_html(svc):
         L[svc["lang"]]["third"], "".join("<li>{}</li>".format(e(TPC_LABELS[c])) for c in codes))
 
 
+def service_terms_html(svc):
+    """Payment structure + client responsibilities + account ownership, for every fixed-price or quote product."""
+    rows = []
+    if svc.get("payment_structure"):
+        rows.append("<div><dt>Payment</dt><dd>{}</dd></div>".format(e(svc["payment_structure"])))
+    if svc.get("client_responsibilities"):
+        rows.append("<div><dt>आपकी ज़िम्मेदारी</dt><dd><ul class=\"ticks small\">{}</ul></dd></div>".format(
+            "".join("<li>{}</li>".format(e(x)) for x in svc["client_responsibilities"])))
+    if svc.get("account_ownership"):
+        rows.append("<div><dt>Account ownership</dt><dd>{}</dd></div>".format(e(svc["account_ownership"])))
+    return '<dl class="facts compact svc-terms">{}</dl>'.format("".join(rows)) if rows else ""
+
+
 def service_detail(svc, ctx):
     lab = L[svc["lang"]]
     ctx["services"].append(svc)
@@ -389,7 +476,7 @@ def service_detail(svc, ctx):
         '<div class="facts-full"><dt>{l_format}</dt><dd>{delivery}</dd></div>{provides}</dl>'
         '<h4>{l_get}</h4><ul class="ticks">{deliver}</ul>'
         '<details class="not-included"><summary>{l_not}</summary><ul class="crosses">{excluded}</ul></details>'
-        '{third}{compliance}{case}{offer_meta}<div class="card-actions">{ctas}</div></article>'
+        '{third}{compliance}{terms}{case}{offer_meta}<div class="card-actions">{ctas}</div></article>'
     ).format(
         feat=" featured" if svc.get("featured") else "", id=svc["id"], attrs=card_attrs(svc),
         tier="{} · ".format(tier) if tier else "", div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]), tag=e(svc["tagline"]),
@@ -398,7 +485,7 @@ def service_detail(svc, ctx):
         sup=e(svc["support"]), l_format=lab["format"], delivery=delivery_html(svc), l_get=lab["get"], deliver=deliver,
         l_not=lab["not"], excluded=excluded, third=third_party_html(svc), compliance=compliance, case=case_html,
         provides='<div class="facts-full"><dt>आपको क्या देना होगा</dt><dd>{}</dd></div>'.format(e(client_provides(svc))) if client_provides(svc) else "",
-        offer_meta=offer_meta_html() if in_offer(svc) else "", ctas=service_ctas(svc))
+        offer_meta=offer_meta_html() if in_offer(svc) else "", ctas=service_ctas(svc), terms=service_terms_html(svc))
 
 
 def c_services(args, ctx):
@@ -658,54 +745,222 @@ FORM_TEMPLATE = """
 """
 
 
+def founding_scope_html(compact=False):
+    parts = [SERVICES[PRODUCTS[k]["service_id"]] for k in PRODUCTS["foundingStarter"]["bundle_of"]]
+    if compact:
+        return "<ul class=\"ticks small\">{}</ul>".format("".join(
+            '<li><strong>{}</strong> — {}</li>'.format(e(x["name"]), e(x["tagline"])) for x in parts))
+    out = []
+    for x in parts:
+        out.append('<h3>{}</h3><ul class="ticks">{}</ul>'.format(e(x["name"]), "".join("<li>{}</li>".format(e(d)) for d in x["deliverables"])))
+    return "".join(out)
+
+
 def c_offer_details(args, ctx):
     if not OFFER_STATE:
-        if args.get("ended") == "hide":
-            return ""
-        return ('<div class="container"><p class="notice">{} offer अभी उपलब्ध नहीं है — समय समाप्त हो गया या सभी slots भर गए। '
-                'Regular starting prices <a href="/services/">यहाँ देखें</a>।</p></div>').format(e(OFFER.get("name", "यह")))
-    cards = []
-    for sid in OFFER["services"]:
-        s = SERVICES[sid]
-        if s not in ctx["services"]:
-            ctx["services"].append(s)
-        items = "".join("<li>{}</li>".format(e(d)) for d in s["deliverables"][:3])
-        cards.append('<article class="card offer-card featured"><p class="eyebrow">{div}</p><h3>{name}</h3><p class="muted small">{for_}</p>{price}'
-                     '<ul class="ticks small">{items}</ul><div class="card-actions">{btn}<a class="btn btn-outline" href="{page}#{id}">पूरी जानकारी</a></div></article>'.format(
-                         div=e(DIVISIONS[s["division"]]), name=e(s["name"]), for_=e(s["for"]), price=price_html(s), items=items,
-                         btn=offer_pay_button(s), page=s["page"], id=s["id"]))
-    return ('<section class="offer-section offer-only" id="offer-{id}" aria-labelledby="offer-h"><div class="container">'
-            '<div class="section-head"><p class="eyebrow">{name} · सिर्फ़ पहले {total} ग्राहक</p>'
-            '<h2 id="offer-h">{heading}</h2>'
-            '{urgency}'
-            '<p class="muted small">Scope वही जो regular package में है — सिर्फ़ दाम कम। Slot पूरा payment मिलने पर पक्का होता है। <a href="/offers/{id}/">पूरी शर्तें</a></p></div>'
-            '<div class="grid grid-3">{cards}</div></div></section>').format(
-        id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], n=len(OFFER["services"]),
-        heading=('{} starter packages पर {}% छूट'.format(len(OFFER["services"]), OFFER["discount_pct"]) if offer_show_pct()
-                 else 'Founding client pricing — {} starter packages'.format(len(OFFER["services"]))),
-        cards="".join(cards),
-        urgency=('<p class="lead"><strong>{}/{}</strong> slots बाकी · समय बाकी: <span class="countdown" data-countdown>{} तक</span></p>'.format(
-            OFFER_STATE["left"], OFFER["slots_total"], e(offer_deadline_hi())) if offer_urgency_ok()
-            else '<p class="lead">Founding client introductory pricing — पहले {} ग्राहकों के लिए।</p>'.format(OFFER["slots_total"])))
+        return ('<div class="container"><p class="notice">{} offer अभी बंद है — सभी founding slots भर गए हैं या offer रोक दिया गया है। '
+                'Regular prices <a href="/services/">यहाँ देखें</a>।</p></div>').format(e(OFFER.get("name", "यह")))
+    fs = PRODUCTS["foundingStarter"]
+    parts = [SERVICES[PRODUCTS[k]["service_id"]] for k in fs["bundle_of"]]
+    saving = bundle_saving("foundingStarter")
+    excluded = []
+    for x in parts:
+        excluded += [n for n in x["not_included"] if n not in excluded]
+    resp = []
+    for x in parts:
+        resp += [n for n in x.get("client_responsibilities", []) if n not in resp]
+    slots = ('<p class="lead"><strong>{}/{}</strong> founding slots बाकी</p>'.format(OFFER_STATE["left"], OFFER["slots_total"])
+             if offer_urgency_ok() else "")
+    return (
+        '<section class="offer-section offer-only" id="offer-{id}" aria-labelledby="offer-h"{view}><div class="container narrow">'
+        '<div class="card offer-card featured"><p class="eyebrow">{name} introductory offer · पहले {total} founding clients</p>'
+        '<h2 id="offer-h">{title}</h2>'
+        '<p class="price"><span class="price-mode">Founding price</span> <strong>₹{price}</strong> <span class="price-from">एक बार</span></p>'
+        '{saving}{slots}'
+        '<p>Scope fixed है: नीचे लिखे दोनों packages का पूरा काम — इससे कम नहीं, इससे ज़्यादा नहीं।</p>'
+        '{scope}'
+        '<details class="not-included"><summary>क्या शामिल नहीं है</summary><ul class="crosses">{excluded}</ul></details>'
+        '<dl class="facts compact svc-terms"><div><dt>Delivery</dt><dd>पूरी जानकारी और access मिलने के बाद 3–5 working days</dd></div>'
+        '<div><dt>Revisions</dt><dd>हर item पर 1 revision round</dd></div>'
+        '<div><dt>Payment</dt><dd>₹{price} एक बार — Razorpay से full payment</dd></div>'
+        '<div><dt>आपकी ज़िम्मेदारी</dt><dd><ul class="ticks small">{resp}</ul></dd></div>'
+        '<div><dt>Account ownership</dt><dd>{own}</dd></div></dl>'
+        '<div class="card-actions">{cta}{wa}</div>{note}</div></div></section>'
+    ).format(id=OFFER["id"], name=e(OFFER["name"]), total=OFFER["slots_total"], title=e(fs["name"].split("— ")[-1]),
+             price=inr(fs["price"]), view=view_attr("foundingStarter"), slots=slots,
+             saving=('<p class="saving">अलग-अलग लेने पर ₹{} ({}) — founding price पर आप <strong>₹{}</strong> बचाते हैं।</p>'.format(
+                 inr(saving[0]), " + ".join("{} ₹{}".format(e(x["name"]), inr(x["price_from"])) for x in parts), inr(saving[1])) if saving else ""),
+             scope=founding_scope_html(), excluded="".join("<li>{}</li>".format(e(n)) for n in excluded),
+             resp="".join("<li>{}</li>".format(e(n)) for n in resp), own=e(parts[0].get("account_ownership", "")),
+             cta=pay_cta("foundingStarter", cls="btn btn-primary btn-lg", where="offer-page", label="Founding Offer शुरू करें — ₹{} pay करें".format(inr(fs["price"]))),
+             wa=wa_button("पहले सवाल पूछें", "Business owner", "Founding 10 — Google + WhatsApp Starter", "btn btn-wa", "offer-page"),
+             note=PAY_NOTE)
 
 
 def c_offer_terms(args, ctx):
-    names = ", ".join(e(SERVICES[s]["name"]) for s in OFFER.get("services", []))
-    deadline = e(offer_deadline_hi()) if OFFER_STATE else e(OFFER.get("ends_at", ""))
-    total, pct = OFFER.get("slots_total"), OFFER.get("discount_pct")
+    fs = PRODUCTS["foundingStarter"]
+    total = OFFER["slots_total"]
     items = [
-        ("{} offer: {} पर regular starting price से {}% छूट।".format(e(OFFER.get("name")), names, pct) if offer_show_pct()
-         else "{}: {} पर founding client introductory pricing — regular starting price से कम।".format(e(OFFER.get("name")), names)),
-        "कुल {} founding slots — इन packages को मिलाकर। Offer {} तक या सभी slots भरने तक, जो पहले हो।".format(total, deadline),
-        "Slot तभी पक्का होता है जब founding price का पूरा payment मिल जाए। सिर्फ़ enquiry या WhatsApp message से slot reserve नहीं होता।",
+        "{}: ₹{} एक बार का payment — Google + WhatsApp Starter का fixed scope, यानी WhatsApp Business Basic और Google Business Quick Fix दोनों का पूरा काम।".format(e(OFFER["name"]), inr(fs["price"])),
+        "यह introductory offer पहले {} founding clients के लिए है। इसकी कोई deadline या countdown नहीं है; {} founding clients पूरे होने पर या Moodily के offer रोकने पर यह site से हट जाता है।".format(total, total),
+        "Slot तभी पक्का होता है जब ₹{} का payment Razorpay पर पूरा हो जाए। सिर्फ़ enquiry या WhatsApp message से slot reserve नहीं होता।".format(inr(fs["price"])),
         "हर business के लिए एक founding slot।",
-        "Scope, deliverables, timeline और revisions वही हैं जो service page पर regular package में लिखे हैं। Extra काम regular rates पर।",
-        "यह offer किसी दूसरे discount के साथ नहीं जुड़ता।",
+        "Scope ऊपर लिखे deliverables तक सीमित है। Extra काम regular prices पर, पहले लिखित quote के साथ।",
+        "यह offer किसी दूसरे discount या credit के साथ नहीं जुड़ता।",
         "अगर एक साथ payments आने से {} से ज़्यादा bookings हो जाएँ, तो अतिरिक्त bookings का पूरा पैसा 7 working days में लौटाया जाएगा, या आप regular price पर जारी रख सकते हैं।".format(total),
-        "काम के बाद हम feedback माँगेंगे। आपका project case study में सिर्फ़ आपकी लिखित अनुमति से दिखेगा — यह offer की शर्त नहीं है। Discount के बदले Google review नहीं माँगा जाता।",
-        "Slots का counter हर confirmed booking के बाद update होता है। <a href=\"/refund/\">Refund policy</a> लागू है।",
+        "काम के बाद हम feedback माँगेंगे। आपका project case study में सिर्फ़ आपकी लिखित अनुमति से दिखेगा — यह offer की शर्त नहीं है। Offer के बदले Google review नहीं माँगा जाता।",
+        "Site पर बाकी slots की संख्या तभी दिखती है जब वह confirmed हो। <a href=\"/refund/\">Refund policy</a> लागू है।",
     ]
     return '<ol class="terms-list">{}</ol>'.format("".join("<li>{}</li>".format(i) for i in items))
+
+
+def c_pricing_terms(args, ctx):
+    bp, ds = PRODUCTS["digitalBlueprint"], PRODUCTS["digitalStarter"]
+    c = bp["credit"]
+    items = [
+        "Fixed-price packages (Digital Action Blueprint ₹{}, WhatsApp Business Basic ₹{}, Google Business Quick Fix ₹{}, Digital Starter ₹{}) का scope, delivery समय और revisions उनके service page पर लिखे हैं। Payment Razorpay Payment Link से होता है; Moodily card/UPI details नहीं देखता।".format(
+            inr(bp["price"]), inr(PRODUCTS["whatsappBasic"]["price"]), inr(PRODUCTS["googleQuickFix"]["price"]), inr(ds["price"])),
+        "<strong>Blueprint credit:</strong> Digital Action Blueprint (₹{}) के {} दिन के अंदर अगर आप ₹{} या उससे ज़्यादा का Moodily implementation लेते हैं, तो ₹{} उस project के total में adjust किए जाएँगे। यह credit Moodily manually लगाता है (Razorpay पर automatic discount नहीं); एक Blueprint पर एक बार, उसी business के लिए, और Founding offer के साथ नहीं जुड़ता।".format(
+            inr(bp["price"]), c["within_days"], inr(c["min_project"]), inr(c["amount"])),
+        "Digital Starter (₹{total}) के दो payment विकल्प हैं: ₹{adv} project advance (अलग fixed link) और बाकी ₹{bal} final handover से पहले — या ₹{total} एक साथ। Balance कभी अपने-आप नहीं कटता; handover से पहले Moodily अलग payment link भेजता है।".format(
+            total=inr(ds["price"]), adv=inr(ds["advance_amount"]), bal=inr(ds["price"] - ds["advance_amount"])),
+        "Quote वाली services (Local Business Growth, Website, Catalogue, AI Workflows): लिखित scope approve होने के बाद 50% project advance और final handover से पहले बाकी 50%।",
+        "Digital Saathi (₹9,999/month) एक recurring service है। यह scope और onboarding call confirm होने के बाद ही शुरू होती है — site से कोई automatic subscription नहीं बनता, और recurring billing हमेशा पहले लिखित में बताई जाती है।",
+        "आपके business accounts (Google Business Profile, WhatsApp, domain, social) आपके नाम पर रहते हैं। Moodily delegated/manager access से काम करता है और ownership नहीं लेता।",
+    ]
+    return '<ol class="terms-list">{}</ol>'.format("".join("<li>{}</li>".format(i) for i in items))
+
+
+# ------------------------------------------------- v1-2026 revenue funnel components (homepage + services hub)
+def _svc_of(key):
+    return SERVICES[PRODUCTS[key]["service_id"]]
+
+
+def _offer_card(key, body, ctas, eyebrow="", featured=False, badge=""):
+    return ('<article class="card pkg-card{feat}"{view}>{badge}<p class="eyebrow">{eyebrow}</p>{body}'
+            '<div class="card-actions">{ctas}</div></article>').format(
+        feat=" featured" if featured else "", view=view_attr(key), badge=badge, eyebrow=eyebrow, body=body, ctas=ctas)
+
+
+def _bullets(items, n=5):
+    return '<ul class="ticks small">{}</ul>'.format("".join("<li>{}</li>".format(e(x)) for x in items[:n]))
+
+
+def c_journey(args, ctx):
+    steps = [("Business बताइए", "WhatsApp या छोटे form पर — क्या करते हैं, कहाँ हैं।"),
+             ("Free Digital Audit", "हम Google, WhatsApp, website और social देखते हैं — मुफ़्त।"),
+             ("Priority gaps देखें", "सबसे ज़रूरी 3 कमियाँ, साफ़ भाषा में।"),
+             ("सही solution चुनें", "Fixed-price package या लिखित quote — कोई दबाव नहीं।"),
+             ("Moodily implement करेगा", "तय समय में, आपके accounts में, आपकी approval से।"),
+             ("Improvement track करें", "Google जो data देता है — calls, directions, clicks — उससे फ़र्क देखें।")]
+    return '<ol class="journey">{}</ol>'.format("".join(
+        '<li><span class="journey-n" aria-hidden="true">{}</span><strong>{}</strong><span class="small muted">{}</span></li>'.format(i, e(a), e(b))
+        for i, (a, b) in enumerate(steps, 1)))
+
+
+def c_primary_offers(args, ctx):
+    cards = []
+    if OFFER_STATE:
+        fs = PRODUCTS["foundingStarter"]
+        sav = bundle_saving("foundingStarter")
+        body = ('<h3>Google + WhatsApp Starter</h3>'
+                '<p class="price"><span class="price-mode">Founding price</span> <strong>₹{price}</strong> <span class="price-from">एक बार</span></p>'
+                '{saving}<p class="small">Fixed scope — इन दोनों का पूरा काम:</p>{scope}'
+                '<p class="small muted">Temporary introductory offer · पहले {total} founding clients · <a href="/offers/{id}/">scope और शर्तें</a></p>').format(
+            price=inr(fs["price"]), total=OFFER["slots_total"], id=OFFER["id"], scope=founding_scope_html(compact=True),
+            saving='<p class="saving">अलग-अलग ₹{} · आप ₹{} बचाते हैं</p>'.format(inr(sav[0]), inr(sav[1])) if sav else "")
+        cards.append(_offer_card("foundingStarter", body,
+                                 pay_cta("foundingStarter", where="home-primary", label="Founding Offer शुरू करें — ₹{}".format(inr(fs["price"]))) + PAY_NOTE,
+                                 eyebrow="Founding 10 introductory offer", featured=True))
+    ds, dsp = _svc_of("digitalStarter"), PRODUCTS["digitalStarter"]
+    if dsp.get("advance_payment_url"):
+        ds_cta = starter_ctas("digitalStarter", "home-primary")
+    else:
+        ds_cta = (pay_cta("digitalStarter", where="home-primary", label="Digital Starter शुरू करें — ₹{} pay करें".format(inr(dsp["price"]))) + PAY_NOTE
+                  + '<p class="small muted">₹{} total project value. Advance-payment option के लिए पहले <a href="https://wa.me/{}?text={}" target="_blank" rel="noopener" data-track="whatsapp_contact_clicked" data-label="starter-advance">Moodily से बात करें</a>।</p>'.format(
+                      inr(dsp["price"]), e(SITE["whatsapp"]["number"]), quote("Namaste Moodily, Digital Starter (₹4,999) ke advance-payment option ke baare mein baat karni hai.")))
+    cards.append(_offer_card("digitalStarter",
+        '<h3>{}</h3><p class="muted small">Local business की ज़रूरी digital नींव।</p>{}{}<p class="small muted">⏱ {} · {} · <a href="{}#{}">पूरा scope</a></p>'.format(
+            e(ds["name"]), price_html(ds), _bullets(ds["deliverables"]), e(ds["timeline"]), e(ds["revisions"]), ds["page"], ds["id"]),
+        ds_cta, eyebrow="Fixed price · सबसे पूरा starter"))
+    g = _svc_of("localBusinessGrowth")
+    cards.append(_offer_card("localBusinessGrowth",
+        '<h3>{}</h3><p class="muted small">{}</p>{}{}<p class="small muted">लिखित quote के बाद: 50% advance · final handover से पहले 50% · <a href="{}#{}">पूरा scope</a></p>'.format(
+            e(g["name"]), e(g["tagline"]), price_html(g), _bullets(g["deliverables"], 4), g["page"], g["id"]),
+        quote_cta(g["id"], where="home-primary"), eyebrow="Website + Google + WhatsApp · quote"))
+    return '<div class="grid grid-3 offer-grid">{}</div>'.format("".join(cards))
+
+
+def c_quick_offers(args, ctx):
+    cards = []
+    bp = PRODUCTS["digitalBlueprint"]; c = bp["credit"]
+    for key in ("digitalBlueprint", "whatsappBasic", "googleQuickFix"):
+        x, pr = _svc_of(key), PRODUCTS[key]
+        extra = ('<p class="small credit-note">₹{} का Blueprint {} दिन में ₹{}+ implementation लेने पर project में adjust — '
+                 '<a href="/terms/#pricing-terms">शर्तें</a></p>').format(inr(c["amount"]), c["within_days"], inr(c["min_project"])) if key == "digitalBlueprint" else ""
+        cards.append(_offer_card(key,
+            '<h3>{}</h3><p class="muted small">{}</p>{}{}{}<p class="small muted">⏱ {} · <a href="{}#{}">पूरा scope</a></p>'.format(
+                e(x["name"]), e(x["tagline"]), price_html(x), _bullets(x["deliverables"], 3), extra, e(x["timeline"]), x["page"], x["id"]),
+            pay_cta(key, cls="btn btn-primary", where="home-single", label="₹{} pay करें".format(inr(pr["price"]))) + PAY_NOTE))
+    return '<div class="grid grid-3 offer-grid">{}</div>'.format("".join(cards))
+
+
+def c_saathi_offer(args, ctx):
+    m = _svc_of("digitalSaathi")
+    return ('<div class="card saathi-card"{view}><div class="saathi-grid"><div><p class="eyebrow">Ongoing digital support</p><h3>{name}</h3>'
+            '<p>{tag}</p><p class="price"><strong>₹{price}</strong> <span class="price-unit">/month</span></p>'
+            '<p class="small"><strong>Monthly recurring service</strong> — scope और onboarding confirm होने के बाद ही शुरू। कोई automatic subscription नहीं; billing पहले लिखित में।</p>'
+            '<div class="card-actions">{cta}<a class="btn btn-outline" href="{page}#{id}">पूरा scope देखें</a></div></div>'
+            '<div><p class="small"><strong>{for_}</strong></p>{items}</div></div></div>').format(
+        view=view_attr("digitalSaathi"), name=e(m["name"]), tag=e(m["tagline"]), price=inr(m["price_from"]), for_=e(m["for"]),
+        items=_bullets(m["deliverables"], 6), cta=saathi_cta(where="home-saathi"), page=m["page"], id=m["id"])
+
+
+def c_start_here(args, ctx):
+    """Services hub: the priority revenue path first, everything else below (progressive disclosure)."""
+    rows = [("Free Digital Audit", "मुफ़्त", "/contact/?service=free-digital-audit", "free_audit_started")]
+    if OFFER_STATE:
+        rows.append(("Founding 10 — Google + WhatsApp Starter", "₹" + inr(PRODUCTS["foundingStarter"]["price"]), "/offers/{}/".format(OFFER["id"]), "offer_cta_click"))
+    for key in ("digitalStarter", "googleQuickFix", "whatsappBasic", "digitalBlueprint", "localBusinessGrowth", "digitalSaathi"):
+        x = _svc_of(key)
+        rows.append((x["name"], price_label(x), "{}#{}".format(x["page"], x["id"]), "service_card_click"))
+    return '<ol class="start-here">{}</ol>'.format("".join(
+        '<li><a href="{}" data-track="{}" data-label="start-here"><span>{}</span><strong>{}</strong></a></li>'.format(h, ev, e(n), e(pr))
+        for n, pr, h, ev in rows))
+
+
+def _validate_pricing():
+    for key, p in PRODUCTS.items():
+        for field in ("payment_url", "full_payment_url", "advance_payment_url"):
+            if p.get(field) and not RZP_LINK.match(p[field]):
+                raise SystemExit("pricing.json {}.{} is not a Razorpay Payment Link (https://rzp.io/rzp/...)".format(key, field))
+        links = [p.get(f) for f in ("payment_url", "full_payment_url", "advance_payment_url") if p.get(f)]
+        if (p.get("quote_required") or p.get("onboarding_required")) and links:
+            raise SystemExit("pricing.json {}: quote/onboarding products must not have a checkout link".format(key))
+        if p["cta"] == "pay" and not links:
+            raise SystemExit("pricing.json {}: cta 'pay' needs a payment link".format(key))
+        sid = p.get("service_id")
+        if sid:
+            svc = SERVICES.get(sid)
+            if not svc:
+                raise SystemExit("pricing.json {}: unknown service_id {}".format(key, sid))
+            if svc["price_from"] != product_price(key):
+                raise SystemExit("pricing.json {} = ₹{} but services.json {} = ₹{} — keep one price".format(key, product_price(key), sid, svc["price_from"]))
+            if p["cta"] == "pay" and svc["price_mode"] != "exact":
+                raise SystemExit("pricing.json {}: a checkout product must be price_mode 'exact' in services.json".format(key))
+    for k in PRODUCTS["foundingStarter"].get("bundle_of", []):
+        if PRODUCTS[k]["cta"] != "pay":
+            raise SystemExit("founding bundle part {} must be an individually priced product".format(k))
+    if int(FOUNDING["slots_used"]) > int(FOUNDING["slot_limit"]):
+        raise SystemExit("pricing.json founding.slots_used cannot exceed slot_limit")
+    for sid in PRICING.get("quote_required", []):
+        if sid not in SERVICES or sid in PAY_BY_SERVICE and PRODUCTS[PAY_BY_SERVICE[sid]]["cta"] == "pay":
+            raise SystemExit("pricing.json quote_required: {} is unknown or has a checkout".format(sid))
+    if "razorpay_plan_id" in json.dumps({k: v for k, v in PRODUCTS.items() if v["cta"] == "pay"}):
+        raise SystemExit("a Razorpay Plan ID is not a checkout")
+
+
+_validate_pricing()
 
 
 def c_founder(args, ctx):
@@ -2019,7 +2274,7 @@ COMPONENTS = {
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
     "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
-    "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "founder": c_founder,
+    "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "journey": c_journey, "primary-offers": c_primary_offers, "quick-offers": c_quick_offers, "saathi-offer": c_saathi_offer, "start-here": c_start_here, "pricing-terms": c_pricing_terms, "founder": c_founder,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
     "catalogue-group": c_catalogue_group, "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
@@ -2045,7 +2300,9 @@ def render_prices(text):
         if not s or not s.get("price_from"):
             raise SystemExit("Unknown or unpriced service in {{price:%s}}" % m.group(1))
         return "₹" + inr(s["price_from"])
-    return PRICE_RE.sub(sub, text)
+    text = PRICE_RE.sub(sub, text)
+    # {{pricing:<product-key>}} -> price from src/data/pricing.json (products that are not a catalogue service, e.g. foundingStarter)
+    return re.sub(r"\{\{\s*pricing:(\w+)\s*\}\}", lambda m: "₹" + inr(product_price(m.group(1))), text)
 
 
 def render_tokens(body, ctx):
@@ -2201,7 +2458,7 @@ def header(route, meta):
     </details>
   </nav>
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
-    <a class="btn btn-warm btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav-requirement">Requirement बताएं</a></div>
+    <a class="btn btn-warm btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_started" data-label="nav">Free Audit लें</a></div>
 </div></header>""".format(links=links, svc=svc, top=top, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"), tools=cur("/tools/"),
                menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
 
@@ -2236,7 +2493,7 @@ def footer(route=""):
 
 STICKY_CTA = """
 <a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
-<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Requirement बताएं</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
+<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/?service=free-digital-audit" data-track="free_audit_started" data-label="mobile-bar">Free Audit लें</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
 
 
 def gtm_head():
@@ -2333,7 +2590,7 @@ def layout(meta, body, route, ctx):
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_IN" if lang == "en" else "hi_IN",
            og_img=og_img, gtm=gtm_head(), ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body(),
            header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(route), banner=offer_banner(route), byline=byline_html(meta),
-           offer_attr=' data-offer-ends="{}" data-offer-id="{}"'.format(OFFER["ends_at"], OFFER["id"]) if OFFER_STATE else "").replace(
+           offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
 
 

@@ -76,6 +76,16 @@ class Page(HTMLParser):
             self._buf += data
 
 
+PRICING = json.loads((ROOT / "src" / "data" / "pricing.json").read_text(encoding="utf-8"))
+APPROVED_LINKS = {}
+for _k, _p in PRICING["products"].items():
+    for _f, _amt in (("payment_url", _p.get("price")), ("full_payment_url", _p.get("price")), ("advance_payment_url", _p.get("advance_amount"))):
+        if _p.get(_f):
+            APPROVED_LINKS[_p[_f]] = (_k, {_amt})
+    if "razorpay_plan_id" in _p and any(_p.get(f) for f in ("payment_url", "full_payment_url")):
+        raise SystemExit("pricing.json: a plan id product must not have a checkout link")
+
+
 def fail(page, msg):
     FAIL.append("{}: {}".format(page, msg))
 
@@ -128,9 +138,19 @@ def check_prices(pages):
             pm = price_re.search(plain, end, min(len(plain), stop + 16))  # let a number that starts inside the window finish
             if pm and pm.start() < stop and int(pm.group(1).rstrip(",").replace(",", "")) not in allowed[name]:
                 fail(rel, "price mismatch: '{}' shown with ₹{} (allowed {})".format(name, pm.group(1), sorted(allowed[name])))
-        if (site.get("payments") or {}).get("mode") != "live":
-            if re.search(r'href="[^"]*(razorpay\.com|rzp\.io|razorpay\.me)', text):
-                fail(rel, "Razorpay link rendered while payments.mode is not 'live' (test links must never reach production)")
+        # Only owner-approved Payment Links from pricing.json may appear, each on its own product with its exact amount.
+        for m in re.finditer(r'href="([^"]*(?:razorpay\.com|rzp\.io|razorpay\.me)[^"]*)"', text):
+            if m.group(1) not in APPROVED_LINKS:
+                fail(rel, "unapproved Razorpay link: " + m.group(1))
+        for m in re.finditer(r'<a [^>]*data-pay="([^"]+)"[^>]*>', text):
+            tag, key = m.group(0), m.group(1)
+            href = (re.search(r'href="([^"]+)"', tag) or [0, ""])[1]
+            amt = int((re.search(r'data-amount="(\d+)"', tag) or [0, "0"])[1])
+            ok = APPROVED_LINKS.get(href)
+            if not ok or ok[0] != key or amt not in ok[1]:
+                fail(rel, "checkout button {} points to {} with ₹{} — does not match pricing.json".format(key, href, amt))
+            if 'target="_blank"' not in tag or "noopener" not in tag:
+                fail(rel, "checkout link {} must open in a new tab with rel=noopener".format(key))
             if "data-checkout=" in text:
                 fail(rel, "checkout button rendered while payments.mode is not 'live' (rebuild without MOODILY_SHOW_TEST_PAYMENTS)")
 
