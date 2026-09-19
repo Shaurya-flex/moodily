@@ -1,0 +1,63 @@
+{
+  "_readme": "CANONICAL Moodily pricing (v1-2026). build.py reads this file and FAILS if a price here disagrees with src/data/services.json, if a payment URL is not a rzp.io Razorpay Payment Link, or if a quote/onboarding product gets a checkout URL. Payment URLs are public Razorpay Payment Links approved by the owner — they carry no secrets. A Razorpay Plan ID is NOT a checkout URL and is never rendered as a button.",
+  "version": "v1-2026",
+  "products": {
+    "digitalAudit": {
+      "service_id": "free-digital-audit", "price": 0, "billing": "free",
+      "cta": "quote", "events": {"view": "free_audit_viewed", "click": "free_audit_started"}
+    },
+    "digitalBlueprint": {
+      "service_id": "digital-action-blueprint", "price": 499, "billing": "one-time",
+      "payment_url": "https://rzp.io/rzp/KzW5JJ4C", "reference": "MOOD-BLUEPRINT-499",
+      "credit": {"amount": 499, "min_project": 4999, "within_days": 14, "type": "operational"},
+      "cta": "pay", "events": {"view": "digital_blueprint_viewed", "click": "digital_blueprint_checkout_clicked"}
+    },
+    "whatsappBasic": {
+      "service_id": "whatsapp-business-setup", "price": 1499, "billing": "one-time",
+      "payment_url": "https://rzp.io/rzp/DncsbZ0", "reference": "MOOD-WA-1499",
+      "cta": "pay", "events": {"view": "whatsapp_basic_viewed", "click": "whatsapp_basic_checkout_clicked"}
+    },
+    "googleQuickFix": {
+      "service_id": "google-business-fix", "price": 1999, "billing": "one-time",
+      "payment_url": "https://rzp.io/rzp/32F3Jh5", "reference": "MOOD-GBP-1999",
+      "cta": "pay", "events": {"view": "google_quick_fix_viewed", "click": "google_quick_fix_checkout_clicked"}
+    },
+    "foundingStarter": {
+      "service_id": null, "name": "Founding 10 — Google + WhatsApp Starter", "price": 1499, "billing": "one-time",
+      "payment_url": "https://rzp.io/rzp/M9nG1WO", "reference": "MOOD-FOUNDING10-1499", "temporary": true,
+      "_scope_readme": "Founding scope = exactly the WhatsApp Business Basic scope + the Google Business Quick Fix scope. That is what makes the displayed saving (individual total − founding price) mathematically true. Change 'bundle_of' only together with the public scope copy.",
+      "bundle_of": ["whatsappBasic", "googleQuickFix"],
+      "cta": "pay", "events": {"view": "founding_offer_viewed", "click": "founding_offer_checkout_clicked"}
+    },
+    "digitalStarter": {
+      "service_id": "digital-business-starter", "price": 4999, "billing": "one-time",
+      "full_payment_url": "https://rzp.io/rzp/fm6B5Jn", "reference": "MOOD-STARTER-4999",
+      "advance_payment_url": "https://rzp.io/rzp/HSbE7we", "advance_reference": "MOOD-STARTER-ADV-2500",
+      "advance_amount": 2500, "balance_due": "before final handover",
+      "_links_readme": "Two separate FIXED-amount links, both with partial payment disabled (verified 2026-09-19): ₹2,500 advance (HSbE7we) and ₹4,999 full (fm6B5Jn). The balance ₹2,499 is collected by a separate link before final handover — never auto-charged.",
+      "cta": "pay", "events": {"view": "digital_starter_viewed", "click": "digital_starter_checkout_clicked"}
+    },
+    "localBusinessGrowth": {
+      "service_id": "business-growth-launch", "from_price": 12999, "billing": "one-time", "quote_required": true,
+      "payment_terms": "50% project advance after written scope approval · 50% before final handover",
+      "cta": "quote", "events": {"view": "growth_viewed", "click": "growth_quote_requested"}
+    },
+    "digitalSaathi": {
+      "service_id": "digital-saathi-monthly", "price": 9999, "billing": "monthly", "onboarding_required": true,
+      "razorpay_plan_id": "plan_TdqCrbIKGzjq2d", "reference": "MOOD-SAATHI-9999M",
+      "_plan_readme": "Subscription infrastructure only. A Plan ID is not a customer checkout. Subscriptions are created per customer after onboarding — never from a public button.",
+      "cta": "contact", "events": {"view": "digital_saathi_viewed", "click": "digital_saathi_contact_clicked"}
+    }
+  },
+  "quote_required": ["business-growth-launch", "business-website", "landing-page", "product-catalogue", "ai-automation-starter"],
+  "founding": {
+    "_readme": "FOUNDING_OFFER_ACTIVE / FOUNDING_SLOT_LIMIT / FOUNDING_SLOTS_CONFIRMED / FOUNDING_SLOTS_USED. This static site has no live inventory: the public page never shows a remaining count unless slots_confirmed is true (owner has reconciled Razorpay + offline founding clients). Track customers as F01…F10 in MOODILY-OS (private, outside this public repo). When F10 is served, set active=false.",
+    "id": "founding-10",
+    "name": "Founding 10",
+    "active": true,
+    "slot_limit": 10,
+    "slots_confirmed": false,
+    "slots_used": 0,
+    "product": "foundingStarter"
+  }
+}

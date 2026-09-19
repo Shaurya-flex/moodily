@@ -13,14 +13,14 @@
    "division": "digital-saathi",
    "category": "local-business",
    "page": "/services/local-business-digitalization/",
-   "name": "Google + WhatsApp Starter",
-   "tagline": "Google पर सही दिखें, WhatsApp पर enquiry लें — basics एक हफ़्ते में।",
+   "name": "Digital Starter",
+   "tagline": "Local business की ज़रूरी digital नींव — Google, WhatsApp, QR, visiting card और intro creatives, एक fixed price पर।",
    "price_from": 4999,
    "price_unit": "one-time",
    "for": "दुकान, सैलून, रेस्टोरेंट, repair shop, tuition या कोई भी local business जो अभी Google/WhatsApp पर ठीक से नहीं दिखता।",
    "problem": "ग्राहक Google Maps पर आपको ढूँढ नहीं पाते, या listing पर गलत समय/नंबर है, और WhatsApp पर पूछे गए सवालों का जवाब देने में बहुत समय जाता है।",
    "deliverables": [
-    "Google Business Profile setup या optimization — category, समय, फ़ोटो, services, description (verification आपके नंबर/पते से आप करेंगे, हम guide करेंगे)",
+    "Google Business Profile setup या optimization — category, समय, फ़ोटो, services, description (verification Google आपके नंबर/पते से करता है; हम guide करेंगे)",
     "WhatsApp Business profile — catalogue में 15 items तक, greeting/away message, 5 quick replies",
     "2 print-ready QR codes — WhatsApp chat QR और Google review QR",
     "1 digital visiting card (PNG + PDF)",
@@ -75,8 +75,17 @@
    "form_prefill_url": "",
    "whatsapp_message": "",
    "active": true,
-   "price_mode": "starts_at",
-   "last_price_review": "2026-09-14"
+   "price_mode": "exact",
+   "last_price_review": "2026-09-19",
+   "fixed_scope": true,
+   "payment_structure": "₹4,999 fixed project — दो विकल्प: ₹2,500 project advance अभी और बाकी ₹2,499 final handover से पहले, या ₹4,999 एक साथ। दोनों Razorpay से।",
+   "client_responsibilities": [
+    "Business का सही नाम, पता, समय, phone और services",
+    "Photos (दुकान/काम/products) और logo अगर है",
+    "Google verification के लिए आपका OTP/video — यह Google आपके नंबर/पते पर करता है",
+    "Delivery के बाद 3 working days में feedback"
+   ],
+   "account_ownership": "आपके business accounts आपके ही रहते हैं — Moodily delegated/manager access से काम करता है, ownership कभी नहीं लेता।"
   },
   {
    "id": "business-growth-launch",
@@ -92,7 +101,7 @@
    "for": "वे businesses जो सिर्फ़ दिखना नहीं, नियमित enquiries और reviews चाहते हैं — showroom, clinic front-desk, coaching, service providers।",
    "problem": "Listing है पर भरोसा नहीं बनता: website नहीं, reviews कम, catalogue बिखरा हुआ, और पता नहीं चलता कि enquiries कहाँ से आ रही हैं।",
    "deliverables": [
-    "Google + WhatsApp Starter की सभी चीज़ें",
+    "Digital Starter की सभी चीज़ें",
     "1 mobile-first website/landing page (5 sections तक) — Google Maps embed, WhatsApp/call buttons, enquiry form",
     "Service/product catalogue — 25 items तक (web page या PDF)",
     "Logo refresh — 1 concept (नया brand identity नहीं)",
@@ -156,7 +165,9 @@
    "whatsapp_message": "",
    "active": true,
    "price_mode": "starts_at",
-   "last_price_review": "2026-09-14"
+   "last_price_review": "2026-09-14",
+   "payment_structure": "लिखित quote approve होने के बाद 50% project advance · final handover से पहले बाकी 50%।",
+   "account_ownership": "आपके business accounts आपके ही रहते हैं — Moodily delegated/manager access से काम करता है, ownership कभी नहीं लेता।"
   },
   {
    "id": "digital-saathi-monthly",
@@ -227,8 +238,10 @@
    "form_prefill_url": "",
    "whatsapp_message": "",
    "active": true,
-   "price_mode": "starts_at",
-   "last_price_review": "2026-09-14"
+   "price_mode": "exact",
+   "last_price_review": "2026-09-19",
+   "payment_structure": "₹9,999/month recurring — scope और onboarding call confirm होने के बाद ही शुरू। कोई automatic signup नहीं; recurring billing पहले से लिखित में।",
+   "account_ownership": "आपके business accounts आपके ही रहते हैं — Moodily delegated/manager access से काम करता है, ownership कभी नहीं लेता।"
   },
   {
    "id": "medical-store-digital-desk",
@@ -1795,13 +1808,84 @@
    "last_price_review": "2026-09-14"
   },
   {
+   "lang": "hi",
+   "featured": false,
+   "sample_ids": [],
+   "case_study_ids": [],
+   "recommended_price": null,
+   "form_prefill_url": "",
+   "whatsapp_message": "",
+   "active": true,
+   "tier": "starter",
+   "id": "digital-action-blueprint",
+   "division": "digital-saathi",
+   "category": "local-business",
+   "page": "/services/local-business-digitalization/",
+   "name": "Digital Action Blueprint",
+   "tagline": "Free audit से आगे — आपके business के लिए लिखित, priority-wise digital action plan।",
+   "price_from": 499,
+   "price_unit": "one-time",
+   "price_mode": "exact",
+   "for": "वे businesses जो implementation पर पैसा लगाने से पहले साफ़ लिखित plan चाहते हैं — या ख़ुद करना चाहते हैं।",
+   "problem": "पता है कि online कुछ ठीक नहीं है, पर क्या पहले करें, कितना खर्च होगा और क्या ख़ुद हो सकता है — साफ़ नहीं।",
+   "deliverables": [
+    "Google Business Profile, WhatsApp, website/social और reviews की detailed जाँच",
+    "Priority-wise लिखित action plan (PDF) — हर item पर क्या, क्यों और कैसे",
+    "हर item पर label: ख़ुद कर सकते हैं / Moodily मदद करे",
+    "आपके business के लिए सही Moodily package की सिफ़ारिश — बिना दबाव",
+    "Plan पर एक follow-up सवाल-जवाब round, WhatsApp पर"
+   ],
+   "timeline": "Payment और business की जानकारी मिलने के 2–3 working days में",
+   "revisions": "लागू नहीं — 1 follow-up clarification round",
+   "support": "Plan पर सवाल WhatsApp पर, delivery के 7 दिन तक",
+   "not_included": [
+    "सुधार करके देना (implementation अलग package है)",
+    "Ranking, leads या sales की guarantee"
+   ],
+   "customer_types": [
+    "local-business",
+    "salon-gym",
+    "restaurant",
+    "coaching-library",
+    "medical-store",
+    "professional"
+   ],
+   "filters": [
+    "business"
+   ],
+   "keywords": [
+    "digital action plan",
+    "business audit report",
+    "digital blueprint",
+    "local business plan"
+   ],
+   "revision_rounds": 0,
+   "editable_source": "PDF आपके पास",
+   "third_party_costs": [
+    "whatsapp_api",
+    "printing"
+   ],
+   "formats": [
+    "pdf"
+   ],
+   "slug": "digital-action-blueprint",
+   "last_price_review": "2026-09-19",
+   "fixed_scope": true,
+   "payment_structure": "₹499 एक बार — Razorpay से full payment। 14 दिन में qualifying ₹4,999+ implementation लेने पर ₹499 project में adjust।",
+   "client_responsibilities": [
+    "Business का नाम, शहर और Google/WhatsApp/website links",
+    "आपका मुख्य goal (जैसे ज़्यादा calls, WhatsApp orders)"
+   ],
+   "account_ownership": ""
+  },
+  {
    "id": "google-business-fix",
    "lang": "hi",
    "division": "digital-saathi",
    "category": "google-business-profile",
    "page": "/services/google-business-profile/",
-   "name": "Google Business Profile Optimization",
-   "tagline": "पहले से बनी Google listing को सही, पूरा और भरोसेमंद बनाइए।",
+   "name": "Google Business Quick Fix",
+   "tagline": "पहले से बनी Google listing को एक fixed price में सही, पूरा और भरोसेमंद बनाइए।",
    "price_from": 1999,
    "price_unit": "one-time",
    "for": "जिनकी Google listing है पर अधूरी, गलत या पुरानी है — दुकान, clinic, coaching, salon, restaurant।",
@@ -1818,9 +1902,9 @@
    "revisions": "Basic — 1 revision round",
    "support": "Delivery के बाद 7 दिन",
    "not_included": [
-    "नई listing की verification में Google की देरी",
+    "नई listing बनाना या उसकी verification — verification का समय Google तय करता है",
     "Suspended listing वापस आने की guarantee",
-    "Ranking की guarantee",
+    "Ranking, calls या sales की guarantee",
     "Photoshoot"
    ],
    "case_study": null,
@@ -1859,8 +1943,16 @@
    "form_prefill_url": "",
    "whatsapp_message": "",
    "active": true,
-   "price_mode": "starts_at",
-   "last_price_review": "2026-09-14"
+   "price_mode": "exact",
+   "last_price_review": "2026-09-19",
+   "fixed_scope": true,
+   "payment_structure": "₹1,999 एक बार — Razorpay से full payment।",
+   "client_responsibilities": [
+    "Google Business Profile पर manager access (हम तरीका बताएँगे)",
+    "10 तक photos और सही समय/phone/services",
+    "Delivery के बाद 3 working days में feedback"
+   ],
+   "account_ownership": "आपके business accounts आपके ही रहते हैं — Moodily delegated/manager access से काम करता है, ownership कभी नहीं लेता।"
   },
   {
    "lang": "hi",
@@ -1876,7 +1968,7 @@
    "division": "digital-saathi",
    "category": "whatsapp-business",
    "page": "/services/whatsapp-business/",
-   "name": "WhatsApp Business Basic Setup",
+   "name": "WhatsApp Business Basic",
    "tagline": "WhatsApp पर profile, catalogue और quick replies — ग्राहक को तुरंत सही जवाब।",
    "price_from": 1499,
    "price_unit": "one-time",
@@ -1930,7 +2022,15 @@
     "png"
    ],
    "slug": "whatsapp-business-setup",
-   "last_price_review": "2026-09-14"
+   "last_price_review": "2026-09-19",
+   "fixed_scope": true,
+   "payment_structure": "₹1,499 एक बार — Razorpay से full payment।",
+   "client_responsibilities": [
+    "WhatsApp Business app आपके business नंबर पर (हम साथ में set करेंगे)",
+    "10 तक products/services की photo, नाम और price",
+    "Delivery के बाद 3 working days में feedback"
+   ],
+   "account_ownership": "आपके business accounts आपके ही रहते हैं — Moodily delegated/manager access से काम करता है, ownership कभी नहीं लेता।"
   },
   {
    "id": "local-business-digital-starter",
@@ -1945,7 +2045,7 @@
    "for": "दुकान, salon, gym, restaurant और service businesses जो basics के साथ catalogue और enquiry form भी चाहते हैं।",
    "problem": "ग्राहक price list/catalogue माँगते हैं और enquiries WhatsApp-call में बिखरी रहती हैं।",
    "deliverables": [
-    "Google + WhatsApp Starter की सभी चीज़ें",
+    "Digital Starter की सभी चीज़ें",
     "Digital catalogue / rate card — 25 items तक (PDF + WhatsApp catalogue)",
     "Enquiry form (Google Form) — responses आपकी Google Sheet में",
     "Link-in-bio page/QR — call, WhatsApp, directions, catalogue",

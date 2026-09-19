@@ -29,7 +29,7 @@
   "local-business": [
     {
       "q": "Google Business Profile बनाने की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Google + WhatsApp Starter {{price:digital-business-starter}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Starter {{price:digital-business-starter}} से शुरू।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -215,7 +215,7 @@
   "wedding-event": [
     {
       "q": "Wedding vendor के लिए कौन सा package सही है?",
-      "a": "नए vendor के लिए Google + WhatsApp Starter और rate card PDF अच्छी शुरुआत है। Photographer, makeup artist और decorator के लिए portfolio landing page सबसे उपयोगी है। Venue, caterer और planner के लिए lead booking website बेहतर है जिसमें date और guests की enquiry दर्ज हो।"
+      "a": "नए vendor के लिए Digital Starter और rate card PDF अच्छी शुरुआत है। Photographer, makeup artist और decorator के लिए portfolio landing page सबसे उपयोगी है। Venue, caterer और planner के लिए lead booking website बेहतर है जिसमें date और guests की enquiry दर्ज हो।"
     },
     {
       "q": "क्या portfolio में दूसरों की photos या stock images लगा सकते हैं?",
@@ -281,7 +281,7 @@
   "google-whatsapp": [
     {
       "q": "Google Business Profile की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Profile Optimization {{price:google-business-fix}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Quick Fix {{price:google-business-fix}} से शुरू।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -311,7 +311,7 @@
   "whatsapp-business": [
     {
       "q": "क्या WhatsApp Business app के पैसे लगते हैं?",
-      "a": "नहीं, WhatsApp Business app Meta की ओर से free है। Moodily profile, catalogue, quick replies, labels और QR के setup के लिए charge करता है — WhatsApp Business Basic Setup {{price:whatsapp-business-setup}} (fixed)।"
+      "a": "नहीं, WhatsApp Business app Meta की ओर से free है। Moodily profile, catalogue, quick replies, labels और QR के setup के लिए charge करता है — WhatsApp Business Basic {{price:whatsapp-business-setup}} (fixed)।"
     },
     {
       "q": "WhatsApp Business app और WhatsApp Business API में क्या फ़र्क है?",
@@ -335,7 +335,7 @@
     },
     {
       "q": "Google listing भी साथ में ठीक करवानी हो तो?",
-      "a": "तब Google + WhatsApp Starter {{price:digital-business-starter}} से बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
+      "a": "तब Digital Starter {{price:digital-business-starter}} से बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
     }
   ],
   "brochure-catalogue": [

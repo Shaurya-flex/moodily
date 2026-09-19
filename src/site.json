@@ -43,32 +43,8 @@
     "provider": "razorpay",
     "mode": "test",
     "_readme": "Razorpay Standard Checkout. NO keys in this file or repo (public). Keys live in the Cloudflare Worker secrets (worker/) and, for local testing only, in the gitignored .env. api_base = deployed Worker URL, e.g. https://moodily-payments.<account>.workers.dev. Pay buttons render only when api_base is set AND mode is 'live'; preview test mode locally with MOODILY_SHOW_TEST_PAYMENTS=1 MOODILY_CHECKOUT_API=/ python3 build.py + python3 scripts/dev_server.py (do not commit that build). Fallback when api_base is empty: offer.payment_links (Razorpay Payment Pages), else offer-tagged enquiry.",
-    "api_base": ""
-  },
-  "offer": {
-    "id": "founding-10",
-    "active": true,
-    "name": "Founding 10",
-    "discount_pct": 70,
-    "show_percentage": false,
-    "_show_percentage_readme": "A percentage is only shown when it is true against a FIXED regular price. These packages are price_mode 'starts_at', so 70% is computed off a 'from' figure and the delivered price varies — an arbitrary-looking percentage against a variable base is not a claim we can stand behind. While false the site shows the real introductory price next to the regular starting price and calls it 'Founding client introductory pricing'. Set true only if these become fixed-scope, fixed-price, payable packages.",
-    "starts_at": "2026-09-13T00:00:00+05:30",
-    "ends_at": "2026-09-20T23:59:59+05:30",
-    "slots_total": 10,
-    "slots_taken": 0,
-    "urgency_confirmed": false,
-    "_urgency_readme": "Set true ONLY when all three are true: the 10-slot limit is a real commitment, slots_taken is kept current after every confirmed booking, and a customer can actually pay the discounted price (payments.api_base live, or offer.payment_links filled). While false the site shows the introductory pricing and its terms but no countdown and no slot counter — unverified scarcity is a dark pattern.",
-    "_slots_readme": "Update slots_taken after every confirmed paid booking, then rebuild and push. The counter must always be true (CCPA dark-patterns guidelines prohibit false urgency/scarcity).",
-    "services": [
-      "digital-business-starter",
-      "medical-store-digital-desk",
-      "professional-authority-pack"
-    ],
-    "payment_links": {
-      "digital-business-starter": "",
-      "medical-store-digital-desk": "",
-      "professional-authority-pack": ""
-    }
+    "api_base": "",
+    "_readme_links": "Fixed-price products use owner-approved Razorpay Payment Links from src/data/pricing.json (canonical). The Worker/api_base flow is the separate 50% deposit project (PR #13)."
   },
   "free_audit": {
     "promise_hi": "आपकी Google listing, WhatsApp, website और social profile देखकर 3 सबसे ज़रूरी सुधार — 2 working days में, WhatsApp पर।",
