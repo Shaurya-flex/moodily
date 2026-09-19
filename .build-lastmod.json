@@ -15,8 +15,12 @@
 "2e38da89be9f8e69",
 "2026-09-18"
 ],
+"/checkout/": [
+"756933033696a1f5",
+"2026-09-18"
+],
 "/contact/": [
-"17e1f5b5bf641b7a",
+"828bc3a765996c0f",
 "2026-09-18"
 ],
 "/contact/thanks/": [
@@ -85,6 +89,10 @@
 ],
 "/offers/founding-10/": [
 "6437e0ae419ebff7",
+"2026-09-18"
+],
+"/order-confirmed/": [
+"a415fbdd766301af",
 "2026-09-18"
 ],
 "/payment/success/": [
@@ -184,39 +192,39 @@
 "2026-09-18"
 ],
 "/services/ai-workflows/": [
-"7a03a3c487348ccd",
+"1586ec3631140b01",
 "2026-09-18"
 ],
 "/services/b2b-digital-sales/": [
-"cf6d741bd3214167",
+"7c11833d5e8ec0de",
 "2026-09-18"
 ],
 "/services/brochure-catalogue/": [
-"0c1b0b597fd67cb9",
+"73e6e1eb62c7b553",
 "2026-09-18"
 ],
 "/services/business-website/": [
-"15f895a4322ae962",
+"96bea8f4c4389e49",
 "2026-09-18"
 ],
 "/services/coaching-digital-services/": [
-"3fd9e2544f10b7e9",
+"82eed4d188789169",
 "2026-09-18"
 ],
 "/services/creators/": [
-"ffa64475d577c7eb",
+"b2a1fe5a9e853749",
 "2026-09-18"
 ],
 "/services/design/": [
-"c939a20ee6c71af0",
+"4e3626462cb6e6f5",
 "2026-09-18"
 ],
 "/services/digital-invitation/": [
-"2eb95aaabbfff966",
+"6dbce4b40a3d9fc3",
 "2026-09-18"
 ],
 "/services/education-content/": [
-"b4f8be31081c59f2",
+"6d8b51416cb3b5e8",
 "2026-09-18"
 ],
 "/services/estimator/": [
@@ -224,43 +232,43 @@
 "2026-09-18"
 ],
 "/services/google-business-profile/": [
-"0952f22cb9010e19",
+"535ca0d9369f20eb",
 "2026-09-18"
 ],
 "/services/knowledge-to-product/": [
-"0315ae02d210a702",
+"e3166d49b2758525",
 "2026-09-18"
 ],
 "/services/local-business-digitalization/": [
-"e317223e698a50cc",
+"300915dd04e157ac",
 "2026-09-18"
 ],
 "/services/medical-store/": [
-"516fa3a865707487",
+"29f1566c39b05cdc",
 "2026-09-18"
 ],
 "/services/presentation-design/": [
-"bbf6c55d5dc95a88",
+"3be4d86a6fbb3a44",
 "2026-09-18"
 ],
 "/services/professionals/": [
-"48b205a515a90706",
+"42f077067ae0f181",
 "2026-09-18"
 ],
 "/services/research-intelligence/": [
-"072f6de8b72af358",
+"18e587bd4ac6d9ef",
 "2026-09-18"
 ],
 "/services/social-media-design/": [
-"f693d7781f914bff",
+"e85a4f2bfce9ed3c",
 "2026-09-18"
 ],
 "/services/wedding-event/": [
-"17193bd07cc60bf3",
+"18b6a541756d41b4",
 "2026-09-18"
 ],
 "/services/whatsapp-business/": [
-"982c9c10f56abad3",
+"00d622bb2c4d7bcc",
 "2026-09-18"
 ],
 "/store/": [

@@ -19,5 +19,74 @@
     "active": true,
     "ends_at": "2026-09-20T23:59:59+05:30",
     "slots_left": 10
-  }
+  },
+  "deposits": {
+    "invitation-digital": {
+      "name": "Static Invitation",
+      "total_paise": 79900,
+      "deposit_paise": 40000,
+      "balance_paise": 39900,
+      "price_mode": "exact",
+      "timeline": "जानकारी मिलने के बाद 24–48 घंटे",
+      "revisions": "Basic — 1 revision round",
+      "page": "/services/digital-invitation/#invitation-digital",
+      "form_category": "Invitation / Personal Design"
+    },
+    "invitation-animated": {
+      "name": "Animated / Video Invitation",
+      "total_paise": 199900,
+      "deposit_paise": 100000,
+      "balance_paise": 99900,
+      "price_mode": "exact",
+      "timeline": "3–5 working days",
+      "revisions": "Standard — 2 revision rounds",
+      "page": "/services/digital-invitation/#invitation-animated",
+      "form_category": "Invitation / Personal Design"
+    },
+    "print-design-single": {
+      "name": "Poster / Flyer Design",
+      "total_paise": 79900,
+      "deposit_paise": 40000,
+      "balance_paise": 39900,
+      "price_mode": "exact",
+      "timeline": "2–3 working days",
+      "revisions": "Basic — 1 revision round",
+      "page": "/services/design/#print-design-single",
+      "form_category": "Design / Print-ready Asset"
+    },
+    "whatsapp-business-setup": {
+      "name": "WhatsApp Business Basic Setup",
+      "total_paise": 149900,
+      "deposit_paise": 75000,
+      "balance_paise": 74900,
+      "price_mode": "exact",
+      "timeline": "पूरी जानकारी मिलने के बाद 2 working days",
+      "revisions": "Basic — 1 revision round",
+      "page": "/services/whatsapp-business/#whatsapp-business-setup",
+      "form_category": "WhatsApp Business"
+    },
+    "digital-visiting-card": {
+      "name": "Digital Visiting Card",
+      "total_paise": 49900,
+      "deposit_paise": 25000,
+      "balance_paise": 24900,
+      "price_mode": "exact",
+      "timeline": "1–2 working days",
+      "revisions": "Basic — 1 revision round",
+      "page": "/services/design/#digital-visiting-card",
+      "form_category": "Design / Print-ready Asset"
+    },
+    "social-creative-single": {
+      "name": "Social Creative",
+      "total_paise": 59900,
+      "deposit_paise": 30000,
+      "balance_paise": 29900,
+      "price_mode": "exact",
+      "timeline": "1–2 working days",
+      "revisions": "Basic — 1 revision round",
+      "page": "/services/social-media-design/#social-creative-single",
+      "form_category": "Social Media / Creator Content"
+    }
+  },
+  "deposit_rule": "50% now, rounded up to the rupee; balance = total - deposit, due before final delivery"
 }

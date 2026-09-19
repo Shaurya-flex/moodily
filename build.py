@@ -126,6 +126,62 @@ def offer_show_pct():
     return bool(OFFER.get("show_percentage"))
 
 
+# ------------------------------------------------ 50% deposit model
+# Deposits are derived from services.json — never from a second price list, never from the browser.
+#   exact        -> eligible: the listed price IS the project price
+#   starts_at    -> NOT eligible unless the owner marks the package "fixed_scope": true, meaning the listed
+#                   deliverables are the complete scope at price_from. 50% of a "from" figure is not a quote.
+#   custom_quote -> never eligible: quote first, then a 50% request for the approved amount
+#   free / monthly retainers -> never eligible (nothing to deposit / recurring, not a one-off project)
+DEPOSIT_MIN_PAISE = 100
+
+
+def deposit_eligible(svc):
+    if not svc or not svc.get("active", True) or not svc.get("price_from"):
+        return False
+    if svc.get("price_unit") in ("month", "free", "custom"):
+        return False
+    return svc.get("price_mode") == "exact" or (svc.get("price_mode") == "starts_at" and svc.get("fixed_scope") is True)
+
+
+def deposit_split(total_rupees):
+    """50% now, rounded UP to the whole rupee; the balance is the exact remainder, so the two always add up."""
+    total = int(total_rupees)
+    deposit = (total + 1) // 2
+    return total, deposit, total - deposit
+
+
+def payments_enabled():
+    """Deposit buttons render only when a real payment path exists: live mode + a deployed backend, or an
+    explicit local test build. A committed build with mode 'test' never shows them (tests/check_site.py)."""
+    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    return bool(allowed and payments_api())
+
+
+def payments_api():
+    return os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
+
+
+def deposit_cta(svc, cls="btn btn-primary", size="", compact=False):
+    """The one primary commercial action for an eligible service: 50% now, balance shown in the same breath.
+    Rendered hidden: site.js reveals it only after the payment backend's /api/payment/health reports ready,
+    so a visitor never sees a pay button that cannot work (no JS or backend down = the quote CTA stays)."""
+    if not (payments_enabled() and deposit_eligible(svc)):
+        return ""
+    total, dep, bal = deposit_split(svc["price_from"])
+    test = ' <span class="badge">TEST MODE</span>' if PAYMENTS.get("mode") != "live" else ""
+    split = "" if compact else (
+        '<dl class="deposit-split"><div><dt>Total project price</dt><dd>₹{total}</dd></div>'
+        '<div><dt>अभी 50% advance</dt><dd><strong>₹{dep}</strong></dd></div>'
+        '<div><dt>Balance — final delivery से पहले</dt><dd>₹{bal}</dd></div></dl>').format(total=inr(total), dep=inr(dep), bal=inr(bal))
+    return ('<div class="deposit-cta" data-pay-guard="{id}" data-api="{api}" data-mode="{mode}" hidden>{split}'
+            '<a class="{cls}{size}" href="/checkout/?service={id}" data-track="deposit_cta_click" '
+            'data-label="{id}">₹{dep} देकर Order Confirm करें</a>{test}'
+            '<p class="small muted deposit-note">कुल ₹{total} · बाकी ₹{bal} final delivery से पहले · कोई hidden charge नहीं</p></div>').format(
+        cls=cls, size=size, id=svc["id"], dep=inr(dep), total=inr(total), bal=inr(bal), test=test, split=split,
+        api=e(payments_api()), mode=e(PAYMENTS.get("mode", "test")))
+
+
 def offer_price(svc):
     return svc["price_from"] * (100 - int(OFFER["discount_pct"])) // 100
 
@@ -195,7 +251,7 @@ L = {
         "timeline": "समय", "not": "क्या शामिल नहीं है", "scope": "Revisions और support", "format": "Delivery format",
         "from": "शुरुआत", "from_suffix": "से", "month": "/महीना", "custom": "Scope के अनुसार quote",
         "enquire": "इस package की enquiry करें", "wa": "WhatsApp पर पूछें", "details": "पूरी जानकारी देखें",
-        "sample": "जुड़ा हुआ work sample", "quote": "Quote लें", "sample_btn": "Sample देखें", "estimate": "Estimate करें",
+        "sample": "जुड़ा हुआ work sample", "quote": "Quote लें", "exact_quote": "Exact Quote लें", "sample_btn": "Sample देखें", "estimate": "Estimate करें",
         "audit": "मुफ़्त Digital Audit", "third": "Third-party खर्च (शामिल नहीं)", "home": "Home",
     },
     "en": {
@@ -203,7 +259,7 @@ L = {
         "timeline": "Timeline", "not": "What is not included", "scope": "Revisions & support", "format": "Delivery format",
         "from": "Starts at", "from_suffix": "", "month": "/month", "custom": "Custom quote",
         "enquire": "Enquire about this package", "wa": "Ask on WhatsApp", "details": "See full details",
-        "sample": "Related work sample", "quote": "Get a quote", "sample_btn": "See samples", "estimate": "Estimate",
+        "sample": "Related work sample", "quote": "Get a quote", "exact_quote": "Get an exact quote", "sample_btn": "See samples", "estimate": "Estimate",
         "audit": "Free digital audit", "third": "Third-party costs (not included)", "home": "Home",
     },
 }
@@ -319,7 +375,7 @@ def service_card(svc, ctx):
         '</article>'
     ).format(feat=" featured" if svc.get("featured") else "", attrs=card_attrs(svc), div=e(DIVISIONS[svc["division"]]), name=e(svc["name"]),
              tag=e(svc["tagline"]), price=price_html(svc), items=items, timeline=e(svc["timeline"]), page=svc["page"], id=svc["id"],
-             details=lab["details"], offer_btn=offer_pay_button(svc) if in_offer(svc) else "")
+             details=lab["details"], offer_btn=(deposit_cta(svc, compact=True) or (offer_pay_button(svc) if in_offer(svc) else "")))
 
 
 def service_wa(svc, label, cls, track):
@@ -333,10 +389,16 @@ def service_wa(svc, label, cls, track):
 def service_ctas(svc):
     lab = L[svc["lang"]]
     offer = in_offer(svc)
-    out = [offer_pay_button(svc) if offer else "",
-           '<a class="btn btn-primary{}" href="/contact/?service={}" data-track="pricing_click" data-label="{}">{}</a>'.format(
-               " regular-only" if offer else "", svc["id"], svc["id"],
-               "मुफ़्त Audit माँगें" if svc.get("price_unit") == "free" else lab["quote"]),
+    pay = deposit_cta(svc)
+    # The quote link is primary until the payment guard confirms the backend; then site.js demotes it
+    # (data-quote-for) so the verified deposit path becomes THE primary action.
+    quote_cls = "btn btn-primary"
+    quote_lbl = ("मुफ़्त Audit माँगें" if svc.get("price_unit") == "free"
+                 else lab["quote"] if deposit_eligible(svc) else lab["exact_quote"])
+    out = [pay, offer_pay_button(svc) if offer else "",
+           '<a class="{}{}" href="/contact/?service={}"{} data-track="pricing_click" data-label="{}">{}</a>'.format(
+               quote_cls, " regular-only" if offer else "", svc["id"], ' data-quote-for="{}"'.format(svc["id"]) if pay else "",
+               svc["id"], quote_lbl),
            service_wa(svc, lab["wa"], "btn btn-wa", svc["id"]),
            '<a class="btn btn-outline btn-sm" href="#samples" data-track="portfolio_open" data-label="{}">{}</a>'.format(svc["id"], lab["sample_btn"])]
     if svc.get("price_unit") not in ESTIMATOR["excluded_price_units"]:
@@ -689,6 +751,105 @@ def c_offer_details(args, ctx):
             else '<p class="lead">Founding client introductory pricing — पहले {} ग्राहकों के लिए।</p>'.format(OFFER["slots_total"])))
 
 
+# ------------------------------------------------- 50% deposit checkout (/checkout/ and /order-confirmed/)
+def _checkout_attrs():
+    """Everything the checkout JS needs, as data attributes. No secret ever reaches the page: the key id comes
+    from the server per order, and prices come from the public catalogue that the server also prices from."""
+    live = payments_enabled()
+    api = payments_api() if live else ""
+    ids = {k: v for k, v in INTAKE.get("entry_ids", {}).items() if not k.startswith("_")}
+    attrs = {"data-api": api, "data-enabled": "1" if live else "0", "data-mode": PAYMENTS.get("mode", "test"),
+             "data-wa": SITE["whatsapp"]["number"], "data-form": INTAKE.get("form_url") or ""}
+    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate", "moodily_order_id", "advance_payment_reference"):
+        attrs["data-entry-" + key.replace("_", "-")] = ids.get(key, "")
+    return " ".join('{}="{}"'.format(k, e(v)) for k, v in attrs.items())
+
+
+def c_deposit_checkout(args, ctx):
+    test = ('<p class="notice small test-mode" id="coTest" hidden><strong>TEST MODE</strong> — यह test checkout है, '
+            'कोई असली पैसा नहीं कटेगा।</p>') if PAYMENTS.get("mode") != "live" else ""
+    return """
+<div class="checkout" id="depositCheckout" {attrs}>
+  <p class="muted" id="coLoading">Order details load हो रहे हैं…</p>
+  <div id="coMissing" hidden>
+    <p class="lead">यह service online advance के लिए उपलब्ध नहीं है, या कोई service चुनी नहीं गई।</p>
+    <p>जिन services की कीमत काम के हिसाब से बदलती है, उनमें पहले exact quote दिया जाता है — अंदाज़े वाली कीमत पर advance नहीं लिया जाता।</p>
+    <p class="btn-row"><a class="btn btn-primary" href="/services/">Services देखें</a>
+      <a class="btn btn-outline" href="/contact/">Exact Quote लें</a>
+      <a class="btn btn-wa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="checkout-missing">WhatsApp करें</a></p>
+  </div>
+  <div class="checkout-grid" id="coMain" hidden>
+    <section class="card checkout-summary" aria-labelledby="coName">
+      <p class="eyebrow">आपका order</p>
+      <h2 id="coName"></h2>
+      <dl class="facts compact">
+        <div><dt>कुल कीमत (fixed scope)</dt><dd id="coTotal"></dd></div>
+        <div><dt>अभी 50% advance</dt><dd><strong id="coDeposit"></strong></dd></div>
+        <div><dt>बाकी balance</dt><dd><span id="coBalance"></span> — final delivery से पहले, preview approve होने के बाद</dd></div>
+        <div><dt>Timeline</dt><dd id="coTimeline"></dd></div>
+        <div><dt>Revisions</dt><dd id="coRevisions"></dd></div>
+      </dl>
+      <p class="small"><a id="coDetails" href="/services/">Service details और sample देखें</a></p>
+      <p class="small muted">Balance कभी अपने-आप नहीं कटता — final files से पहले हम आपको अलग से payment link भेजेंगे।</p>
+    </section>
+    <section class="checkout-pay">
+      {test}
+      <form id="coForm" novalidate hidden>
+        <p class="small muted">Payment के लिए बस ये 3 जानकारी चाहिए। Project की पूरी details payment के बाद Project Brief में लेंगे।</p>
+        <div class="field"><label for="co-name">नाम / Name *</label><input id="co-name" name="name" autocomplete="name" maxlength="80" required></div>
+        <div class="field"><label for="co-phone">WhatsApp number *</label><input id="co-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="10-digit mobile number" required></div>
+        <div class="field"><label for="co-email">Email *</label><input id="co-email" name="email" type="email" autocomplete="email" maxlength="120" required><small class="hint">Razorpay receipt इसी email पर आएगी</small></div>
+        <div class="field consent"><input id="co-terms" type="checkbox" required><label for="co-terms">मैंने <a href="/terms/" target="_blank" rel="noopener">Terms</a>, <a href="/refund/" target="_blank" rel="noopener">Refund Policy</a> और <a href="/privacy/" target="_blank" rel="noopener">Privacy Policy</a> पढ़ ली है। मैं समझता/समझती हूँ कि बाकी 50% final delivery से पहले देना है। *</label></div>
+        <p class="form-error" id="coMsg" role="alert" hidden></p>
+        <button class="btn btn-primary btn-lg btn-block" id="coPay" type="submit"></button>
+        <p class="small muted deposit-note" id="coNote"></p>
+        <p class="btn-row" id="coHelp" hidden><a class="btn btn-wa btn-sm" id="coWa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="checkout-help">WhatsApp पर मदद लें</a></p>
+        <p class="small muted">Payment Razorpay के secure checkout से होता है — UPI, card, netbanking। Moodily आपकी card/UPI details कभी नहीं देखता।</p>
+      </form>
+      <div id="coOffline" hidden>
+        <p class="notice"><strong>Payment setup in progress.</strong> Online advance payment अभी उपलब्ध नहीं है। इसी service के लिए exact quote लें या WhatsApp करें — हम payment link भेज देंगे।</p>
+        <p class="btn-row"><a class="btn btn-primary" id="coQuote" href="/contact/">Exact Quote लें</a>
+          <a class="btn btn-wa" id="coOfflineWa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="checkout-offline">WhatsApp करें</a></p>
+      </div>
+    </section>
+  </div>
+</div>""".format(attrs=_checkout_attrs(), wa=e(SITE["whatsapp"]["number"]), test=test)
+
+
+def c_order_confirmed(args, ctx):
+    return """
+<div class="checkout" id="orderConfirmed" {attrs}>
+  <p class="muted" id="ocLoading">Payment की स्थिति जाँच रहे हैं…</p>
+  <div id="ocPaid" hidden>
+    <p class="lead">✅ Advance payment verify हो गया। आपका order confirm है।</p>
+    <dl class="facts compact card">
+      <div><dt>Moodily Order ID</dt><dd><strong id="ocId"></strong></dd></div>
+      <div><dt>Service</dt><dd id="ocService"></dd></div>
+      <div><dt>Advance paid</dt><dd id="ocDeposit"></dd></div>
+      <div><dt>बाकी balance</dt><dd><span id="ocBalance"></span> — final delivery से पहले</dd></div>
+      <div><dt>Status</dt><dd id="ocStatus">DEPOSIT PAID — BRIEF PENDING</dd></div>
+    </dl>
+    <h2>अगला step: Project Brief भरें</h2>
+    <p>Brief में आपका content, photos/links और ज़रूरी बातें लेते हैं। Order ID अपने-आप भर जाएगा — उसे न बदलें, इसी से हम आपका payment पहचानते हैं।</p>
+    <p class="btn-row"><a class="btn btn-primary btn-lg" id="ocBrief" href="/contact/" target="_blank" rel="noopener" data-track="brief_open" data-label="order-confirmed">Project Brief भरें →</a>
+      <a class="btn btn-wa" id="ocWa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="order-confirmed">WhatsApp पर Order ID भेजें</a></p>
+    <p class="small muted">Razorpay की receipt आपके email/SMS पर आती है। यह page बाद में खोलने के लिए link save करें: <a id="ocResume" href="/order-confirmed/"></a></p>
+  </div>
+  <div id="ocPending" hidden>
+    <p class="lead">इस order का payment अभी पूरा नहीं हुआ है।</p>
+    <p>अगर पैसा कट गया है तो कुछ मिनट बाद यह page refresh करें। फिर भी न दिखे तो Payment ID (Razorpay SMS/email में) के साथ WhatsApp करें — हम dashboard में जाँचकर पुष्टि करेंगे।</p>
+    <p class="btn-row"><a class="btn btn-primary" id="ocRetry" href="/services/">फिर से कोशिश करें</a>
+      <a class="btn btn-wa" id="ocPendingWa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="order-pending">WhatsApp करें</a></p>
+  </div>
+  <div id="ocUnknown" hidden>
+    <p class="lead">इस page पर order की जानकारी नहीं मिली।</p>
+    <p>अगर पैसा कट गया है तो Payment ID (Razorpay SMS/email में) के साथ हमसे संपर्क करें — हम Razorpay dashboard में जाँचकर पुष्टि करेंगे।</p>
+    <p class="btn-row"><a class="btn btn-wa" href="https://wa.me/{wa}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="order-unknown">WhatsApp करें</a>
+      <a class="btn btn-outline" href="mailto:{email}">Email करें</a></p>
+  </div>
+</div>""".format(attrs=_checkout_attrs(), wa=e(SITE["whatsapp"]["number"]), email=e(SITE["email"]))
+
+
 def c_offer_terms(args, ctx):
     names = ", ".join(e(SERVICES[s]["name"]) for s in OFFER.get("services", []))
     deadline = e(offer_deadline_hi()) if OFFER_STATE else e(OFFER.get("ends_at", ""))
@@ -774,7 +935,7 @@ def validate_form_prefill():
         got = form_category_for(svc)
         if got and got not in opts:
             raise SystemExit("intake.json: service '{}' maps to '{}', which the Form does not offer".format(svc["id"], got))
-    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate"):
+    for key in ("service_category", "sub_service", "offer_code", "sample_or_estimate", "moodily_order_id", "advance_payment_reference"):
         eid = INTAKE.get("entry_ids", {}).get(key, "")
         if eid and not re.fullmatch(r"entry\.\d+", str(eid)):
             raise SystemExit("intake.json: entry_ids['{}'] = '{}' is not an entry.NNNN id".format(key, eid))
@@ -2019,7 +2180,7 @@ COMPONENTS = {
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
     "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
-    "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "founder": c_founder,
+    "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "deposit-checkout": c_deposit_checkout, "order-confirmed": c_order_confirmed, "founder": c_founder,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
     "catalogue-group": c_catalogue_group, "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
@@ -2512,6 +2673,22 @@ def write_checkout_catalog():
     data = {"currency": "INR", "items": items,
             "offer": {"id": OFFER.get("id"), "active": bool(OFFER_STATE), "ends_at": OFFER.get("ends_at"),
                       "slots_left": OFFER_STATE["left"] if OFFER_STATE else 0}}
+    # 50% deposit catalogue — the payment backend fetches THIS file from moodily.in and prices every order
+    # from it, so an amount typed or edited in a browser can never change what is charged.
+    deposits = {}
+    for svc in ACTIVE:
+        if not deposit_eligible(svc):
+            continue
+        total, dep, bal = deposit_split(svc["price_from"])
+        if dep * 100 < DEPOSIT_MIN_PAISE or dep + bal != total:
+            raise SystemExit("deposit rule broken for {}".format(svc["id"]))
+        _, intake_cat = intake_service(svc["id"])
+        deposits[svc["id"]] = {"name": svc["name"], "total_paise": total * 100, "deposit_paise": dep * 100,
+                               "balance_paise": bal * 100, "price_mode": svc["price_mode"], "timeline": svc["timeline"],
+                               "revisions": svc["revisions"], "page": "{}#{}".format(svc["page"], svc["id"]),
+                               "form_category": form_category_for(svc)}
+    data["deposits"] = deposits
+    data["deposit_rule"] = "50% now, rounded up to the rupee; balance = total - deposit, due before final delivery"
     out = ROOT / "assets" / "data" / "checkout-prices.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

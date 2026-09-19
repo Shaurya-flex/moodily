@@ -227,6 +227,35 @@ def check_commerce(pages):
             fail("services.json", "{} has no valid price_mode".format(s["id"]))
 
 
+def check_deposits(pages):
+    """Payment pages stay out of search; committed builds never ship test-mode pay buttons; the public
+    deposit catalogue holds only exact/fixed-scope services with a correct 50% split and no personal data."""
+    for rel in ("checkout/index.html", "order-confirmed/index.html", "payment/success/index.html"):
+        if rel not in pages:
+            fail(rel, "payment page missing")
+        elif 'name="robots" content="noindex' not in pages[rel][1]:
+            fail(rel, "payment page must be noindex")
+    site = json.loads((ROOT / "src" / "site.json").read_text(encoding="utf-8"))
+    live = (site.get("payments") or {}).get("mode") == "live"
+    for rel, (_, text) in pages.items():
+        if not live and ("TEST MODE</span>" in text or 'data-enabled="1"' in text or 'class="deposit-cta"' in text):
+            fail(rel, "test-mode deposit checkout in a committed build (rebuild without MOODILY_SHOW_TEST_PAYMENTS)")
+        for m in re.finditer(r'<div class="deposit-cta"[^>]*>', text):
+            if " hidden" not in m.group(0) or "data-pay-guard=" not in m.group(0):
+                fail(rel, "deposit CTA must render hidden behind the payment health guard")
+    cat = json.loads((ROOT / "assets" / "data" / "checkout-prices.json").read_text(encoding="utf-8"))
+    services = {s["id"]: s for s in json.loads((ROOT / "src" / "data" / "services.json").read_text(encoding="utf-8"))["services"]}
+    for sid, d in (cat.get("deposits") or {}).items():
+        svc = services.get(sid) or {}
+        if svc.get("price_mode") != "exact" and svc.get("fixed_scope") is not True:
+            fail("checkout-prices.json", "{} is '{}' without fixed_scope — not deposit eligible".format(sid, svc.get("price_mode")))
+        if d["total_paise"] != svc.get("price_from", 0) * 100 or d["deposit_paise"] + d["balance_paise"] != d["total_paise"] \
+                or d["deposit_paise"] != -(-d["total_paise"] // 200) * 100:
+            fail("checkout-prices.json", "{}: 50% split does not match the service price".format(sid))
+    if re.search(r"(?i)email|phone|customer", json.dumps(cat.get("deposits") or {})):
+        fail("checkout-prices.json", "deposit catalogue must not contain customer fields")
+
+
 def main():
     files = json.loads((ROOT / ".build-manifest.json").read_text())
     pages, titles = {}, {}
@@ -300,6 +329,7 @@ def main():
 
     check_prices(pages)
     check_commerce(pages)
+    check_deposits(pages)
     check_no_secrets()
 
     robots = (ROOT / "robots.txt").read_text()
