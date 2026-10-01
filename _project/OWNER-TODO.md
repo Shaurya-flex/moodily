@@ -34,6 +34,8 @@ Values the site needs from the owner. Nothing here was invented — fill real da
 ## src/data/tools.json
 - **tools[5]**: OWNER: add real affiliate URL if Moodily is in Hostinger's affiliate programme.
 
+## src/data/international.json (Moodily International)
+
 ## src/data/intake.json (Google Form)
 - **site**: OWNER: fill entry_ids.service_category, sub_service and offer_code from a pre-filled link (e.g. entry.1234567890).
 

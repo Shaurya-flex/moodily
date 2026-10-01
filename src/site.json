@@ -46,6 +46,15 @@
     "api_base": "",
     "_readme_links": "Fixed-price products use owner-approved Razorpay Payment Links from src/data/pricing.json (canonical). The Worker/api_base flow is the separate 50% deposit project (PR #13)."
   },
+  "payment_flags": {
+    "_readme": "Payment switches. A method renders only when its flag is true and its details are confirmed in src/data/international.json; build.py fails on a flag that is true without confirmation. razorpay_india_enabled covers the existing India payment links (false hides every India pay button). lemon_squeezy_store_enabled is for digital products only, never services. Never put account numbers or keys here.",
+    "wise_enabled": false,
+    "paypal_enabled": false,
+    "stripe_enabled": false,
+    "razorpay_india_enabled": true,
+    "razorpay_international_enabled": false,
+    "lemon_squeezy_store_enabled": false
+  },
   "free_audit": {
     "promise_hi": "आपकी Google listing, WhatsApp, website और social profile देखकर 3 सबसे ज़रूरी सुधार — 2 working days में, WhatsApp पर।",
     "_todo": "CONFIRM the owner can deliver this promise (2 working days, 3 suggestions)."

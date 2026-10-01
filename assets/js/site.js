@@ -4,7 +4,7 @@
   var root = document.documentElement;
   window.dataLayer = window.dataLayer || [];
 
-  // ---------- analytics: data-track="event" data-label="..." (see _project/03-forms-payments-analytics.md)
+  // ---------- analytics: data-track="event" data-label="..."
   function track(event, params) {
     var payload = { event: event, page_path: location.pathname };
     for (var k in params) if (Object.prototype.hasOwnProperty.call(params, k)) payload[k] = params[k];

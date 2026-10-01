@@ -1,0 +1,294 @@
+{
+  "_readme": "Client-facing content for the /international/ pages: services, prices (USD), scopes, process, labelled portfolio, FAQs and payment-method switches. Validated by build.py (validate_international).",
+  "launch": {
+    "mode": "public"
+  },
+  "contact": {
+    "email": "",
+    "whatsapp": true,
+    "timezone": "India Standard Time (UTC+5:30)",
+    "reply": "within 24 hours on working days"
+  },
+  "founder": {
+    "name": "Saurabh Kumar",
+    "role": "Founder, Moodily",
+    "bio": "Saurabh Kumar founded Moodily to help businesses build clearer digital journeys, from being found online to educating customers after they buy. He also creates practical AI tutorials on YouTube as AI with Saurabh and wrote the guide Practical AI for Everyday Life & Work. He works from India with clients who prefer to collaborate remotely in English.",
+    "photo": "",
+    "linkedin": "",
+    "youtube": "https://www.youtube.com/@AIwithSaurabhKr"
+  },
+  "entity": {
+    "name": "Moodily (moodily.in)",
+    "location": "India"
+  },
+  "price_note": "All prices are in USD unless stated otherwise. Custom projects receive a written scope and quote before work begins. Advertising spend, software subscriptions and other third-party costs are separate unless specifically included.",
+  "from_note": "\"From\" prices are starting points: the final price depends on the scope you approve in writing.",
+  "timeline_note": "Typical Moodily implementation begins after complete information, assets and required access are received. Platform verification may extend the final go-live date.",
+  "services": [
+    {
+      "id": "journey-audit",
+      "tier": "primary",
+      "name": "Digital Journey Audit",
+      "price": {"type": "fixed", "amount": 199, "currency": "USD", "approved": true},
+      "summary": "A prioritised review of how customers find, trust, contact and learn from your business, with a 30-day action plan you can carry out with or without us.",
+      "for": "Any business that wants to know what to fix first",
+      "includes": ["Review of your website, business profiles, social presence, contact path and follow-up", "Journey map from search to enquiry, booking or purchase", "Ranked list of friction points, with screenshots", "Context from up to 3 comparable businesses you name", "Written 30-day action plan, marked do-it-yourself or Moodily can help", "One follow-up round of questions by email"],
+      "excludes": ["Implementation (quoted separately)", "Advertising account audits", "Legal, medical or financial advice"],
+      "timeline": "3–5 working days after payment and the requested information",
+      "revisions": "Not applicable (one follow-up Q&A round included)",
+      "page": "/international/journey-audit/"
+    },
+    {
+      "id": "local-presence-launch",
+      "tier": "primary",
+      "name": "Local Presence Launch",
+      "price": {"type": "fixed", "amount": 449, "currency": "USD", "approved": true},
+      "summary": "Your Google Business Profile and Meta presence set up properly and consistently, so local customers can find you, trust you and get in touch.",
+      "for": "Local and premium service businesses",
+      "includes": ["Everything in Google Business Profile Quick Fix", "Everything in Meta Business Foundation", "Consistent name, contact details, links and calls to action across profiles", "Review-request QR code and message template"],
+      "excludes": ["Advertising campaigns or ad spend", "Review generation guarantees", "Website changes"],
+      "timeline": "5–7 working days",
+      "revisions": "1 round",
+      "notices": ["gbp", "meta"]
+    },
+    {
+      "id": "customer-education-studio",
+      "tier": "primary",
+      "name": "Customer Education Studio",
+      "price": {"type": "from", "amount": 499, "currency": "USD", "approved": true},
+      "summary": "Tutorials, onboarding videos, quick-start guides and knowledge assets that help customers understand and use what you offer.",
+      "for": "Software teams, educators, consultants and service businesses",
+      "includes": ["Starting scope: one short tutorial video or one quick-start guide", "Script or outline approved by your team before production", "Accuracy check against your product or material", "Captions or a print-ready PDF, as relevant"],
+      "excludes": ["Paid tools or stock assets unless included in your quote", "Hosting or learning-platform fees"],
+      "timeline": "Confirmed in your written scope",
+      "revisions": "2 rounds",
+      "page": "/international/customer-education/"
+    },
+    {
+      "id": "digital-journey-build",
+      "tier": "primary",
+      "name": "Digital Journey Build",
+      "price": {"type": "from", "amount": 1750, "currency": "USD", "approved": true},
+      "summary": "A clearer website and enquiry or booking journey, with the profiles, FAQs and measurement around it.",
+      "for": "Service businesses ready to rebuild their main customer path",
+      "includes": ["Website of up to 5–8 pages, or a focused landing experience", "Mobile-first layout with clear contact, call or booking actions", "Editing and structuring of your content", "On-page search foundations and sitemap", "Analytics and Search Console set up in your accounts", "One-hour handover session"],
+      "excludes": ["Domain, hosting and software subscriptions", "Copywriting from scratch beyond editing, unless quoted", "Advertising"],
+      "timeline": "12–20 working days",
+      "revisions": "2 rounds"
+    },
+    {
+      "id": "digital-care",
+      "tier": "primary",
+      "name": "Digital Care",
+      "price": {"type": "from", "amount": 499, "currency": "USD", "unit": "month", "approved": true},
+      "summary": "Ongoing upkeep of your profiles, pages and customer-education assets within a defined monthly scope.",
+      "for": "Businesses that want steady improvements without hiring",
+      "includes": ["A defined monthly task list agreed in writing", "Profile and page updates", "Review-response drafts, posted only after your approval", "Small content or education updates", "Monthly summary of the data your platforms provide, with a short call"],
+      "excludes": ["Unlimited requests", "Advertising spend", "Work outside the agreed monthly scope (quoted separately)"],
+      "timeline": "Monthly, starting from onboarding",
+      "revisions": "Within the monthly scope"
+    },
+    {
+      "id": "gbp-quick-fix",
+      "tier": "secondary",
+      "name": "Google Business Profile Quick Fix",
+      "price": {"type": "fixed", "amount": 199, "currency": "USD", "approved": true},
+      "summary": "An existing Google Business Profile reviewed and corrected so it's complete, accurate and easy to act on.",
+      "for": "Businesses with a profile that's incomplete, outdated or wrong",
+      "includes": ["Full review of your existing profile", "Category, services, description, hours and attributes corrected", "Up to 10 of your photos uploaded and arranged", "Call, website and booking links checked", "Review-request QR code", "Suggested edits to Google for duplicate or wrong information, where possible"],
+      "excludes": ["Profile verification (completed by you with Google)", "Ranking, call or review guarantees"],
+      "timeline": "3–5 working days",
+      "revisions": "1 round",
+      "notices": ["gbp"]
+    },
+    {
+      "id": "meta-business-foundation",
+      "tier": "secondary",
+      "name": "Meta Business Foundation",
+      "price": {"type": "fixed", "amount": 249, "currency": "USD", "approved": true},
+      "summary": "Your Facebook Page, Instagram professional account and Meta Business Suite organised, connected and ready to use.",
+      "for": "Businesses whose Meta presence is scattered or half set up",
+      "includes": ["Facebook Page setup or audit", "Instagram professional account connection", "Meta Business Suite organisation and asset ownership check", "Contact details and call-to-action buttons", "Advertising and basic measurement readiness check", "Reusable social post templates"],
+      "excludes": ["Advertising campaigns or ad spend", "Follower or reach guarantees"],
+      "timeline": "3–5 working days",
+      "revisions": "1 round",
+      "notices": ["meta"]
+    },
+    {
+      "id": "ads-readiness-first-campaign",
+      "tier": "secondary",
+      "name": "Ads Readiness + First Campaign",
+      "price": {"type": "fixed", "amount": 399, "currency": "USD", "approved": true},
+      "summary": "Your advertising account checked and made ready, then one first campaign set up from your offer and assets.",
+      "for": "Businesses ready to test paid advertising carefully",
+      "includes": ["Account, payment and measurement readiness check", "Audience and offer setup for one campaign on one platform", "Ad copy and creative brief using your assets", "Launch checklist and a walkthrough of how to read results"],
+      "excludes": ["Advertising spend (paid directly by you to the platform)", "Ongoing campaign management", "Any guarantee of leads, sales or return on ad spend"],
+      "timeline": "5–7 working days; platform review may extend go-live",
+      "revisions": "1 round",
+      "notices": ["ads"]
+    },
+    {
+      "id": "conversion-landing-page",
+      "tier": "secondary",
+      "name": "Conversion Landing Page",
+      "price": {"type": "fixed", "amount": 600, "currency": "USD", "approved": true},
+      "summary": "One focused, mobile-first page built around a single action: enquire, book or buy.",
+      "for": "A campaign, a new service or a single offer",
+      "includes": ["One mobile-first landing page with up to 6 sections", "Enquiry form plus contact or booking buttons", "Basic search setup: title, description and structured data", "Analytics and Search Console in your accounts", "Published on your domain or a free subdomain"],
+      "excludes": ["Domain and hosting fees", "Writing copy from scratch, unless quoted"],
+      "timeline": "5–7 working days",
+      "revisions": "2 rounds"
+    },
+    {
+      "id": "customer-education-pack",
+      "tier": "secondary",
+      "name": "Customer Education Pack",
+      "price": {"type": "fixed", "amount": 900, "currency": "USD", "approved": true},
+      "summary": "A small, complete set of learning assets for one product area or onboarding step.",
+      "for": "Teams that need their first tutorials and guide done properly",
+      "includes": ["Up to 3 short tutorial videos (up to 5 minutes each) from a test or sandbox account", "One quick-start guide (PDF, up to 8 pages)", "Scripts approved by your team before recording", "Captions for each video"],
+      "excludes": ["Professional voice-over or on-camera presenters, unless quoted", "Hosting or learning-platform fees"],
+      "timeline": "10–15 working days after access and review times are agreed",
+      "revisions": "2 rounds",
+      "page": "/international/customer-education/"
+    },
+    {
+      "id": "clinic-digital-growth-foundation",
+      "tier": "secondary",
+      "name": "Clinic Digital Growth Foundation",
+      "price": {"type": "from", "amount": 1500, "currency": "USD", "approved": true},
+      "summary": "The public patient journey before the first visit: profile, website pages, booking path, FAQs, review requests and pre-visit information.",
+      "for": "Dental clinics and med spas",
+      "includes": ["Google Business Profile optimisation", "Team profiles and plain-language service pages, with clinical wording approved by your team", "Booking or contact path on mobile", "Public FAQ section", "Privacy-respecting review-request workflow", "Pre-visit information guide", "Analytics for enquiries and booking clicks"],
+      "excludes": ["Clinical advice or patient data handling", "Clinical systems or practice-management software", "Any guarantee of bookings or outcomes"],
+      "timeline": "15–20 working days",
+      "revisions": "2 rounds",
+      "notices": ["gbp", "health"],
+      "page": "/international/clinics/"
+    }
+  ],
+  "notices": {
+    "gbp": "Google Business Profile is a free product provided by Google. Moodily charges for setup, optimisation, content and management. You remain the owner; we work through manager access and never ask for your Google password. We can't promise rankings, verification times, calls or revenue.",
+    "meta": "You keep ownership and control of your Facebook Page, Instagram account and Business Suite. We ask only for the minimum access needed and never for a personal Facebook password.",
+    "ads": "Advertising spend is paid directly by the client to the advertising platform and is separate from Moodily's service fee. Platforms review ads and accounts on their own timelines. We don't promise return on ad spend, lead volume, sales or revenue.",
+    "health": "Please do not submit patient or sensitive health information. Our healthcare work covers public-facing information only."
+  },
+  "process": [
+    {"step": "Tell us what you need", "detail": "Send a short request with your goal, timeline and budget range."},
+    {"step": "We review the journey", "detail": "We look at your current website, profiles and contact path before suggesting anything."},
+    {"step": "Receive a written scope", "detail": "Deliverables, exclusions, revisions, timeline, price and what you provide."},
+    {"step": "Approve the project", "detail": "Nothing starts until you approve the scope in writing."},
+    {"step": "Pay the deposit", "detail": "Work begins once the deposit is confirmed."},
+    {"step": "Build", "detail": "AI-assisted drafts, reviewed by a person before you see them."},
+    {"step": "Review", "detail": "You review at agreed points, within the included revision rounds."},
+    {"step": "Final payment", "detail": "The balance is due before final handover."},
+    {"step": "Handover", "detail": "Files, access in your name and a short guide to keep things running."},
+    {"step": "Optional ongoing support", "detail": "Digital Care, if you'd like steady improvements afterwards."}
+  ],
+  "portfolio_labels": {
+    "commissioned": "COMMISSIONED CLIENT WORK",
+    "client": "CLIENT WORK",
+    "own": "MOODILY PROJECT",
+    "concept": "CONCEPT DEMONSTRATION"
+  },
+  "portfolio": [
+    {
+      "id": "notebooklm-tutorial",
+      "title": "NotebookLM walkthrough — one book, five study tools",
+      "label": "own",
+      "status": "published",
+      "approved": true,
+      "categories": ["customer-education", "educators"],
+      "type": "Software walkthrough + short cut-downs",
+      "problem": "New users of a capable tool don't know which features matter for their task.",
+      "built": "A step-by-step walkthrough of five NotebookLM study tools applied to one source, then cut into short clips.",
+      "tools": "NotebookLM, screen recording, AI-assisted script draft, human editing",
+      "verification": "",
+      "outcome": "Delivery documented; commercial outcome not measured.",
+      "url": "https://youtu.be/epxlAZA3sm8"
+    },
+    {
+      "id": "ai-tools-test",
+      "title": "\"I tested 5 new AI tools so you don't have to\"",
+      "label": "own",
+      "status": "published",
+      "approved": true,
+      "categories": ["customer-education"],
+      "type": "Product tutorial",
+      "problem": "People waste time trying tools that don't fit their work.",
+      "built": "A hands-on test of five new AI tools, with chapters and English subtitles.",
+      "tools": "Screen recording",
+      "verification": "",
+      "outcome": "Delivery documented; commercial outcome not measured.",
+      "url": "https://youtu.be/zrYfvkYyrTU"
+    },
+    {
+      "id": "moodily-site",
+      "title": "moodily.in — a fast, data-driven service website",
+      "label": "own",
+      "status": "published",
+      "approved": true,
+      "categories": ["web"],
+      "type": "Website",
+      "problem": "Present dozens of services with clear prices without a heavy, slow site.",
+      "built": "A static site generated from data files, with automated checks for prices, links, titles and unsupported claims before anything goes live.",
+      "tools": "Static site generator, structured data",
+      "verification": "Automated checks run on every change before publishing.",
+      "outcome": "Delivery documented; commercial outcome not measured.",
+      "url": "https://moodily.in/"
+    },
+    {
+      "id": "patient-journey-map",
+      "title": "Digital patient journey map (dental clinic)",
+      "label": "concept",
+      "status": "published",
+      "approved": true,
+      "categories": ["web", "clinics"],
+      "type": "Journey map",
+      "problem": "Clinics lose new patients at small steps before the first visit.",
+      "built": "A seven-step journey with the common leak at each step and what usually fixes it. Fictional clinic; public information only.",
+      "tools": "Journey mapping",
+      "verification": "Contains no patient data or clinical claims.",
+      "outcome": "Concept demonstration — not client work; no result claimed.",
+      "url": "/international/clinics/#journey"
+    }
+  ],
+  "payment_methods": [
+    {"id": "bank_transfer", "flag": "wise_enabled", "label": "Bank transfer (USD, GBP or EUR)", "details_confirmed": false},
+    {"id": "paypal", "flag": "paypal_enabled", "label": "PayPal invoice", "details_confirmed": false},
+    {"id": "stripe", "flag": "stripe_enabled", "label": "Card payment (Stripe)", "details_confirmed": false},
+    {"id": "razorpay_international", "flag": "razorpay_international_enabled", "label": "International card payment (Razorpay)", "details_confirmed": false}
+  ],
+  "faqs": {
+    "home": [
+      {"q": "Who is Moodily International for?", "a": "Service businesses, educators, consultants and software teams that need customers to find them, trust them, get in touch and understand what they offer."},
+      {"q": "Do you guarantee rankings, leads or revenue?", "a": "No. Nobody can honestly guarantee those. We commit to the deliverables, timeline and revision rounds in your written scope, and we tell you plainly when something is outside our control."},
+      {"q": "Where are you based and how do we work together?", "a": "Moodily is based in India and works remotely in English. Communication is by email or video call; WhatsApp is optional. Times are in India Standard Time (UTC+5:30)."},
+      {"q": "How do payments work?", "a": "Fixed-price services are confirmed in writing before you pay. Custom projects receive a written scope and quote; work starts after you approve it and pay the deposit. Prices are in USD unless stated otherwise."},
+      {"q": "Do you use AI?", "a": "Yes, to draft, research and speed up production. Every deliverable is reviewed by a person before you see it, and factual content is checked against its source."},
+      {"q": "Can you sign an NDA?", "a": "Yes. Tell us in your request and we'll use your NDA or a mutual one before you share anything confidential."}
+    ],
+    "services": [
+      {"q": "Who owns the accounts and files?", "a": "You do. Profiles, ad accounts, analytics and domains stay in your name; we work through delegated or manager access. Final deliverables are yours once the project is paid in full."},
+      {"q": "Why don't you need my passwords?", "a": "Google, Meta and most platforms let you grant access without sharing a password. That keeps you in control, and you can remove our access at any time."},
+      {"q": "What counts as a revision round?", "a": "One round is a single, consolidated set of changes sent together. Each service includes a fixed number of rounds; new requirements or out-of-scope changes are quoted separately."},
+      {"q": "What delays a project?", "a": "Usually missing content or access, approvals that take longer than agreed, or platform verification. We'll flag anything that affects the timeline early."}
+    ],
+    "customer-education": [
+      {"q": "Do you need access to our product?", "a": "A test or sandbox account is ideal. We don't need production customer data, and we avoid showing real customer information on screen."},
+      {"q": "Who checks that tutorials are accurate?", "a": "We check each step against the product before recording, and your subject-matter expert approves scripts at an agreed checkpoint. Nothing is published without your approval."},
+      {"q": "Can you update tutorials when the product changes?", "a": "Yes, as a small follow-up project or within a Digital Care plan with a defined monthly scope."},
+      {"q": "Can you show our work in your portfolio?", "a": "Only with your written permission. Some deliverables can't be shared because of ownership or confidentiality, and that's fine."}
+    ],
+    "educators": [
+      {"q": "I already have content. Do you start from scratch?", "a": "No. We start from what you have — talks, notes, slides, recordings — and turn it into a clear path: a free resource, a structured course or programme, and onboarding."},
+      {"q": "Do you market or sell the course for us?", "a": "No. We design and produce the learning assets and the journey around them. Platform, pricing and promotion stay your decisions."},
+      {"q": "Do you need rights to my material?", "a": "You must own the material or have permission to use it, and we'll ask you to confirm this before we start."}
+    ],
+    "clinics": [
+      {"q": "Do you handle patient data?", "a": "No. This work covers public information only — your profile, website, booking path and educational material. Please do not submit patient or sensitive health information."},
+      {"q": "Who approves clinical wording?", "a": "Your clinicians. We write and design; anything clinical is approved by your team, and we follow the advertising rules your team confirms for your profession and country."},
+      {"q": "Have you worked with clinics outside India?", "a": "Not yet. The examples on this page are clearly labelled concept demonstrations."}
+    ]
+  }
+}
