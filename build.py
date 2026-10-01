@@ -461,10 +461,9 @@ def service_detail(svc, ctx):
     case_html = ""
     case_ids = svc.get("case_study_ids") or ([svc["case_study"]] if svc.get("case_study") else [])
     cs = CASES_BY_SLUG.get(case_ids[0]) if case_ids else None
-    if cs:
-        href = "/case-studies/{}/".format(cs["slug"]) if cs["status"] == "published" else "/case-studies/#{}".format(cs["slug"])
-        case_html = '<p class="case-link">{}: <a href="{}" data-track="portfolio_open" data-label="{}">{}</a></p>'.format(
-            lab["sample"], href, cs["slug"], e(cs["title"]))
+    if cs and cs["status"] == "published":  # draft case studies are never shown publicly
+        case_html = '<p class="case-link">{}: <a href="/case-studies/{}/" data-track="portfolio_open" data-label="{}">{}</a></p>'.format(
+            lab["sample"], cs["slug"], cs["slug"], e(cs["title"]))
     compliance = '<p class="notice">{}</p>'.format(e(svc["compliance_note"])) if svc.get("compliance_note") else ""
     tier = TIER_LABEL.get(svc.get("tier") or "")
     return (
@@ -521,23 +520,29 @@ def c_payg(args, ctx):
 
 
 def c_cases(args, ctx):
+    """Published case studies only. A draft has no problem/method/verification yet, so it is never
+    shown publicly (no title, no "real project" badge). heading="..." renders a sub-heading only when
+    there is something to show; with nothing published, a heading-less call gets an honest empty state."""
     limit = int(args.get("limit", "0") or 0)
-    items = CASES[:limit] if limit else CASES
+    published = [c for c in CASES if c["status"] == "published"]
+    items = published[:limit] if limit else published
+    if not items:
+        if args.get("heading"):
+            return ""
+        return ('<p class="notice">अभी कोई case study published नहीं है। Case study तभी publish होती है जब problem, method, '
+                'verification और (अगर मापा गया हो) result documented हो — और client project हो तो client की लिखित अनुमति हो।</p>')
     cards = []
     for c in items:
         svc = SERVICES.get(c["service"])
-        if c["status"] == "published":
-            link = '<a class="stretched" href="/case-studies/{0}/" data-track="case_study_open" data-label="{0}">{1}</a>'.format(c["slug"], e(c["title"]))
-            badge = '<span class="badge badge-ok">Case study</span>'
-        else:
-            link = e(c["title"])
-            badge = '<span class="badge">Detailed write-up in progress</span>'
+        link = '<a class="stretched" href="/case-studies/{0}/" data-track="case_study_open" data-label="{0}">{1}</a>'.format(c["slug"], e(c["title"]))
+        badge = '<span class="badge badge-ok">Case study</span>'
         if KIND_LABEL.get(c.get("kind")):
             badge += ' <span class="badge badge-kind">{}</span>'.format(e(KIND_LABEL[c["kind"]]))
         svc_link = '<a class="small" href="{}#{}">Related service: {} →</a>'.format(svc["page"], svc["id"], e(svc["name"])) if svc else ""
         cards.append('<article class="card case-card" id="{}"><p class="eyebrow">{} · {}</p><h3>{}</h3><p class="muted small">{}</p>{}<p>{}</p></article>'.format(
             c["slug"], e(c["category"]), e(DIVISIONS[c["division"]]), link, e(c["work_type"]), badge, svc_link))
-    return '<div class="grid grid-3">{}</div>'.format("".join(cards))
+    head = '<h3 class="sub-h">{}</h3>'.format(e(args["heading"])) if args.get("heading") else ""
+    return '{}<div class="grid grid-3">{}</div>'.format(head, "".join(cards))
 
 
 def c_products(args, ctx):
@@ -1275,9 +1280,12 @@ def c_samples(args, ctx):
                          fmts='<span class="small">Format: {}</span>'.format(e(fmts)) if fmts else "", more=more))
     for slug in cases:
         c = CASES_BY_SLUG[slug]
-        cards.append('<article class="card sample-card sample-case"><span class="badge">Real project · detailed write-up in progress</span><h3>{t}</h3>'
-                     '<p class="small muted">{w}</p><a class="small" href="/case-studies/#{s}" data-track="portfolio_open" data-label="{s}">Portfolio में देखें →</a></article>'.format(
-                         t=e(c["title"]), w=e(c["work_type"]), s=slug))
+        if c["status"] != "published":  # drafts have no evidence yet — never shown or labelled as real work
+            continue
+        kind = ' <span class="badge badge-kind">{}</span>'.format(e(KIND_LABEL[c["kind"]])) if KIND_LABEL.get(c.get("kind")) else ""
+        cards.append('<article class="card sample-card sample-case"><span class="badge badge-ok">Case study</span>{k}<h3>{t}</h3>'
+                     '<p class="small muted">{w}</p><a class="small" href="/case-studies/{s}/" data-track="portfolio_open" data-label="{s}">Case study पढ़ें →</a></article>'.format(
+                         k=kind, t=e(c["title"]), w=e(c["work_type"]), s=slug))
     if cards:
         body = '<div class="grid grid-3 samples-grid">{}</div>'.format("".join(cards))
     else:
@@ -2654,10 +2662,9 @@ def sample_page(smp):
 
     case = CASES_BY_SLUG.get(smp.get("case_study") or "")
     case_html = ""
-    if case:
-        link = ('<a href="/case-studies/{0}/">{1} →</a>'.format(case["slug"], e(case["title"])) if case["status"] == "published"
-                else '<a href="/case-studies/#{0}">{1} →</a>'.format(case["slug"], e(case["title"])))
-        case_html = ('<p class="notice small"><strong>इससे जुड़ा असली project:</strong> {} '
+    if case and case["status"] == "published":  # draft case studies are never shown publicly
+        link = '<a href="/case-studies/{0}/">{1} →</a>'.format(case["slug"], e(case["title"]))
+        case_html = ('<p class="notice small"><strong>इससे जुड़ी case study:</strong> {} '
                      '<span class="muted">Case study = जो काम सच में हुआ। Sample = जो बन सकता है।</span></p>'.format(link))
 
     svc_html = ('<p class="small">पूरी service और scope: <a href="{}#{}" data-track="service_card_click" data-label="sample-svc-{}">{} →</a></p>'.format(

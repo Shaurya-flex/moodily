@@ -11,11 +11,11 @@
     },
     {
       "q": "क्या आप Google पर पहला rank दिलाने की guarantee देते हैं?",
-      "a": "नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता, इसलिए ऐसी guarantee देना गलत है। हम listing, website और reviews की वे बुनियादी चीज़ें सही करते हैं जो Google की guidelines के अनुसार ज़रूरी हैं, और परिणाम मापते हैं।"
+      "a": "नहीं। Google ranking पर किसी agency का पूरा नियंत्रण नहीं होता, इसलिए ऐसी guarantee देना गलत है। हम listing, website और reviews की वे बुनियादी चीज़ें सही करते हैं जो Google की guidelines के अनुसार ज़रूरी हैं।"
     },
     {
       "q": "Prices fixed हैं?",
-      "a": "Website पर दिए prices शुरुआती (starting) prices हैं। आपके काम का scope देखकर लिखित quote मिलता है, जिसमें deliverables, समय, revisions और क्या शामिल नहीं है — सब साफ़ लिखा होता है।"
+      "a": "हर price के साथ लिखा है कि वह fixed price है या starting price (\"से\")। Starting price वाले काम के लिए scope देखकर लिखित quote मिलता है, जिसमें deliverables, समय, revisions और क्या शामिल नहीं है — सब साफ़ लिखा होता है।"
     },
     {
       "q": "क्या free AI learning बंद हो गई?",
@@ -23,7 +23,7 @@
     },
     {
       "q": "Payment कैसे होता है?",
-      "a": "अभी हर project के लिए लिखित quote के बाद payment details WhatsApp/email पर भेजी जाती हैं। Website पर online checkout बाद में जोड़ा जाएगा।"
+      "a": "Fixed-price offers के लिए website पर Razorpay का secure payment link है। Quote वाले काम में लिखित quote approve होने के बाद payment details WhatsApp/email पर भेजी जाती हैं। Card/UPI details Razorpay के पास जाते हैं, Moodily के पास नहीं।"
     }
   ],
   "local-business": [
@@ -93,7 +93,7 @@
     },
     {
       "q": "Do you work with international clients?",
-      "a": "Yes. We work in English and Hindi, remotely, with quotes in INR or USD."
+      "a": "Yes, we can. We work remotely in English or Hindi. Quotes are in INR today; for clients outside India, the currency and payment method are agreed in writing before any work starts."
     },
     {
       "q": "Will the content be AI-generated?",

@@ -14,11 +14,15 @@
 
   // v1-2026 funnel names pushed alongside the older event names, so existing GTM triggers keep working.
   var EVENT_ALIASES = { whatsapp_click: 'whatsapp_contact_clicked', free_audit_click: 'free_audit_started' };
+  // Analytics gets a link's destination only, never its query string or fragment: those can carry the
+  // visitor's own details (WhatsApp ?text=), order/payment IDs or download tokens.
+  function safeUrl(href) { return String(href || '').split('#')[0].split('?')[0]; }
+  window.moodilySafeUrl = safeUrl;
   document.addEventListener('click', function (ev) {
     var el = ev.target.closest('[data-track]');
     if (!el) return;
     var name = el.getAttribute('data-track');
-    var params = { label: el.getAttribute('data-label') || '', link_url: el.getAttribute('href') || '' };
+    var params = { label: el.getAttribute('data-label') || '', link_url: safeUrl(el.getAttribute('href')) };
     track(name, params);
     if (EVENT_ALIASES[name]) track(EVENT_ALIASES[name], params);
     // Outbound Razorpay Payment Link (opens in a new tab, so this always fires before the checkout loads).
@@ -570,7 +574,7 @@
   document.addEventListener('click', function (ev) {
     var a = ev.target.closest('a[href]');
     if (!a || a.hasAttribute('data-track') || a.closest('[data-track]')) return;
-    var href = a.getAttribute('href');
+    var href = safeUrl(a.getAttribute('href'));
     if (href.indexOf('/case-studies/') === 0) track('portfolio_open', { label: href, link_url: href });
     else if (href.indexOf('/store/') === 0) track('store_click', { label: href, link_url: href });
   });
