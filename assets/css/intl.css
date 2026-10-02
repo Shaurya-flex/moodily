@@ -35,10 +35,6 @@ body.intl .eyebrow { color: var(--text-muted); letter-spacing: .09em; }
 .intl-price.is-draft { color: var(--text-muted); }
 .draft-chip { display: inline-block; margin-left: .5em; font-size: .7rem; font-weight: 700; letter-spacing: .02em; padding: 2px 9px; border-radius: var(--r-pill);
   background: var(--warning-soft); color: var(--warning); border: 1px dashed var(--warning); vertical-align: middle; }
-.label-chip { display: inline-block; align-self: flex-start; width: max-content; font-size: .68rem; font-weight: 700; letter-spacing: .08em; padding: 3px 10px; border-radius: var(--r-pill); margin: 0 0 .7em; }
-.lbl-own { background: var(--primary-soft); color: var(--primary); }
-.lbl-commissioned { background: var(--secondary-soft); color: var(--secondary); }
-.lbl-concept { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
 .intl-label-key { list-style: none; padding: 0; margin: 0; display: grid; gap: .6em; }
 .intl-label-key .label-chip { margin: 0 .6em 0 0; }
 .intl-work .facts, .intl-pkg .facts, .intl-facts { display: grid; gap: .7em; margin: .8em 0; }
@@ -135,7 +131,6 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
 .intl-price-note p { margin: .3em 0; }
 
 /* labels: client work */
-.lbl-client { background: var(--success-soft); color: var(--success); }
 
 /* intake form */
 .intl-form .req { color: var(--danger); }

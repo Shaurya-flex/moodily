@@ -823,4 +823,83 @@
       thanks.setAttribute('href', base + '?text=' + encodeURIComponent(msg));
     }
   }
+  // ---------- section reveal: only when motion is welcome and IntersectionObserver exists.
+  // Content is fully visible without JS; the hidden state is applied by this script and lifted again after 2.5s
+  // in case an observer never fires.
+  var reveals = document.querySelectorAll('[data-reveal]');
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reveals.length && !calm && 'IntersectionObserver' in window) {
+    root.classList.add('reveal-on');
+    var rio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('is-in'); rio.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    reveals.forEach(function (el) { rio.observe(el); });
+    setTimeout(function () { reveals.forEach(function (el) { el.classList.add('is-in'); }); }, 2500);
+  }
+
+  // ---------- before/after comparison: range input (keyboard: arrows/Home/End) plus Before/After buttons.
+  // Without JS both images sit side by side with their captions.
+  document.querySelectorAll('[data-ba]').forEach(function (box) {
+    var stage = box.querySelector('.ba-stage'), controls = box.querySelector('[data-ba-controls]');
+    var range = controls && controls.querySelector('input[type=range]');
+    if (!stage || !range) return;
+    var buttons = controls.querySelectorAll('[data-ba-show]');
+    function set(v) {
+      v = Math.max(0, Math.min(100, Number(v)));
+      stage.style.setProperty('--pos', v + '%');
+      range.value = v;
+      range.setAttribute('aria-valuetext', v >= 100 ? 'Showing before' : v <= 0 ? 'Showing after' : Math.round(v) + '% before, ' + Math.round(100 - v) + '% after');
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-ba-show') === 'before' && v >= 100) || (b.getAttribute('data-ba-show') === 'after' && v <= 0))); });
+    }
+    box.classList.add('is-enhanced');
+    controls.hidden = false;
+    range.addEventListener('input', function () { set(range.value); });
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        set(b.getAttribute('data-ba-show') === 'before' ? 100 : 0);
+        track('ba_demo_toggle', { label: b.getAttribute('data-ba-show') });
+      });
+    });
+    set(50);
+  });
+
+  // ---------- need selector: two questions that point to one existing offer. Every option is a plain link without JS.
+  document.querySelectorAll('[data-need-selector]').forEach(function (box) {
+    var form = box.querySelector('[data-need-form]'), what = form && form.querySelector('select');
+    if (!form || !what) return;
+    function region() { var r = form.querySelector('input[name="need-region"]:checked'); return r ? r.value : 'india'; }
+    function show() {
+      var reg = region(), need = what.value;
+      box.querySelectorAll('.need-group').forEach(function (g) {
+        var on = g.getAttribute('data-region') === reg;
+        g.classList.toggle('is-active', on);
+        g.querySelectorAll('li').forEach(function (li) { li.classList.toggle('is-match', on && li.getAttribute('data-need') === need); });
+      });
+    }
+    form.hidden = false;
+    box.classList.add('is-enhanced');
+    form.addEventListener('change', function () { show(); track('need_selected', { label: what.value, region: region() }); });
+    form.addEventListener('submit', function (ev) { ev.preventDefault(); });
+    show();
+  });
+
+  // ---------- click-to-load video: nothing loads from YouTube until the visitor presses play.
+  document.querySelectorAll('.video-card[data-video]').forEach(function (card) {
+    var link = card.querySelector('.video-poster');
+    if (!link) return;
+    link.addEventListener('click', function (ev) {
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1) return;
+      ev.preventDefault();
+      var id = card.getAttribute('data-video');
+      if (!/^[A-Za-z0-9_-]{6,20}$/.test(id)) { window.open(link.href, '_blank', 'noopener'); return; }
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
+      frame.title = card.getAttribute('data-video-title') || 'Video';
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      frame.allowFullscreen = true;
+      frame.className = 'video-frame' + (link.classList.contains('is-tall') ? ' is-tall' : '');
+      link.replaceWith(frame);
+      frame.focus();
+    });
+  });
 })();

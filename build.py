@@ -1023,7 +1023,9 @@ def c_founder(args, ctx):
         return ('<p>Moodily एक founder-led, India-based team है। हर project में आपसे सीधे वही लोग बात करते हैं जो काम करते हैं। '
                 'सवाल हों तो <a href="mailto:{0}">{0}</a> पर लिखें।</p>').format(e(SITE["email"]))
     li = ' · <a href="{}" rel="noopener" target="_blank">LinkedIn</a>'.format(e(f["linkedin"])) if f.get("linkedin") else ""
-    return '<div class="card"><h3>{}</h3><p class="muted">{}{}</p><p>{}</p></div>'.format(e(f["name"]), e(f.get("role", "")), li, e(f.get("bio", "")))
+    photo = founder_media(INTL["founder"], 160) if INTL["founder"].get("photo") else ""
+    return '<div class="card founder-card">{}<div><h3>{}</h3><p class="muted">{}{}</p><p>{}</p></div></div>'.format(
+        photo, e(f["name"]), e(f.get("role", "")), li, e(f.get("bio", "")))
 
 
 # ------------------------------------------------------ catalogue & intake
@@ -2328,10 +2330,11 @@ def c_resources_teaser(args, ctx):
 # India pages, their chrome and their INR schema are untouched. launch.mode "preview" keeps every page noindex and out
 # of the sitemap; "public" publishes approved content only (validate_international enforces it).
 INTL_PREFIX = "/international/"
-INTL_LABEL_CLASS = {"commissioned": "lbl-commissioned", "client": "lbl-client", "own": "lbl-own", "concept": "lbl-concept"}
+INTL_LABEL_CLASS = {"commissioned": "lbl-commissioned", "client": "lbl-client", "paid_review": "lbl-paid", "own": "lbl-own", "concept": "lbl-concept"}
 INTL_LABEL_EXPLAIN = {"commissioned": "Paid work commissioned by a client, shown only with their permission.",
                       "client": "Work delivered for a client, shown only with their permission.",
                       "own": "Built and published by Moodily or its founder — real work, not a paid client engagement.",
+                      "paid_review": "A software company paid for an honest, disclosed review. Not a commissioned onboarding tutorial.",
                       "concept": "A demonstration of method using a fictional example. Not client work."}
 INTL_NAV = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
             ("/international/customer-education/", "Customer Education"), ("/international/work/", "Work"),
@@ -2485,12 +2488,12 @@ def c_intl_portfolio(args, ctx):
             link = '<a class="small" href="{}"{} data-track="portfolio_view" data-label="{}">View {}</a>'.format(
                 e(it["url"]), ' target="_blank" rel="noopener"' if ext else "", it["id"], "project ↗" if ext else "example →")
         verify = '<div><dt>Verification</dt><dd>{}</dd></div>'.format(e(it["verification"])) if it.get("verification") else ""
-        cards.append(('<article class="card intl-work" id="work-{id}"><span class="label-chip {cls}">{label}</span><h3>{title}</h3>'
+        cards.append(('<article class="card intl-work" id="work-{id}">{media}<span class="label-chip {cls}">{label}</span><h3>{title}</h3>'
                       '<p class="small muted">{type}</p><dl class="facts"><div><dt>Problem</dt><dd>{problem}</dd></div>'
                       '<div><dt>What was built</dt><dd>{built}</dd></div><div><dt>Tools</dt><dd>{tools}</dd></div>{verify}'
                       '<div><dt>Outcome</dt><dd>{outcome}</dd></div></dl><p class="btn-row">{link}'
                       '<a class="small" href="/international/contact/" data-track="contact_clicked" data-label="similar-{id}">Request similar work →</a></p></article>').format(
-            id=it["id"], cls=INTL_LABEL_CLASS[it["label"]], label=e(labels[it["label"]]), title=e(it["title"]), type=e(it["type"]),
+            id=it["id"], media=work_media(it, "intl-work"), cls=INTL_LABEL_CLASS[it["label"]], label=e(labels[it["label"]]), title=e(it["title"]), type=e(it["type"]),
             problem=e(it["problem"]), built=e(it["built"]), tools=e(it["tools"]), verify=verify, outcome=e(it["outcome"]), link=link))
     return '<div class="grid grid-2 intl-portfolio">{}</div>'.format("".join(cards))
 
@@ -2501,7 +2504,7 @@ def c_intl_labels(args, ctx):
     for it in intl_portfolio_items(args.get("category")):
         if it["label"] not in used:
             used.append(it["label"])
-    order = [k for k in ("commissioned", "client", "own", "concept") if k in used]
+    order = [k for k in ("commissioned", "client", "paid_review", "own", "concept") if k in used]
     items = "".join('<li><span class="label-chip {}">{}</span> {}</li>'.format(INTL_LABEL_CLASS[k], e(INTL["portfolio_labels"][k]), e(INTL_LABEL_EXPLAIN[k]))
                     for k in order)
     return ('<ul class="intl-label-key">{}</ul><p class="small muted">Client work appears here only with the client\'s written permission. '
@@ -2530,8 +2533,9 @@ def c_intl_founder(args, ctx):
     links = ['<a href="{}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-founder">AI with Saurabh on YouTube ↗</a>'.format(e(f["youtube"]))]
     if f.get("linkedin"):
         links.append('<a href="{}" target="_blank" rel="noopener">LinkedIn ↗</a>'.format(e(f["linkedin"])))
-    return ('<div class="intl-founder card">{photo}<div><h3>{name}</h3><p class="muted">{role}</p><p>{bio}</p>'
-            '<p class="small">{links}</p></div></div>').format(photo=photo, name=e(f["name"]), role=e(f["role"]), bio=e(f["bio"]), links=" · ".join(links))
+    note = '<p class="small muted">{}</p>'.format(e(f["channel_note"])) if f.get("channel_note") else ""
+    return ('<div class="intl-founder card">{photo}<div><h3>{name}</h3><p class="muted">{role}</p><p>{bio}</p>{note}'
+            '<p class="small">{links}</p></div></div>').format(photo=photo, name=e(f["name"]), role=e(f["role"]), bio=e(f["bio"]), note=note, links=" · ".join(links))
 
 
 def c_intl_faq(args, ctx):
@@ -2542,11 +2546,11 @@ def c_intl_faq(args, ctx):
 
 def c_intl_cta(args, ctx):
     return ('<section class="intl-final"><div class="container"><h2>{t}</h2><p class="lead">{s}</p><p class="btn-row">'
-            '<a class="btn btn-primary btn-lg" href="{audit}" data-track="audit_started" data-label="final-cta">Request an audit</a>'
-            '<a class="btn btn-outline btn-lg" href="/international/work/" data-track="portfolio_view" data-label="final-cta">View work</a></p></div></section>').format(
-        t=e(args.get("title", "See what's costing you customers.")),
-        s=e(args.get("sub", "Start with a Digital Journey Audit: a prioritised review and a 30-day plan you can act on, with or without us.")),
-        audit=INTL_AUDIT_URL)
+            '<a class="btn btn-primary btn-lg" href="/international/contact/" data-track="contact_clicked" data-label="final-cta">Discuss your project</a>'
+            '<a class="btn btn-outline btn-lg" href="/international/work/" data-track="portfolio_view" data-label="final-cta">View work</a></p>'
+            '<p class="small intl-final-note">Not sure where to start? A <a href="/international/journey-audit/">Digital Journey Audit</a> reviews your current path from search to enquiry.</p></div></section>').format(
+        t=e(args.get("title", "Tell us what your customers need to understand.")),
+        s=e(args.get("sub", "Describe your business and what you need. You'll get questions or a written scope back, usually within 24 hours on working days.")))
 
 
 def c_intl_contact_line(args, ctx):
@@ -2574,20 +2578,13 @@ def c_intl_intake(args, ctx):
     ta = lambda fid, req=True: '<textarea id="{}" rows="4" maxlength="1500"{}></textarea>'.format(fid, " required" if req else "")
     fields = "".join([
         field("in-name", "Name", inp("in-name", ac="name")),
+        field("in-company", "Business name", inp("in-company", ac="organization")),
         field("in-email", "Work email", inp("in-email", "email", "email")),
-        field("in-company", "Company or business", inp("in-company", ac="organization")),
         field("in-website", "Website", inp("in-website", "url", "url", False), False),
-        field("in-country", "Country", inp("in-country", ac="country-name")),
-        field("in-tz", "Time zone", inp("in-tz", req=False), False, "Filled in from your browser — change it if needed."),
-        field("in-type", "Project type", sel("in-type", types + '<option value="other">Something else</option>')),
-        field("in-budget", "Budget range", sel("in-budget", opts(INTL_BUDGETS))),
-        field("in-timeline", "Desired timeline", sel("in-timeline", opts(INTL_TIMELINES))),
-        field("in-contact", "Preferred contact", sel("in-contact", opts(["Email", "Video call", "WhatsApp"]))),
-        field("in-goal", "Primary goal", ta("in-goal")),
-        field("in-problem", "What isn't working today?", ta("in-problem")),
-        field("in-links", "Relevant public links", ta("in-links", False), False, "Your profiles, pages or examples you like — public links only."),
-        field("in-nda", "Do you need an NDA?", sel("in-nda", opts(["No", "Yes"]), False), False),
-        field("in-source", "How did you hear about Moodily?", inp("in-source", req=False), False),
+        field("in-type", "Service needed", sel("in-type", types + '<option value="other">Something else</option>')),
+        field("in-desc", "Brief description", ta("in-desc"), True, "What you do, who your customers are and what you'd like to change."),
+        field("in-timeline", "Timeline", sel("in-timeline", opts(INTL_TIMELINES), False), False),
+        field("in-budget", "Budget range (USD)", sel("in-budget", opts(INTL_BUDGETS), False), False),
     ])
     return ('<form class="lead-form intl-form" id="intlIntake" novalidate data-email="{email}" data-wa="{wa}">'
             '<p class="notice small"><strong>Please do not submit</strong> patient or sensitive health information, passwords, or card and bank details.</p>'
@@ -2595,8 +2592,9 @@ def c_intl_intake(args, ctx):
             '<p class="btn-row"><button type="submit" class="btn btn-primary">Prepare my email</button>'
             '<button type="button" class="btn btn-outline" id="intlWa">Send via WhatsApp instead</button></p>'
             '<p class="small muted">Nothing is sent from this page. Your email app opens with your answers, ready to send to {email}.</p>'
-            '<div class="intl-result" id="intlResult" hidden tabindex="-1"><p><strong>Your email should now be open.</strong> If it didn\'t open, '
-            'copy your request and send it to <a href="mailto:{email}">{email}</a>.</p>'
+            '<div class="intl-result" id="intlResult" hidden tabindex="-1"><p><strong>Your email should now be open, ready to send.</strong> Nothing has been sent yet — '
+            'press send in your email app. If it didn\'t open, copy your request and send it to <a href="mailto:{email}">{email}</a>. '
+            'After you send it, we reply within 24 hours on working days with questions or a written scope.</p>'
             '<p><button type="button" class="btn btn-outline btn-sm" id="intlCopy">Copy my request</button> <span class="small muted" id="intlCopied" role="status"></span></p></div>'
             '</form><noscript><p class="notice">Email your request to <a href="mailto:{email}">{email}</a>.</p></noscript>').format(
         email=e(intl_email()), wa=e(SITE["whatsapp"]["number"]), fields=fields)
@@ -2635,21 +2633,22 @@ def intl_header(route):
       <div class="menu-panel" role="menu" aria-label="Site navigation">
         <button class="menu-close" type="button" data-menu-close aria-label="Close menu">&times;</button>
         <ul class="nav-links">{top}<li><a href="/international/contact/"{contact}>Contact</a></li></ul>
-        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="{audit}" data-track="audit_started" data-label="menu">Request Audit</a></div>
+        <p class="menu-heading">Moodily</p><ul class="nav-sub"><li><a href="/" data-track="main_site_click" data-label="intl-menu">Main site — services in India, in rupees</a></li></ul>
+        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/international/contact/" data-track="contact_clicked" data-label="menu">Discuss your project</a></div>
       </div>
     </details>
   </nav>
   <div class="nav-actions"><button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
-    <a class="btn btn-primary btn-sm nav-cta" href="{audit}" data-track="audit_started" data-label="nav">Request Audit</a></div>
-</div></header>""".format(top=top, contact=cur("/international/contact/"), audit=INTL_AUDIT_URL)
+    <a class="btn btn-primary btn-sm nav-cta" href="/international/contact/" data-track="contact_clicked" data-label="nav">Discuss your project</a></div>
+</div></header>""".format(top=top, contact=cur("/international/contact/"))
 
 
 def intl_footer(route):
     links = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in INTL_FOOTER_LINKS)
     pol = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in INTL_POLICY_LINKS)
     mobile = "" if route.startswith("/international/pay/") else (
-        '<nav class="mobile-cta intl-mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="{}" data-track="audit_started" data-label="mobile-bar">Request audit</a>'
-        '<a class="btn btn-outline" href="/international/work/" data-track="portfolio_view" data-label="mobile-bar">View work</a></nav>').format(INTL_AUDIT_URL)
+        '<nav class="mobile-cta intl-mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/international/contact/" data-track="contact_clicked" data-label="mobile-bar">Discuss your project</a>'
+        '<a class="btn btn-outline" href="/international/work/" data-track="portfolio_view" data-label="mobile-bar">View work</a></nav>')
     return """<footer class="site-footer intl-footer"><div class="container">
   <div class="footer-grid">
     <div><a class="logo" href="/international/">Moodily<span class="logo-sub">International</span></a>
@@ -2659,18 +2658,20 @@ def intl_footer(route):
     </div>
     <div><h2 class="footer-h">Moodily International</h2><ul>{links}</ul></div>
     <div><h2 class="footer-h">Policies</h2><ul>{pol}</ul></div>
+    <div><h2 class="footer-h">Moodily</h2><ul><li><a href="/" data-track="main_site_click" data-label="intl-footer">Main site — services in India, in rupees</a></li>
+      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-footer">Learn AI: AI with Saurabh ↗</a></li></ul></div>
   </div>
   <p class="footer-bottom small muted">© {year} {entity} · We don't guarantee rankings, leads or revenue — we commit to the scope we agree in writing.</p>
 </div></footer>
 {mobile}""".format(loc=e(INTL["entity"]["location"]), email=e(intl_email()), reply=e(INTL["contact"]["reply"]), tz=e(INTL["contact"]["timezone"]),
-                   links=links, pol=pol, year=date.today().year, entity=e(INTL["entity"]["name"]), mobile=mobile)
+                   links=links, pol=pol, year=date.today().year, entity=e(INTL["entity"]["name"]), mobile=mobile, yt=AI_WITH_SAURABH)
 
 
 def intl_breadcrumbs_html(meta):
     crumbs = meta.get("breadcrumbs")
     if not crumbs:
         return ""
-    parts = ['<li><a href="/international/">International</a></li>']
+    parts = ['<li><a href="/">Moodily</a></li>', '<li><a href="/international/">International</a></li>']
     for i, (name, href) in enumerate(crumbs):
         parts.append('<li><span aria-current="page">{}</span></li>'.format(e(name)) if i == len(crumbs) - 1
                      else '<li><a href="{}">{}</a></li>'.format(href, e(name)))
@@ -2747,6 +2748,306 @@ def validate_international():
         INTL_WARNINGS.append("International is in PREVIEW mode: /international/ pages are noindex.")
 
 
+# ---------------------------------------------------------- showcase (homepage + International, 2026-10 redesign)
+# Content lives in src/data/showcase.json; prices always come from services.json / pricing.json (INR) and
+# international.json (USD); real work comes from international.json -> portfolio (one labelled list of proof).
+SHOWCASE = load("data/showcase.json")
+INTL_SVC = {s["id"]: s for s in INTL["services"]}
+DEVANAGARI = re.compile(r"[ऀ-ॿ][ऀ-ॿ\s।]*[ऀ-ॿ]|[ऀ-ॿ]")
+
+
+def hi_wrap(text):
+    """Escape, then mark Hindi runs with lang="hi" so screen readers switch voice on English pages."""
+    return DEVANAGARI.sub(lambda m: '<span lang="hi">{}</span>'.format(m.group(0)), e(text))
+
+
+ICONS = {
+    "shop": '<path d="M4 10l1.6-5h12.8L20 10M4 10v9h16v-9M4 10h16M9.5 19v-5h5v5"/>',
+    "clinic": '<path d="M8 4c-2.5 0-4 2-4 4.5 0 3 1.6 4.5 2.2 7.7.4 2 .9 3.8 1.9 3.8 1.4 0 1.4-4.5 3.9-4.5s2.5 4.5 3.9 4.5c1 0 1.5-1.8 1.9-3.8.6-3.2 2.2-4.7 2.2-7.7C20 6 18.5 4 16 4c-1.8 0-2.7 1-4 1S9.8 4 8 4z"/>',
+    "play": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor"/>',
+}
+
+
+def icon(name):
+    return ('<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" '
+            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{}</svg>').format(ICONS[name])
+
+
+def en_price(svc):
+    """English price label for an India service: '₹1,999' (exact), 'From ₹7,999' (starts at), or 'Custom quote'."""
+    if svc.get("price_unit") == "free" or svc.get("price_mode") == "free":
+        return "Free"
+    if svc.get("price_from") is None or svc.get("price_mode") == "custom_quote":
+        return "Custom quote"
+    amount = "₹" + inr(svc["price_from"]) + (" / month" if svc.get("price_unit") == "month" else "")
+    return amount if svc.get("price_mode") == "exact" else "From " + amount
+
+
+def c_hero_visual(args, ctx):
+    return ('<figure class="hero-visual"><img src="/assets/img/illustrations/hero-journey.svg" width="640" height="540" '
+            'alt="Illustrative demo: a customer finds a fictional optician on a map, reads a clear service page with visit times, '
+            'then sends an appointment request that the shop confirms later." fetchpriority="high" decoding="async">'
+            '<figcaption>Illustrative demo — a fictional business, not client work.</figcaption></figure>')
+
+
+def c_who_we_help(args, ctx):
+    cards = []
+    for p in SHOWCASE["paths"]:
+        cards.append(('<article class="path3 path3-{id}" data-reveal><span class="path3-icon">{icon}</span>'
+                      '<p class="eyebrow">{eyebrow}</p><h3>{title}</h3><p>{lead}</p><ul class="ticks small">{points}</ul>'
+                      '<p class="path3-links"><a class="btn btn-primary btn-sm" href="{cta_h}" data-track="audience_path_click" data-label="{id}">{cta}</a>'
+                      '<a class="path3-more" href="{more_h}" data-track="audience_path_click" data-label="{id}-more">{more} <span aria-hidden="true">→</span></a></p></article>').format(
+            id=p["id"], icon=icon(p["icon"]), eyebrow=hi_wrap(p["eyebrow"]), title=e(p["title"]), lead=e(p["lead"]),
+            points="".join("<li>{}</li>".format(e(x)) for x in p["points"]),
+            cta=e(p["cta"][0]), cta_h=p["cta"][1], more=e(p["more"][0]), more_h=p["more"][1]))
+    return '<div class="path3-grid">{}</div>'.format("".join(cards))
+
+
+def _need_target(spec):
+    if "service" in spec:
+        s = SERVICES[spec["service"]]
+        return s["name"], en_price(s), "{}#{}".format(s["page"], s["id"]), s.get("for", "")
+    if "intl" in spec:
+        s = INTL_SVC[spec["intl"]]
+        return s["name"], intl_price_text(s["price"]), s.get("page") or "/international/services/#svc-" + s["id"], s["summary"]
+    return spec["name"], "", spec["href"], spec.get("note", "")
+
+
+def c_need_selector(args, ctx):
+    """Every route is a plain link list without JavaScript; site.js turns it into a two-question selector."""
+    groups = []
+    for region, heading in (("india", "In India (prices in ₹)"), ("international", "Outside India (prices in USD)")):
+        rows = []
+        for n in SHOWCASE["needs"]:
+            name, price, href, note = _need_target(n[region])
+            rows.append(('<li data-need="{need}"><a href="{href}" data-track="need_route_click" data-label="{region}-{need}">'
+                         '<span class="need-q">{q}</span><strong>{name}</strong>{price}<span class="need-note">{note}</span></a></li>').format(
+                need=n["id"], href=e(href), region=region, q=e(n["label"]), name=e(name),
+                price='<span class="need-price">{}</span>'.format(e(price)) if price else "", note=hi_wrap(note)))
+        groups.append('<div class="need-group" data-region="{}"><h3 class="need-h">{}</h3><ul>{}</ul></div>'.format(region, e(heading), "".join(rows)))
+    opts = "".join('<option value="{}">{}</option>'.format(n["id"], e(n["label"])) for n in SHOWCASE["needs"])
+    return ('<div class="need-selector" data-need-selector>'
+            '<form class="need-form" hidden data-need-form><fieldset><legend>Where are most of your customers?</legend>'
+            '<label class="need-radio"><input type="radio" name="need-region" value="india" checked> In India</label>'
+            '<label class="need-radio"><input type="radio" name="need-region" value="international"> Outside India</label></fieldset>'
+            '<div class="need-field"><label for="need-what">What do you need first?</label><select id="need-what">{opts}</select></div></form>'
+            '<div class="need-results" aria-live="polite">{groups}</div></div>').format(opts=opts, groups="".join(groups))
+
+
+def video_card(it, where):
+    """Click-to-load YouTube: no request to YouTube until the visitor presses play. Without JS the link opens YouTube."""
+    vid = it["video_id"]
+    poster = ('<img src="{}" alt="" width="360" height="640" loading="lazy" decoding="async">'.format(e(it["poster"])) if it.get("poster")
+              else '<span class="video-art" aria-hidden="true"><span>{}</span></span>'.format(e(it["title"])))
+    return ('<div class="video-card" data-video="{vid}" data-video-title="{title}">'
+            '<a class="video-poster{tall}" href="https://www.youtube.com/watch?v={vid}" target="_blank" rel="noopener" '
+            'data-track="video_play" data-label="{where}-{id}">{poster}<span class="video-play"><span class="video-play-ico" aria-hidden="true"></span>'
+            'Play video<span class="sr-only">: {title} (loads from YouTube)</span></span></a></div>').format(
+        vid=e(vid), title=e(it["title"]), poster=poster, where=e(where), id=e(it["id"]), tall=" is-tall" if it.get("poster") else "")
+
+
+def work_media(it, where):
+    if it.get("video_id"):
+        return video_card(it, where)
+    if it.get("image"):
+        small = ' srcset="{} 480w, {} 960w" sizes="(max-width: 700px) 92vw, 560px"'.format(e(it["image_small"]), e(it["image"])) if it.get("image_small") else ""
+        return '<figure class="work-shot"><img src="{}"{} alt="{}" width="960" height="600" loading="lazy" decoding="async"></figure>'.format(
+            e(it["image"]), small, e(it.get("image_alt", "")))
+    return ""
+
+
+def c_work_showcase(args, ctx):
+    by = {it["id"]: it for it in intl_portfolio_items()}
+    ids = [i for i in args.get("ids", "").split(",") if i]
+    labels = INTL["portfolio_labels"]
+    cards = []
+    for i in ids:
+        it = by.get(i)
+        if not it:
+            raise SystemExit("work-showcase: portfolio item '{}' is missing or not approved".format(i))
+        link = '<a class="work-link" href="{}"{} data-track="portfolio_view" data-label="{}">{}</a>'.format(
+            e(it["url"]), ' target="_blank" rel="noopener"' if it["url"].startswith("http") else "", e(it["id"]),
+            "Watch on YouTube ↗" if it.get("video_id") else ("Visit the live page ↗" if it["url"].startswith("http") else "See the example →"))
+        cards.append(('<article class="work-card" id="work-{id}" data-reveal>{media}<div class="work-body">'
+                      '<span class="label-chip {cls}">{label}</span><h3>{title}</h3><p class="work-type">{type}</p>'
+                      '<p class="small">{built}</p><p class="small muted">{outcome}</p>{link}</div></article>').format(
+            id=e(it["id"]), media=work_media(it, args.get("where", "home")), cls=INTL_LABEL_CLASS[it["label"]], label=e(labels[it["label"]]),
+            title=e(it["title"]), type=e(it["type"]), built=e(it["built"]), outcome=e(it["outcome"]), link=link))
+    return '<div class="work-grid">{}</div>'.format("".join(cards))
+
+
+def ba_demo(c):
+    rid = "ba-range-" + c["id"]
+    return ('<div class="ba-demo" data-ba><div class="ba-stage" style="--pos:50%">'
+            '<figure class="ba-pane ba-before"><img src="{before}" alt="{alt_b}" width="{w}" height="{h}" loading="lazy" decoding="async"><figcaption>Before</figcaption></figure>'
+            '<figure class="ba-pane ba-after"><img src="{after}" alt="{alt_a}" width="{w}" height="{h}" loading="lazy" decoding="async"><figcaption>After</figcaption></figure>'
+            '<span class="ba-handle" aria-hidden="true"></span></div>'
+            '<div class="ba-controls" hidden data-ba-controls>'
+            '<button type="button" class="btn btn-outline btn-sm" data-ba-show="before" aria-pressed="false">Before</button>'
+            '<label class="sr-only" for="{rid}">Compare before and after. Left of the line shows before, right shows after.</label>'
+            '<input type="range" id="{rid}" min="0" max="100" value="50" step="1">'
+            '<button type="button" class="btn btn-outline btn-sm" data-ba-show="after" aria-pressed="false">After</button></div></div>').format(
+        before=c["before"], after=c["after"], alt_b=e(c["alt_before"]), alt_a=e(c["alt_after"]), w=c["width"], h=c["height"], rid=rid)
+
+
+def c_concept_demos(args, ctx):
+    out = []
+    for c in SHOWCASE["concepts"]:
+        if args.get("ids") and c["id"] not in args["ids"].split(","):
+            continue
+        media = ba_demo(c) if c.get("before") else (
+            '<figure class="concept-shot"><img src="{}" alt="{}" width="{}" height="{}" loading="lazy" decoding="async"></figure>'.format(
+                c["image"], e(c["alt"]), c["width"], c["height"]))
+        out.append(('<article class="concept concept-{id}" data-reveal><div class="concept-media">{media}</div><div class="concept-body">'
+                    '<span class="label-chip lbl-concept">Concept demo — not client work</span><h3>{title}</h3><p class="small muted">{context}</p>'
+                    '<p class="concept-shows-h">What it shows</p><ul class="ticks small">{shows}</ul>'
+                    '<a class="work-link" href="{lh}" data-track="concept_link_click" data-label="{id}">{lt} →</a></div></article>').format(
+            id=c["id"], media=media, title=e(c["title"]), context=e(c["context"]), shows="".join("<li>{}</li>".format(e(x)) for x in c["shows"]),
+            lh=c["link"][1], lt=e(c["link"][0])))
+    return '<div class="concepts{}">{}</div>'.format(" concepts-single" if len(out) == 1 else "", "".join(out))
+
+
+def c_home_packages(args, ctx):
+    """India packages with what's included AND what isn't (services.json -> not_included), plus the USD entry points.
+    CTAs and prices are the same owner-approved payment links and prices used everywhere else."""
+    cards = []
+    plan = [("digitalStarter", "Fixed price · most complete starter"), ("localBusinessGrowth", "Website + Google + WhatsApp · written quote"),
+            ("digitalSaathi", "Monthly support · after setup")]
+    for key, eyebrow in plan:
+        s = _svc_of(key)
+        if key == "digitalStarter":
+            cta = starter_ctas(key, "home-packages") if PRODUCTS[key].get("advance_payment_url") else (
+                pay_cta(key, where="home-packages", label="₹{} pay करें".format(inr(PRODUCTS[key]["price"]))) + PAY_NOTE)
+        elif key == "localBusinessGrowth":
+            cta = quote_cta(s["id"], where="home-packages")
+        else:
+            cta = saathi_cta(where="home-packages")
+        cards.append(('<article class="pkg2" lang="hi"{view} data-reveal><p class="eyebrow" lang="en">{eyebrow}</p><h3>{name}</h3><p class="small muted">{tag}</p>'
+                      '<p class="pkg2-price" lang="en">{price}</p>'
+                      '<div class="pkg2-cols"><div><p class="pkg2-h" lang="en">Included</p>{inc}</div>'
+                      '<div><p class="pkg2-h" lang="en">Not included</p><ul class="crosses small">{exc}</ul></div></div>'
+                      '<p class="small muted" lang="en">Timeline: {time} · <a href="{page}#{id}">Full scope</a></p><div class="card-actions">{cta}</div></article>').format(
+            view=view_attr(key), eyebrow=e(eyebrow), name=e(s["name"]), tag=e(s["tagline"]), price=e(en_price(s)),
+            inc=_bullets(s["deliverables"], 4), exc="".join("<li>{}</li>".format(e(x)) for x in s.get("not_included", [])[:3]),
+            time=e(s["timeline"]), page=s["page"], id=s["id"], cta=cta))
+    offer = ""
+    if OFFER_STATE:
+        fs = PRODUCTS["foundingStarter"]
+        offer = ('<p class="pkg-offer"><strong>Founding 10 introductory offer:</strong> Google + WhatsApp Starter for ₹{} for the first {} founding clients. '
+                 '<a href="/offers/{}/" data-track="offer_cta_click" data-label="home-packages">Scope and terms</a></p>').format(inr(fs["price"]), OFFER["slots_total"], OFFER["id"])
+    intl = "".join('<li><a href="{}">{}</a> <span>{}</span></li>'.format(s.get("page") or "/international/services/#svc-" + s["id"], e(s["name"]), e(intl_price_text(s["price"])))
+                   for s in intl_services(ids=["journey-audit", "local-presence-launch", "customer-education-studio", "digital-journey-build"]))
+    return ('{offer}<div class="pkg2-grid">{cards}</div>'
+            '<div class="pkg-intl" data-reveal><div><p class="eyebrow">Outside India · USD</p><h3>International packages</h3>'
+            '<p class="small muted">Written in English, priced in US dollars, scoped in writing before any payment.</p></div>'
+            '<ul>{intl}</ul><a class="btn btn-outline btn-sm" href="/international/pricing/" data-track="pricing_click" data-label="home-intl">International pricing →</a></div>'
+            '<p class="small muted pkg-more">Need only one thing? <a href="/services/#prices" data-track="pricing_click" data-label="home-price-list">See every service and price</a> — '
+            'Google Quick Fix, WhatsApp setup, brochures, PPTs and more.</p>').format(offer=offer, cards="".join(cards), intl=intl)
+
+
+def c_project_steps(args, ctx):
+    return '<ol class="steps5">{}</ol>'.format("".join(
+        '<li data-reveal><span class="steps5-n" aria-hidden="true">{n}</span><h3>{t}</h3><p>{x}</p></li>'.format(n=i, t=e(s["title"]), x=e(s["text"]))
+        for i, s in enumerate(SHOWCASE["steps"], 1)))
+
+
+def founder_media(f, size=240):
+    if f.get("photo"):
+        srcset = ' srcset="{} 300w, {} 600w" sizes="(max-width: 760px) 220px, 300px"'.format(e(f["photo_small"]), e(f["photo"])) if f.get("photo_small") else ""
+        return '<img class="founder-photo" src="{}"{} alt="{}, founder of Moodily" width="{s}" height="{s}" loading="lazy" decoding="async">'.format(
+            e(f["photo"]), srcset, e(f["name"]), s=size)
+    initials = "".join(w[0] for w in f["name"].split()[:2])
+    return ('<div class="founder-mono" aria-hidden="true"><span class="founder-mono-i">{}</span>'
+            '<span class="founder-mono-n">{}</span><span class="founder-mono-r">{}</span></div>').format(e(initials), e(f["name"]), e(f["role"]))
+
+
+def c_founder_feature(args, ctx):
+    f = INTL["founder"]
+    tele = next((it for it in intl_portfolio_items() if it["id"] == "teleprompter-review"), None)
+    proof = ['<li><strong>Founder-led.</strong> You talk to Saurabh from the first message to handover.</li>',
+             '<li><strong>Based in India.</strong> Works in Hindi and English; replies within 24 hours on working days.</li>',
+             '<li><strong>AI with Saurabh.</strong> {}</li>'.format(e(f.get("channel_note", "")))]
+    if tele:
+        proof.append('<li><strong>Published paid work.</strong> A paid software review for Teleprompter.com — screen demonstration, narration and editing. '
+                     '<a href="{}#work-teleprompter-review">See it</a></li>'.format(e(args.get("work_href", "/"))))
+    proof.append('<li><strong>Owned project.</strong> This website and Moodily International, built from data files with automated checks.</li>')
+    return ('<div class="founder-feature" data-reveal><div class="founder-media">{media}</div><div class="founder-copy">'
+            '<p class="eyebrow">Who you\'ll work with</p><h2 id="{hid}">{name}, founder of Moodily</h2><p class="lead">{bio}</p>'
+            '<ul class="proof-list">{proof}</ul>'
+            '<p class="small"><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="founder-{where}">AI with Saurabh on YouTube ↗</a>'
+            ' · <a href="{about}">{about_label}</a></p></div></div>').format(about_label=e(args.get("about_label", "About Moodily")),
+        media=founder_media(f), hid=e(args.get("id", "founder-h")), name=e(f["name"]), bio=e(f["bio"]), proof="".join(proof),
+        yt=e(f["youtube"]), where=e(args.get("where", "home")), about=e(args.get("about", "/about/")))
+
+
+def c_enquiry_panel(args, ctx):
+    return ('<div class="enquiry-panel" data-reveal><div class="enquiry-copy"><p class="eyebrow">Project enquiry</p><h2 id="enquire-h">Discuss your project</h2>'
+            '<p class="lead">Tell us what you do, what you need and roughly when. You\'ll get questions or a written scope back — '
+            'we reply within 24 hours on working days.</p>'
+            '<p class="enquiry-h">Helpful to include</p><ul class="ticks small enquiry-list"><li>Your name and business name</li><li>Work email or WhatsApp number</li>'
+            '<li>Website or profile link (optional)</li><li>The service you need and a short description</li><li>Timeline and budget range in ₹ or USD (optional)</li></ul>'
+            '<p class="small muted">Please don\'t send passwords, bank details, or patient or medical information.</p></div>'
+            '<div class="enquiry-actions"><a class="btn btn-primary btn-lg btn-block" href="/contact/" data-track="quote_start" data-label="home-enquiry">Discuss your project</a>'
+            '<p class="small muted">Opens a short project form. Answers go to Moodily\'s enquiry sheet.</p>'
+            '{wa}<p class="small"><a href="mailto:{email}" data-track="email_click" data-label="home-enquiry">{email}</a></p>'
+            '<div class="enquiry-intl"><p class="small"><strong>Outside India?</strong> Use the English enquiry form with USD budget ranges.</p>'
+            '<a class="btn btn-outline btn-sm" href="/international/contact/" data-track="contact_clicked" data-label="home-intl">International enquiry →</a></div>'
+            '</div></div>').format(wa=wa_button("WhatsApp instead", "business owner", "a project", "btn btn-wa btn-block", "home-enquiry"), email=e(SITE["email"]))
+
+
+def c_intl_examples(args, ctx):
+    blocks = [
+        ("dental", "Dental clinics", "/assets/img/illustrations/demo-dental.svg", 640, 440,
+         "A fictional dental clinic page with services and two clearly separated appointment options: online booking through the clinic's own system, or a call-back request that is not a confirmed booking.",
+         ["Public pages for each service, in plain language", "Clear appointment instructions on every page", "Links to the booking system you already use and approve",
+          "FAQs and patient education written or approved by the clinic"],
+         "We don't access patient records, collect medical details or make compliance claims.", ("For dental clinics", "/international/clinics/")),
+        ("services", "Other service businesses", "/assets/img/illustrations/hero-journey.svg", 640, 540,
+         "A fictional optician found on a map, explained on a service page with visit times, then contacted through a request that the shop confirms later.",
+         ["Service pages and location pages", "Clear enquiry or consultation steps", "Useful FAQs, opening hours and business information"],
+         "", ("Industries we work with", "/international/industries/")),
+        ("software", "Software businesses", "/assets/img/illustrations/demo-software.svg", 640, 440,
+         "A storyboard for a fictional app's getting-started tutorial with highlighted steps, captions, narration and chapters.",
+         ["Onboarding tutorials", "Feature demonstrations", "Customer-education videos", "Optional short clips cut from approved footage"],
+         "", ("Customer education", "/international/customer-education/")),
+    ]
+    out = []
+    for i, (bid, title, img, w, h, alt, points, note, link) in enumerate(blocks):
+        out.append(('<article class="example-row{flip}" id="example-{id}" data-reveal><figure class="example-media"><img src="{img}" alt="{alt}" width="{w}" height="{h}" loading="lazy" decoding="async">'
+                    '<figcaption>Concept demo — fictional business, not client work.</figcaption></figure><div class="example-copy"><h3>{title}</h3>'
+                    '<ul class="ticks">{points}</ul>{note}<a class="btn btn-outline btn-sm" href="{lh}" data-track="example_link_click" data-label="{id}">{lt} →</a></div></article>').format(
+            flip=" flip" if i % 2 else "", id=bid, img=img, alt=e(alt), w=w, h=h, title=e(title), points="".join("<li>{}</li>".format(e(p)) for p in points),
+            note='<p class="small muted">{}</p>'.format(e(note)) if note else "", lh=link[1], lt=e(link[0])))
+    return '<div class="examples">{}</div>'.format("".join(out))
+
+
+def validate_showcase():
+    problems = []
+    for c in SHOWCASE["concepts"]:
+        for k in ("title", "context", "shows", "link"):
+            if not c.get(k):
+                problems.append("concept {}: missing {}".format(c["id"], k))
+        if not (c.get("image") or (c.get("before") and c.get("after"))):
+            problems.append("concept {}: needs an image or a before/after pair".format(c["id"]))
+    for n in SHOWCASE["needs"]:
+        for region in ("india", "international"):
+            spec = n.get(region) or {}
+            if "service" in spec and spec["service"] not in SERVICES:
+                problems.append("need {}: unknown India service {}".format(n["id"], spec["service"]))
+            if "intl" in spec and spec["intl"] not in INTL_SVC:
+                problems.append("need {}: unknown International service {}".format(n["id"], spec["intl"]))
+            if not ({"service", "intl", "href"} & set(spec)):
+                problems.append("need {}: {} has no destination".format(n["id"], region))
+    for path in [p for c in SHOWCASE["concepts"] for p in (c.get("image"), c.get("before"), c.get("after")) if p]:
+        if not (ROOT / path.lstrip("/")).exists():
+            problems.append("missing image " + path)
+    if problems:
+        raise SystemExit("src/data/showcase.json:\n  - " + "\n  - ".join(problems))
+
+
+validate_showcase()
+
+
 FEATURE_GATES = {"amazon_associates": amazon_public}
 
 COMPONENTS = {
@@ -2755,6 +3056,9 @@ COMPONENTS = {
     "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "buy-india": c_buy_india,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "journey": c_journey, "primary-offers": c_primary_offers, "quick-offers": c_quick_offers, "saathi-offer": c_saathi_offer, "start-here": c_start_here, "pricing-terms": c_pricing_terms, "founder": c_founder,
+    "hero-visual": c_hero_visual, "who-we-help": c_who_we_help, "need-selector": c_need_selector, "work-showcase": c_work_showcase,
+    "concept-demos": c_concept_demos, "home-packages": c_home_packages, "project-steps": c_project_steps, "founder-feature": c_founder_feature,
+    "enquiry-panel": c_enquiry_panel, "intl-examples": c_intl_examples,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
     "catalogue-group": c_catalogue_group, "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
@@ -2846,9 +3150,9 @@ def page_schema(meta, route, ctx):
                       "inLanguage": ["hi-IN", "en-IN"], "publisher": {"@id": ORG_ID}})
     crumbs = meta.get("breadcrumbs")
     if crumbs:
-        root = ("Moodily International", INTL_PREFIX) if is_intl(route) else ("Home", "/")
-        items = [{"@type": "ListItem", "position": 1, "name": root[0], "item": BASE + root[1]}]
-        for i, (name, href) in enumerate(crumbs, start=2):
+        roots = [("Moodily", "/"), ("Moodily International", INTL_PREFIX)] if is_intl(route) else [("Home", "/")]
+        items = [{"@type": "ListItem", "position": i, "name": n, "item": BASE + h} for i, (n, h) in enumerate(roots, start=1)]
+        for i, (name, href) in enumerate(crumbs, start=len(roots) + 1):
             items.append({"@type": "ListItem", "position": i, "name": name, "item": BASE + href})
         graph.append({"@type": "BreadcrumbList", "itemListElement": items})
     for s in ctx.get("intl_services", []):
@@ -2882,7 +3186,7 @@ def page_schema(meta, route, ctx):
         graph.append({"@type": "Article", "headline": meta["h1"] if meta.get("h1") else meta["title"], "description": meta["description"],
                       "inLanguage": meta.get("lang", "hi"), "datePublished": meta["article"]["published"],
                       "dateModified": meta["article"].get("modified", meta["article"]["published"]),
-                      "author": ({"@type": "Person", "name": SITE["founder"]["name"]} if SITE["founder"].get("name") else {"@id": ORG_ID}),
+                      "author": ({"@type": "Person", "name": SITE["article_author"]} if SITE.get("article_author") else {"@id": ORG_ID}),
                       "publisher": {"@id": ORG_ID}, "mainEntityOfPage": url, "image": BASE + meta.get("og_image", "/assets/img/og-moodily.png")})
         if not any(n.get("@id") == ORG_ID for n in graph):
             graph.append({"@type": "Organization", "@id": ORG_ID, "name": SITE["name"], "url": BASE + "/"})
@@ -2899,7 +3203,12 @@ NAV = [
     ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
 # the inline desktop row stays short so the header never wraps; the rest is in the Menu popover
-NAV_DESKTOP = [("/services/", "Services"), ("/samples/", "Samples"), ("/services/#prices", "Pricing"), ("/learn/", "Learn")]
+NAV_DESKTOP = [("/services/", "Services"), ("/#who-we-help", "Who we help"), ("/samples/", "Work"), ("/about/", "About"),
+               ("/international/", "International")]
+NAV_POPULAR = [("/contact/?service=free-digital-audit", "Free Digital Audit"), ("/services/#prices", "Pricing"), ("/digital-saathi/", "Digital Saathi"),
+               ("/store/", "Moodily Store"), ("/case-studies/", "Case studies")]
+NAV_LEARN = [("/learn/", "Moodily Learn"), ("/resources/", "AI Resources"), ("/insights/", "Insights"), ("/guides/", "Hindi guides"), ("/tools/", "Tools")]
+AI_WITH_SAURABH = "https://www.youtube.com/@AIwithSaurabhKr"
 SERVICE_NAV = [
     ("/services/local-business-digitalization/", "Local Business Digitalization"), ("/services/google-business-profile/", "Google Business Profile"),
     ("/services/whatsapp-business/", "WhatsApp Business"), ("/services/business-website/", "Business Website"),
@@ -2919,8 +3228,14 @@ def header(route, meta):
     def cur(href):
         return ' aria-current="page"' if route.startswith(href) and href != "/" else ""
 
-    links = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(en)) for h, en, hi in NAV)
-    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h.split("#")[0]), e(t)) for h, t in NAV_DESKTOP)
+    def li(items, sub=False):
+        return "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h.split("#")[0].split("?")[0]) if not sub else "", e(t)) for h, t in items)
+
+    top = "".join('<li><a href="{0}"{1}{3}>{2}</a></li>'.format(
+        h, cur(h.split("#")[0]), e(t), ' data-track="international_nav_click" data-label="header"' if h == "/international/" else "") for h, t in NAV_DESKTOP)
+    main = "".join(('<li class="nav-intl"><a href="{0}"{1} data-track="international_nav_click" data-label="menu">International '
+                    '<span class="nav-note">English · USD</span></a></li>' if h == "/international/" else '<li><a href="{0}"{1}>{2}</a></li>').format(
+        h, cur(h.split("#")[0]), e(t)) for h, t in NAV_DESKTOP)
     svc = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h) if h != "/services/" or route == "/services/" else "", e(t)) for h, t in SERVICE_NAV)
     lang_btn = ('<button class="lang-toggle" type="button" id="langToggle" data-track="language_switch" aria-label="Switch language Hindi/English">हिं / EN</button>'
                 if meta.get("bilingual") else "")
@@ -2929,21 +3244,22 @@ def header(route, meta):
   <a class="logo" href="/" aria-label="Moodily home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="dot" aria-hidden="true"></span></a>
   <nav aria-label="Primary" class="nav-main">
     <ul class="nav-desktop">{top}</ul>
+    <a class="nav-intl-mobile" href="/international/" data-track="international_nav_click" data-label="header-mobile">International</a>
     <details class="menu" id="siteMenu"><summary aria-haspopup="menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
       <div class="menu-panel" role="menu" aria-label="Site navigation">
-        <button class="menu-close" type="button" data-menu-close aria-label="Menu बंद करें">&times;</button>
-        <ul class="nav-links">{links}<li><a href="/services/#prices">Pricing</a></li><li><a href="/tools/"{tools}>Tools</a></li>
-          <li><a href="/about/"{about}>About</a></li><li><a href="/contact/"{contact}>Contact</a></li>
-          <li><a href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="menu-audit">Free Digital Audit</a></li></ul>
+        <button class="menu-close" type="button" data-menu-close aria-label="Close menu">&times;</button>
+        <ul class="nav-links">{main}<li><a href="/contact/"{contact}>Contact</a></li></ul>
+        <p class="menu-heading">Popular</p><ul class="nav-sub">{popular}</ul>
         <p class="menu-heading">Services</p><ul class="nav-sub">{svc}</ul>
-        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/contact/" data-track="quote_start" data-label="menu-requirement">Requirement बताएं</a>{menuwa}</div>
+        <p class="menu-heading">Learn &amp; resources</p><ul class="nav-sub">{learn}<li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="menu">AI with Saurabh (YouTube) ↗</a></li></ul>
+        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/contact/" data-track="quote_start" data-label="menu-requirement">Discuss your project</a>{menuwa}</div>
       </div>
     </details>
   </nav>
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
-    <a class="btn btn-warm btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_started" data-label="nav">Free Audit लें</a></div>
-</div></header>""".format(links=links, svc=svc, top=top, lang=lang_btn, about=cur("/about/"), contact=cur("/contact/"), tools=cur("/tools/"),
-               menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
+    <a class="btn btn-primary btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav">Discuss your project</a></div>
+</div></header>""".format(main=main, svc=svc, top=top, lang=lang_btn, contact=cur("/contact/"), popular=li(NAV_POPULAR, True), learn=li(NAV_LEARN),
+               yt=AI_WITH_SAURABH, menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
 
 
 def footer(route=""):
@@ -2957,9 +3273,11 @@ def footer(route=""):
       {wa}
     </div>
     <div><h2 class="footer-h">Moodily</h2><ul>
+      <li><a href="/international/" data-track="international_nav_click" data-label="footer">Moodily International (English · USD)</a></li>
       <li><a href="/digital-saathi/">Moodily Digital Saathi</a></li><li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li>
       <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
-      <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li></ul></div>
+      <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li>
+      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="footer">Learn AI: AI with Saurabh ↗</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
     <div><h2 class="footer-h">Company</h2><ul>
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
@@ -2971,12 +3289,12 @@ def footer(route=""):
 {sticky}""".format(note=footer_note(route), 
         email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm"),
         affiliate='<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>' if amazon_public() else "",
-        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text())), icon=WA_ICON))
+        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text())), icon=WA_ICON), yt=AI_WITH_SAURABH)
 
 
 STICKY_CTA = """
 <a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
-<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/?service=free-digital-audit" data-track="free_audit_started" data-label="mobile-bar">Free Audit लें</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
+<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Discuss your project</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
 
 
 def gtm_head():
@@ -3012,7 +3330,9 @@ def byline_html(meta):
     art = meta.get("article")
     if not art:
         return ""
-    who = SITE["founder"]["name"] or "Moodily Editorial"
+    # Articles credit a named author only when the owner sets site.json -> "article_author"; the founder's name
+    # appearing on the site does not by itself make him the credited author of every guide.
+    who = SITE.get("article_author") or "Moodily Editorial"
     mod = art.get("modified", art["published"])
     return ('<p class="container byline small muted">By {} · Published <time datetime="{p}">{p}</time>{upd}</p>').format(
         e(who), p=e(art["published"]), upd=' · Last updated <time datetime="{0}">{0}</time>'.format(e(mod)) if mod != art["published"] else "")
