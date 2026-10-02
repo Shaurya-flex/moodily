@@ -1,0 +1,28 @@
+{
+  "_readme": "Server-side price list for digital products, read by the payments Worker. The browser sends only {product_id, edition, license}; the Worker takes the amount from this file, never from the browser. Paid files are stored privately and delivered only through a short-lived download link after a verified payment.",
+  "currency": "INR",
+  "products": {
+    "ai-parents-india": {
+      "name": "AI for Parents & Senior Citizens — India Edition",
+      "currency": "INR",
+      "editions": {
+        "full": {
+          "licenses": {
+            "founding": {
+              "amount_paise": 9900,
+              "object_key": "ai-parents-india/v1.1/full-guide.pdf",
+              "filename": "AI-for-Parents-India-v1.1.pdf",
+              "label": "Full Guide — Founding Launch (Personal licence)"
+            },
+            "personal": {
+              "amount_paise": 14900,
+              "object_key": "ai-parents-india/v1.1/full-guide.pdf",
+              "filename": "AI-for-Parents-India-v1.1.pdf",
+              "label": "Full Guide — Regular (Personal licence)"
+            }
+          }
+        }
+      }
+    }
+  }
+}

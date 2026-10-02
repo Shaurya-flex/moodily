@@ -13,7 +13,10 @@ import { join } from "node:path";
 const [base, out] = process.argv.slice(2);
 if (!base || !out) { console.error("usage: node tests/browser_launch_check.mjs <base-url> <out.json>"); process.exit(2); }
 const PAGES = ["", "services/", "pricing/", "process/", "industries/", "customer-education/", "educators-consultants/", "clinics/",
-  "work/", "journey-audit/", "about/", "contact/", "terms/", "privacy/", "refund/", "payments/", "pay/"];
+  "work/", "journey-audit/", "about/", "contact/", "terms/", "privacy/", "refund/", "payments/", "pay/",
+  // optional extra site paths, e.g. EXTRA_PAGES=/store/,/store/some-product/
+  ...(process.env.EXTRA_PAGES || "").split(",").filter(Boolean)];
+const pagePath = (p) => (p.startsWith("/") ? p : "/international/" + p);
 const VIEWPORTS = { desktop: [1440, 900, false], tablet: [768, 1024, true], m390: [390, 844, true], m375: [375, 812, true] };
 const PREVIEW_WORDS = /private preview|owner approval|draft price|hypothes|approval required|owner blocker|coming after approval|preview:/i;
 const FAKE = { name: "ZZTESTNAME Person", email: "zztest.person@example.com", company: "ZZTESTCO Ltd", phone: "ZZPHONE5550100",
@@ -58,7 +61,7 @@ const results = { base, when: new Date().toISOString(), pages: [], a11y: [], pri
 // 1. layout / errors / images / links / preview wording at four widths
 for (const p of PAGES) {
   for (const [vname, vp] of Object.entries(VIEWPORTS)) {
-    await go(`${base}/international/${p}`, vp);
+    await go(`${base}${pagePath(p)}`, vp);
     const r = await evaluate(`(() => {
       const de = document.documentElement;
       const brokenImgs = [...document.images].filter(i => i.complete && i.naturalWidth === 0).map(i => i.getAttribute('src'));
@@ -68,13 +71,13 @@ for (const p of PAGES) {
                preview: (${PREVIEW_WORDS}).test(text) || !!document.querySelector('.preview-note,.intl-preview-banner,.draft-chip'),
                h1: document.querySelectorAll('h1').length, lang: de.lang, title: document.title };
     })()`);
-    results.pages.push({ page: "/international/" + p, viewport: vname, ...r, consoleErrors: [...consoleErrors] });
+    results.pages.push({ page: pagePath(p), viewport: vname, ...r, consoleErrors: [...consoleErrors] });
   }
 }
 
 // 2. accessibility (axe-core, desktop)
 for (const p of PAGES) {
-  await go(`${base}/international/${p}`, VIEWPORTS.desktop);
+  await go(`${base}${pagePath(p)}`, VIEWPORTS.desktop);
   const v = await evaluate(`new Promise((resolve) => {
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js';
@@ -83,7 +86,7 @@ for (const p of PAGES) {
     s.onerror = () => resolve([{ id: 'axe-load-failed', impact: 'n/a', nodes: 0 }]);
     document.head.appendChild(s);
   })`);
-  results.a11y.push({ page: "/international/" + p, violations: v });
+  results.a11y.push({ page: pagePath(p), violations: v });
 }
 
 // 3. privacy tests

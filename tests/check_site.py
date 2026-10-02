@@ -112,9 +112,28 @@ def check_prices(pages):
     services = json.loads((ROOT / "src/data/services.json").read_text(encoding="utf-8"))["services"]
     offer = site.get("offer") or {}
 
+    # Service prices must come from services.json via {{price:}}. Digital-product prices are a separate
+    # registry (src/data/products.json → *_edition), so those declared ₹ amounts (and ₹0 = "free") are allowed on store pages.
+    digital_ok = {0}
+    prods = json.loads((ROOT / "src/data/products.json").read_text(encoding="utf-8"))
+    for key in ("global_edition", "india_edition"):
+        ed = prods.get(key) or {}
+        for t in ed.get("tiers", []):
+            try:
+                digital_ok.add(int(str(t.get("price", "")).replace(",", "")))
+            except ValueError:
+                pass
+        for k in ("price", "regular_price"):
+            try:
+                digital_ok.add(int(str(ed.get(k, "")).replace(",", "")))
+            except ValueError:
+                pass
     for f in sorted((ROOT / "src/pages").rglob("*.html")) + [ROOT / "src/data/faqs.json"]:
         text = f.read_text(encoding="utf-8")
         for m in re.finditer(r"₹\s?\d[\d,]*", text):
+            is_store = f.name == "faqs.json" or f.name == "store.html" or "store" in f.relative_to(ROOT / "src/pages").parts[:1]
+            if is_store and int(m.group(0).replace("₹", "").replace(",", "").strip()) in digital_ok:
+                continue
             fail(str(f.relative_to(ROOT)), "hard-coded price {} — use {{{{price:<service-id>}}}}".format(m.group(0)))
 
     allowed = {}

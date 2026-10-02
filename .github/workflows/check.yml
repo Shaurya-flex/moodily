@@ -34,4 +34,4 @@ jobs:
       - name: Payments API tests (Python dev server)
         run: python tests/test_payments.py
       - name: Payments API tests (Cloudflare Worker)
-        run: node --test tests/worker.test.mjs
+        run: node --test tests/worker.test.mjs tests/delivery.test.mjs

@@ -341,8 +341,8 @@
     }
   }
 
-  // ---------- Razorpay Standard Checkout (buttons exist only when payments are enabled — see _project/06)
-  var checkoutButtons = document.querySelectorAll('[data-checkout]');
+  // ---------- Razorpay Standard Checkout (buttons exist only when payments are enabled)
+  var checkoutButtons = document.querySelectorAll('[data-checkout], [data-checkout-digital]');
   if (checkoutButtons.length) {
     var loadCheckout = function () {
       return new Promise(function (resolve, reject) {
@@ -367,14 +367,18 @@
       btn.addEventListener('click', function () {
         var api = btn.getAttribute('data-api') || '';
         var base = api === '/' ? '' : api.replace(/\/$/, '');
+        var digital = btn.hasAttribute('data-checkout-digital');
         var serviceId = btn.getAttribute('data-checkout');
+        var productId = btn.getAttribute('data-product'), edition = btn.getAttribute('data-edition'), license = btn.getAttribute('data-license');
+        var key = digital ? (productId + '-' + edition + '-' + license) : serviceId;
+        var orderPayload = digital ? { product_id: productId, edition: edition, license: license } : { service_id: serviceId };
         var label = btn.textContent;
-        var msg = btn.parentNode.querySelector('.pay-msg[data-for="' + serviceId + '"]');
+        var msg = btn.parentNode.querySelector('.pay-msg[data-for="' + key + '"]');
         if (!msg) {
           msg = document.createElement('p');
           msg.className = 'pay-msg';
           msg.setAttribute('role', 'alert');
-          msg.setAttribute('data-for', serviceId);
+          msg.setAttribute('data-for', key);
           btn.parentNode.appendChild(msg);
         }
         var failed = false;
@@ -383,7 +387,7 @@
         btn.disabled = true;
         btn.textContent = 'Checkout खुल रहा है…';
         show('');
-        Promise.all([loadCheckout(), postJSON(base + '/api/create-order', { service_id: serviceId })])
+        Promise.all([loadCheckout(), postJSON(base + '/api/create-order', orderPayload)])
           .then(function (res) {
             var order = res[1];
             var rzp = new window.Razorpay({
@@ -393,7 +397,7 @@
               order_id: order.order_id,
               name: order.name || 'Moodily',
               description: order.description,
-              notes: { service_id: serviceId },
+              notes: digital ? { product_id: productId, edition: edition, license: license } : { service_id: serviceId },
               theme: { color: '#5b3fd9' },  // --primary (light theme); the modal has no dark mode
               handler: function (resp) {
                 btn.textContent = 'Payment verify हो रहा है…';
@@ -402,18 +406,18 @@
                   razorpay_payment_id: resp.razorpay_payment_id,
                   razorpay_signature: resp.razorpay_signature
                 }).then(function (v) {
-                  track('payment_success', { label: serviceId });
-                  try { sessionStorage.setItem('moodily_payment', JSON.stringify({ service: order.description, order_id: v.order_id, payment_id: v.payment_id })); } catch (e) {}
+                  track('payment_success', { label: key });
+                  try { sessionStorage.setItem('moodily_payment', JSON.stringify({ service: order.description, order_id: v.order_id, payment_id: v.payment_id, download_url: (digital && v.download_url) ? (base + v.download_url) : '' })); } catch (e) {}
                   location.href = '/payment/success/';
                 }).catch(function (err) {
-                  track('payment_verify_failed', { label: serviceId });
+                  track('payment_verify_failed', { label: key });
                   reset();
                   show('Payment verify नहीं हो सका (' + err.message + ')। कृपया Payment ID ' + resp.razorpay_payment_id + ' के साथ WhatsApp करें — हम dashboard में जाँच करेंगे।');
                 });
               },
               modal: {
                 ondismiss: function () {
-                  track('payment_dismissed', { label: serviceId });
+                  track('payment_dismissed', { label: key });
                   reset();
                   if (!failed) show('Payment cancel हो गया। आप दोबारा कोशिश कर सकते हैं या WhatsApp पर पूछ सकते हैं।');
                 }
@@ -421,7 +425,7 @@
             });
             rzp.on('payment.failed', function (r) {
               failed = true;
-              track('payment_failed', { label: serviceId, reason: (r.error && r.error.reason) || '' });
+              track('payment_failed', { label: key, reason: (r.error && r.error.reason) || '' });
               show('Payment fail हुआ: ' + ((r.error && r.error.description) || 'कृपया दोबारा कोशिश करें') + '। पैसा कटा हो तो bank उसे अपने-आप लौटा देता है।');
             });
             rzp.open();
@@ -446,6 +450,12 @@
       document.getElementById('payService').textContent = pay.service || '';
       document.getElementById('payOrder').textContent = pay.order_id;
       document.getElementById('payId').textContent = pay.payment_id;
+      if (pay.download_url) {
+        var dlBox = document.getElementById('payDownload'), onbBox = document.getElementById('payOnboard'), dlLink = document.getElementById('payDownloadLink');
+        if (dlLink) dlLink.setAttribute('href', pay.download_url);
+        if (dlBox) dlBox.hidden = false;
+        if (onbBox) onbBox.hidden = true;
+      }
       var payWa = document.getElementById('payWa');
       payWa.setAttribute('href', payWa.getAttribute('href').split('?')[0] + '?text=' + encodeURIComponent(
         'Namaste Moodily,\nMaine ' + (pay.service || '') + ' ka payment kar diya hai.\nOrder ID: ' + pay.order_id + '\nPayment ID: ' + pay.payment_id + '\nOnboarding shuru karein.'));

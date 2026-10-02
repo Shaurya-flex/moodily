@@ -625,6 +625,52 @@ def c_faq(args, ctx):
         '<details class="faq"><summary>{}</summary><p>{}</p></details>'.format(e(i["q"]), e(i["a"])) for i in items))
 
 
+def c_buy_global(args, ctx):
+    """Buy CTA for the Global Edition. Goes live only when BOTH a Lemon Squeezy /checkout/buy/ link is set in
+    products.json -> "global_edition"."checkout_url" AND site.json payment_flags.lemon_squeezy_store_enabled is true
+    (store activated for real payments). Otherwise renders a launch-notify CTA (never a broken or test-mode Buy link)."""
+    g = PRODUCT_DATA.get("global_edition", {})
+    price = g.get("price", "9.99")
+    sym = {"USD": "$", "GBP": "£", "EUR": "€", "AUD": "A$", "CAD": "C$"}.get(g.get("currency", "USD"), "$")
+    url = (g.get("checkout_url") or "").strip()
+    if url.startswith("https://") and "lemonsqueezy.com" in url and PAYMENT_FLAGS.get("lemon_squeezy_store_enabled"):
+        return ('<a class="btn btn-primary" href="{url}" rel="noopener" target="_blank" '
+                'data-track="checkout_click" data-label="practical-ai-global">Get the Global Guide — {sym}{price}</a>'
+                '<p class="small muted">One-time purchase · secure checkout · instant digital access after payment.</p>').format(
+                    url=e(url), sym=sym, price=e(price))
+    notify = wa_button("Get notified at launch", "interested buyer", "Global Edition launch", "btn btn-primary", "notify-practical-ai-global")
+    return ('{notify}<p class="small muted">Launching soon on secure checkout — price {sym}{price}. '
+            'One-time purchase · instant digital access after payment.</p>').format(notify=notify, sym=sym, price=e(price))
+
+
+def c_buy_india(args, ctx):
+    """India edition ₹ tiers. Renders live Razorpay Standard Checkout buttons (digital-delivery engine)
+    only when the payments Worker is configured (site.json payments.api_base set AND mode 'live', i.e. the
+    Worker is deployed with R2/KV provisioned). Otherwise a waitlist CTA, so nothing broken ships."""
+    cfg = PRODUCT_DATA.get("india_edition", {})
+    pid = cfg.get("product_id", "ai-parents-india")
+    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
+    live = bool(api and allowed and PAYMENT_FLAGS.get("razorpay_india_enabled", True))
+    test = ' <span class="badge">TEST MODE</span>' if live and PAYMENTS.get("mode") != "live" else ""
+    cards = []
+    tiers = [t for t in cfg.get("tiers", []) if not t.get("hidden")]
+    for t in tiers:
+        feat = " feature" if t.get("featured") else ""
+        if live:
+            cta = ('<button type="button" class="btn btn-primary" data-checkout-digital data-product="{pid}" data-edition="{ed}" '
+                   'data-license="{lic}" data-api="{api}" data-track="checkout_click" data-label="{pid}-{ed}-{lic}">'
+                   '₹{price} — अभी लें</button>{test}').format(pid=e(pid), ed=e(t["edition"]), lic=e(t["license"]),
+                                                              api=e(api), price=e(t["price"]), test=test)
+        else:
+            cta = wa_button("Waitlist में जुड़ें", "interested buyer", "India guide: " + t["label"], "btn btn-outline", "waitlist-india-" + t["license"])
+        cards.append(('<article class="card{feat}"><p class="eyebrow">{label}</p>'
+                      '<p class="price"><strong style="font-size:1.5rem">₹{price}</strong> <span class="muted">one-time</span></p>'
+                      '<p class="small muted">{note}</p>{cta}</article>').format(
+            feat=feat, label=e(t["label"]), price=e(t["price"]), note=e(t["note"]), cta=cta))
+    return '<div class="grid grid-{}">{}</div>'.format(3 if len(cards) >= 3 else 2, "".join(cards))
+
+
 QUALITY = [
     ("Understand", "समझें", "आपका business, ग्राहक और लक्ष्य — एक छोटी call या WhatsApp voice note से।"),
     ("Research", "Research", "आपके competitors, area और platform guidelines की जाँच।"),
@@ -2706,7 +2752,7 @@ FEATURE_GATES = {"amazon_associates": amazon_public}
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
-    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq,
+    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "buy-india": c_buy_india,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "journey": c_journey, "primary-offers": c_primary_offers, "quick-offers": c_quick_offers, "saathi-offer": c_saathi_offer, "start-here": c_start_here, "pricing-terms": c_pricing_terms, "founder": c_founder,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
@@ -2972,6 +3018,17 @@ def byline_html(meta):
         e(who), p=e(art["published"]), upd=' · Last updated <time datetime="{0}">{0}</time>'.format(e(mod)) if mod != art["published"] else "")
 
 
+def ls_affiliate():
+    """Lemon Squeezy affiliate tracking, so the store's own affiliates get credited when a
+    referred visitor lands on moodily.in and later buys. Emitted site-wide, deferred (non-blocking),
+    only when a store slug is set in products.json -> global_edition.ls_store AND the store switch is on."""
+    slug = (PRODUCT_DATA.get("global_edition", {}) or {}).get("ls_store")
+    if not slug or not PAYMENT_FLAGS.get("lemon_squeezy_store_enabled"):
+        return ""
+    return ('<script>window.lemonSqueezyAffiliateConfig = {{ store: "{}" }};</script>'
+            '<script src="https://lmsqueezy.com/affiliate.js" defer></script>').format(e(slug))
+
+
 def layout(meta, body, route, ctx):
     lang = meta.get("lang", "hi")
     intl = is_intl(route)
@@ -3022,10 +3079,10 @@ def layout(meta, body, route, ctx):
 <main id="main">
 {byline}{body}
 </main>
-{footer}
+{footer}{ls_aff}
 </body>
 </html>
-""".format(lang=lang, dlang="en" if lang.startswith("en") else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical,
+""".format(lang=lang, dlang="en" if lang.startswith("en") else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical, ls_aff=ls_affiliate() if analytics and not intl else "",
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_US" if intl else ("en_IN" if lang.startswith("en") else "hi_IN"),
            og_img=og_img, gtm=gtm_head() if analytics else "", ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body() if analytics else "",
            header=intl_header(route) if intl else header(route, meta), crumbs=intl_breadcrumbs_html(meta) if intl else breadcrumbs_html(meta), body=body,

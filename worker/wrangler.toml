@@ -5,7 +5,26 @@ compatibility_date = "2026-09-01"
 [vars]
 ALLOWED_ORIGINS = "https://moodily.in,https://www.moodily.in"
 CATALOG_URL = "https://moodily.in/assets/data/checkout-prices.json"
+# Digital store (AI-with-Saurabh guide, etc.). Server-side amounts + private object keys.
+DIGITAL_CATALOG_URL = "https://moodily.in/assets/data/digital-catalog.json"
 
 # Secrets are NOT stored here. Set them once from this folder:
 #   npx wrangler secret put RAZORPAY_KEY_ID
 #   npx wrangler secret put RAZORPAY_KEY_SECRET
+#   npx wrangler secret put WEBHOOK_SECRET     # Razorpay Dashboard -> Settings -> Webhooks (secure delivery)
+
+# --- Secure digital delivery bindings (owner provisions the IDs, then uncomment) ---
+# Order + entitlement records. Create once:  npx wrangler kv namespace create ORDERS
+# [[kv_namespaces]]
+# binding = "ORDERS"
+# id = "<paste the id wrangler prints>"
+#
+# Short-lived download tokens (native TTL). Create once:  npx wrangler kv namespace create TOKENS
+# [[kv_namespaces]]
+# binding = "TOKENS"
+# id = "<paste the id wrangler prints>"
+#
+# PRIVATE bucket holding the paid PDFs — never public. Create once:  npx wrangler r2 bucket create moodily-products
+# [[r2_buckets]]
+# binding = "PRODUCTS"
+# bucket_name = "moodily-products"
