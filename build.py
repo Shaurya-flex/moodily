@@ -1023,7 +1023,9 @@ def c_founder(args, ctx):
         return ('<p>Moodily एक founder-led, India-based team है। हर project में आपसे सीधे वही लोग बात करते हैं जो काम करते हैं। '
                 'सवाल हों तो <a href="mailto:{0}">{0}</a> पर लिखें।</p>').format(e(SITE["email"]))
     li = ' · <a href="{}" rel="noopener" target="_blank">LinkedIn</a>'.format(e(f["linkedin"])) if f.get("linkedin") else ""
-    return '<div class="card"><h3>{}</h3><p class="muted">{}{}</p><p>{}</p></div>'.format(e(f["name"]), e(f.get("role", "")), li, e(f.get("bio", "")))
+    photo = founder_media(INTL["founder"], 160) if INTL["founder"].get("photo") else ""
+    return '<div class="card founder-card">{}<div><h3>{}</h3><p class="muted">{}{}</p><p>{}</p></div></div>'.format(
+        photo, e(f["name"]), e(f.get("role", "")), li, e(f.get("bio", "")))
 
 
 # ------------------------------------------------------ catalogue & intake
@@ -2951,7 +2953,9 @@ def c_project_steps(args, ctx):
 
 def founder_media(f, size=240):
     if f.get("photo"):
-        return '<img class="founder-photo" src="{}" alt="{}" width="{s}" height="{s}" loading="lazy" decoding="async">'.format(e(f["photo"]), e(f["name"]), s=size)
+        srcset = ' srcset="{} 300w, {} 600w" sizes="(max-width: 760px) 220px, 300px"'.format(e(f["photo_small"]), e(f["photo"])) if f.get("photo_small") else ""
+        return '<img class="founder-photo" src="{}"{} alt="{}, founder of Moodily" width="{s}" height="{s}" loading="lazy" decoding="async">'.format(
+            e(f["photo"]), srcset, e(f["name"]), s=size)
     initials = "".join(w[0] for w in f["name"].split()[:2])
     return ('<div class="founder-mono" aria-hidden="true"><span class="founder-mono-i">{}</span>'
             '<span class="founder-mono-n">{}</span><span class="founder-mono-r">{}</span></div>').format(e(initials), e(f["name"]), e(f["role"]))

@@ -1197,3 +1197,8 @@ body.intl section.intl-tight{padding-block:clamp(28px,3.6vw,48px)}
 .concepts-single{grid-template-columns:1fr}
 .concepts-single .concept{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center}
 @media (max-width:860px){.concepts-single .concept{grid-template-columns:1fr}}
+.founder-photo{max-width:300px;background:var(--panel)}
+@media (max-width:760px){.founder-feature .founder-photo{max-width:220px}}
+.founder-card{flex-direction:row;gap:20px;align-items:flex-start}
+.founder-card .founder-photo{width:120px;flex:none;border-radius:18px}
+@media (max-width:520px){.founder-card{flex-direction:column}}
