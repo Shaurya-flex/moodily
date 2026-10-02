@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 640" width="400" height="640" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+  <title>Concept demo, after: a clear mobile page for a fictional hardware shop with hours, catalogue and WhatsApp enquiry</title>
+  <rect width="400" height="640" rx="24" fill="#f7f6f3"/>
+  <!-- browser bar -->
+  <rect x="16" y="14" width="368" height="30" rx="15" fill="#fff" stroke="#e4e1da"/>
+  <text x="200" y="34" font-size="11.5" fill="#565d75" text-anchor="middle">anand-hardware.example</text>
+  <!-- header -->
+  <rect x="16" y="56" width="368" height="112" rx="16" fill="#1d1a3d"/>
+  <rect x="32" y="72" width="40" height="40" rx="10" fill="#d95f1e"/><text x="52" y="99" font-size="20" font-weight="800" fill="#fff" text-anchor="middle">A</text>
+  <text x="84" y="88" font-size="16" font-weight="700" fill="#fff">Anand Hardware &amp; Paints</text>
+  <text x="84" y="107" font-size="11.5" fill="#cfcaf0">Near Rajwada, Indore · since 1998</text>
+  <circle cx="38" cy="140" r="4" fill="#4ade80"/><text x="48" y="144" font-size="12" font-weight="600" fill="#fff">Open today · 9:30 am – 8:30 pm</text>
+  <!-- actions -->
+  <g font-size="12.5" font-weight="700" text-anchor="middle">
+    <rect x="16" y="180" width="160" height="42" rx="21" fill="#0e7a35"/><text x="96" y="205.5" fill="#fff">WhatsApp us</text>
+    <rect x="184" y="180" width="96" height="42" rx="21" fill="#fff" stroke="#cfcaf0"/><text x="232" y="205.5" fill="#4a31bd">Call</text>
+    <rect x="288" y="180" width="96" height="42" rx="21" fill="#fff" stroke="#cfcaf0"/><text x="336" y="205.5" fill="#4a31bd">Directions</text>
+  </g>
+  <!-- catalogue -->
+  <text x="20" y="256" font-size="15" font-weight="700" fill="#14172a">What we stock</text>
+  <text x="380" y="256" font-size="11.5" fill="#5b3fd9" text-anchor="end" font-weight="600">Full catalogue →</text>
+  <g>
+    <rect x="16" y="268" width="180" height="96" rx="14" fill="#fff" stroke="#e4e1da"/>
+    <rect x="32" y="284" width="34" height="26" rx="5" fill="#efecfd"/><rect x="38" y="279" width="22" height="8" rx="3" fill="#5b3fd9"/>
+    <text x="32" y="333" font-size="13" font-weight="700" fill="#14172a">Wall paints</text><text x="32" y="351" font-size="11" fill="#565d75">Interior · exterior · primers</text>
+    <rect x="204" y="268" width="180" height="96" rx="14" fill="#fff" stroke="#e4e1da"/>
+    <path d="M226 306l18-18M240 284l8 8" stroke="#0e7c8c" stroke-width="5" stroke-linecap="round"/>
+    <text x="220" y="333" font-size="13" font-weight="700" fill="#14172a">Hand tools</text><text x="220" y="351" font-size="11" fill="#565d75">Drills · spanners · ladders</text>
+    <rect x="16" y="372" width="180" height="96" rx="14" fill="#fff" stroke="#e4e1da"/>
+    <path d="M34 394h24v14h10" fill="none" stroke="#0e7c8c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="32" y="437" font-size="13" font-weight="700" fill="#14172a">Plumbing</text><text x="32" y="455" font-size="11" fill="#565d75">Pipes · taps · fittings</text>
+    <rect x="204" y="372" width="180" height="96" rx="14" fill="#fff" stroke="#e4e1da"/>
+    <path d="M232 386l-8 16h10l-6 14 16-20h-10l6-10z" fill="#d95f1e"/>
+    <text x="220" y="437" font-size="13" font-weight="700" fill="#14172a">Electricals</text><text x="220" y="455" font-size="11" fill="#565d75">Wires · switches · lights</text>
+  </g>
+  <!-- price enquiry -->
+  <rect x="16" y="480" width="368" height="82" rx="14" fill="#efecfd"/>
+  <text x="32" y="506" font-size="13.5" font-weight="700" fill="#14172a">Need today's price?</text>
+  <text x="32" y="526" font-size="11.5" fill="#14172a">Send the item name or a photo on WhatsApp.</text>
+  <text x="32" y="545" font-size="11.5" fill="#565d75">We reply during shop hours.</text>
+  <!-- label -->
+  <rect x="80" y="584" width="240" height="30" rx="15" fill="#1d1a3d"/>
+  <text x="200" y="603.5" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing=".4">CONCEPT DEMO · AFTER</text>
+</svg>

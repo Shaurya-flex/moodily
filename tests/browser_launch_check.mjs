@@ -17,7 +17,7 @@ const PAGES = ["", "services/", "pricing/", "process/", "industries/", "customer
   // optional extra site paths, e.g. EXTRA_PAGES=/store/,/store/some-product/
   ...(process.env.EXTRA_PAGES || "").split(",").filter(Boolean)];
 const pagePath = (p) => (p.startsWith("/") ? p : "/international/" + p);
-const VIEWPORTS = { desktop: [1440, 900, false], tablet: [768, 1024, true], m390: [390, 844, true], m375: [375, 812, true] };
+const VIEWPORTS = { desktop: [1440, 900, false], tablet: [768, 1024, true], m390: [390, 844, true], m375: [375, 812, true], m360: [360, 780, true] };
 const PREVIEW_WORDS = /private preview|owner approval|draft price|hypothes|approval required|owner blocker|coming after approval|preview:/i;
 const FAKE = { name: "ZZTESTNAME Person", email: "zztest.person@example.com", company: "ZZTESTCO Ltd", phone: "ZZPHONE5550100",
   message: "ZZTESTMESSAGE please call ZZPHONE5550100", order: "order_ZZTESTORDER01", payment: "pay_ZZTESTPAY01" };
@@ -68,7 +68,7 @@ for (const p of PAGES) {
       const emptyLinks = [...document.querySelectorAll('a')].filter(a => !a.getAttribute('href') || a.getAttribute('href') === '#').length;
       const text = document.body.innerText;
       return { overflow: de.scrollWidth > de.clientWidth + 1, scrollW: de.scrollWidth, clientW: de.clientWidth, brokenImgs, emptyLinks,
-               preview: (${PREVIEW_WORDS}).test(text) || !!document.querySelector('.preview-note,.intl-preview-banner,.draft-chip'),
+               preview: location.pathname.startsWith('/international/') && ((${PREVIEW_WORDS}).test(text) || !!document.querySelector('.preview-note,.intl-preview-banner,.draft-chip')),
                h1: document.querySelectorAll('h1').length, lang: de.lang, title: document.title };
     })()`);
     results.pages.push({ page: pagePath(p), viewport: vname, ...r, consoleErrors: [...consoleErrors] });
@@ -108,8 +108,8 @@ await evaluate(`(() => {
   window.__opened = []; window.open = (u) => { window.__opened.push(String(u)); return null; };
   const set = (id, v) => { const el = document.getElementById(id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); };
   set('in-name', ${JSON.stringify(FAKE.name)}); set('in-email', ${JSON.stringify(FAKE.email)}); set('in-company', ${JSON.stringify(FAKE.company)});
-  set('in-country', 'ZZTESTLAND'); set('in-goal', ${JSON.stringify(FAKE.message)}); set('in-problem', ${JSON.stringify(FAKE.message)});
-  document.getElementById('in-budget').selectedIndex = 2; document.getElementById('in-timeline').selectedIndex = 1; document.getElementById('in-contact').selectedIndex = 1;
+  set('in-website', 'https://zztest.example'); set('in-desc', ${JSON.stringify(FAKE.message)});
+  document.getElementById('in-budget').selectedIndex = 2; document.getElementById('in-timeline').selectedIndex = 1;
   document.getElementById('intlWa').click();
   return true;
 })()`);

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 640" width="400" height="640" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+  <title>Concept demo, before: a cluttered page for the same fictional shop with no hours, no clear buttons and a phone number hidden in an image</title>
+  <rect width="400" height="640" rx="24" fill="#f7f6f3"/>
+  <rect x="16" y="14" width="368" height="30" rx="15" fill="#fff" stroke="#e4e1da"/>
+  <text x="200" y="34" font-size="11.5" fill="#565d75" text-anchor="middle">anand-hardware.example</text>
+  <!-- banner image placeholder -->
+  <rect x="16" y="56" width="368" height="150" rx="6" fill="#c9c4b8"/>
+  <path d="M16 186l90-70 70 52 60-40 148 88v26H16z" fill="#b3ad9f"/>
+  <circle cx="320" cy="96" r="18" fill="#d8d3c8"/>
+  <text x="200" y="104" font-size="17" font-weight="800" fill="#f7f6f3" text-anchor="middle">WELCOME TO OUR WEBSITE!!!</text>
+  <text x="352" y="198" font-size="8" fill="#8f897c" text-anchor="end">Ph: 98xxx xxxxx (in image)</text>
+  <!-- marquee-ish line -->
+  <rect x="16" y="214" width="368" height="22" fill="#e9e5dc"/>
+  <text x="24" y="229" font-size="10.5" fill="#9a9384">*** Best quality *** Best rates *** All items available *** Contact us ***</text>
+  <!-- wall of text -->
+  <g fill="#d8d3c8">
+    <rect x="20" y="252" width="350" height="8" rx="4"/><rect x="20" y="268" width="330" height="8" rx="4"/><rect x="20" y="284" width="356" height="8" rx="4"/>
+    <rect x="20" y="300" width="300" height="8" rx="4"/><rect x="20" y="316" width="344" height="8" rx="4"/><rect x="20" y="332" width="270" height="8" rx="4"/>
+    <rect x="20" y="356" width="352" height="8" rx="4"/><rect x="20" y="372" width="318" height="8" rx="4"/><rect x="20" y="388" width="340" height="8" rx="4"/>
+    <rect x="20" y="404" width="210" height="8" rx="4"/>
+  </g>
+  <text x="20" y="438" font-size="11" fill="#9a9384">Products: paint, tools, pipe, wire, etc etc.</text>
+  <!-- tiny links -->
+  <g font-size="9.5" fill="#7c86b8" text-decoration="underline">
+    <text x="20" y="466">Home</text><text x="56" y="466">About Us</text><text x="108" y="466">Gallery</text><text x="152" y="466">Enquiry</text><text x="200" y="466">Feedback</text>
+  </g>
+  <rect x="20" y="482" width="150" height="56" rx="4" fill="#e9e5dc"/>
+  <text x="95" y="508" font-size="9.5" fill="#9a9384" text-anchor="middle">Visitor counter</text>
+  <text x="95" y="526" font-size="12" font-weight="700" fill="#b3ad9f" text-anchor="middle">000123</text>
+  <text x="184" y="504" font-size="10" fill="#9a9384">Timings: ask on phone</text>
+  <text x="184" y="522" font-size="10" fill="#9a9384">Address: see Google</text>
+  <rect x="80" y="584" width="240" height="30" rx="15" fill="#565d75"/>
+  <text x="200" y="603.5" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing=".4">CONCEPT DEMO · BEFORE</text>
+</svg>

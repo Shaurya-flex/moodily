@@ -15,7 +15,8 @@
     "bio": "Saurabh Kumar founded Moodily to help businesses build clearer digital journeys, from being found online to educating customers after they buy. He also creates practical AI tutorials on YouTube as AI with Saurabh and wrote the guide Practical AI for Everyday Life & Work. He works from India with clients who prefer to collaborate remotely in English.",
     "photo": "",
     "linkedin": "",
-    "youtube": "https://www.youtube.com/@AIwithSaurabhKr"
+    "youtube": "https://www.youtube.com/@AIwithSaurabhKr",
+    "channel_note": "AI with Saurabh started on 9 September 2026 and passed 2,000 views by 2 October 2026 (founder-reported, not a live counter)."
   },
   "entity": {
     "name": "Moodily (moodily.in)",
@@ -189,9 +190,26 @@
     "commissioned": "COMMISSIONED CLIENT WORK",
     "client": "CLIENT WORK",
     "own": "MOODILY PROJECT",
-    "concept": "CONCEPT DEMONSTRATION"
+    "concept": "CONCEPT DEMONSTRATION",
+    "paid_review": "PAID SOFTWARE REVIEW"
   },
   "portfolio": [
+    {
+      "id": "teleprompter-review",
+      "title": "Teleprompter.com app review",
+      "label": "paid_review",
+      "status": "published",
+      "approved": true,
+      "categories": ["customer-education"],
+      "type": "Paid software review — screen demonstration, narration and editing",
+      "problem": "A software company wanted its app shown in real use to a creator audience.",
+      "built": "A disclosed, paid review of the Teleprompter.com app: screen demonstration, voice narration and editing, published on the AI with Saurabh channel.",
+      "tools": "Screen recording, narration, video editing",
+      "verification": "Published on YouTube as a paid review.",
+      "outcome": "Delivery documented; commercial outcome not measured.",
+      "url": "https://youtu.be/8RT9FsJnLqc",
+      "video_id": "8RT9FsJnLqc"
+    },
     {
       "id": "notebooklm-tutorial",
       "title": "NotebookLM walkthrough — one book, five study tools",
@@ -205,7 +223,9 @@
       "tools": "NotebookLM, screen recording, AI-assisted script draft, human editing",
       "verification": "",
       "outcome": "Delivery documented; commercial outcome not measured.",
-      "url": "https://youtu.be/epxlAZA3sm8"
+      "url": "https://youtu.be/epxlAZA3sm8",
+      "video_id": "epxlAZA3sm8",
+      "poster": "/assets/img/samples/short-one-book-five-study-tools.webp"
     },
     {
       "id": "ai-tools-test",
@@ -220,7 +240,8 @@
       "tools": "Screen recording",
       "verification": "",
       "outcome": "Delivery documented; commercial outcome not measured.",
-      "url": "https://youtu.be/zrYfvkYyrTU"
+      "url": "https://youtu.be/zrYfvkYyrTU",
+      "video_id": "zrYfvkYyrTU"
     },
     {
       "id": "moodily-site",
@@ -235,7 +256,10 @@
       "tools": "Static site generator, structured data",
       "verification": "Automated checks run on every change before publishing.",
       "outcome": "Delivery documented; commercial outcome not measured.",
-      "url": "https://moodily.in/"
+      "url": "https://moodily.in/",
+      "image": "/assets/img/work/moodily-international-2026-10.webp",
+      "image_small": "/assets/img/work/moodily-international-2026-10-480.webp",
+      "image_alt": "Screenshot of the Moodily International home page on moodily.in, October 2026."
     },
     {
       "id": "patient-journey-map",

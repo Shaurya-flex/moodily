@@ -15,16 +15,13 @@
   if (!form) return;
   var email = form.getAttribute('data-email'), wa = form.getAttribute('data-wa');
   var $ = function (id) { return document.getElementById(id); };
-  var REQUIRED = ['in-name', 'in-email', 'in-company', 'in-country', 'in-type', 'in-budget', 'in-timeline', 'in-contact', 'in-goal', 'in-problem'];
+  var REQUIRED = ['in-name', 'in-company', 'in-email', 'in-type', 'in-desc'];
   var LABELS = {
-    'in-name': 'Name', 'in-email': 'Work email', 'in-company': 'Company', 'in-website': 'Website', 'in-country': 'Country',
-    'in-tz': 'Time zone', 'in-type': 'Project type', 'in-budget': 'Budget range', 'in-timeline': 'Desired timeline',
-    'in-contact': 'Preferred contact', 'in-goal': 'Primary goal', 'in-problem': "What isn't working today",
-    'in-links': 'Relevant public links', 'in-nda': 'NDA needed', 'in-source': 'How I heard about Moodily'
+    'in-name': 'Name', 'in-company': 'Business', 'in-email': 'Work email', 'in-website': 'Website',
+    'in-type': 'Service needed', 'in-desc': 'Brief description', 'in-timeline': 'Timeline', 'in-budget': 'Budget range (USD)'
   };
 
-  // Prefill the time zone from the browser, and the project type from ?type=<service-id> (a fixed category, never personal data).
-  try { if (!$('in-tz').value) $('in-tz').value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  // Preselect the service from ?type=<service-id> (a fixed category, never personal data).
   var wanted = new URLSearchParams(location.search).get('type');
   if (wanted) {
     var sel = $('in-type');

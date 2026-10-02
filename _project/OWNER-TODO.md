@@ -6,7 +6,6 @@ Values the site needs from the owner. Nothing here was invented — fill real da
 - **legal**: TODO: legal entity name (proprietorship / LLP / Pvt Ltd) as registered
 - **legal**: TODO: city/state for Organization schema and legal pages
 - **legal**: TODO: name + email of grievance contact (DPDP Act / IT Rules)
-- **founder**: TODO: founder full name, one-line role, short bio and LinkedIn URL (brief mentions 'Saurabh' — confirm before publishing)
 - **site**: TODO: official profile URLs only (LinkedIn page, YouTube, Instagram, X). These feed Organization.sameAs.
 - **form**: OPTIONAL (not a launch blocker): Apps Script web-app URL if you later want the built-in form to post directly.
 - **free_audit**: CONFIRM the owner can deliver this promise (2 working days, 3 suggestions).

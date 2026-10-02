@@ -68,6 +68,16 @@
       "a": "Because this is an instantly delivered digital product, please read the digital-goods refund policy before purchase. If something is wrong with your download or access, contact support and we will make it right."
     }
   ],
+  "home-en": [
+    {"q": "Who does Moodily work with?", "a": "Local businesses in India — shops, clinics, coaching centres and service providers; service businesses outside India, including dental clinics; and software companies that need product tutorials. If you're unsure, describe your business and we'll tell you honestly whether we're a good fit."},
+    {"q": "Can we work in Hindi?", "a": "Yes. Work for Indian businesses can be done in Hindi, English or both. International work is in English."},
+    {"q": "How are prices set?", "a": "Fixed-scope packages for Indian businesses have fixed prices in rupees. International packages are priced in US dollars. Larger or custom work gets a written quote after a short brief, and you approve the scope and price before anything starts."},
+    {"q": "Can you guarantee more customers or a top Google ranking?", "a": "No — nobody honest can. We commit to the work in your written scope: clear pages, profiles, enquiry paths and tutorials. We say plainly what is outside our control."},
+    {"q": "Who owns the accounts and files?", "a": "You do. Google, WhatsApp, domain and social accounts stay in your name. We work through delegated access and never ask for passwords. What you receive at handover is listed in your scope."},
+    {"q": "Do you use AI?", "a": "Yes, for drafting and research, so the work moves faster. A person reviews every deliverable, and facts are checked against their source before anything is published."},
+    {"q": "Do you handle patient or customer records?", "a": "No. For clinics we work only on public-facing pages, links to your existing booking system and education content you approve. Please don't send patient, medical or payment details in any form or message."},
+    {"q": "How do I start?", "a": "Use “Discuss your project” — a short form, WhatsApp or email. We reply within 24 hours on working days with questions or a written scope."}
+  ],
   "home": [
     {
       "q": "Moodily क्या है?",

@@ -1,0 +1,85 @@
+{
+  "_readme": "Homepage and International showcase content (who we help, the need selector, concept demos, the project process). Prices are never written here: they come from services.json / pricing.json (India) and international.json (USD). Real work lives in international.json -> portfolio. Every concept demo must say 'Concept demo' and 'not client work' (build.py checks).",
+  "paths": [
+    {
+      "id": "india",
+      "eyebrow": "In India · हिंदी या English",
+      "title": "Local businesses in India",
+      "lead": "Get found on Google, show what you sell and receive enquiries on WhatsApp.",
+      "points": ["Google Business Profile and WhatsApp Business", "Websites, catalogues and brochures", "Fixed prices in rupees and a written scope"],
+      "cta": ["See India packages", "/#packages"],
+      "more": ["All services", "/services/"],
+      "icon": "shop"
+    },
+    {
+      "id": "international",
+      "eyebrow": "Outside India · prices in USD",
+      "title": "Service businesses abroad, including dental clinics",
+      "lead": "Clear service pages and an appointment or enquiry path people can follow on a phone.",
+      "points": ["Service and location pages", "Appointment and enquiry steps that are easy to follow", "FAQs and education content approved by you"],
+      "cta": ["Moodily International", "/international/"],
+      "more": ["For dental clinics", "/international/clinics/"],
+      "icon": "clinic"
+    },
+    {
+      "id": "software",
+      "eyebrow": "Software companies",
+      "title": "Product tutorials and customer education",
+      "lead": "Onboarding tutorials, feature demonstrations and customer-education videos.",
+      "points": ["Screen-recorded walkthroughs with narration", "Captions, chapters and short clips", "Built from approved footage and your product"],
+      "cta": ["Customer education", "/international/customer-education/"],
+      "more": ["See an example", "/#work"],
+      "icon": "play"
+    }
+  ],
+  "needs": [
+    {"id": "google", "label": "Show up properly on Google Maps", "india": {"service": "google-business-fix"}, "international": {"intl": "gbp-quick-fix"}},
+    {"id": "whatsapp", "label": "Get enquiries on WhatsApp", "india": {"service": "whatsapp-business-setup"}, "international": {"intl": "local-presence-launch"}},
+    {"id": "website", "label": "A website or landing page", "india": {"service": "landing-page"}, "international": {"intl": "conversion-landing-page"}},
+    {"id": "catalogue", "label": "A catalogue or brochure", "india": {"service": "business-brochure"}, "international": {"href": "/international/contact/", "name": "Discuss a catalogue or brochure", "note": "Quoted after a short brief."}},
+    {"id": "clinic", "label": "A clear booking path for a clinic", "india": {"href": "/services/medical-store/", "name": "Medical store & clinic digital setup", "note": "Google, WhatsApp and a simple page — prices on the page."}, "international": {"intl": "clinic-digital-growth-foundation"}},
+    {"id": "tutorials", "label": "Product tutorials or onboarding videos", "india": {"href": "/international/customer-education/", "name": "Customer education (USD)", "note": "Quoted in USD; Indian software teams are welcome."}, "international": {"intl": "customer-education-studio"}},
+    {"id": "unsure", "label": "I'm not sure yet", "india": {"href": "/contact/?service=free-digital-audit", "name": "Free Digital Audit", "note": "We look at your Google, WhatsApp and website and tell you what to fix first."}, "international": {"intl": "journey-audit"}}
+  ],
+  "concepts": [
+    {
+      "id": "shop",
+      "title": "A local shop page people can act on",
+      "context": "India · hardware and paint shop (fictional)",
+      "before": "/assets/img/illustrations/demo-shop-before.svg",
+      "after": "/assets/img/illustrations/demo-shop-after.svg",
+      "width": 400, "height": 640,
+      "alt_before": "Before: a cluttered page for a fictional hardware shop with no opening hours, no clear buttons and a phone number hidden inside a banner image.",
+      "alt_after": "After: the same fictional shop with today's opening hours, WhatsApp, call and directions buttons, a four-part catalogue and a note on how to ask for prices.",
+      "shows": ["Opening hours and location at the top", "One-tap WhatsApp, call and directions", "A short catalogue instead of a wall of text"],
+      "link": ["Packages for local businesses", "/#packages"]
+    },
+    {
+      "id": "dental",
+      "title": "A clinic page with honest appointment options",
+      "context": "International · dental clinic (fictional)",
+      "image": "/assets/img/illustrations/demo-dental.svg",
+      "width": 640, "height": 440,
+      "alt": "A fictional dental clinic page listing three services with visit lengths, and an appointments panel offering online booking through the clinic's own system or a call-back request, noting that a request is not a confirmed booking.",
+      "shows": ["Online booking goes to the clinic's existing system", "A call-back request is clearly not a confirmed booking", "No patient records or medical details collected"],
+      "link": ["For dental clinics", "/international/clinics/"]
+    },
+    {
+      "id": "software",
+      "title": "A tutorial storyboard for a software product",
+      "context": "Software · onboarding tutorial (fictional app)",
+      "image": "/assets/img/illustrations/demo-software.svg",
+      "width": 640, "height": 440,
+      "alt": "A storyboard for a fictional app's getting-started tutorial: three screens with the clicked control highlighted, a caption under each, timed narration lines and a chapter timeline with captions.",
+      "shows": ["Each step highlights the control to click", "Narration, captions and chapters planned up front", "Short clips can be cut from the same recording"],
+      "link": ["Customer education", "/international/customer-education/"]
+    }
+  ],
+  "steps": [
+    {"title": "Brief", "text": "Tell us what you do, who your customers are and what you need. A short form, an email or a WhatsApp message is enough."},
+    {"title": "Scope", "text": "You get a written scope: deliverables, exclusions, revision rounds, timeline and price. Nothing starts until you approve it."},
+    {"title": "Build", "text": "Work happens in agreed stages, in your own accounts through delegated access. We never ask for passwords."},
+    {"title": "Review", "text": "You review at agreed points. Consolidated feedback goes into the revision rounds in your scope."},
+    {"title": "Handover", "text": "Final files and accounts stay in your name. Exactly what you receive is listed in your scope."}
+  ]
+}
