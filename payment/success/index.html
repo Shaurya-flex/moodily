@@ -27,9 +27,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="/assets/css/site.css?v=a4b91c5ff7">
+<link rel="stylesheet" href="/assets/css/site.css?v=5996d1cd4c">
 
-<script src="/assets/js/site.js?v=a4b91c5ff7" defer></script>
+<script src="/assets/js/site.js?v=5996d1cd4c" defer></script>
 </head>
 <body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MRNHLVC9" height="0" width="0" style="display:none;visibility:hidden" title="GTM"></iframe></noscript>
@@ -66,8 +66,15 @@
         <div><dt>Order ID</dt><dd id="payOrder"></dd></div>
         <div><dt>Payment ID</dt><dd id="payId"></dd></div>
       </dl>
-      <p>अगला step: WhatsApp पर onboarding शुरू करें। हम 1 working day में जवाब देंगे। Receipt Razorpay की ओर से आपके email/SMS पर आती है।</p>
-      <p class="btn-row"><a id="payWa" class="btn btn-wa btn-lg" href="https://wa.me/919354123255" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="payment-success">WhatsApp पर onboarding शुरू करें</a></p>
+      <div id="payDownload" hidden>
+        <p class="lead">आपकी guide तैयार है — नीचे से download कीजिए। यह link कुछ समय के लिए ही valid है, इसलिए file को अपने phone/computer में save कर लीजिए।</p>
+        <p class="btn-row"><a id="payDownloadLink" class="btn btn-primary btn-lg" href="/updates/ai-parents-guide/" rel="noopener" data-track="download_click" data-label="digital-download">📥 Download your guide</a></p>
+        <p class="small muted">Download शुरू न हो तो इसी page को दोबारा खोलकर button दबाइए। दिक़्क़त हो तो Payment ID के साथ WhatsApp कीजिए — हम मदद करेंगे। हर update <a href="/updates/ai-parents-guide/">updates page</a> पर।</p>
+      </div>
+      <div id="payOnboard">
+        <p>अगला step: WhatsApp पर onboarding शुरू करें। हम 1 working day में जवाब देंगे। Receipt Razorpay की ओर से आपके email/SMS पर आती है।</p>
+        <p class="btn-row"><a id="payWa" class="btn btn-wa btn-lg" href="https://wa.me/919354123255" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="payment-success">WhatsApp पर onboarding शुरू करें</a></p>
+      </div>
     </div>
     <div id="payUnknown">
       <p class="lead">इस page पर payment की जानकारी नहीं मिली। अगर पैसा कट गया है तो Payment ID (Razorpay SMS/email में) के साथ हमसे संपर्क करें — हम Razorpay dashboard में जाँचकर पुष्टि करेंगे।</p>

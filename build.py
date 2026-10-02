@@ -85,6 +85,8 @@ OFFER = {"id": FOUNDING["id"], "name": FOUNDING["name"], "services": [], "slots_
 PAY_BY_SERVICE = {p["service_id"]: k for k, p in PRODUCTS.items() if p.get("service_id")}
 RZP_LINK = re.compile(r"^https://rzp\.io/rzp/[A-Za-z0-9]+$")
 PAYMENTS = SITE.get("payments") or {}
+PAYMENT_FLAGS = {k: v for k, v in (SITE.get("payment_flags") or {}).items() if not k.startswith("_")}
+INTL = load("data/international.json")
 HI_MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
 HI_DAYS = ["सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार", "रविवार"]
 
@@ -187,7 +189,7 @@ def pay_cta(key, cls="btn btn-primary", label=None, where="", url_key=None, amou
     p = PRODUCTS[key]
     url = p.get(url_key) if url_key else (p.get("payment_url") or p.get("full_payment_url"))
     amt = amount or p["price"]
-    if not url or not RZP_LINK.match(url):
+    if not url or not RZP_LINK.match(url) or not PAYMENT_FLAGS.get("razorpay_india_enabled", True):
         return ""
     name = SERVICES[p["service_id"]]["name"] if p.get("service_id") else p.get("name", key)
     return ('<a class="{cls}" href="{url}" target="_blank" rel="noopener noreferrer" data-pay="{key}" data-amount="{amt}" '
@@ -461,10 +463,9 @@ def service_detail(svc, ctx):
     case_html = ""
     case_ids = svc.get("case_study_ids") or ([svc["case_study"]] if svc.get("case_study") else [])
     cs = CASES_BY_SLUG.get(case_ids[0]) if case_ids else None
-    if cs:
-        href = "/case-studies/{}/".format(cs["slug"]) if cs["status"] == "published" else "/case-studies/#{}".format(cs["slug"])
-        case_html = '<p class="case-link">{}: <a href="{}" data-track="portfolio_open" data-label="{}">{}</a></p>'.format(
-            lab["sample"], href, cs["slug"], e(cs["title"]))
+    if cs and cs["status"] == "published":  # draft case studies are never shown publicly
+        case_html = '<p class="case-link">{}: <a href="/case-studies/{}/" data-track="portfolio_open" data-label="{}">{}</a></p>'.format(
+            lab["sample"], cs["slug"], cs["slug"], e(cs["title"]))
     compliance = '<p class="notice">{}</p>'.format(e(svc["compliance_note"])) if svc.get("compliance_note") else ""
     tier = TIER_LABEL.get(svc.get("tier") or "")
     return (
@@ -521,23 +522,29 @@ def c_payg(args, ctx):
 
 
 def c_cases(args, ctx):
+    """Published case studies only. A draft has no problem/method/verification yet, so it is never
+    shown publicly (no title, no "real project" badge). heading="..." renders a sub-heading only when
+    there is something to show; with nothing published, a heading-less call gets an honest empty state."""
     limit = int(args.get("limit", "0") or 0)
-    items = CASES[:limit] if limit else CASES
+    published = [c for c in CASES if c["status"] == "published"]
+    items = published[:limit] if limit else published
+    if not items:
+        if args.get("heading"):
+            return ""
+        return ('<p class="notice">अभी कोई case study published नहीं है। Case study तभी publish होती है जब problem, method, '
+                'verification और (अगर मापा गया हो) result documented हो — और client project हो तो client की लिखित अनुमति हो।</p>')
     cards = []
     for c in items:
         svc = SERVICES.get(c["service"])
-        if c["status"] == "published":
-            link = '<a class="stretched" href="/case-studies/{0}/" data-track="case_study_open" data-label="{0}">{1}</a>'.format(c["slug"], e(c["title"]))
-            badge = '<span class="badge badge-ok">Case study</span>'
-        else:
-            link = e(c["title"])
-            badge = '<span class="badge">Detailed write-up in progress</span>'
+        link = '<a class="stretched" href="/case-studies/{0}/" data-track="case_study_open" data-label="{0}">{1}</a>'.format(c["slug"], e(c["title"]))
+        badge = '<span class="badge badge-ok">Case study</span>'
         if KIND_LABEL.get(c.get("kind")):
             badge += ' <span class="badge badge-kind">{}</span>'.format(e(KIND_LABEL[c["kind"]]))
         svc_link = '<a class="small" href="{}#{}">Related service: {} →</a>'.format(svc["page"], svc["id"], e(svc["name"])) if svc else ""
         cards.append('<article class="card case-card" id="{}"><p class="eyebrow">{} · {}</p><h3>{}</h3><p class="muted small">{}</p>{}<p>{}</p></article>'.format(
             c["slug"], e(c["category"]), e(DIVISIONS[c["division"]]), link, e(c["work_type"]), badge, svc_link))
-    return '<div class="grid grid-3">{}</div>'.format("".join(cards))
+    head = '<h3 class="sub-h">{}</h3>'.format(e(args["heading"])) if args.get("heading") else ""
+    return '{}<div class="grid grid-3">{}</div>'.format(head, "".join(cards))
 
 
 def c_products(args, ctx):
@@ -616,6 +623,52 @@ def c_faq(args, ctx):
     ctx["faqs"].extend(items)
     return '<div class="faq-list">{}</div>'.format("".join(
         '<details class="faq"><summary>{}</summary><p>{}</p></details>'.format(e(i["q"]), e(i["a"])) for i in items))
+
+
+def c_buy_global(args, ctx):
+    """Buy CTA for the Global Edition. Goes live only when BOTH a Lemon Squeezy /checkout/buy/ link is set in
+    products.json -> "global_edition"."checkout_url" AND site.json payment_flags.lemon_squeezy_store_enabled is true
+    (store activated for real payments). Otherwise renders a launch-notify CTA (never a broken or test-mode Buy link)."""
+    g = PRODUCT_DATA.get("global_edition", {})
+    price = g.get("price", "9.99")
+    sym = {"USD": "$", "GBP": "£", "EUR": "€", "AUD": "A$", "CAD": "C$"}.get(g.get("currency", "USD"), "$")
+    url = (g.get("checkout_url") or "").strip()
+    if url.startswith("https://") and "lemonsqueezy.com" in url and PAYMENT_FLAGS.get("lemon_squeezy_store_enabled"):
+        return ('<a class="btn btn-primary" href="{url}" rel="noopener" target="_blank" '
+                'data-track="checkout_click" data-label="practical-ai-global">Get the Global Guide — {sym}{price}</a>'
+                '<p class="small muted">One-time purchase · secure checkout · instant digital access after payment.</p>').format(
+                    url=e(url), sym=sym, price=e(price))
+    notify = wa_button("Get notified at launch", "interested buyer", "Global Edition launch", "btn btn-primary", "notify-practical-ai-global")
+    return ('{notify}<p class="small muted">Launching soon on secure checkout — price {sym}{price}. '
+            'One-time purchase · instant digital access after payment.</p>').format(notify=notify, sym=sym, price=e(price))
+
+
+def c_buy_india(args, ctx):
+    """India edition ₹ tiers. Renders live Razorpay Standard Checkout buttons (digital-delivery engine)
+    only when the payments Worker is configured (site.json payments.api_base set AND mode 'live', i.e. the
+    Worker is deployed with R2/KV provisioned). Otherwise a waitlist CTA, so nothing broken ships."""
+    cfg = PRODUCT_DATA.get("india_edition", {})
+    pid = cfg.get("product_id", "ai-parents-india")
+    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
+    live = bool(api and allowed and PAYMENT_FLAGS.get("razorpay_india_enabled", True))
+    test = ' <span class="badge">TEST MODE</span>' if live and PAYMENTS.get("mode") != "live" else ""
+    cards = []
+    tiers = [t for t in cfg.get("tiers", []) if not t.get("hidden")]
+    for t in tiers:
+        feat = " feature" if t.get("featured") else ""
+        if live:
+            cta = ('<button type="button" class="btn btn-primary" data-checkout-digital data-product="{pid}" data-edition="{ed}" '
+                   'data-license="{lic}" data-api="{api}" data-track="checkout_click" data-label="{pid}-{ed}-{lic}">'
+                   '₹{price} — अभी लें</button>{test}').format(pid=e(pid), ed=e(t["edition"]), lic=e(t["license"]),
+                                                              api=e(api), price=e(t["price"]), test=test)
+        else:
+            cta = wa_button("Waitlist में जुड़ें", "interested buyer", "India guide: " + t["label"], "btn btn-outline", "waitlist-india-" + t["license"])
+        cards.append(('<article class="card{feat}"><p class="eyebrow">{label}</p>'
+                      '<p class="price"><strong style="font-size:1.5rem">₹{price}</strong> <span class="muted">one-time</span></p>'
+                      '<p class="small muted">{note}</p>{cta}</article>').format(
+            feat=feat, label=e(t["label"]), price=e(t["price"]), note=e(t["note"]), cta=cta))
+    return '<div class="grid grid-{}">{}</div>'.format(3 if len(cards) >= 3 else 2, "".join(cards))
 
 
 QUALITY = [
@@ -1275,9 +1328,12 @@ def c_samples(args, ctx):
                          fmts='<span class="small">Format: {}</span>'.format(e(fmts)) if fmts else "", more=more))
     for slug in cases:
         c = CASES_BY_SLUG[slug]
-        cards.append('<article class="card sample-card sample-case"><span class="badge">Real project · detailed write-up in progress</span><h3>{t}</h3>'
-                     '<p class="small muted">{w}</p><a class="small" href="/case-studies/#{s}" data-track="portfolio_open" data-label="{s}">Portfolio में देखें →</a></article>'.format(
-                         t=e(c["title"]), w=e(c["work_type"]), s=slug))
+        if c["status"] != "published":  # drafts have no evidence yet — never shown or labelled as real work
+            continue
+        kind = ' <span class="badge badge-kind">{}</span>'.format(e(KIND_LABEL[c["kind"]])) if KIND_LABEL.get(c.get("kind")) else ""
+        cards.append('<article class="card sample-card sample-case"><span class="badge badge-ok">Case study</span>{k}<h3>{t}</h3>'
+                     '<p class="small muted">{w}</p><a class="small" href="/case-studies/{s}/" data-track="portfolio_open" data-label="{s}">Case study पढ़ें →</a></article>'.format(
+                         k=kind, t=e(c["title"]), w=e(c["work_type"]), s=slug))
     if cards:
         body = '<div class="grid grid-3 samples-grid">{}</div>'.format("".join(cards))
     else:
@@ -2267,12 +2323,436 @@ def c_resources_teaser(args, ctx):
         tiles=tiles, yt=' <span class="small muted">{}</span>'.format(yt) if yt else "")
 
 
+# ---------------------------------------------------------- Moodily International (/international/)
+# English section for clients outside India, driven by src/data/international.json and keyed on the route prefix, so
+# India pages, their chrome and their INR schema are untouched. launch.mode "preview" keeps every page noindex and out
+# of the sitemap; "public" publishes approved content only (validate_international enforces it).
+INTL_PREFIX = "/international/"
+INTL_LABEL_CLASS = {"commissioned": "lbl-commissioned", "client": "lbl-client", "own": "lbl-own", "concept": "lbl-concept"}
+INTL_LABEL_EXPLAIN = {"commissioned": "Paid work commissioned by a client, shown only with their permission.",
+                      "client": "Work delivered for a client, shown only with their permission.",
+                      "own": "Built and published by Moodily or its founder — real work, not a paid client engagement.",
+                      "concept": "A demonstration of method using a fictional example. Not client work."}
+INTL_NAV = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
+            ("/international/customer-education/", "Customer Education"), ("/international/work/", "Work"),
+            ("/international/process/", "Process"), ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
+INTL_FOOTER_LINKS = [("/international/services/", "Services"), ("/international/work/", "Work"),
+                     ("/international/about/", "About"), ("/international/contact/", "Contact")]
+INTL_POLICY_LINKS = [("/international/privacy/", "Privacy"), ("/international/terms/", "Terms"),
+                     ("/international/refund/", "Refund & cancellation"), ("/international/payments/", "Payment information")]
+INTL_AUDIT_URL = "/international/contact/?type=journey-audit"
+INTL_REQUIRED_PAGES = ["index", "services", "pricing", "process", "industries", "customer-education", "work", "about", "contact",
+                       "privacy", "terms", "refund", "payments"]
+INTL_WARNINGS = []
+
+
+def is_intl(route):
+    return route.startswith(INTL_PREFIX)
+
+
+def intl_preview():
+    return INTL["launch"]["mode"] != "public"
+
+
+def intl_note(text):
+    """Reminder visible only in a preview build; a public build never renders it."""
+    if not intl_preview() or not text:
+        return ""
+    return '<aside class="preview-note" role="note"><strong>Preview:</strong> {}</aside>'.format(e(text))
+
+
+def usd(n):
+    return "{:,.0f}".format(n) if float(n).is_integer() else "{:,.2f}".format(n)
+
+
+def intl_price_text(p):
+    txt = "USD {}".format(usd(p["amount"]))
+    if p.get("type") == "from":
+        txt = "From " + txt
+    if p.get("unit") == "month":
+        txt += " / month"
+    return txt
+
+
+def intl_price(p):
+    if p.get("approved"):
+        return '<span class="intl-price">{}</span>'.format(e(intl_price_text(p)))
+    return '<span class="intl-price is-draft">{}</span>{}'.format(e(intl_price_text(p)), intl_note("price not approved yet"))
+
+
+def intl_services(tier=None, ids=None):
+    """Services shown on the site. In a public build an unapproved price hides the whole service."""
+    out = [s for s in INTL["services"] if s["price"].get("approved") or intl_preview()]
+    if tier:
+        out = [s for s in out if s["tier"] == tier]
+    if ids:
+        by = {s["id"]: s for s in out}
+        out = [by[i] for i in ids if i in by]
+    return out
+
+
+def intl_email():
+    return INTL["contact"].get("email") or SITE["email"]
+
+
+def intl_request_href(sid):
+    return "/international/contact/?type={}".format(sid)
+
+
+def c_intl_services(args, ctx):
+    tier, ids = args.get("tier"), split_ids(args.get("ids"))
+    items = intl_services(tier, ids or None)
+    if args.get("layout") == "detail":
+        blocks = []
+        for s in items:
+            ctx.setdefault("intl_services", []).append(s)
+            li = lambda xs: "".join("<li>{}</li>".format(e(x)) for x in xs)
+            notices = "".join('<p class="notice small">{}</p>'.format(e(INTL["notices"][n])) for n in s.get("notices", []))
+            more = ('<a class="small" href="{}">More about {} →</a>'.format(s["page"], e(s["name"])) if s.get("page") else "")
+            blocks.append(('<article class="card intl-svc" id="svc-{id}"><div class="intl-svc-head"><div><h3>{name}</h3>'
+                           '<p class="small muted">For: {who}</p></div><p class="intl-price-row">{price}</p></div><p>{summary}</p>'
+                           '<dl class="facts intl-facts"><div><dt>Typical timeline</dt><dd>{tl}</dd></div><div><dt>Revisions</dt><dd>{rev}</dd></div></dl>'
+                           '<div class="grid grid-2 intl-scope"><div><h4>Included</h4><ul class="ticks">{inc}</ul></div>'
+                           '<div><h4>Not included</h4><ul class="crosses">{exc}</ul></div></div>{notices}'
+                           '<p class="btn-row"><a class="btn btn-primary btn-sm" href="{req}" data-track="proposal_request" data-label="svc-{id}">Request this service</a>{more}</p>'
+                           '</article>').format(id=s["id"], name=e(s["name"]), who=e(s["for"]), price=intl_price(s["price"]), summary=e(s["summary"]),
+                                                tl=e(s["timeline"]), rev=e(s["revisions"]), inc=li(s["includes"]), exc=li(s["excludes"]),
+                                                notices=notices, req=intl_request_href(s["id"]), more=more))
+        return '<div class="intl-svc-list">{}</div>'.format("".join(blocks))
+    cards = []
+    for s in items:
+        cards.append(('<article class="card intl-card"><h3><a class="stretched" href="/international/services/#svc-{id}" data-track="service_card_click" '
+                      'data-label="intl-{id}">{name}</a></h3><p class="intl-price-row">{price}</p><p>{summary}</p>'
+                      '<p class="small muted">Typical timeline: {tl}</p></article>').format(
+            id=s["id"], name=e(s["name"]), price=intl_price(s["price"]), summary=e(s["summary"]), tl=e(s["timeline"])))
+    cols = args.get("cols", "3")
+    return '<div class="grid grid-{} intl-cards">{}</div>'.format(e(cols), "".join(cards))
+
+
+def c_intl_pricing(args, ctx):
+    rows = []
+    for tier, label in (("primary", "Core services"), ("secondary", "Focused services")):
+        items = intl_services(tier)
+        if not items:
+            continue
+        rows.append('<tr class="intl-tier"><th scope="rowgroup" colspan="3">{}</th></tr>'.format(label))
+        for s in items:
+            rows.append('<tr><th scope="row"><a href="/international/services/#svc-{}">{}</a></th><td>{}</td><td>{}</td></tr>'.format(
+                s["id"], e(s["name"]), intl_price(s["price"]), e(s["timeline"])))
+    return ('<div class="table-wrap"><table class="price-table intl-price-table"><thead><tr><th scope="col">Service</th><th scope="col">Price</th>'
+            '<th scope="col">Typical timeline</th></tr></thead><tbody>{}</tbody></table></div>').format("".join(rows))
+
+
+def c_intl_price_note(args, ctx):
+    return '<div class="intl-price-note"><p>{}</p><p>{}</p><p>{}</p></div>'.format(
+        e(INTL["price_note"]), e(INTL["from_note"]), e(INTL["timeline_note"]))
+
+
+def c_intl_notice(args, ctx):
+    return '<p class="notice small">{}</p>'.format(e(INTL["notices"][args["key"]]))
+
+
+def c_intl_process(args, ctx):
+    return '<ol class="intl-process">{}</ol>'.format("".join(
+        '<li><span class="step-num">{}</span><div><h3>{}</h3><p>{}</p></div></li>'.format(i + 1, e(s["step"]), e(s["detail"]))
+        for i, s in enumerate(INTL["process"])))
+
+
+def intl_portfolio_items(category=None):
+    """Only published items render. A public build shows owner-approved items only; planned items never render."""
+    out = []
+    for it in INTL["portfolio"]:
+        if it["status"] != "published" or (not it.get("approved") and not intl_preview()):
+            continue
+        if category and category not in it["categories"]:
+            continue
+        out.append(it)
+    return out
+
+
+def c_intl_portfolio(args, ctx):
+    items = intl_portfolio_items(args.get("category"))
+    limit = int(args.get("limit", "0") or 0)
+    items = items[:limit] if limit else items
+    if not items:
+        return '<p class="muted">Examples for this area will appear here once they can be shared.</p>'
+    labels = INTL["portfolio_labels"]
+    cards = []
+    for it in items:
+        link = ""
+        if it.get("url"):
+            ext = it["url"].startswith("http")
+            link = '<a class="small" href="{}"{} data-track="portfolio_view" data-label="{}">View {}</a>'.format(
+                e(it["url"]), ' target="_blank" rel="noopener"' if ext else "", it["id"], "project ↗" if ext else "example →")
+        verify = '<div><dt>Verification</dt><dd>{}</dd></div>'.format(e(it["verification"])) if it.get("verification") else ""
+        cards.append(('<article class="card intl-work" id="work-{id}"><span class="label-chip {cls}">{label}</span><h3>{title}</h3>'
+                      '<p class="small muted">{type}</p><dl class="facts"><div><dt>Problem</dt><dd>{problem}</dd></div>'
+                      '<div><dt>What was built</dt><dd>{built}</dd></div><div><dt>Tools</dt><dd>{tools}</dd></div>{verify}'
+                      '<div><dt>Outcome</dt><dd>{outcome}</dd></div></dl><p class="btn-row">{link}'
+                      '<a class="small" href="/international/contact/" data-track="contact_clicked" data-label="similar-{id}">Request similar work →</a></p></article>').format(
+            id=it["id"], cls=INTL_LABEL_CLASS[it["label"]], label=e(labels[it["label"]]), title=e(it["title"]), type=e(it["type"]),
+            problem=e(it["problem"]), built=e(it["built"]), tools=e(it["tools"]), verify=verify, outcome=e(it["outcome"]), link=link))
+    return '<div class="grid grid-2 intl-portfolio">{}</div>'.format("".join(cards))
+
+
+def c_intl_labels(args, ctx):
+    """Explains only the labels actually used, so the legend never implies work that isn't shown."""
+    used = []
+    for it in intl_portfolio_items(args.get("category")):
+        if it["label"] not in used:
+            used.append(it["label"])
+    order = [k for k in ("commissioned", "client", "own", "concept") if k in used]
+    items = "".join('<li><span class="label-chip {}">{}</span> {}</li>'.format(INTL_LABEL_CLASS[k], e(INTL["portfolio_labels"][k]), e(INTL_LABEL_EXPLAIN[k]))
+                    for k in order)
+    return ('<ul class="intl-label-key">{}</ul><p class="small muted">Client work appears here only with the client\'s written permission. '
+            'Where a business result wasn\'t measured, we say so.</p>').format(items)
+
+
+def intl_methods_active():
+    return [m for m in INTL["payment_methods"] if PAYMENT_FLAGS.get(m["flag"]) and m.get("details_confirmed")]
+
+
+def c_intl_payments(args, ctx):
+    active = intl_methods_active()
+    if active:
+        methods = '<p>Available payment methods:</p><ul class="ticks">{}</ul>'.format("".join("<li>{}</li>".format(e(m["label"])) for m in active))
+    else:
+        methods = '<p>The payment method for your project is confirmed in writing with your scope or invoice.</p>'
+    return ('<div class="intl-payments">{}<p class="small muted">Work starts once the agreed payment is confirmed. We never ask for card or bank '
+            'details by email, chat or message.</p></div>').format(methods)
+
+
+def c_intl_founder(args, ctx):
+    f = INTL["founder"]
+    initials = "".join(w[0] for w in f["name"].split()[:2])
+    photo = ('<img class="intl-founder-photo" src="{}" alt="{}" width="120" height="120" loading="lazy">'.format(e(f["photo"]), e(f["name"]))
+             if f.get("photo") else '<span class="intl-founder-photo is-initials" aria-hidden="true">{}</span>'.format(e(initials)))
+    links = ['<a href="{}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-founder">AI with Saurabh on YouTube ↗</a>'.format(e(f["youtube"]))]
+    if f.get("linkedin"):
+        links.append('<a href="{}" target="_blank" rel="noopener">LinkedIn ↗</a>'.format(e(f["linkedin"])))
+    return ('<div class="intl-founder card">{photo}<div><h3>{name}</h3><p class="muted">{role}</p><p>{bio}</p>'
+            '<p class="small">{links}</p></div></div>').format(photo=photo, name=e(f["name"]), role=e(f["role"]), bio=e(f["bio"]), links=" · ".join(links))
+
+
+def c_intl_faq(args, ctx):
+    """Visible FAQ for readers. No FAQPage markup: Google no longer shows FAQ rich results."""
+    return '<div class="faq-list">{}</div>'.format("".join(
+        '<details class="faq"><summary>{}</summary><p>{}</p></details>'.format(e(i["q"]), e(i["a"])) for i in INTL["faqs"][args["set"]]))
+
+
+def c_intl_cta(args, ctx):
+    return ('<section class="intl-final"><div class="container"><h2>{t}</h2><p class="lead">{s}</p><p class="btn-row">'
+            '<a class="btn btn-primary btn-lg" href="{audit}" data-track="audit_started" data-label="final-cta">Request an audit</a>'
+            '<a class="btn btn-outline btn-lg" href="/international/work/" data-track="portfolio_view" data-label="final-cta">View work</a></p></div></section>').format(
+        t=e(args.get("title", "See what's costing you customers.")),
+        s=e(args.get("sub", "Start with a Digital Journey Audit: a prioritised review and a 30-day plan you can act on, with or without us.")),
+        audit=INTL_AUDIT_URL)
+
+
+def c_intl_contact_line(args, ctx):
+    c = INTL["contact"]
+    return '<p class="intl-contact-line">Email <a href="mailto:{0}" data-track="email_click" data-label="{2}">{0}</a> · We reply {1} ({3}).</p>'.format(
+        e(intl_email()), e(c["reply"]), e(args.get("where", "page")), e(c["timezone"]))
+
+
+INTL_BUDGETS = ["Under USD 500", "USD 500–1,500", "USD 1,500–3,500", "Over USD 3,500", "Not sure yet"]
+INTL_TIMELINES = ["As soon as possible", "Within a month", "In 1–3 months", "Just exploring"]
+
+
+def c_intl_intake(args, ctx):
+    """Enquiry form that sends nothing to Moodily's site: it prepares an email (or a WhatsApp message) in the visitor's own
+    app. Inputs have no name attribute, so even a no-JavaScript submit cannot put details in a URL; intl.js never stores them
+    and only reports the chosen project type to analytics."""
+    opts = lambda xs: "".join('<option value="{0}">{0}</option>'.format(e(x)) for x in xs)
+    types = "".join('<option value="{}">{} — {}</option>'.format(s["id"], e(s["name"]), e(intl_price_text(s["price"]))) for s in intl_services())
+    def field(fid, label, control, req=True, hint=""):
+        return ('<div class="field{full}"><label for="{fid}">{label}{req}</label>{control}{hint}<p class="form-error" id="{fid}-err" hidden></p></div>').format(
+            fid=fid, label=e(label), req=' <span class="req" aria-hidden="true">*</span>' if req else ' <span class="muted small">(optional)</span>',
+            control=control, hint='<p class="hint small muted">{}</p>'.format(e(hint)) if hint else "", full=" field-full" if 'textarea' in control else "")
+    inp = lambda fid, typ="text", ac="", req=True: '<input id="{}" type="{}"{}{}>'.format(fid, typ, ' autocomplete="{}"'.format(ac) if ac else "", " required" if req else "")
+    sel = lambda fid, options, req=True: '<select id="{}"{}><option value="">Choose…</option>{}</select>'.format(fid, " required" if req else "", options)
+    ta = lambda fid, req=True: '<textarea id="{}" rows="4" maxlength="1500"{}></textarea>'.format(fid, " required" if req else "")
+    fields = "".join([
+        field("in-name", "Name", inp("in-name", ac="name")),
+        field("in-email", "Work email", inp("in-email", "email", "email")),
+        field("in-company", "Company or business", inp("in-company", ac="organization")),
+        field("in-website", "Website", inp("in-website", "url", "url", False), False),
+        field("in-country", "Country", inp("in-country", ac="country-name")),
+        field("in-tz", "Time zone", inp("in-tz", req=False), False, "Filled in from your browser — change it if needed."),
+        field("in-type", "Project type", sel("in-type", types + '<option value="other">Something else</option>')),
+        field("in-budget", "Budget range", sel("in-budget", opts(INTL_BUDGETS))),
+        field("in-timeline", "Desired timeline", sel("in-timeline", opts(INTL_TIMELINES))),
+        field("in-contact", "Preferred contact", sel("in-contact", opts(["Email", "Video call", "WhatsApp"]))),
+        field("in-goal", "Primary goal", ta("in-goal")),
+        field("in-problem", "What isn't working today?", ta("in-problem")),
+        field("in-links", "Relevant public links", ta("in-links", False), False, "Your profiles, pages or examples you like — public links only."),
+        field("in-nda", "Do you need an NDA?", sel("in-nda", opts(["No", "Yes"]), False), False),
+        field("in-source", "How did you hear about Moodily?", inp("in-source", req=False), False),
+    ])
+    return ('<form class="lead-form intl-form" id="intlIntake" novalidate data-email="{email}" data-wa="{wa}">'
+            '<p class="notice small"><strong>Please do not submit</strong> patient or sensitive health information, passwords, or card and bank details.</p>'
+            '<div class="form-grid">{fields}</div>'
+            '<p class="btn-row"><button type="submit" class="btn btn-primary">Prepare my email</button>'
+            '<button type="button" class="btn btn-outline" id="intlWa">Send via WhatsApp instead</button></p>'
+            '<p class="small muted">Nothing is sent from this page. Your email app opens with your answers, ready to send to {email}.</p>'
+            '<div class="intl-result" id="intlResult" hidden tabindex="-1"><p><strong>Your email should now be open.</strong> If it didn\'t open, '
+            'copy your request and send it to <a href="mailto:{email}">{email}</a>.</p>'
+            '<p><button type="button" class="btn btn-outline btn-sm" id="intlCopy">Copy my request</button> <span class="small muted" id="intlCopied" role="status"></span></p></div>'
+            '</form><noscript><p class="notice">Email your request to <a href="mailto:{email}">{email}</a>.</p></noscript>').format(
+        email=e(intl_email()), wa=e(SITE["whatsapp"]["number"]), fields=fields)
+
+
+def intl_service_schema(s):
+    p = s["price"]
+    spec = {"@type": "PriceSpecification", "priceCurrency": "USD"}
+    if p.get("type") == "from":
+        spec["minPrice"] = p["amount"]
+    else:
+        spec["price"] = p["amount"]
+    if p.get("unit") == "month":
+        spec["unitText"] = "month"
+    return {"@type": "Service", "name": s["name"], "description": s["summary"], "url": BASE + "/international/services/#svc-" + s["id"],
+            "provider": {"@type": "Organization", "name": SITE["name"], "url": BASE + "/"},
+            "offers": {"@type": "Offer", "priceCurrency": "USD", "priceSpecification": spec, "url": BASE + intl_request_href(s["id"])}}
+
+
+def intl_banner():
+    if not intl_preview():
+        return ""
+    return ('<div class="intl-preview-banner" role="note"><div class="container"><strong>Preview</strong> — not published or indexed.</div></div>')
+
+
+def intl_header(route):
+    def cur(href):
+        return ' aria-current="page"' if route.startswith(href) else ""
+    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV)
+    return """<a class="skip" href="#main">Skip to content</a>
+<header class="site-header intl-header"><div class="container nav">
+  <a class="logo" href="/international/" aria-label="Moodily International home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="logo-sub">International</span></a>
+  <nav aria-label="Primary" class="nav-main">
+    <ul class="nav-desktop intl-nav-desktop">{top}</ul>
+    <details class="menu" id="siteMenu"><summary aria-haspopup="menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
+      <div class="menu-panel" role="menu" aria-label="Site navigation">
+        <button class="menu-close" type="button" data-menu-close aria-label="Close menu">&times;</button>
+        <ul class="nav-links">{top}<li><a href="/international/contact/"{contact}>Contact</a></li></ul>
+        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="{audit}" data-track="audit_started" data-label="menu">Request Audit</a></div>
+      </div>
+    </details>
+  </nav>
+  <div class="nav-actions"><button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
+    <a class="btn btn-primary btn-sm nav-cta" href="{audit}" data-track="audit_started" data-label="nav">Request Audit</a></div>
+</div></header>""".format(top=top, contact=cur("/international/contact/"), audit=INTL_AUDIT_URL)
+
+
+def intl_footer(route):
+    links = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in INTL_FOOTER_LINKS)
+    pol = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in INTL_POLICY_LINKS)
+    mobile = "" if route.startswith("/international/pay/") else (
+        '<nav class="mobile-cta intl-mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="{}" data-track="audit_started" data-label="mobile-bar">Request audit</a>'
+        '<a class="btn btn-outline" href="/international/work/" data-track="portfolio_view" data-label="mobile-bar">View work</a></nav>').format(INTL_AUDIT_URL)
+    return """<footer class="site-footer intl-footer"><div class="container">
+  <div class="footer-grid">
+    <div><a class="logo" href="/international/">Moodily<span class="logo-sub">International</span></a>
+      <p class="muted small">Digital journey and customer education studio. Based in {loc}, working remotely in English. AI-assisted, human-reviewed.</p>
+      <p class="small"><a href="mailto:{email}" data-track="email_click" data-label="footer">{email}</a></p>
+      <p class="small muted">We reply {reply} ({tz}).</p>
+    </div>
+    <div><h2 class="footer-h">Moodily International</h2><ul>{links}</ul></div>
+    <div><h2 class="footer-h">Policies</h2><ul>{pol}</ul></div>
+  </div>
+  <p class="footer-bottom small muted">© {year} {entity} · We don't guarantee rankings, leads or revenue — we commit to the scope we agree in writing.</p>
+</div></footer>
+{mobile}""".format(loc=e(INTL["entity"]["location"]), email=e(intl_email()), reply=e(INTL["contact"]["reply"]), tz=e(INTL["contact"]["timezone"]),
+                   links=links, pol=pol, year=date.today().year, entity=e(INTL["entity"]["name"]), mobile=mobile)
+
+
+def intl_breadcrumbs_html(meta):
+    crumbs = meta.get("breadcrumbs")
+    if not crumbs:
+        return ""
+    parts = ['<li><a href="/international/">International</a></li>']
+    for i, (name, href) in enumerate(crumbs):
+        parts.append('<li><span aria-current="page">{}</span></li>'.format(e(name)) if i == len(crumbs) - 1
+                     else '<li><a href="{}">{}</a></li>'.format(href, e(name)))
+    return '<nav class="container breadcrumbs" aria-label="Breadcrumb"><ol>{}</ol></nav>'.format("".join(parts))
+
+
+# words that must never appear in client-facing International data (internal planning language)
+INTL_PRIVATE_WORDS = re.compile(r"\b(owner (?:approval|input|blocker|to confirm)|owner:|hypothes\w*|draft price|internal|margin|profit|"
+                                r"prospect\w*|outbound|roadmap|blocker|todo|worktree|approval required|placeholder)\b", re.I)
+
+
+def validate_international():
+    mode = INTL["launch"]["mode"]
+    if mode not in ("preview", "public"):
+        raise SystemExit("international.json: launch.mode must be 'preview' or 'public'")
+    problems = []
+
+    def walk(obj, path):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if k.startswith("_todo") or k.startswith("_note"):
+                    problems.append("{}.{}: notes belong in private files, not in public data".format(path, k))
+                walk(v, path + "." + k)
+        elif isinstance(obj, list):
+            for i, v in enumerate(obj):
+                walk(v, "{}[{}]".format(path, i))
+        elif isinstance(obj, str) and not path.endswith("._readme") and INTL_PRIVATE_WORDS.search(obj):
+            problems.append("{}: internal wording '{}' in client-facing data".format(path, INTL_PRIVATE_WORDS.search(obj).group(0)))
+    walk(INTL, "international")
+    raw = json.dumps(INTL).lower()
+    for banned in ("checkout_url", "payment_url", "account_number", "iban", "swift_code", "routing_number", "rzp.io", "lemonsqueezy"):
+        if banned in raw:
+            problems.append("'{}' is not allowed in International data".format(banned))
+    ids = set()
+    for s in INTL["services"]:
+        p = s["price"]
+        if s["id"] in ids:
+            problems.append("duplicate service id " + s["id"])
+        ids.add(s["id"])
+        if p.get("currency") != "USD" or p.get("type") not in ("fixed", "from") or not p.get("amount") or p["amount"] <= 0:
+            problems.append("service {}: price must be a positive USD fixed/from amount".format(s["id"]))
+        for n in s.get("notices", []):
+            if n not in INTL["notices"]:
+                problems.append("service {}: unknown notice {}".format(s["id"], n))
+        for k in ("summary", "for", "includes", "excludes", "timeline", "revisions"):
+            if not s.get(k):
+                problems.append("service {}: missing {}".format(s["id"], k))
+    for it in INTL["portfolio"]:
+        if it["label"] not in INTL["portfolio_labels"]:
+            problems.append("portfolio {}: unknown label {}".format(it["id"], it["label"]))
+        if it["status"] not in ("published", "planned"):
+            problems.append("portfolio {}: status must be published or planned".format(it["id"]))
+        if it["status"] == "published" and not all(it.get(k) for k in ("title", "problem", "built", "outcome")):
+            problems.append("portfolio {}: missing problem/built/outcome — empty drafts are never shown".format(it["id"]))
+        if it["label"] == "concept" and "concept" not in it["outcome"].lower():
+            problems.append("portfolio {}: a concept must say so in its outcome".format(it["id"]))
+    for m in INTL["payment_methods"]:
+        if m["flag"] not in PAYMENT_FLAGS:
+            problems.append("payment method {} uses unknown flag {}".format(m["id"], m["flag"]))
+        elif PAYMENT_FLAGS[m["flag"]] and not m.get("details_confirmed"):
+            problems.append("{} is on but {} details are not confirmed".format(m["flag"], m["id"]))
+    if mode == "public":
+        f = INTL["founder"]
+        problems += ["founder {} missing".format(k) for k in ("name", "role", "bio") if not f.get(k)]
+        if not intl_email():
+            problems.append("no contact email")
+        missing = [p for p in INTL_REQUIRED_PAGES if not (SRC / "pages" / "international" / (p + ".html")).exists()]
+        problems += ["required page missing: /international/{}".format(p) for p in missing]
+        if not [s for s in INTL["services"] if s["price"].get("approved")]:
+            problems.append("no approved services to publish")
+    if problems:
+        raise SystemExit("international.json is not valid for {} mode:\n  - {}".format(mode, "\n  - ".join(problems)))
+    if mode == "preview":
+        INTL_WARNINGS.append("International is in PREVIEW mode: /international/ pages are noindex.")
+
+
 FEATURE_GATES = {"amazon_associates": amazon_public}
 
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
-    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq,
+    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "buy-india": c_buy_india,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "journey": c_journey, "primary-offers": c_primary_offers, "quick-offers": c_quick_offers, "saathi-offer": c_saathi_offer, "start-here": c_start_here, "pricing-terms": c_pricing_terms, "founder": c_founder,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
@@ -2283,7 +2763,7 @@ COMPONENTS = {
     "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
     "workflow": c_workflow, "flow-diagram": c_flow_diagram, "ai-ladder": c_ai_ladder,
     "task-matrix": c_task_matrix, "checklist": c_checklist, "resource-index": c_resource_index,
-    "resources-teaser": c_resources_teaser, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
+    "resources-teaser": c_resources_teaser, "intl-services": c_intl_services, "intl-pricing": c_intl_pricing, "intl-price-note": c_intl_price_note, "intl-notice": c_intl_notice, "intl-process": c_intl_process, "intl-portfolio": c_intl_portfolio, "intl-labels": c_intl_labels, "intl-payments": c_intl_payments, "intl-founder": c_intl_founder, "intl-faq": c_intl_faq, "intl-cta": c_intl_cta, "intl-contact-line": c_intl_contact_line, "intl-intake": c_intl_intake, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
     "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
 }
 
@@ -2366,10 +2846,13 @@ def page_schema(meta, route, ctx):
                       "inLanguage": ["hi-IN", "en-IN"], "publisher": {"@id": ORG_ID}})
     crumbs = meta.get("breadcrumbs")
     if crumbs:
-        items = [{"@type": "ListItem", "position": 1, "name": "Home", "item": BASE + "/"}]
+        root = ("Moodily International", INTL_PREFIX) if is_intl(route) else ("Home", "/")
+        items = [{"@type": "ListItem", "position": 1, "name": root[0], "item": BASE + root[1]}]
         for i, (name, href) in enumerate(crumbs, start=2):
             items.append({"@type": "ListItem", "position": i, "name": name, "item": BASE + href})
         graph.append({"@type": "BreadcrumbList", "itemListElement": items})
+    for s in ctx.get("intl_services", []):
+        graph.append(intl_service_schema(s))
     seen_ids = set()
     for s in ctx["services"]:
         if s["id"] in seen_ids:
@@ -2535,11 +3018,24 @@ def byline_html(meta):
         e(who), p=e(art["published"]), upd=' · Last updated <time datetime="{0}">{0}</time>'.format(e(mod)) if mod != art["published"] else "")
 
 
+def ls_affiliate():
+    """Lemon Squeezy affiliate tracking, so the store's own affiliates get credited when a
+    referred visitor lands on moodily.in and later buys. Emitted site-wide, deferred (non-blocking),
+    only when a store slug is set in products.json -> global_edition.ls_store AND the store switch is on."""
+    slug = (PRODUCT_DATA.get("global_edition", {}) or {}).get("ls_store")
+    if not slug or not PAYMENT_FLAGS.get("lemon_squeezy_store_enabled"):
+        return ""
+    return ('<script>window.lemonSqueezyAffiliateConfig = {{ store: "{}" }};</script>'
+            '<script src="https://lmsqueezy.com/affiliate.js" defer></script>').format(e(slug))
+
+
 def layout(meta, body, route, ctx):
     lang = meta.get("lang", "hi")
+    intl = is_intl(route)
     canonical = BASE + route
     robots = '<meta name="robots" content="noindex, follow">' if meta.get("noindex") else '<meta name="robots" content="index, follow, max-image-preview:large">'
-    og_img = BASE + meta.get("og_image", "/assets/img/og-moodily.png")
+    og_img = BASE + meta.get("og_image", "/assets/img/og-moodily-international.png" if intl else "/assets/img/og-moodily.png")
+    analytics = not meta.get("no_analytics")
     view = meta.get("track_view")
     view_attr = ' data-view-event="{}" data-view-label="{}"'.format(e(view[0]), e(view[1])) if view else ""
     return """<!DOCTYPE html>
@@ -2560,7 +3056,7 @@ def layout(meta, body, route, ctx):
 <meta property="og:locale" content="{locale}">
 <meta property="og:image" content="{og_img}">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Moodily — digital services, samples and starting prices">
+<meta property="og:image:alt" content="{og_alt}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">
@@ -2571,11 +3067,11 @@ def layout(meta, body, route, ctx):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="/assets/css/site.css?v={ver}">
+<link rel="stylesheet" href="/assets/css/site.css?v={ver}">{intl_css}
 {schema}
-<script src="/assets/js/site.js?v={ver}" defer></script>
+<script src="/assets/js/site.js?v={ver}" defer></script>{intl_js}
 </head>
-<body{view}>
+<body{view}{body_cls}>
 {gtm_body}
 {header}
 {banner}
@@ -2583,14 +3079,19 @@ def layout(meta, body, route, ctx):
 <main id="main">
 {byline}{body}
 </main>
-{footer}
+{footer}{ls_aff}
 </body>
 </html>
-""".format(lang=lang, dlang="en" if lang == "en" else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical,
-           robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_IN" if lang == "en" else "hi_IN",
-           og_img=og_img, gtm=gtm_head(), ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body(),
-           header=header(route, meta), crumbs=breadcrumbs_html(meta), body=body, footer=footer(route), banner=offer_banner(route), byline=byline_html(meta),
-           offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE else "").replace(
+""".format(lang=lang, dlang="en" if lang.startswith("en") else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical, ls_aff=ls_affiliate() if analytics and not intl else "",
+           robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_US" if intl else ("en_IN" if lang.startswith("en") else "hi_IN"),
+           og_img=og_img, gtm=gtm_head() if analytics else "", ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body() if analytics else "",
+           header=intl_header(route) if intl else header(route, meta), crumbs=intl_breadcrumbs_html(meta) if intl else breadcrumbs_html(meta), body=body,
+           footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
+           intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
+           intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
+           og_alt="Moodily International — digital journey and customer education studio" if intl else "Moodily — digital services, samples and starting prices",
+           body_cls=' class="intl"' if intl else "",
+           offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE and not intl else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
 
 
@@ -2654,10 +3155,9 @@ def sample_page(smp):
 
     case = CASES_BY_SLUG.get(smp.get("case_study") or "")
     case_html = ""
-    if case:
-        link = ('<a href="/case-studies/{0}/">{1} →</a>'.format(case["slug"], e(case["title"])) if case["status"] == "published"
-                else '<a href="/case-studies/#{0}">{1} →</a>'.format(case["slug"], e(case["title"])))
-        case_html = ('<p class="notice small"><strong>इससे जुड़ा असली project:</strong> {} '
+    if case and case["status"] == "published":  # draft case studies are never shown publicly
+        link = '<a href="/case-studies/{0}/">{1} →</a>'.format(case["slug"], e(case["title"]))
+        case_html = ('<p class="notice small"><strong>इससे जुड़ी case study:</strong> {} '
                      '<span class="muted">Case study = जो काम सच में हुआ। Sample = जो बन सकता है।</span></p>'.format(link))
 
     svc_html = ('<p class="small">पूरी service और scope: <a href="{}#{}" data-track="service_card_click" data-label="sample-svc-{}">{} →</a></p>'.format(
@@ -2699,6 +3199,7 @@ def sample_page(smp):
 # ----------------------------------------------------------------- build
 META_RE = re.compile(r"\A\s*<!--meta\s*(\{.*?\})\s*-->", re.S)
 ASSET_VERSION = hashlib.sha1(b"".join((ROOT / "assets" / p).read_bytes() for p in ("css/site.css", "js/site.js"))).hexdigest()[:10]
+INTL_CSS_VERSION = hashlib.sha1(b"".join((ROOT / "assets" / p).read_bytes() for p in ("css/intl.css", "js/intl.js"))).hexdigest()[:10]
 
 
 def route_for(path):
@@ -2748,6 +3249,8 @@ def owner_todo():
     walk(PRODUCT_DATA, "")
     lines += ["", "## src/data/tools.json"]
     walk(TOOLS, "")
+    lines += ["", "## src/data/international.json (Moodily International)"]
+    walk(INTL, "")
     lines += ["", "## src/data/intake.json (Google Form)"]
     walk(load("data/intake.json"), "")
     drafts = [c["title"] for c in CASES if c["status"] != "published"]
@@ -2811,6 +3314,7 @@ def main():
     validate_amazon()
     validate_form_prefill()
     validate_resources()
+    validate_international()
     old = set(json.loads(MANIFEST.read_text())) if MANIFEST.exists() else set()
     written, sitemap = [], []
 
@@ -2827,6 +3331,8 @@ def main():
         if gate and not FEATURE_GATES[gate]():
             continue
         route, out = route_for(path)
+        if is_intl(route) and intl_preview():
+            meta["noindex"] = True  # preview: never indexed, never in the sitemap
         jobs.append((meta, raw[m.end():], route, out, str(path.relative_to(ROOT))))
     for c in CASES:
         if c["status"] == "published":
@@ -2848,7 +3354,7 @@ def main():
         if meta["title"] in titles:
             raise SystemExit("Duplicate title '{}' in {} and {}".format(meta["title"], src, titles[meta["title"]]))
         titles[meta["title"]] = src
-        ctx = {"services": [], "products": [], "faqs": [], "file": src}
+        ctx = {"services": [], "products": [], "faqs": [], "intl_services": [], "file": src}
         # pages built in Python (not from tokens) name their service so schema still matches what is visible
         for sid in meta.get("schema_services", []):
             if sid in SERVICES and SERVICES[sid] not in ctx["services"]:
@@ -2884,12 +3390,12 @@ def main():
     lastmod_file.write_text(json.dumps(new_lastmods, indent=0, sort_keys=True) + "\n")
     urls = "".join("<url><loc>{}{}</loc><lastmod>{}</lastmod><priority>{}</priority></url>".format(BASE, r, new_lastmods[r][1], p) for r, p in sitemap)
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{}</urlset>\n'.format(urls), encoding="utf-8")
-    (ROOT / "robots.txt").write_text("User-agent: *\nAllow: /\nDisallow: /contact/thanks/\nDisallow: /payment/\n\nSitemap: {}/sitemap.xml\n".format(BASE), encoding="utf-8")
+    (ROOT / "robots.txt").write_text("User-agent: *\nAllow: /\nDisallow: /contact/thanks/\nDisallow: /payment/\nDisallow: /international/pay/\n\nSitemap: {}/sitemap.xml\n".format(BASE), encoding="utf-8")
     MANIFEST.write_text(json.dumps(sorted(written), indent=0))
     write_checkout_catalog()
     owner_todo()
     print("Built {} pages, {} in sitemap. Owner TODOs: _project/OWNER-TODO.md".format(len(written), len(sitemap)))
-    for w in WARNINGS:
+    for w in WARNINGS + INTL_WARNINGS:
         print("WARNING:", w, file=sys.stderr)
 
 

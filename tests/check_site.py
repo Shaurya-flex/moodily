@@ -112,9 +112,28 @@ def check_prices(pages):
     services = json.loads((ROOT / "src/data/services.json").read_text(encoding="utf-8"))["services"]
     offer = site.get("offer") or {}
 
+    # Service prices must come from services.json via {{price:}}. Digital-product prices are a separate
+    # registry (src/data/products.json → *_edition), so those declared ₹ amounts (and ₹0 = "free") are allowed on store pages.
+    digital_ok = {0}
+    prods = json.loads((ROOT / "src/data/products.json").read_text(encoding="utf-8"))
+    for key in ("global_edition", "india_edition"):
+        ed = prods.get(key) or {}
+        for t in ed.get("tiers", []):
+            try:
+                digital_ok.add(int(str(t.get("price", "")).replace(",", "")))
+            except ValueError:
+                pass
+        for k in ("price", "regular_price"):
+            try:
+                digital_ok.add(int(str(ed.get(k, "")).replace(",", "")))
+            except ValueError:
+                pass
     for f in sorted((ROOT / "src/pages").rglob("*.html")) + [ROOT / "src/data/faqs.json"]:
         text = f.read_text(encoding="utf-8")
         for m in re.finditer(r"₹\s?\d[\d,]*", text):
+            is_store = f.name == "faqs.json" or f.name == "store.html" or "store" in f.relative_to(ROOT / "src/pages").parts[:1]
+            if is_store and int(m.group(0).replace("₹", "").replace(",", "").strip()) in digital_ok:
+                continue
             fail(str(f.relative_to(ROOT)), "hard-coded price {} — use {{{{price:<service-id>}}}}".format(m.group(0)))
 
     allowed = {}
@@ -247,6 +266,47 @@ def check_commerce(pages):
             fail("services.json", "{} has no valid price_mode".format(s["id"]))
 
 
+def check_international(pages):
+    """Moodily International (/international/): English-only chrome, USD prices only from international.json,
+    no checkout links, noindex while in preview, and no India-only content leaking in."""
+    intl = json.loads((ROOT / "src" / "data" / "international.json").read_text(encoding="utf-8"))
+    preview = intl["launch"]["mode"] != "public"
+    for f in sorted((ROOT / "src" / "pages" / "international").glob("*.html")):
+        src = f.read_text(encoding="utf-8")
+        for m in re.finditer(r"(?:\$|USD\s?|US\$)\s?\d", src):
+            fail(str(f.relative_to(ROOT)), "hard-coded USD price '{}' — prices come from src/data/international.json".format(m.group(0)))
+    for rel, (p, text) in pages.items():
+        if not rel.startswith("international/"):
+            continue
+        if re.search(r"[\u0900-\u097F]", text):
+            fail(rel, "Devanagari text on an International page (India chrome or copy leaked in)")
+        if "₹" in text:
+            fail(rel, "₹ on an International page")
+        if re.search(r"rzp\.io|lemonsqueezy\.com/checkout|data-checkout|data-pay=", text):
+            fail(rel, "checkout/payment link on an International page — project work is invoiced after written scope approval")
+        if '"priceCurrency":"INR"' in text.replace(" ", ""):
+            fail(rel, "INR structured data on an International page")
+        noindex = 'content="noindex' in text
+        if rel.startswith("international/pay/"):
+            if not noindex:
+                fail(rel, "project payment page must be noindex")
+            if "googletagmanager.com" in text:
+                fail(rel, "project payment page must not load analytics")
+        elif preview and not noindex:
+            fail(rel, "International preview page must be noindex")
+        elif not preview and noindex:
+            fail(rel, "public International page is noindex")
+        if not preview:
+            visible = re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)\b.*?</\1>", "", text, flags=re.S))
+            for phrase in ("preview-note", "intl-preview-banner", "draft-chip"):
+                if phrase in text:
+                    fail(rel, "preview markup '{}' on a public International page".format(phrase))
+            for phrase in (r"\bprivate preview\b", r"owner approval", r"\bdraft price\b", r"\bhypothes", r"\binternal\b", r"proposed price",
+                           r"owner blocker", r"coming after approval", r"approval required"):
+                if re.search(phrase, visible, re.I):
+                    fail(rel, "internal/preview wording on a public International page: /{}/".format(phrase))
+
+
 def main():
     files = json.loads((ROOT / ".build-manifest.json").read_text())
     pages, titles = {}, {}
@@ -319,6 +379,7 @@ def main():
             fail("sitemap.xml", "noindex page listed: " + url)
 
     check_prices(pages)
+    check_international(pages)
     check_commerce(pages)
     check_no_secrets()
 

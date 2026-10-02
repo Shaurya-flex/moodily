@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /contact/thanks/
 Disallow: /payment/
+Disallow: /international/pay/
 
 Sitemap: https://moodily.in/sitemap.xml

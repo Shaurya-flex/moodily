@@ -1,278 +1,358 @@
 {
 "/": [
-"a8457dee76be3685",
-"2026-09-19"
+"77c7543a2d1448db",
+"2026-10-02"
 ],
 "/404.html": [
 "07fdc7ca5c31a7cd",
-"2026-09-19"
+"2026-10-02"
 ],
 "/about/": [
 "646f43a8b1e70c98",
-"2026-09-19"
+"2026-10-02"
 ],
 "/case-studies/": [
-"f280714722e63dca",
-"2026-09-19"
+"64f8e1353ebe52be",
+"2026-10-02"
 ],
 "/contact/": [
 "24e7475a4febdfb6",
-"2026-09-19"
+"2026-10-02"
 ],
 "/contact/thanks/": [
 "191e29d2e0f1f84e",
-"2026-09-19"
+"2026-10-02"
 ],
 "/digital-saathi/": [
-"b0ad43ac4df59ec2",
-"2026-09-19"
+"86eeaa17124b3af1",
+"2026-10-02"
 ],
 "/guides/": [
 "dd66853bda68cadf",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/ai-workflow-automation-kya-hai/": [
 "45f32e13f4b3abdf",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/coaching-digital-study-material/": [
 "101468ce57bdafa2",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/dukan-google-maps-par-kaise-laye/": [
 "8376b17e98b13c62",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/google-business-profile-cost/": [
 "2b7a124fea03942f",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/medical-store-home-delivery-setup/": [
 "d479d6c79542d5b8",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/pyq-analysis-kya-hai/": [
 "8812037afb4ff52e",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/research-ko-ebook-course-mein-badlen/": [
 "c53537bb654098a5",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/small-business-website-kyon-jaruri/": [
 "7b2281b7d0d1fc82",
-"2026-09-19"
+"2026-10-02"
 ],
 "/guides/whatsapp-se-local-orders/": [
 "ddef4a398e634f1b",
-"2026-09-19"
+"2026-10-02"
 ],
 "/insights/": [
 "5658baf50a279aa9",
-"2026-09-19"
+"2026-10-02"
 ],
 "/insights/digital-services-price-guide-india-2026/": [
 "2942015f4cc3baab",
-"2026-09-19"
+"2026-10-02"
 ],
 "/insights/website-vs-google-business-profile-vs-whatsapp/": [
 "f9bc4cc982e8952a",
-"2026-09-19"
+"2026-10-02"
+],
+"/international/": [
+"e781eac1e75778dc",
+"2026-10-02"
+],
+"/international/about/": [
+"ff8debd3ddc9e9b2",
+"2026-10-02"
+],
+"/international/clinics/": [
+"6f9f874c50982e14",
+"2026-10-02"
+],
+"/international/contact/": [
+"b6b94d2dd2d4891f",
+"2026-10-02"
+],
+"/international/customer-education/": [
+"9cf7dbea48fcc5d2",
+"2026-10-02"
+],
+"/international/educators-consultants/": [
+"62978154fba8898d",
+"2026-10-02"
+],
+"/international/industries/": [
+"675172f2241fde22",
+"2026-10-02"
+],
+"/international/journey-audit/": [
+"5f04903db882a9a3",
+"2026-10-02"
+],
+"/international/pay/": [
+"5ea27a933e2b7e0c",
+"2026-10-02"
+],
+"/international/payments/": [
+"62f3b8e3ddcaff03",
+"2026-10-02"
+],
+"/international/pricing/": [
+"757a6b19a555f76d",
+"2026-10-02"
+],
+"/international/privacy/": [
+"fe17b0f3a201ff65",
+"2026-10-02"
+],
+"/international/process/": [
+"7526c435ed106cbc",
+"2026-10-02"
+],
+"/international/refund/": [
+"34d0186bc985704a",
+"2026-10-02"
+],
+"/international/services/": [
+"77189966760b2221",
+"2026-10-02"
+],
+"/international/terms/": [
+"4191562df5d437f6",
+"2026-10-02"
+],
+"/international/work/": [
+"e197b64c348f1d1d",
+"2026-10-02"
 ],
 "/learn/": [
 "7de050505a2e7afd",
-"2026-09-28"
+"2026-10-02"
 ],
 "/offers/founding-10/": [
 "2ef91048109903cf",
-"2026-09-19"
+"2026-10-02"
 ],
 "/payment/success/": [
-"67f7c49b79b182be",
-"2026-09-19"
+"79d94863b24af4d5",
+"2026-10-02"
 ],
 "/privacy/": [
-"894ad5c95f0036ec",
-"2026-09-19"
+"3fd3ebe50ad9ae21",
+"2026-10-02"
 ],
 "/refund/": [
 "051ae09760d00510",
-"2026-09-19"
+"2026-10-02"
 ],
 "/resources/": [
 "cc8da778ff6630b5",
-"2026-09-19"
+"2026-10-02"
 ],
 "/resources/ai-daily-life-starter/": [
 "09aa422c8765b177",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/": [
-"1bf52a8c1a9a4d8e",
-"2026-09-19"
+"3ae752c452e34f30",
+"2026-10-02"
 ],
 "/samples/ai-workflow-system/": [
-"23633f26f18f3d3f",
-"2026-09-19"
+"2d44df0442608a7f",
+"2026-10-02"
 ],
 "/samples/business-brochure/": [
 "cfddfc16e2ad1104",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/business-website/": [
 "cecfc8483845c7d4",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/creator-content-pack/": [
-"c287b5af9314a015",
-"2026-09-19"
+"7c55ba5b2716f37c",
+"2026-10-02"
 ],
 "/samples/digital-invitation/": [
 "85e3bc27ac7c9ebe",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/digital-visiting-card/": [
 "b6a7ec3da03702a0",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/educational-pdf/": [
-"4f273c5128fc1092",
-"2026-09-19"
+"cc22beb21e03817f",
+"2026-10-02"
 ],
 "/samples/exam-study-system/": [
-"45f40f786ce34f34",
-"2026-09-19"
+"4819bccc74fd3003",
+"2026-10-02"
 ],
 "/samples/google-business-makeover/": [
 "36079df50269985b",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/knowledge-to-product/": [
-"a28e9a97c69ba853",
-"2026-09-19"
+"dfa99496543a0df4",
+"2026-10-02"
 ],
 "/samples/landing-page/": [
 "7c91f79623d44f8b",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/local-business-starter-kit/": [
 "ec60b067ab1276c5",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/presentation-ppt/": [
 "ab559455753db832",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/product-catalogue/": [
 "8623a51139a7bad9",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/research-intelligence-report/": [
 "cda63e95e45c307d",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/social-campaign-pack/": [
 "f93bad317df10223",
-"2026-09-19"
+"2026-10-02"
 ],
 "/samples/whatsapp-business-starter/": [
 "82e141377bac310b",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/": [
-"5e4e72ad2d484bf9",
-"2026-09-19"
+"473bc464b506c313",
+"2026-10-02"
 ],
 "/services/ai-workflows/": [
-"337029c10e0d5921",
-"2026-09-19"
+"666188b2d873e75e",
+"2026-10-02"
 ],
 "/services/b2b-digital-sales/": [
-"e9700957ab46a323",
-"2026-09-19"
+"9db4836fbcfbf68d",
+"2026-10-02"
 ],
 "/services/brochure-catalogue/": [
-"9c53b0320d946f47",
-"2026-09-19"
+"90b7eb55547099fb",
+"2026-10-02"
 ],
 "/services/business-website/": [
 "b5d1e36ce7753bf2",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/coaching-digital-services/": [
-"6b1fdecfd120ace1",
-"2026-09-19"
+"1e5d0f66eba31c3f",
+"2026-10-02"
 ],
 "/services/creators/": [
-"2f31169bdcf08c52",
-"2026-09-19"
+"f1904661ff0763f6",
+"2026-10-02"
 ],
 "/services/design/": [
 "5b7427f0be5da793",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/digital-invitation/": [
 "2391fe730e8bfc30",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/education-content/": [
-"85941d7f945bffc0",
-"2026-09-19"
+"1b7508cac8ec9cf6",
+"2026-10-02"
 ],
 "/services/estimator/": [
 "81e0dd3a09373c9e",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/google-business-profile/": [
-"01cbb30ab7247740",
-"2026-09-19"
+"736f9c245103173e",
+"2026-10-02"
 ],
 "/services/knowledge-to-product/": [
-"c32296da85a3c793",
-"2026-09-19"
+"5974d18fa84352b3",
+"2026-10-02"
 ],
 "/services/local-business-digitalization/": [
-"b122c6a8434a8cba",
-"2026-09-19"
+"efe7a412434c6b37",
+"2026-10-02"
 ],
 "/services/medical-store/": [
-"38642a2208a0ab98",
-"2026-09-19"
+"349d9584a1a467c2",
+"2026-10-02"
 ],
 "/services/presentation-design/": [
 "b8915d67411cbb77",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/professionals/": [
 "dbf0099c9e3a8fe9",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/research-intelligence/": [
-"6c5b910ec61313ec",
-"2026-09-19"
+"160ee197514a6b79",
+"2026-10-02"
 ],
 "/services/social-media-design/": [
 "69fa53b4d9a9a52c",
-"2026-09-19"
+"2026-10-02"
 ],
 "/services/wedding-event/": [
-"d094550d772c5e71",
-"2026-09-19"
+"c7533803d92a629a",
+"2026-10-02"
 ],
 "/services/whatsapp-business/": [
-"6b2e90cac16ec751",
-"2026-09-19"
+"962d66e0855803ca",
+"2026-10-02"
 ],
 "/store/": [
-"dafbbf4f55a7ff88",
-"2026-09-19"
+"f153f6d9cd223370",
+"2026-10-02"
+],
+"/store/ai-for-parents-senior-citizens-india/": [
+"f4d95896a8c7b0e4",
+"2026-10-02"
+],
+"/store/practical-ai-life-work-global/": [
+"24b3e86622b62ba2",
+"2026-10-02"
 ],
 "/terms/": [
 "3e8c7576411ba959",
-"2026-09-19"
+"2026-10-02"
 ],
 "/tools/": [
 "01eb96aa7997aeb2",
-"2026-09-19"
+"2026-10-02"
+],
+"/updates/ai-parents-guide/": [
+"80c26c77e6aee453",
+"2026-10-02"
 ]
 }

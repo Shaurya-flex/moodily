@@ -22,7 +22,8 @@ ALLOWED_ENV = {".env.example"}
 
 
 def git(*args):
-    return subprocess.run(("git",) + args, capture_output=True, text=True, check=True).stdout
+    # decode leniently: staged binary files (images) must not crash the scan
+    return subprocess.run(("git",) + args, capture_output=True, check=True).stdout.decode("utf-8", errors="ignore")
 
 
 def main():

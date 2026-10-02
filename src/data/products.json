@@ -10,6 +10,24 @@
     "professional": "Professional resources"
   },
   "default_licence": "Single-user personal licence. Schools/coaching institutes need a separate institutional licence.",
+  "global_edition": {
+    "_readme": "Buy button for the Global Edition (@buy-global). It goes live only when checkout_url is a Lemon Squeezy /checkout/buy/ link AND site.json payment_flags.lemon_squeezy_store_enabled is true; otherwise the page shows a launch-notify button. Lemon Squeezy shows each buyer their local currency and tax.",
+    "price": "9.99",
+    "regular_price": "14.99",
+    "currency": "USD",
+    "checkout_url": "https://aiwithsaurabh.lemonsqueezy.com/checkout/buy/3108cb76-ba59-47d5-92e4-52a74cb974bd",
+    "ls_store": "aiwithsaurabh"
+  },
+  "india_edition": {
+    "_readme": "Display tiers for the India Edition (@buy-india). The amount charged is resolved server-side by the payments Worker from assets/data/digital-catalog.json, never from the browser; keep these strings in step with it. Buttons go live only when site.json payments.api_base is set and mode is 'live'; otherwise a waitlist button. A tier with \"hidden\": true is not shown (add it to digital-catalog.json as well once its file is ready).",
+    "product_id": "ai-parents-india",
+    "currency": "INR",
+    "tiers": [
+      {"edition": "full", "license": "founding", "price": "99", "label": "Full Guide — Founding launch", "note": "पूरी 98-पेज guide · single-user personal licence", "featured": true},
+      {"edition": "full", "license": "personal", "price": "149", "label": "Full Guide — Regular", "note": "founding window के बाद की regular कीमत"},
+      {"edition": "family", "license": "family", "price": "299", "label": "Family Toolkit", "note": "एक घर के 5 सदस्यों तक · family licence", "hidden": true}
+    ]
+  },
   "products": [
     {
       "slug": "uppcs-intelligence-brief",
