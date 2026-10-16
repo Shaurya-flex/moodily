@@ -2378,7 +2378,12 @@ INTL_LABEL_EXPLAIN = {"commissioned": "Paid work commissioned by a client, shown
 INTL_NAV = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
             ("/international/customer-education/", "Customer Education"), ("/international/work/", "Work"),
             ("/international/process/", "Process"), ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
-INTL_FOOTER_LINKS = [("/international/services/", "Services"), ("/international/work/", "Work"),
+# Top-level header: the four places most visitors need. Everything else stays one tap away in the menu and footer.
+INTL_NAV_PRIMARY = [("/international/services/", "Services"), ("/international/work/", "Work"),
+                    ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
+INTL_FOOTER_LINKS = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
+                     ("/international/customer-education/", "Customer education"), ("/international/work/", "Work"),
+                     ("/international/process/", "Process"), ("/international/pricing/", "Pricing"),
                      ("/international/about/", "About"), ("/international/contact/", "Contact")]
 INTL_POLICY_LINKS = [("/international/privacy/", "Privacy"), ("/international/terms/", "Terms"),
                      ("/international/refund/", "Refund & cancellation"), ("/international/payments/", "Payment information")]
@@ -2662,7 +2667,8 @@ def intl_banner():
 def intl_header(route):
     def cur(href):
         return ' aria-current="page"' if route.startswith(href) else ""
-    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV)
+    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV_PRIMARY)
+    menu = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV)
     return """<a class="skip" href="#main">Skip to content</a>
 <header class="site-header intl-header"><div class="container nav">
   <a class="logo" href="/international/" aria-label="Moodily International home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="logo-sub">International</span></a>
@@ -2671,15 +2677,17 @@ def intl_header(route):
     <details class="menu" id="siteMenu"><summary aria-haspopup="menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
       <div class="menu-panel" role="menu" aria-label="Site navigation">
         <button class="menu-close" type="button" data-menu-close aria-label="Close menu">&times;</button>
-        <ul class="nav-links">{top}<li><a href="/international/contact/"{contact}>Contact</a></li></ul>
-        <p class="menu-heading">Moodily</p><ul class="nav-sub"><li><a href="/" data-track="main_site_click" data-label="intl-menu">Main site — services in India, in rupees</a></li></ul>
+        <ul class="nav-links">{menu}<li><a href="/international/contact/"{contact}>Contact</a></li></ul>
+        <p class="menu-heading">Moodily</p><ul class="nav-sub"><li><a href="/" data-track="main_site_click" data-label="intl-menu">Main site — services in India, in rupees</a></li>
+          <li><a href="/store/practical-ai-life-work-global/" data-track="store_click" data-label="intl-menu">Store — Practical AI guide</a></li>
+          <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-menu">Learn AI: AI with Saurabh Kr ↗</a></li></ul>
         <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/international/contact/" data-track="contact_clicked" data-label="menu">Discuss your project</a></div>
       </div>
     </details>
   </nav>
   <div class="nav-actions"><button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
     <a class="btn btn-primary btn-sm nav-cta" href="/international/contact/" data-track="contact_clicked" data-label="nav">Discuss your project</a></div>
-</div></header>""".format(top=top, contact=cur("/international/contact/"))
+</div></header>""".format(top=top, menu=menu, contact=cur("/international/contact/"), yt=AI_WITH_SAURABH)
 
 
 def intl_footer(route):

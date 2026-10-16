@@ -109,7 +109,8 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
 
 /* ---- launch: navigation (7 items) — inline only where it fits, otherwise the Menu panel */
 .intl-header .intl-nav-desktop { gap: clamp(10px, 1.2vw, 20px); }
-@media (max-width: 1240px) { .intl-header .intl-nav-desktop { display: none; } }
+/* four top-level links fit from 960 px; below that they live in the menu */
+@media (max-width: 959px) { .intl-header .intl-nav-desktop { display: none; } }
 
 /* service detail blocks */
 .intl-svc-list { display: grid; gap: 18px; }
