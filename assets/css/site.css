@@ -1436,3 +1436,4 @@ h1,h2,.head-v2 h2{text-wrap:balance}
 .offer-banner p{font-size:var(--fs-small)}
 /* stand-alone small links inside cards get a comfortable tap height (inline links inside sentences are untouched) */
 figcaption>a.small,.card>a.small,.card-actions a.small,.btn-row>a.small,.pop-more,.work-link,.finder-scope{display:inline-flex;align-items:center;min-height:32px}
+.prose h2{font-size:clamp(1.5rem,1.3rem + .8vw,1.875rem)}
