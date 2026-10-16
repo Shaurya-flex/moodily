@@ -5,8 +5,35 @@
   window.dataLayer = window.dataLayer || [];
 
   // ---------- analytics: data-track="event" data-label="..."
+  // Funnel step for every event (added next to the event name, so existing GTM triggers keep working).
+  function funnelStep(e) {
+    if (/_checkout_clicked$|^checkout_click$|^payment_outbound_clicked$/.test(e)) return 'pay_intent';
+    if (e === 'payment_success') return 'paid';
+    if (/^payment_(failed|dismissed|verify_failed)$/.test(e)) return 'pay_issue';
+    if (e === 'payment_next_steps') return 'after_pay';
+    if (/^(form_submit|quote_complete|free_audit_completed|audit_submitted)$/.test(e)) return 'lead_sent';
+    if (/^(whatsapp_click|whatsapp_contact_clicked|free_audit_click|free_audit_started|audit_started|google_form_open|contact_clicked|quote_start|proposal_request|email_click|digital_saathi_contact_clicked|growth_quote_requested|form_open|form_start|customize_sample_start|intake_copied)$/.test(e)) return 'lead_intent';
+    if (/^(pricing_click|offer_cta_click|hero_cta_click|cta_click)$/.test(e)) return 'consider';
+    return 'explore';
+  }
+  // First-touch source of this visit: a campaign tag or the referring site's name only — never a full URL or query.
+  function cleanSrc(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 40); }
+  var leadSource = (function () {
+    try { var saved = sessionStorage.getItem('moodily_src'); if (saved) return saved; } catch (e) {}
+    var q = new URLSearchParams(location.search), src = '';
+    if (q.get('utm_source')) src = cleanSrc(q.get('utm_source')) + (q.get('utm_medium') ? '/' + cleanSrc(q.get('utm_medium')) : '');
+    else if (q.get('gclid')) src = 'google/cpc';
+    else if (document.referrer) {
+      try { var host = new URL(document.referrer).hostname.replace(/^www\./, ''); if (host !== location.hostname) src = cleanSrc(host); } catch (e) {}
+    }
+    src = src || 'direct';
+    try { sessionStorage.setItem('moodily_src', src); } catch (e) {}
+    return src;
+  })();
+
   function track(event, params) {
-    var payload = { event: event, page_path: location.pathname };
+    var payload = { event: event, page_path: location.pathname, funnel_step: funnelStep(event) };
+    if (/^(lead_|pay_|paid)/.test(payload.funnel_step)) payload.lead_source = leadSource;
     for (var k in params) if (Object.prototype.hasOwnProperty.call(params, k)) payload[k] = params[k];
     window.dataLayer.push(payload);
   }
@@ -625,6 +652,7 @@
     if (offerOn) add(ids.offer_code, cfg.offer.id);
     // one field carries whichever context the visitor arrived with: a sample, or a website estimate
     add(ids.sample_or_estimate, sampleName || estimate);
+    add(ids.lead_source, leadSource);  // only once the Form has a "Source" question and intake.json lists its entry id
     if (!params.length) return base;
     if (base.indexOf('usp=pp_url') === -1) params.unshift('usp=pp_url');
     return base + (base.indexOf('?') === -1 ? '?' : '&') + params.join('&');
