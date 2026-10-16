@@ -1,26 +1,26 @@
 /* Moodily International — loaded only on /international/ pages (build.py layout). Builds on site.css tokens:
    calmer, more editorial type; one accent; generous whitespace; no gradients or badge walls. */
 body.intl h1, body.intl h2, body.intl h3 { font-family: var(--font); letter-spacing: -0.02em; }
-body.intl h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); line-height: 1.08; font-weight: 700; max-width: 20ch; }
-body.intl h2 { font-size: clamp(1.55rem, 2.8vw, 2.15rem); line-height: 1.15; max-width: 28ch; }
-body.intl h3 { font-size: 1.12rem; line-height: 1.3; }
+body.intl h1 { font-size: var(--fs-h1); line-height: 1.08; font-weight: 700; max-width: 30ch; }
+body.intl h2 { font-size: var(--fs-h2); line-height: 1.12; max-width: var(--head-measure); }
+body.intl h3 { font-size: var(--fs-h3); line-height: 1.25; }
 body.intl .lead { max-width: 62ch; }
 body.intl .eyebrow { color: var(--text-muted); letter-spacing: .09em; }
 
-.logo .logo-sub { font-family: var(--font); font-weight: 600; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase;
+.logo .logo-sub { font-family: var(--font); font-weight: 600; font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase;
   color: var(--text-muted); margin-left: .5em; padding-left: .5em; border-left: 1px solid var(--border-strong); }
 
 /* hero */
 .intl-hero { padding: clamp(40px, 6vw, 88px) 0 clamp(32px, 4vw, 56px); border-top: 0; }
 .intl-hero .lead { font-size: clamp(1.05rem, 1.6vw, 1.22rem); margin-bottom: 1.6em; }
-.intl-trust { display: flex; flex-wrap: wrap; gap: .4em 1.2em; margin: 1.4em 0 0; padding: 0; list-style: none; color: var(--text-muted); font-size: var(--fs-small); }
+.intl-trust { display: flex; flex-wrap: wrap; gap: .5em 1.5em; margin: 1.4em 0 0; padding: 0; list-style: none; color: var(--text-muted); font-size: var(--fs-small); }
 .intl-trust li::before { content: "·"; margin-right: .6em; color: var(--border-strong); }
 .intl-trust li:first-child::before { content: none; }
 
 /* journey strip */
 .intl-journey { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; counter-reset: j; }
 .intl-journey li { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 16px 14px 14px; }
-.intl-journey li::before { counter-increment: j; content: counter(j, decimal-leading-zero); display: block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: var(--primary); margin-bottom: .4em; }
+.intl-journey li::before { counter-increment: j; content: counter(j, decimal-leading-zero); display: block; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .08em; color: var(--primary); margin-bottom: .4em; }
 .intl-journey h3 { font-size: 1rem; margin: 0 0 .35em; }
 .intl-journey p { margin: 0; font-size: var(--fs-small); color: var(--text-muted); line-height: 1.45; }
 .intl-journey .leak { display: block; margin-top: .6em; color: var(--accent); font-weight: 600; }
@@ -31,15 +31,15 @@ body.intl .eyebrow { color: var(--text-muted); letter-spacing: .09em; }
 .intl-line h3 a { color: inherit; text-decoration: none; }
 .intl-line h3 a:hover { color: var(--primary); }
 .intl-price-row { margin: .2em 0 .8em; }
-.intl-price { font-weight: 700; font-size: 1.15rem; color: var(--text); }
+.intl-price { font-weight: 700; font-size: clamp(1.25rem, 1.1rem + .5vw, 1.5rem); color: var(--text); }
 .intl-price.is-draft { color: var(--text-muted); }
-.draft-chip { display: inline-block; margin-left: .5em; font-size: .7rem; font-weight: 700; letter-spacing: .02em; padding: 2px 9px; border-radius: var(--r-pill);
+.draft-chip { display: inline-block; margin-left: .5em; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .02em; padding: 2px 9px; border-radius: var(--r-pill);
   background: var(--warning-soft); color: var(--warning); border: 1px dashed var(--warning); vertical-align: middle; }
 .intl-label-key { list-style: none; padding: 0; margin: 0; display: grid; gap: .6em; }
 .intl-label-key .label-chip { margin: 0 .6em 0 0; }
 .intl-work .facts, .intl-pkg .facts, .intl-facts { display: grid; gap: .7em; margin: .8em 0; }
 .intl-work .facts div, .intl-pkg .facts div, .intl-facts div { display: grid; grid-template-columns: 9.5em 1fr; gap: .8em; align-items: baseline; }
-.intl-work dt, .intl-pkg dt, .intl-facts dt { font-size: .74rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.intl-work dt, .intl-pkg dt, .intl-facts dt { font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
 .intl-work dd, .intl-pkg dd, .intl-facts dd { margin: 0; }
 @media (max-width: 560px) { .intl-work .facts div, .intl-pkg .facts div, .intl-facts div { grid-template-columns: 1fr; gap: .15em; } }
 
@@ -84,9 +84,9 @@ body.intl .eyebrow { color: var(--text-muted); letter-spacing: .09em; }
 .intl-preview-banner { background: var(--warning-soft); color: var(--warning); border-bottom: 1px dashed var(--warning); font-size: .84rem; padding: 8px 0; }
 
 /* sections — editorial stacked heads (eyebrow · heading · lead), not the India two-column grid */
-body.intl section { padding: clamp(48px, 6vw, 88px) 0; }
+body.intl section { padding: var(--space-section) 0; }
 body.intl .section-head { display: block; margin-bottom: clamp(20px, 2.6vw, 32px); }
-body.intl .section-head > h2 { max-width: 30ch; margin-bottom: .35em; }
+body.intl .section-head > h2 { max-width: var(--head-measure); margin-bottom: .35em; }
 body.intl .section-head > .lead { margin-top: .2em; }
 body.intl .intl-hero { padding-top: clamp(40px, 6vw, 88px); }
 
@@ -94,7 +94,7 @@ body.intl .intl-hero { padding-top: clamp(40px, 6vw, 88px); }
 .intl-work .facts, .intl-pkg .facts, .intl-facts { grid-template-columns: 1fr; }
 
 /* footer keeps the site's small-caps column headings */
-body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; max-width: none; margin-bottom: 12px; }
+body.intl .footer-h { font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; max-width: none; margin-bottom: 12px; }
 .intl-founder { max-width: 860px; }
 
 /* journey tables stack into labelled rows on phones */
@@ -103,21 +103,21 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
   .intl-stack-table, .intl-stack-table tbody, .intl-stack-table tr, .intl-stack-table td { display: block; width: 100%; }
   .intl-stack-table tr { border: 1px solid var(--border); border-radius: var(--r-card); padding: 10px 12px; margin-bottom: 10px; background: var(--surface); }
   .intl-stack-table td { border: 0; padding: 4px 0; }
-  .intl-stack-table td::before { content: attr(data-label); display: block; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+  .intl-stack-table td::before { content: attr(data-label); display: block; font-size: var(--fs-xs); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
   .intl-stack-table td:first-child { font-weight: 700; }
 }
 
 /* ---- launch: navigation (7 items) — inline only where it fits, otherwise the Menu panel */
-.intl-header .intl-nav-desktop { gap: clamp(10px, 1.2vw, 20px); }
+.intl-header .intl-nav-desktop { gap: clamp(20px, 2.2vw, 36px); }
 /* four top-level links fit from 960 px; below that they live in the menu */
-@media (max-width: 959px) { .intl-header .intl-nav-desktop { display: none; } }
+@media (max-width: 1023px) { .intl-header .intl-nav-desktop { display: none; } }
 
 /* service detail blocks */
 .intl-svc-list { display: grid; gap: 18px; }
 .intl-svc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .intl-svc-head h3 { margin: 0 0 .2em; font-size: 1.3rem; }
 .intl-svc-head .intl-price-row { margin: 0; }
-.intl-svc h4 { font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 .5em; }
+.intl-svc h4 { font-size: var(--fs-xs); letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 .5em; }
 .intl-svc .intl-scope { margin: .6em 0 .4em; }
 .intl-svc .notice { margin: .6em 0 0; }
 .intl-card .intl-price-row { margin: .1em 0 .6em; }
@@ -127,7 +127,7 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
 /* pricing table */
 .intl-price-table th[scope="row"] { font-weight: 600; text-align: left; }
 .intl-price-table th[scope="row"] a { color: inherit; }
-.intl-price-table .intl-tier th { background: var(--surface-sunken); font-size: .76rem; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); text-align: left; }
+.intl-price-table .intl-tier th { background: var(--surface-sunken); font-size: var(--fs-xs); letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); text-align: left; }
 .intl-price-note { margin-top: 1.2em; color: var(--text-muted); font-size: var(--fs-small); max-width: 72ch; }
 .intl-price-note p { margin: .3em 0; }
 
@@ -153,8 +153,12 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
 
 /* International hero: same component and tokens as the India hero (site.css .hero-v2); only the type face differs. */
 body.intl section.hero-v2 { padding: var(--hero-pad-top) 0 var(--hero-pad-bottom); }
-body.intl .hero-v2 h1 { font-size: var(--hero-h1); max-width: 18ch; }
+body.intl .hero-v2 h1 { font-size: var(--hero-h1); max-width: 22ch; }
 body.intl .hero-v2 .lead { margin-bottom: 0; }
 .intl-hero-v2 .btn-row { margin-top: 1.2em; }
 .intl-hero-v2 .intl-trust { margin-top: .4em; }
 .intl-hero-v2 .intl-mainsite { margin-top: .8em; }
+/* cards share the India card tokens */
+.intl-journey h3,.intl-process h3{font-size:var(--fs-card-title)}
+.intl-journey p,.intl-points p,.intl-process p{font-size:var(--fs-card)}
+.intl-svc-head h3{font-size:clamp(1.25rem,1.1rem + .45vw,1.5rem)}
