@@ -12,6 +12,12 @@
   }
   window.moodilyTrack = track;
 
+  // Payment hand-off page: if a payment provider ever redirects here with payment/order IDs in the URL, remove them
+  // from the address bar at once (the page loads no analytics and never trusts the URL as proof of payment).
+  if (location.pathname.indexOf('/payment/received/') === 0 && location.search) {
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  }
+
   // v1-2026 funnel names pushed alongside the older event names, so existing GTM triggers keep working.
   var EVENT_ALIASES = { whatsapp_click: 'whatsapp_contact_clicked', free_audit_click: 'free_audit_started' };
   // Analytics gets a link's destination only, never its query string or fragment: those can carry the

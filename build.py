@@ -210,7 +210,10 @@ def starter_ctas(key, where):
             + PAY_NOTE)
 
 
-PAY_NOTE = '<p class="small muted pay-note">Razorpay secure checkout · नई tab में खुलेगा · UPI, card, netbanking</p>'
+PAY_NOTE = ('<p class="small muted pay-note">Razorpay secure checkout · नई tab में खुलेगा · UPI, card, netbanking</p>'
+            '<p class="small pay-next"><strong>Payment के बाद:</strong> Razorpay receipt का Payment ID '
+            '<a href="/payment/received/" data-track="payment_next_steps" data-label="pay-note">यहाँ बताए तरीके से भेजें</a> — '
+            'हम 1 working day में जवाब देंगे।</p>')
 
 
 def quote_cta(svc_id, cls="btn btn-primary", label="लिखित Quote लें", where="", event="growth_quote_requested"):
@@ -625,6 +628,43 @@ def c_faq(args, ctx):
         '<details class="faq"><summary>{}</summary><p>{}</p></details>'.format(e(i["q"]), e(i["a"])) for i in items))
 
 
+def global_checkout_url():
+    """The Global Edition is purchasable only with a Lemon Squeezy /checkout/buy/ link AND the store switch on."""
+    url = ((PRODUCT_DATA.get("global_edition") or {}).get("checkout_url") or "").strip()
+    return url if url.startswith("https://") and "lemonsqueezy.com" in url and PAYMENT_FLAGS.get("lemon_squeezy_store_enabled") else ""
+
+
+def india_checkout_api():
+    """The India Edition is purchasable only when the payments Worker is configured and live (or a local test build)."""
+    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
+    return api if api and allowed and PAYMENT_FLAGS.get("razorpay_india_enabled", True) else ""
+
+
+def c_product_schema(args, ctx):
+    """Store JSON-LD. A Product with an Offer is published only while the product can actually be bought; until then
+    the page describes the guide as a Book with no offer, price or availability (no "PreOrder" for a closed checkout)."""
+    ed = args["edition"]
+    cfg = PRODUCT_DATA.get(ed + "_edition") or {}
+    sch = cfg["schema"]
+    data = {"@context": "https://schema.org", "@type": "Book", "name": sch["name"], "description": sch["description"],
+            "image": BASE + "/assets/img/og-moodily.png", "author": {"@type": "Person", "name": sch["author"]},
+            "publisher": {"@id": ORG_ID}, "inLanguage": sch["inLanguage"], "bookFormat": "https://schema.org/EBook",
+            "numberOfPages": sch["numberOfPages"], "url": sch["url"]}
+    if ed == "global" and global_checkout_url():
+        data["@type"] = ["Product", "Book"]
+        data["brand"] = {"@type": "Brand", "name": "Moodily"}
+        data["offers"] = {"@type": "Offer", "price": cfg["price"], "priceCurrency": cfg["currency"],
+                          "availability": "https://schema.org/InStock", "url": sch["url"]}
+    elif ed == "india" and india_checkout_api():
+        prices = [int(t["price"]) for t in cfg.get("tiers", []) if not t.get("hidden")]
+        data["@type"] = ["Product", "Book"]
+        data["brand"] = {"@type": "Brand", "name": "Moodily"}
+        data["offers"] = {"@type": "AggregateOffer", "lowPrice": str(min(prices)), "highPrice": str(max(prices)), "priceCurrency": "INR",
+                          "offerCount": len(prices), "availability": "https://schema.org/InStock", "url": sch["url"]}
+    return '<script type="application/ld+json">{}</script>'.format(json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))
+
+
 def c_buy_global(args, ctx):
     """Buy CTA for the Global Edition. Goes live only when BOTH a Lemon Squeezy /checkout/buy/ link is set in
     products.json -> "global_edition"."checkout_url" AND site.json payment_flags.lemon_squeezy_store_enabled is true
@@ -632,8 +672,8 @@ def c_buy_global(args, ctx):
     g = PRODUCT_DATA.get("global_edition", {})
     price = g.get("price", "9.99")
     sym = {"USD": "$", "GBP": "£", "EUR": "€", "AUD": "A$", "CAD": "C$"}.get(g.get("currency", "USD"), "$")
-    url = (g.get("checkout_url") or "").strip()
-    if url.startswith("https://") and "lemonsqueezy.com" in url and PAYMENT_FLAGS.get("lemon_squeezy_store_enabled"):
+    url = global_checkout_url()
+    if url:
         return ('<a class="btn btn-primary" href="{url}" rel="noopener" target="_blank" '
                 'data-track="checkout_click" data-label="practical-ai-global">Get the Global Guide — {sym}{price}</a>'
                 '<p class="small muted">One-time purchase · secure checkout · instant digital access after payment.</p>').format(
@@ -649,9 +689,8 @@ def c_buy_india(args, ctx):
     Worker is deployed with R2/KV provisioned). Otherwise a waitlist CTA, so nothing broken ships."""
     cfg = PRODUCT_DATA.get("india_edition", {})
     pid = cfg.get("product_id", "ai-parents-india")
-    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
-    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
-    live = bool(api and allowed and PAYMENT_FLAGS.get("razorpay_india_enabled", True))
+    api = india_checkout_api()
+    live = bool(api)
     test = ' <span class="badge">TEST MODE</span>' if live and PAYMENTS.get("mode") != "live" else ""
     cards = []
     tiers = [t for t in cfg.get("tiers", []) if not t.get("hidden")]
@@ -1923,6 +1962,9 @@ def sample_card(smp, lazy=True):
 def c_sample_grid(args, ctx):
     """Full catalogue with search + browse-by-need + browse-by-customer-type."""
     items = SAMPLE_CATALOGUE
+    if args.get("ids"):
+        want = args["ids"].split(",")
+        items = sorted([s for s in items if s["id"] in want], key=lambda s: want.index(s["id"]))
     if args.get("featured"):
         items = [s for s in items if s.get("featured")]
     limit = int(args.get("limit", "0") or 0)
@@ -2318,7 +2360,7 @@ def c_resources_teaser(args, ctx):
         '<span class="res-teaser-emoji" aria-hidden="true">{em}</span><strong>{t}</strong>'
         '<span class="small muted">{s}</span></a>'.format(em=em, t=e(t), s=e(sub), who=who)
         for em, t, sub, who in cards)
-    yt = yt_link("AI with SaurabhKr देखें", "small")
+    yt = yt_link("AI with Saurabh Kr देखें", "small")
     return ('<div class="res-teaser">{tiles}</div>'
             '<p class="btn-row"><a class="btn btn-outline" href="/resources/" data-track="resources_view" '
             'data-label="home-teaser">Free AI Resources देखें →</a>{yt}</p>').format(
@@ -2339,7 +2381,12 @@ INTL_LABEL_EXPLAIN = {"commissioned": "Paid work commissioned by a client, shown
 INTL_NAV = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
             ("/international/customer-education/", "Customer Education"), ("/international/work/", "Work"),
             ("/international/process/", "Process"), ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
-INTL_FOOTER_LINKS = [("/international/services/", "Services"), ("/international/work/", "Work"),
+# Top-level header: the four places most visitors need. Everything else stays one tap away in the menu and footer.
+INTL_NAV_PRIMARY = [("/international/services/", "Services"), ("/international/work/", "Work"),
+                    ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
+INTL_FOOTER_LINKS = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
+                     ("/international/customer-education/", "Customer education"), ("/international/work/", "Work"),
+                     ("/international/process/", "Process"), ("/international/pricing/", "Pricing"),
                      ("/international/about/", "About"), ("/international/contact/", "Contact")]
 INTL_POLICY_LINKS = [("/international/privacy/", "Privacy"), ("/international/terms/", "Terms"),
                      ("/international/refund/", "Refund & cancellation"), ("/international/payments/", "Payment information")]
@@ -2530,7 +2577,7 @@ def c_intl_founder(args, ctx):
     initials = "".join(w[0] for w in f["name"].split()[:2])
     photo = ('<img class="intl-founder-photo" src="{}" alt="{}" width="120" height="120" loading="lazy">'.format(e(f["photo"]), e(f["name"]))
              if f.get("photo") else '<span class="intl-founder-photo is-initials" aria-hidden="true">{}</span>'.format(e(initials)))
-    links = ['<a href="{}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-founder">AI with Saurabh on YouTube ↗</a>'.format(e(f["youtube"]))]
+    links = ['<a href="{}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-founder">AI with Saurabh Kr on YouTube ↗</a>'.format(e(f["youtube"]))]
     if f.get("linkedin"):
         links.append('<a href="{}" target="_blank" rel="noopener">LinkedIn ↗</a>'.format(e(f["linkedin"])))
     note = '<p class="small muted">{}</p>'.format(e(f["channel_note"])) if f.get("channel_note") else ""
@@ -2623,7 +2670,8 @@ def intl_banner():
 def intl_header(route):
     def cur(href):
         return ' aria-current="page"' if route.startswith(href) else ""
-    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV)
+    top = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV_PRIMARY)
+    menu = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV)
     return """<a class="skip" href="#main">Skip to content</a>
 <header class="site-header intl-header"><div class="container nav">
   <a class="logo" href="/international/" aria-label="Moodily International home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="logo-sub">International</span></a>
@@ -2632,15 +2680,17 @@ def intl_header(route):
     <details class="menu" id="siteMenu"><summary aria-haspopup="menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
       <div class="menu-panel" role="menu" aria-label="Site navigation">
         <button class="menu-close" type="button" data-menu-close aria-label="Close menu">&times;</button>
-        <ul class="nav-links">{top}<li><a href="/international/contact/"{contact}>Contact</a></li></ul>
-        <p class="menu-heading">Moodily</p><ul class="nav-sub"><li><a href="/" data-track="main_site_click" data-label="intl-menu">Main site — services in India, in rupees</a></li></ul>
+        <ul class="nav-links">{menu}<li><a href="/international/contact/"{contact}>Contact</a></li></ul>
+        <p class="menu-heading">Moodily</p><ul class="nav-sub"><li><a href="/" data-track="main_site_click" data-label="intl-menu">Main site — services in India, in rupees</a></li>
+          <li><a href="/store/practical-ai-life-work-global/" data-track="store_click" data-label="intl-menu">Store — Practical AI guide</a></li>
+          <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-menu">Learn AI: AI with Saurabh Kr ↗</a></li></ul>
         <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/international/contact/" data-track="contact_clicked" data-label="menu">Discuss your project</a></div>
       </div>
     </details>
   </nav>
   <div class="nav-actions"><button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
     <a class="btn btn-primary btn-sm nav-cta" href="/international/contact/" data-track="contact_clicked" data-label="nav">Discuss your project</a></div>
-</div></header>""".format(top=top, contact=cur("/international/contact/"))
+</div></header>""".format(top=top, menu=menu, contact=cur("/international/contact/"), yt=AI_WITH_SAURABH)
 
 
 def intl_footer(route):
@@ -2659,7 +2709,7 @@ def intl_footer(route):
     <div><h2 class="footer-h">Moodily International</h2><ul>{links}</ul></div>
     <div><h2 class="footer-h">Policies</h2><ul>{pol}</ul></div>
     <div><h2 class="footer-h">Moodily</h2><ul><li><a href="/" data-track="main_site_click" data-label="intl-footer">Main site — services in India, in rupees</a></li>
-      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-footer">Learn AI: AI with Saurabh ↗</a></li></ul></div>
+      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-footer">Learn AI: AI with Saurabh Kr ↗</a></li></ul></div>
   </div>
   <p class="footer-bottom small muted">© {year} {entity} · We don't guarantee rankings, leads or revenue — we commit to the scope we agree in writing.</p>
 </div></footer>
@@ -2765,6 +2815,12 @@ ICONS = {
     "shop": '<path d="M4 10l1.6-5h12.8L20 10M4 10v9h16v-9M4 10h16M9.5 19v-5h5v5"/>',
     "clinic": '<path d="M8 4c-2.5 0-4 2-4 4.5 0 3 1.6 4.5 2.2 7.7.4 2 .9 3.8 1.9 3.8 1.4 0 1.4-4.5 3.9-4.5s2.5 4.5 3.9 4.5c1 0 1.5-1.8 1.9-3.8.6-3.2 2.2-4.7 2.2-7.7C20 6 18.5 4 16 4c-1.8 0-2.7 1-4 1S9.8 4 8 4z"/>',
     "play": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor"/>',
+    "pin": '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+    "web": '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 9h18M7 6.8h.01M9.5 6.8h.01"/>',
+    "chat": '<path d="M5 18.5 4 21l3.2-1.4A8.5 8.5 0 1 0 5 18.5z"/><path d="M9 11h6M9 14h4"/>',
+    "design": '<path d="M4 20l4-1L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/><path d="M14 7l3 3"/>',
+    "slides": '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8M7 12l3-3 2 2 4-4"/>',
+    "spark": '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
 }
 
 
@@ -2783,11 +2839,28 @@ def en_price(svc):
     return amount if svc.get("price_mode") == "exact" else "From " + amount
 
 
+HERO_VISUALS = {
+    # One composition, two journeys: India = found → understood → contacted; International = clear page → understood → ready to act.
+    "india": ("/assets/img/illustrations/hero-journey.svg",
+              "Illustrative demo: a customer finds a fictional optician on a map, reads a clear service page with visit times, "
+              "then sends an appointment request that the shop confirms later.",
+              "Illustrative demo — a fictional business, not client work."),
+    "international": ("/assets/img/illustrations/hero-international.svg",
+                      "Illustrative demo in three steps. 1, clear page: a fictional product's public page says what it does, with "
+                      "'See features' and 'How it works'. 2, understood: a getting-started tutorial shows three steps — create workspace, "
+                      "invite your team, track requests — with captions and chapters. 3, ready to act: the visitor requests a walkthrough "
+                      "at a time in their own time zone, and the team confirms by email.",
+                      "Illustrative demo — fictional product, not client work."),
+}
+
+
 def c_hero_visual(args, ctx):
-    return ('<figure class="hero-visual"><img src="/assets/img/illustrations/hero-journey.svg" width="640" height="540" '
-            'alt="Illustrative demo: a customer finds a fictional optician on a map, reads a clear service page with visit times, '
-            'then sends an appointment request that the shop confirms later." fetchpriority="high" decoding="async">'
-            '<figcaption>Illustrative demo — a fictional business, not client work.</figcaption></figure>')
+    """Hero illustration: a wide composition from 600 px up, a stacked phone version below (legible text at 360–430 px)."""
+    src, alt, caption = HERO_VISUALS[args.get("variant", "india")]
+    mobile = src.replace(".svg", "-mobile.svg")
+    return ('<figure class="hero-visual"><picture><source media="(max-width: 599px)" srcset="{m}" width="360" height="400">'
+            '<img src="{src}" width="640" height="540" alt="{alt}" fetchpriority="high" decoding="async"></picture>'
+            '<figcaption>{cap}</figcaption></figure>').format(m=mobile, src=src, alt=e(alt), cap=e(caption))
 
 
 def c_who_we_help(args, ctx):
@@ -2873,7 +2946,7 @@ def c_work_showcase(args, ctx):
                       '<p class="small">{built}</p><p class="small muted">{outcome}</p>{link}</div></article>').format(
             id=e(it["id"]), media=work_media(it, args.get("where", "home")), cls=INTL_LABEL_CLASS[it["label"]], label=e(labels[it["label"]]),
             title=e(it["title"]), type=e(it["type"]), built=e(it["built"]), outcome=e(it["outcome"]), link=link))
-    return '<div class="work-grid">{}</div>'.format("".join(cards))
+    return '<div class="work-grid{}">{}</div>'.format(" work-swipe" if args.get("layout") == "swipe" else "", "".join(cards))
 
 
 def ba_demo(c):
@@ -2966,7 +3039,7 @@ def c_founder_feature(args, ctx):
     tele = next((it for it in intl_portfolio_items() if it["id"] == "teleprompter-review"), None)
     proof = ['<li><strong>Founder-led.</strong> You talk to Saurabh from the first message to handover.</li>',
              '<li><strong>Based in India.</strong> Works in Hindi and English; replies within 24 hours on working days.</li>',
-             '<li><strong>AI with Saurabh.</strong> {}</li>'.format(e(f.get("channel_note", "")))]
+             '<li><strong>AI with Saurabh Kr.</strong> {}</li>'.format(e(f.get("channel_note", "")))]
     if tele:
         proof.append('<li><strong>Published paid work.</strong> A paid software review for Teleprompter.com — screen demonstration, narration and editing. '
                      '<a href="{}#work-teleprompter-review">See it</a></li>'.format(e(args.get("work_href", "/"))))
@@ -2974,7 +3047,7 @@ def c_founder_feature(args, ctx):
     return ('<div class="founder-feature" data-reveal><div class="founder-media">{media}</div><div class="founder-copy">'
             '<p class="eyebrow">Who you\'ll work with</p><h2 id="{hid}">{name}, founder of Moodily</h2><p class="lead">{bio}</p>'
             '<ul class="proof-list">{proof}</ul>'
-            '<p class="small"><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="founder-{where}">AI with Saurabh on YouTube ↗</a>'
+            '<p class="small"><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="founder-{where}">AI with Saurabh Kr on YouTube ↗</a>'
             ' · <a href="{about}">{about_label}</a></p></div></div>').format(about_label=e(args.get("about_label", "About Moodily")),
         media=founder_media(f), hid=e(args.get("id", "founder-h")), name=e(f["name"]), bio=e(f["bio"]), proof="".join(proof),
         yt=e(f["youtube"]), where=e(args.get("where", "home")), about=e(args.get("about", "/about/")))
@@ -3021,6 +3094,86 @@ def c_intl_examples(args, ctx):
     return '<div class="examples">{}</div>'.format("".join(out))
 
 
+# ---------------------------------------------------------- India homepage (Phase 2): need cards, popular services, flow
+def c_need_cards(args, ctx):
+    """'मुझे चाहिए…' — six needs, each pointing at the smallest set of relevant services, plus a 'not sure' path."""
+    cards = []
+    for n in SHOWCASE["need_cards"]:
+        priced = [SERVICES[i] for i in n["price_services"] if SERVICES[i].get("price_from")]
+        low = min(priced, key=lambda x: x["price_from"]) if priced else None
+        price = "₹{} से शुरू".format(inr(low["price_from"])) if low else "Scope देखकर quote"
+        def chip(t, h):
+            sid = h.split("#", 1)[1] if "#" in h else ""
+            svc = SERVICES.get(sid)
+            tag = ""
+            if svc:  # a link to one service carries that service's own price and type, never the group's
+                mode = svc.get("price_mode")
+                tag = {"free": "Free", "custom_quote": "Quote"}.get(mode) or ("₹" + inr(svc["price_from"]) + ("" if mode == "exact" else " से"))
+            return '<li><a href="{}" data-track="service_card_click" data-label="need:{}">{}{}</a></li>'.format(
+                e(h), n["id"], e(t), ' <span class="need2-chip-price">· {}</span>'.format(e(tag)) if tag else "")
+        links = "".join(chip(t, h) for t, h in n["links"])
+        cards.append(('<article class="need2" id="need-{id}"><span class="need2-icon">{icon}</span><div class="need2-body">'
+                      '<h3><a href="{href}" data-track="service_card_click" data-label="need-card:{id}">{title}</a></h3>'
+                      '<p class="need2-price">{price}</p><p class="need2-sub">{sub}</p><ul class="need2-links">{links}</ul></div></article>').format(
+            id=n["id"], icon=icon(n["icon"]), href=e(n["href"]), title=e(n["title"]), sub=e(n["sub"]), links=links, price=e(price)))
+    u = SHOWCASE["need_unsure"]
+    unsure = ('<div class="need2-unsure"><div><h3>{t}</h3><p>{s}</p></div><a class="btn btn-primary" href="{h}" data-track="free_audit_click" '
+              'data-label="need-unsure">{c}</a></div>').format(t=e(u["title"]), s=e(u["sub"]), h=e(u["href"]), c=e(u["cta"]))
+    return '<div class="need2-grid">{}</div>{}'.format("".join(cards), unsure)
+
+
+def c_popular_services(args, ctx):
+    """Entry offers in the service-card standard: who it's for, the result, price TYPE + price, delivery time, one action."""
+    cards = []
+    for sid in SHOWCASE["popular"]:
+        svc = SERVICES[sid]
+        if svc not in ctx["services"]:
+            ctx["services"].append(svc)
+        key = PAY_BY_SERVICE.get(sid)
+        if svc.get("price_mode") == "free":
+            cta = '<a class="btn btn-primary btn-sm" href="/contact/?service={}" data-track="free_audit_click" data-label="home-popular">Free Audit लें</a>'.format(sid)
+        elif key and PRODUCTS[key]["cta"] == "pay" and pay_cta(key, where="home-popular"):
+            cta = pay_cta(key, cls="btn btn-primary btn-sm", where="home-popular", label="₹{} pay करें".format(inr(PRODUCTS[key]["price"])))
+        else:
+            cta = quote_cta(sid, cls="btn btn-primary btn-sm", label="Quote लें", where="home-popular", event="quote_start")
+        cards.append(('<article class="pop-card" id="pop-{id}"><h3><a href="{page}#{id}" data-track="service_card_click" data-label="popular:{id}">{name}</a></h3>'
+                      '<p class="pop-result">{tag}</p>{price}<p class="pop-meta">⏱ {time}</p>'
+                      '<div class="pop-actions">{cta}<a class="pop-more" href="{page}#{id}">पूरा scope →</a></div></article>').format(
+            id=sid, page=svc["page"], name=e(svc["name"]), tag=e(svc["tagline"]), price=price_html(svc), time=e(svc["timeline"]), cta=cta))
+    return ('<div class="pop-grid">{}</div>{}'
+            '<p class="pop-all"><a class="btn btn-outline" href="/services/" data-track="service_catalogue_view" data-label="home-popular-all">सभी services और prices देखें →</a></p>').format(
+        "".join(cards), PAY_NOTE)
+
+
+def c_work_strip(args, ctx):
+    """Published work as a compact list (label + title + link) under the samples."""
+    by = {it["id"]: it for it in intl_portfolio_items()}
+    labels = INTL["portfolio_labels"]
+    rows = []
+    for i in [x for x in args.get("ids", "").split(",") if x]:
+        it = by[i]
+        ext = it["url"].startswith("http")
+        rows.append('<li><span class="label-chip {cls}">{label}</span><a href="{url}"{tgt} data-track="portfolio_view" data-label="strip-{id}">{title}</a>'
+                    '<span class="work-strip-type">{type}</span></li>'.format(
+                        cls=INTL_LABEL_CLASS[it["label"]], label=e(labels[it["label"]]), url=e(it["url"]), tgt=' target="_blank" rel="noopener"' if ext else "",
+                        id=it["id"], title=e(it["title"]), type=e(it["type"])))
+    return '<div class="work-strip" lang="en"><p class="work-strip-h">Published work</p><ul>{}</ul></div>'.format("".join(rows))
+
+
+def c_flow_steps(args, ctx):
+    """ज़रूरत → service → sample → requirement → quote/payment → delivery, as an ordered list (readable without CSS)."""
+    return '<ol class="flow6">{}</ol>'.format("".join(
+        '<li><span class="flow6-n" aria-hidden="true">{}</span><h3>{}</h3><p>{}</p></li>'.format(i, e(st["title"]), e(st["text"]))
+        for i, st in enumerate(SHOWCASE["flow"], 1)))
+
+
+def c_founder_strip(args, ctx):
+    f = INTL["founder"]
+    photo = founder_media(f, 96) if f.get("photo") else ""
+    return ('<div class="founder-strip">{photo}<p><strong>Moodily founder-led है.</strong> Founder {name} से सीधे बात होती है — '
+            'enquiry से handover तक। <a href="/about/">Moodily के बारे में →</a></p></div>').format(photo=photo, name=e(f["name"]))
+
+
 def validate_showcase():
     problems = []
     for c in SHOWCASE["concepts"]:
@@ -3038,6 +3191,12 @@ def validate_showcase():
                 problems.append("need {}: unknown International service {}".format(n["id"], spec["intl"]))
             if not ({"service", "intl", "href"} & set(spec)):
                 problems.append("need {}: {} has no destination".format(n["id"], region))
+    for n in SHOWCASE.get("need_cards", []):
+        problems += ["need card {}: unknown service {}".format(n["id"], sid) for sid in n["price_services"] if sid not in SERVICES]
+        for t, h in n["links"]:
+            if "#" in h and h.split("#", 1)[1] not in SERVICES:
+                problems.append("need card {}: link {} points at no service".format(n["id"], h))
+    problems += ["popular: unknown service {}".format(sid) for sid in SHOWCASE.get("popular", []) if sid not in SERVICES]
     for path in [p for c in SHOWCASE["concepts"] for p in (c.get("image"), c.get("before"), c.get("after")) if p]:
         if not (ROOT / path.lstrip("/")).exists():
             problems.append("missing image " + path)
@@ -3053,12 +3212,13 @@ FEATURE_GATES = {"amazon_associates": amazon_public}
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
-    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "buy-india": c_buy_india,
+    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "product-schema": c_product_schema, "buy-india": c_buy_india,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "journey": c_journey, "primary-offers": c_primary_offers, "quick-offers": c_quick_offers, "saathi-offer": c_saathi_offer, "start-here": c_start_here, "pricing-terms": c_pricing_terms, "founder": c_founder,
     "hero-visual": c_hero_visual, "who-we-help": c_who_we_help, "need-selector": c_need_selector, "work-showcase": c_work_showcase,
     "concept-demos": c_concept_demos, "home-packages": c_home_packages, "project-steps": c_project_steps, "founder-feature": c_founder_feature,
     "enquiry-panel": c_enquiry_panel, "intl-examples": c_intl_examples,
+    "need-cards": c_need_cards, "popular-services": c_popular_services, "work-strip": c_work_strip, "flow-steps": c_flow_steps, "founder-strip": c_founder_strip,
     "offer-details": c_offer_details, "offer-terms": c_offer_terms,
     "catalogue-group": c_catalogue_group, "revision-policy": c_revision_policy, "formats": c_formats, "intake": c_intake,
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
@@ -3203,10 +3363,12 @@ NAV = [
     ("/learn/", "Learn", "सीखें"), ("/digital-saathi/", "Digital Saathi", "Saathi"),
 ]
 # the inline desktop row stays short so the header never wraps; the rest is in the Menu popover
-NAV_DESKTOP = [("/services/", "Services"), ("/#who-we-help", "Who we help"), ("/samples/", "Work"), ("/about/", "About"),
+# Service-led header: what Moodily sells, proof, ready-made products, free learning — and International as a separate context.
+NAV_DESKTOP = [("/services/", "Services"), ("/samples/", "Samples"), ("/store/", "Store"), ("/learn/", "Learn"),
                ("/international/", "International")]
+NAV_MENU_EXTRA = [("/about/", "About"), ("/#who-we-help", "आप कौन हैं?")]
 NAV_POPULAR = [("/contact/?service=free-digital-audit", "Free Digital Audit"), ("/services/#prices", "Pricing"), ("/digital-saathi/", "Digital Saathi"),
-               ("/store/", "Moodily Store"), ("/case-studies/", "Case studies")]
+               ("/case-studies/", "Case studies")]
 NAV_LEARN = [("/learn/", "Moodily Learn"), ("/resources/", "AI Resources"), ("/insights/", "Insights"), ("/guides/", "Hindi guides"), ("/tools/", "Tools")]
 AI_WITH_SAURABH = "https://www.youtube.com/@AIwithSaurabhKr"
 SERVICE_NAV = [
@@ -3231,11 +3393,11 @@ def header(route, meta):
     def li(items, sub=False):
         return "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h.split("#")[0].split("?")[0]) if not sub else "", e(t)) for h, t in items)
 
-    top = "".join('<li><a href="{0}"{1}{3}>{2}</a></li>'.format(
-        h, cur(h.split("#")[0]), e(t), ' data-track="international_nav_click" data-label="header"' if h == "/international/" else "") for h, t in NAV_DESKTOP)
+    top = "".join(('<li class="nav-intl-item"><a href="{0}"{1} data-track="international_nav_click" data-label="header">{2}</a></li>' if h == "/international/"
+                   else '<li><a href="{0}"{1}>{2}</a></li>').format(h, cur(h.split("#")[0]), e(t)) for h, t in NAV_DESKTOP)
     main = "".join(('<li class="nav-intl"><a href="{0}"{1} data-track="international_nav_click" data-label="menu">International '
                     '<span class="nav-note">English · USD</span></a></li>' if h == "/international/" else '<li><a href="{0}"{1}>{2}</a></li>').format(
-        h, cur(h.split("#")[0]), e(t)) for h, t in NAV_DESKTOP)
+        h, cur(h.split("#")[0]), e(t)) for h, t in NAV_DESKTOP) + li(NAV_MENU_EXTRA)
     svc = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h) if h != "/services/" or route == "/services/" else "", e(t)) for h, t in SERVICE_NAV)
     lang_btn = ('<button class="lang-toggle" type="button" id="langToggle" data-track="language_switch" aria-label="Switch language Hindi/English">हिं / EN</button>'
                 if meta.get("bilingual") else "")
@@ -3251,20 +3413,21 @@ def header(route, meta):
         <ul class="nav-links">{main}<li><a href="/contact/"{contact}>Contact</a></li></ul>
         <p class="menu-heading">Popular</p><ul class="nav-sub">{popular}</ul>
         <p class="menu-heading">Services</p><ul class="nav-sub">{svc}</ul>
-        <p class="menu-heading">Learn &amp; resources</p><ul class="nav-sub">{learn}<li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="menu">AI with Saurabh (YouTube) ↗</a></li></ul>
-        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/contact/" data-track="quote_start" data-label="menu-requirement">Discuss your project</a>{menuwa}</div>
+        <p class="menu-heading">Learn &amp; resources</p><ul class="nav-sub">{learn}<li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="menu">AI with Saurabh Kr (YouTube) ↗</a></li></ul>
+        <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="menu">Free Digital Audit</a>{menuwa}</div>
       </div>
     </details>
   </nav>
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
-    <a class="btn btn-primary btn-sm nav-cta" href="/contact/" data-track="quote_start" data-label="nav">Discuss your project</a></div>
+    <a class="btn btn-primary btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="nav">Free Digital Audit</a></div>
 </div></header>""".format(main=main, svc=svc, top=top, lang=lang_btn, contact=cur("/contact/"), popular=li(NAV_POPULAR, True), learn=li(NAV_LEARN),
                yt=AI_WITH_SAURABH, menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
 
 
 def footer(route=""):
     plain = route in LEGAL_ROUTES
-    svc = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in SERVICE_NAV[:-1])
+    main_svc = SERVICE_NAV[:8]
+    svc = "".join('<li><a href="{}">{}</a></li>'.format(h, e(t)) for h, t in main_svc) + '<li><a href="/services/">सभी services और prices →</a></li>'
     return """<footer class="site-footer"><div class="container">
   <div class="footer-grid">
     <div><a class="logo" href="/">Moodily<span class="dot" aria-hidden="true"></span></a>
@@ -3277,7 +3440,7 @@ def footer(route=""):
       <li><a href="/digital-saathi/">Moodily Digital Saathi</a></li><li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li>
       <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
       <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li>
-      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="footer">Learn AI: AI with Saurabh ↗</a></li></ul></div>
+      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="footer">Learn AI: AI with Saurabh Kr ↗</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
     <div><h2 class="footer-h">Company</h2><ul>
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
@@ -3294,16 +3457,21 @@ def footer(route=""):
 
 STICKY_CTA = """
 <a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
-<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Discuss your project</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
+<nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="mobile-bar">Free Audit लें</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
+
+
+PRODUCTION_HOST = BASE.split("://", 1)[1].rstrip("/")
 
 
 def gtm_head():
     gid = SITE.get("gtm_id")
     if not gid:
         return ""
-    return ("<script>window.dataLayer=window.dataLayer||[];(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});"
+    # Production only: previews, local builds and tests never load GTM, so they can't send events into the live
+    # GA property (the source of "localhost" hits). dataLayer still exists everywhere, so site.js works the same.
+    return ("<script>window.dataLayer=window.dataLayer||[];if(location.hostname==='{host}')(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});"
             "var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;"
-            "f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{}');</script>").format(gid)
+            "f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{gid}');</script>").format(gid=gid, host=PRODUCTION_HOST)
 
 
 def gtm_body():

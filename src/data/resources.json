@@ -2,7 +2,7 @@
   "_readme": "Practical AI resource layer. Separate from /learn/ (a curated course path) and /tools/ (tool reviews with last_reviewed) — this holds prompts, workflows and checklists people can use today. No performance claim ('saves 80% time', '10x') may be added here: benefits are stated qualitatively (fewer manual steps, faster first draft, structured output). build.py refuses to render a workflow missing any required field, and refuses to render tested timings unless a real Moodily test recorded them.",
   "last_reviewed": "2026-09-18",
   "youtube": {
-    "name": "AI with SaurabhKr",
+    "name": "AI with Saurabh Kr",
     "url": "",
     "_todo": "TODO (OWNER): the exact channel URL. Until it is set, no channel link renders anywhere — and no subscriber/view figure is ever published."
   },

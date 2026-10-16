@@ -109,7 +109,8 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
 
 /* ---- launch: navigation (7 items) — inline only where it fits, otherwise the Menu panel */
 .intl-header .intl-nav-desktop { gap: clamp(10px, 1.2vw, 20px); }
-@media (max-width: 1240px) { .intl-header .intl-nav-desktop { display: none; } }
+/* four top-level links fit from 960 px; below that they live in the menu */
+@media (max-width: 959px) { .intl-header .intl-nav-desktop { display: none; } }
 
 /* service detail blocks */
 .intl-svc-list { display: grid; gap: 18px; }
@@ -149,3 +150,11 @@ body.intl .footer-h { font-size: .76rem; letter-spacing: .08em; text-transform: 
 @media (max-width: 480px) { .intl-process { grid-template-columns: 1fr; } }
 /* footer logo label on the dark panel: keep WCAG AA contrast */
 .intl-footer .logo .logo-sub { color: #cfcaf0; border-left-color: rgba(255, 255, 255, .35); }
+
+/* International hero: same component and tokens as the India hero (site.css .hero-v2); only the type face differs. */
+body.intl section.hero-v2 { padding: var(--hero-pad-top) 0 var(--hero-pad-bottom); }
+body.intl .hero-v2 h1 { font-size: var(--hero-h1); max-width: 18ch; }
+body.intl .hero-v2 .lead { margin-bottom: 0; }
+.intl-hero-v2 .btn-row { margin-top: 1.2em; }
+.intl-hero-v2 .intl-trust { margin-top: .4em; }
+.intl-hero-v2 .intl-mainsite { margin-top: .8em; }

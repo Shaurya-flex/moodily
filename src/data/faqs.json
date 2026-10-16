@@ -61,12 +61,20 @@
     },
     {
       "q": "Who wrote it?",
-      "a": "It is written by AI with Saurabh, an educational creator focused on practical, safe AI use, and published by Moodily Store. Every factual claim is written to be verified, and tool details are dated so you can re-check them."
+      "a": "It is written by AI with Saurabh Kr, an educational creator focused on practical, safe AI use, and published by Moodily Store. Every factual claim is written to be verified, and tool details are dated so you can re-check them."
     },
     {
       "q": "What is your refund policy?",
       "a": "Because this is an instantly delivered digital product, please read the digital-goods refund policy before purchase. If something is wrong with your download or access, contact support and we will make it right."
     }
+  ],
+  "home-hi": [
+    {"q": "मुझे कौन-सी service चाहिए, कैसे पता करूँ?", "a": "ऊपर “मुझे चाहिए…” में अपनी ज़रूरत चुनिए — हर कार्ड पर उससे जुड़ी services और शुरुआती price है। तय न हो तो Free Digital Audit लीजिए: हम आपका Google, WhatsApp और website देखकर बताएँगे कि पहले क्या करना चाहिए।"},
+    {"q": "क्या prices fixed हैं?", "a": "हर price के साथ उसका type लिखा है। Fixed price वाले काम (जैसे Google Business Quick Fix) का दाम पहले से तय है। “से” वाले दाम starting price हैं — scope देखकर लिखित quote मिलता है, और आपकी हाँ के बाद ही काम शुरू होता है।"},
+    {"q": "क्या पहले samples देख सकते हैं?", "a": "हाँ। Samples page पर हर sample के साथ साफ़ label है — Moodily का अपना project या concept demo। हम किसी concept को client का काम बताकर नहीं दिखाते।"},
+    {"q": "Enquiry के बाद क्या होता है?", "a": "Working days में 24 घंटे के भीतर जवाब मिलता है — कुछ सवाल, या लिखित scope और quote। आपकी approval के बिना कुछ भी live नहीं होता।"},
+    {"q": "काम में कितना समय लगता है?", "a": "हर service पर delivery का समय लिखा है। ज़्यादातर कामों में यह समय पूरी जानकारी और photos मिलने के बाद से गिना जाता है।"},
+    {"q": "Accounts और files किसके नाम पर रहते हैं?", "a": "आपके। Google profile, domain, WhatsApp और content आपके नाम पर रहते हैं — Moodily उन्हें आपके लिए सेट करता है, अपने नाम पर नहीं रखता।"}
   ],
   "home-en": [
     {"q": "Who does Moodily work with?", "a": "Local businesses in India — shops, clinics, coaching centres and service providers; service businesses outside India, including dental clinics; and software companies that need product tutorials. If you're unsure, describe your business and we'll tell you honestly whether we're a good fit."},
@@ -107,7 +115,7 @@
   "local-business": [
     {
       "q": "Google Business Profile बनाने की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Starter {{price:digital-business-starter}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Starter {{price:digital-business-starter}} (fixed price)।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -359,7 +367,7 @@
   "google-whatsapp": [
     {
       "q": "Google Business Profile की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Quick Fix {{price:google-business-fix}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Quick Fix {{price:google-business-fix}} (fixed price)।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -383,7 +391,7 @@
     },
     {
       "q": "Setup के बाद हर महीने मदद मिलेगी?",
-      "a": "हाँ, अगर चाहें। Digital Saathi Monthly {{price:digital-saathi-monthly}}/महीना से Google posts, reviews के जवाब के drafts, timing/offer updates और monthly report संभालता है। Ads का खर्च और printing इसमें शामिल नहीं हैं।"
+      "a": "हाँ, अगर चाहें। Digital Saathi Monthly ({{price:digital-saathi-monthly}}/महीना, fixed price) Google posts, reviews के जवाब के drafts, timing/offer updates और monthly report संभालता है। Ads का खर्च और printing इसमें शामिल नहीं हैं।"
     }
   ],
   "whatsapp-business": [
@@ -413,7 +421,7 @@
     },
     {
       "q": "Google listing भी साथ में ठीक करवानी हो तो?",
-      "a": "तब Digital Starter {{price:digital-business-starter}} से बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
+      "a": "तब Digital Starter ({{price:digital-business-starter}}, fixed price) बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
     }
   ],
   "brochure-catalogue": [

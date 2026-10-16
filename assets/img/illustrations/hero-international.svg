@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 540" width="640" height="540" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+  <title>Illustrative demo: a visitor reads a clear product page, follows a short getting-started tutorial, then requests a walkthrough</title>
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#1d1a3d" flood-opacity=".14"/></filter>
+    <linearGradient id="bgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efecfd"/><stop offset="1" stop-color="#e4f5f7"/></linearGradient>
+  </defs>
+  <rect x="8" y="8" width="624" height="524" rx="28" fill="url(#bgg)"/>
+  <!-- journey line -->
+  <path d="M282 222 C 284 238, 288 248, 292 254 M 352 348 C 352 392, 330 408, 294 410" fill="none" stroke="#5b3fd9" stroke-width="2.5" stroke-dasharray="6 7" stroke-linecap="round" opacity=".55"/>
+
+  <!-- 1. clear page: public product page -->
+  <g filter="url(#sh)"><rect x="34" y="40" width="270" height="180" rx="16" fill="#fff"/></g>
+  <rect x="34" y="40" width="270" height="28" rx="16" fill="#f1efea"/><rect x="34" y="56" width="270" height="12" fill="#f1efea"/>
+  <circle cx="52" cy="54" r="4" fill="#d8d3c8"/><circle cx="64" cy="54" r="4" fill="#d8d3c8"/><circle cx="76" cy="54" r="4" fill="#d8d3c8"/>
+  <text x="200" y="58" font-size="10.5" fill="#565d75" text-anchor="middle">sampleapp.example</text>
+  <rect x="50" y="80" width="18" height="18" rx="5" fill="#5b3fd9"/><text x="76" y="94" font-size="12.5" font-weight="700" fill="#14172a">Sample App</text>
+  <text x="288" y="94" font-size="10" fill="#565d75" text-anchor="end">Features · Pricing · Docs</text>
+  <text x="50" y="124" font-size="15" font-weight="700" fill="#14172a">Customer onboarding,</text>
+  <text x="50" y="143" font-size="15" font-weight="700" fill="#14172a">explained clearly.</text>
+  <text x="50" y="162" font-size="11" fill="#565d75">Set up in minutes with a guided tour.</text>
+  <g font-size="11" font-weight="600">
+    <rect x="50" y="176" width="92" height="28" rx="14" fill="#5b3fd9"/><text x="96" y="194" fill="#fff" text-anchor="middle">See features</text>
+    <rect x="150" y="176" width="96" height="28" rx="14" fill="#efecfd"/><text x="198" y="194" fill="#4a31bd" text-anchor="middle">How it works</text>
+  </g>
+  <g><circle cx="304" cy="40" r="17" fill="#5b3fd9"/><text x="304" y="45.5" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">1</text></g>
+  <text x="34" y="242" font-size="12.5" fill="#565d75"><tspan font-weight="700" fill="#1d1a3d">Clear page</tspan> — visitors know what it does</text>
+
+  <!-- 2. understood: getting-started tutorial -->
+  <g filter="url(#sh)"><rect x="292" y="132" width="312" height="214" rx="16" fill="#fff"/></g>
+  <rect x="292" y="132" width="312" height="44" rx="16" fill="#1d1a3d"/><rect x="292" y="160" width="312" height="16" fill="#1d1a3d"/>
+  <text x="310" y="159" font-size="13" font-weight="700" fill="#fff">Getting started</text>
+  <text x="586" y="159" font-size="11" fill="#cfcaf0" text-anchor="end">3 steps · 4 min tutorial</text>
+  <g font-size="12" fill="#14172a">
+    <rect x="310" y="190" width="276" height="34" rx="9" fill="#f7f6f3"/>
+    <circle cx="328" cy="207" r="8" fill="#12795b"/><path d="M324 207l3 3 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="344" y="211">Create workspace</text><text x="572" y="211" fill="#565d75" text-anchor="end">0:20</text>
+    <rect x="310" y="230" width="276" height="34" rx="9" fill="#f7f6f3"/>
+    <circle cx="328" cy="247" r="8" fill="#12795b"/><path d="M324 247l3 3 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="344" y="251">Invite your team</text><text x="572" y="251" fill="#565d75" text-anchor="end">1:05</text>
+    <rect x="310" y="270" width="276" height="34" rx="9" fill="#efecfd" stroke="#5b3fd9" stroke-width="1.5"/>
+    <circle cx="328" cy="287" r="8" fill="#5b3fd9"/><text x="328" y="291" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+    <text x="344" y="291" font-weight="700">Track requests</text><text x="572" y="291" fill="#4a31bd" text-anchor="end" font-weight="600">Now playing</text>
+  </g>
+  <rect x="310" y="314" width="58" height="20" rx="5" fill="none" stroke="#565d75"/><text x="339" y="328" font-size="10" font-weight="700" fill="#565d75" text-anchor="middle">CC</text>
+  <text x="378" y="328" font-size="10.5" fill="#565d75">Captions and chapters</text>
+  <g><circle cx="604" cy="132" r="17" fill="#5b3fd9"/><text x="604" y="137.5" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">2</text></g>
+  <text x="604" y="368" font-size="12.5" fill="#565d75" text-anchor="end"><tspan font-weight="700" fill="#1d1a3d">Understood</tspan> — steps are easy to follow</text>
+
+  <!-- 3. ready to act: walkthrough request -->
+  <g filter="url(#sh)"><rect x="34" y="300" width="258" height="196" rx="16" fill="#fff"/></g>
+  <text x="52" y="330" font-size="14" font-weight="700" fill="#14172a">Book a walkthrough</text>
+  <g font-size="11">
+    <text x="52" y="352" fill="#565d75">Pick a time (your time zone)</text>
+    <rect x="52" y="358" width="106" height="28" rx="8" fill="#efecfd" stroke="#5b3fd9" stroke-width="1.5"/><text x="105" y="376" fill="#4a31bd" font-weight="700" text-anchor="middle">Tue · 10:00</text>
+    <rect x="168" y="358" width="106" height="28" rx="8" fill="#f7f6f3" stroke="#e4e1da"/><text x="221" y="376" fill="#14172a" text-anchor="middle">Thu · 15:30</text>
+  </g>
+  <rect x="52" y="398" width="222" height="58" rx="10" fill="#e5f3ee"/>
+  <circle cx="70" cy="418" r="8" fill="#12795b"/><path d="M66 418l3 3 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="86" y="422" font-size="12" font-weight="700" fill="#12795b">Request sent</text>
+  <text x="66" y="443" font-size="10.5" fill="#14172a">The team confirms the time by email.</text>
+  <text x="52" y="478" font-size="10.5" fill="#565d75">Or ask a question — no sales call needed.</text>
+  <g><circle cx="292" cy="300" r="17" fill="#5b3fd9"/><text x="292" y="305.5" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">3</text></g>
+  <text x="312" y="446" font-size="12.5" fill="#565d75"><tspan font-weight="700" fill="#1d1a3d">Ready to act</tspan> — one clear next step</text>
+
+  <!-- label -->
+  <rect x="452" y="488" width="160" height="28" rx="14" fill="#1d1a3d"/>
+  <text x="532" y="506.5" font-size="11.5" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing=".4">ILLUSTRATIVE DEMO</text>
+</svg>
