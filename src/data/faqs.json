@@ -61,7 +61,7 @@
     },
     {
       "q": "Who wrote it?",
-      "a": "It is written by AI with Saurabh, an educational creator focused on practical, safe AI use, and published by Moodily Store. Every factual claim is written to be verified, and tool details are dated so you can re-check them."
+      "a": "It is written by AI with Saurabh Kr, an educational creator focused on practical, safe AI use, and published by Moodily Store. Every factual claim is written to be verified, and tool details are dated so you can re-check them."
     },
     {
       "q": "What is your refund policy?",
@@ -107,7 +107,7 @@
   "local-business": [
     {
       "q": "Google Business Profile बनाने की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Starter {{price:digital-business-starter}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Starter {{price:digital-business-starter}} (fixed price)।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -359,7 +359,7 @@
   "google-whatsapp": [
     {
       "q": "Google Business Profile की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Quick Fix {{price:google-business-fix}} से शुरू।"
+      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Quick Fix {{price:google-business-fix}} (fixed price)।"
     },
     {
       "q": "Verification कौन करेगा?",
@@ -383,7 +383,7 @@
     },
     {
       "q": "Setup के बाद हर महीने मदद मिलेगी?",
-      "a": "हाँ, अगर चाहें। Digital Saathi Monthly {{price:digital-saathi-monthly}}/महीना से Google posts, reviews के जवाब के drafts, timing/offer updates और monthly report संभालता है। Ads का खर्च और printing इसमें शामिल नहीं हैं।"
+      "a": "हाँ, अगर चाहें। Digital Saathi Monthly ({{price:digital-saathi-monthly}}/महीना, fixed price) Google posts, reviews के जवाब के drafts, timing/offer updates और monthly report संभालता है। Ads का खर्च और printing इसमें शामिल नहीं हैं।"
     }
   ],
   "whatsapp-business": [
@@ -413,7 +413,7 @@
     },
     {
       "q": "Google listing भी साथ में ठीक करवानी हो तो?",
-      "a": "तब Digital Starter {{price:digital-business-starter}} से बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
+      "a": "तब Digital Starter ({{price:digital-business-starter}}, fixed price) बेहतर रहता है — इसमें Google Business Profile, WhatsApp Business, QR codes और digital visiting card एक साथ हैं। सिर्फ़ Google के लिए Google Business Profile page देखें।"
     }
   ],
   "brochure-catalogue": [

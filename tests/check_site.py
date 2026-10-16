@@ -112,6 +112,13 @@ def check_prices(pages):
     services = json.loads((ROOT / "src/data/services.json").read_text(encoding="utf-8"))["services"]
     offer = site.get("offer") or {}
 
+    # Price TYPE must match the registry: a fixed ('exact') price is never worded as a starting price ("से" / "से शुरू").
+    exact_ids = {sv["id"] for sv in services if sv.get("price_mode") == "exact"}
+    for f in sorted((ROOT / "src/pages").rglob("*.html")) + [ROOT / "src/data/faqs.json"]:
+        for m in re.finditer(r"\{\{price:([a-z0-9-]+)\}\}(/महीना)?\s*से", f.read_text(encoding="utf-8")):
+            if m.group(1) in exact_ids:
+                fail(str(f.relative_to(ROOT)), "fixed price {} is worded as a starting price ('से')".format(m.group(1)))
+
     # Service prices must come from services.json via {{price:}}. Digital-product prices are a separate
     # registry (src/data/products.json → *_edition), so those declared ₹ amounts (and ₹0 = "free") are allowed on store pages.
     digital_ok = {0}
