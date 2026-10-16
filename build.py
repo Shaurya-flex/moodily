@@ -343,6 +343,20 @@ def client_provides(svc):
     return svc.get("client_provides") or CLIENT_PROVIDES.get(svc["category"], "")
 
 
+def clip(text, limit=155):
+    """Shorten to whole words within `limit` characters (search results cut longer descriptions mid-sentence)."""
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    cut = text[:limit - 1]
+    return cut[:cut.rfind(" ")].rstrip(" ,;:—-") + "…"
+
+
+def e_label(smp):
+    """Plain sample label for meta text: 'Concept sample', 'Self-initiated' or 'Moodily का अपना project'."""
+    return SAMPLE_TYPE[smp["sample_type"]][0]
+
+
 def scope_note_html():
     return '<p class="scope-note small muted">{}<br><span lang="en">{}</span></p>'.format(e(SCOPE_NOTE["hi"]), e(SCOPE_NOTE["en"]))
 
@@ -1590,6 +1604,29 @@ def c_finder(args, ctx):
             '<p class="finder-all"><button type="button" class="btn btn-outline" data-finder-all hidden>सभी {n} services दिखाएँ</button></p>'
             '{pay}{scope}').format(types=types, chips=chips, cards="".join(cards), suggest=suggest, n=len(order),
                                     pay=PAY_NOTE if paid else "", scope=scope_note_once(ctx))
+
+
+def c_guide_next(args, ctx):
+    """End of a guide: the services that do this work (own price and type), one related sample, then audit + WhatsApp."""
+    rows = []
+    for sid in split_ids(args["services"]):
+        if sid not in SERVICES or not SERVICES[sid].get("active", True):
+            raise SystemExit("@guide-next: unknown or inactive service {} in {}".format(sid, ctx["file"]))
+        x = SERVICES[sid]
+        rows.append('<li><a href="{page}#{id}" data-track="service_card_click" data-label="guide:{id}"><span>{name}</span><strong>{price}</strong></a></li>'.format(
+            page=x["page"], id=sid, name=e(x["name"]), price=e(price_label(x) + (" · fixed" if x.get("price_mode") == "exact" else ""))))
+    sample = ""
+    if args.get("sample"):
+        smp = SAMPLES.get(args["sample"])
+        if not smp or smp.get("status") != "published":
+            raise SystemExit("@guide-next: unknown sample {} in {}".format(args["sample"], ctx["file"]))
+        sample = ('<p class="small guide-sample">मिलता-जुलता sample: <a href="/samples/{0}/" data-track="sample_card_click" data-label="guide:{0}">{1} →</a> '
+                  '<span class="muted">({2})</span></p>').format(smp["slug"], e(smp["catalogue_title"]), e(SAMPLE_TYPE[smp["sample_type"]][0]))
+    audit = "" if args.get("audit") == "no" else (
+        '<a class="btn btn-outline" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="guide-next">मुफ़्त Digital Audit लें</a>')
+    return ('<div class="guide-next"><p class="guide-next-h">इस काम से जुड़ी services</p><ol class="start-here">{rows}</ol>{sample}'
+            '<div class="card-actions">{audit}{wa}</div></div>').format(
+        rows="".join(rows), sample=sample, audit=audit, wa=wa_button("WhatsApp पर पूछें", track_label="guide-next", cls="btn btn-wa"))
 
 
 def c_estimator(args, ctx):
@@ -3301,7 +3338,7 @@ COMPONENTS = {
     "workflow": c_workflow, "flow-diagram": c_flow_diagram, "ai-ladder": c_ai_ladder,
     "task-matrix": c_task_matrix, "checklist": c_checklist, "resource-index": c_resource_index,
     "resources-teaser": c_resources_teaser, "intl-services": c_intl_services, "intl-pricing": c_intl_pricing, "intl-price-note": c_intl_price_note, "intl-notice": c_intl_notice, "intl-process": c_intl_process, "intl-portfolio": c_intl_portfolio, "intl-labels": c_intl_labels, "intl-payments": c_intl_payments, "intl-founder": c_intl_founder, "intl-faq": c_intl_faq, "intl-cta": c_intl_cta, "intl-contact-line": c_intl_contact_line, "intl-intake": c_intl_intake, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
-    "customer-router": c_customer_router, "finder": c_finder, "estimator": c_estimator,
+    "customer-router": c_customer_router, "guide-next": c_guide_next, "finder": c_finder, "estimator": c_estimator,
 }
 
 TOKEN_RE = re.compile(r"<!--@([\w-]+)(.*?)-->", re.S)
@@ -3365,9 +3402,10 @@ def org_schema():
     if SITE["legal"].get("address_city"):
         org["address"] = {"@type": "PostalAddress", "addressLocality": SITE["legal"]["address_city"], "addressCountry": "IN"}
     if SITE["founder"].get("name"):
-        founder = {"@type": "Person", "name": SITE["founder"]["name"]}
-        if SITE["founder"].get("linkedin"):
-            founder["sameAs"] = [SITE["founder"]["linkedin"]]
+        founder = {"@type": "Person", "name": SITE["founder"]["name"], "jobTitle": SITE["founder"].get("role", "Founder")}
+        same = [u for u in (SITE["founder"].get("linkedin"), AI_WITH_SAURABH) if u]  # the YouTube channel is linked on the site and in the bio
+        if same:
+            founder["sameAs"] = same
         org["founder"] = founder
     return org
 
@@ -3375,7 +3413,7 @@ def org_schema():
 def page_schema(meta, route, ctx):
     url = BASE + route
     graph = []
-    if route in ("/", "/about/"):
+    if route in ("/", "/about/", INTL_PREFIX, INTL_PREFIX + "about/"):
         graph.append(org_schema())
     if route == "/":
         graph.append({"@type": "WebSite", "@id": BASE + "/#website", "url": BASE + "/", "name": SITE["name"],
@@ -3420,7 +3458,7 @@ def page_schema(meta, route, ctx):
                       "inLanguage": meta.get("lang", "hi"), "datePublished": meta["article"]["published"],
                       "dateModified": meta["article"].get("modified", meta["article"]["published"]),
                       "author": ({"@type": "Person", "name": SITE["article_author"]} if SITE.get("article_author") else {"@id": ORG_ID}),
-                      "publisher": {"@id": ORG_ID}, "mainEntityOfPage": url, "image": BASE + meta.get("og_image", "/assets/img/og-moodily.png")})
+                      "publisher": {"@id": ORG_ID}, "mainEntityOfPage": url, "image": BASE + meta.get("og_image", og_default(route))})
         if not any(n.get("@id") == ORG_ID for n in graph):
             graph.append({"@type": "Organization", "@id": ORG_ID, "name": SITE["name"], "url": BASE + "/"})
     if not graph:
@@ -3590,12 +3628,24 @@ def ls_affiliate():
             '<script src="https://lmsqueezy.com/affiliate.js" defer></script>').format(e(slug))
 
 
+OG_ALT = {"/assets/img/og-india.png": "Moodily — website, Google Business और WhatsApp setup, साफ़ price के साथ",
+          "/assets/img/og-services.png": "Moodily services — हर service पर साफ़ price type",
+          "/assets/img/og-samples.png": "Moodily samples — साफ़ label वाले project और concept demos",
+          "/assets/img/og-guides.png": "Moodily Hindi guides — पहले काम की जानकारी, फिर सलाह"}
+OG_BY_SECTION = [("/services/", "og-services"), ("/samples/", "og-samples"), ("/guides/", "og-guides"), ("/insights/", "og-guides")]
+
+
+def og_default(route):
+    """Share image for an India page: one per section (services, samples, guides/insights), otherwise the India card."""
+    return "/assets/img/{}.png".format(next((img for prefix, img in OG_BY_SECTION if route.startswith(prefix)), "og-india"))
+
+
 def layout(meta, body, route, ctx):
     lang = meta.get("lang", "hi")
     intl = is_intl(route)
     canonical = BASE + route
     robots = '<meta name="robots" content="noindex, follow">' if meta.get("noindex") else '<meta name="robots" content="index, follow, max-image-preview:large">'
-    og_img = BASE + meta.get("og_image", "/assets/img/og-moodily-international.png" if intl else "/assets/img/og-moodily.png")
+    og_img = BASE + meta.get("og_image", "/assets/img/og-moodily-international.png" if intl else og_default(route))
     analytics = not meta.get("no_analytics")
     view = meta.get("track_view")
     view_attr = ' data-view-event="{}" data-view-label="{}"'.format(e(view[0]), e(view[1])) if view else ""
@@ -3650,7 +3700,7 @@ def layout(meta, body, route, ctx):
            footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
-           og_alt="Moodily International — digital journey and customer education studio" if intl else "Moodily — digital services, samples and starting prices",
+           og_alt="Moodily International — digital journey and customer education studio" if intl else OG_ALT[og_default(route)],
            body_cls=' class="intl"' if intl else "",
            offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE and not intl else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
@@ -3748,9 +3798,13 @@ def sample_page(smp):
         fmtnote=('<p class="small muted sample-fmt">Formats: {}</p>'.format(e(", ".join(FORMATS[f] for f in smp.get("formats", [])))) if smp.get("formats") else ""))
 
     price_bit = " — {}".format(price_label(svc)) if svc else ""
-    meta = {"title": "{} sample{} | Moodily".format(smp["catalogue_title"], price_bit),
-            "description": "{} {} Moodily इसे आपके business के लिए customize करता है — starting price, delivery time और formats साफ़ लिखे हैं।".format(
-                smp.get("solves", "")[:110], smp.get("who", "")[:70]),
+    title = "{} sample{} | Moodily".format(smp["catalogue_title"], price_bit)
+    if len(title) > 65:
+        title = "{} | Moodily sample".format(smp["catalogue_title"])
+    if len(title) > 65:
+        title = "{} | Moodily".format(smp["catalogue_title"])
+    meta = {"title": title,
+            "description": clip("{} — {}{}। {}".format(smp["catalogue_title"], e_label(smp), " · " + price_label(svc) if svc else "", smp.get("solves", ""))),
             "lang": "hi", "breadcrumbs": [["Samples", "/samples/"], [smp["catalogue_title"], "/samples/{}/".format(smp["slug"])]],
             "track_view": ["sample_detail_view", smp["slug"]], "sample": smp["slug"],
             "schema_services": [svc["id"]] if svc else []}

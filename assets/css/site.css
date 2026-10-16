@@ -1344,3 +1344,8 @@ details.svc-terms-d .svc-terms{margin:10px 0 0}
 }
 @media (max-width:640px){.tiers{padding-top:16px}}
 .finder-grid>.cat-custom{order:2}
+.guide-next{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.guide-next-h{font-weight:700;margin:0 0 .5em}
+.guide-next .start-here{grid-template-columns:1fr}
+.guide-sample{margin:.8em 0 0}
+.guide-next .start-here strong{white-space:nowrap}
