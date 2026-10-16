@@ -35,6 +35,9 @@
   --space-section:clamp(44px,5.2vw,76px);--space-gap:clamp(14px,1.4vw,18px);
   --wrap:1200px;--gutter:clamp(16px,3.4vw,32px);
   --tap:44px;
+  /* hero (shared by the India and International heroes) */
+  --hero-pad-top:clamp(28px,4vw,64px);--hero-pad-bottom:clamp(32px,4vw,56px);--hero-gap:clamp(28px,3.4vw,56px);
+  --hero-h1:clamp(2rem,4.1vw,3.25rem);--hero-lead:clamp(1.04rem,1.45vw,1.2rem);--hero-visual-r:28px;
   color-scheme:light;
 }
 [data-theme="dark"]{
@@ -1001,17 +1004,18 @@ details.evidence-note p{margin:10px 0 0}
 }
 
 /* hero v2 */
-.hero-v2{padding:clamp(28px,4vw,64px) 0 clamp(32px,4vw,56px)}
-.hero-v2 .herogrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
-.hero-v2 h1{font-size:clamp(2rem,4.1vw,3.25rem);line-height:1.07;letter-spacing:-.022em;max-width:17ch;text-wrap:balance;margin-bottom:.45em}
-.hero-v2 .lead{max-width:46ch;font-size:clamp(1.04rem,1.45vw,1.2rem)}
+.hero-v2{padding:var(--hero-pad-top) 0 var(--hero-pad-bottom)}
+.hero-v2 .herogrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--hero-gap);align-items:center}
+.hero-v2 h1{font-size:var(--hero-h1);line-height:1.07;letter-spacing:-.022em;max-width:17ch;text-wrap:balance;margin-bottom:.45em}
+.hero-v2 .lead{max-width:46ch;font-size:var(--hero-lead)}
 .hero-hi{font-size:.98rem;color:var(--ink-2);margin:-.2em 0 1.1em}
 .hero-alt{font-size:.94rem;margin:0}
 .hero-alt a{font-weight:600}
 .hero-visual{margin:0}
-.hero-visual img{display:block;width:100%;height:auto;border-radius:28px}
+.hero-visual img{display:block;width:100%;height:auto;border-radius:var(--hero-visual-r)}
 .hero-visual figcaption{font-size:.8rem;color:var(--ink-2);margin-top:8px;text-align:right}
 @media (max-width:900px){.hero-v2 .herogrid{grid-template-columns:1fr}.hero-visual{max-width:560px}}
+@media (max-width:599px){.hero-visual img{border-radius:22px}.hero-visual figcaption{text-align:left}}
 
 /* section heads used by the redesign */
 .head-v2{max-width:62ch;margin-bottom:clamp(18px,2.2vw,28px)}

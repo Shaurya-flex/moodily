@@ -2822,11 +2822,28 @@ def en_price(svc):
     return amount if svc.get("price_mode") == "exact" else "From " + amount
 
 
+HERO_VISUALS = {
+    # One composition, two journeys: India = found → understood → contacted; International = clear page → understood → ready to act.
+    "india": ("/assets/img/illustrations/hero-journey.svg",
+              "Illustrative demo: a customer finds a fictional optician on a map, reads a clear service page with visit times, "
+              "then sends an appointment request that the shop confirms later.",
+              "Illustrative demo — a fictional business, not client work."),
+    "international": ("/assets/img/illustrations/hero-international.svg",
+                      "Illustrative demo in three steps. 1, clear page: a fictional product's public page says what it does, with "
+                      "'See features' and 'How it works'. 2, understood: a getting-started tutorial shows three steps — create workspace, "
+                      "invite your team, track requests — with captions and chapters. 3, ready to act: the visitor requests a walkthrough "
+                      "at a time in their own time zone, and the team confirms by email.",
+                      "Illustrative demo — fictional product, not client work."),
+}
+
+
 def c_hero_visual(args, ctx):
-    return ('<figure class="hero-visual"><img src="/assets/img/illustrations/hero-journey.svg" width="640" height="540" '
-            'alt="Illustrative demo: a customer finds a fictional optician on a map, reads a clear service page with visit times, '
-            'then sends an appointment request that the shop confirms later." fetchpriority="high" decoding="async">'
-            '<figcaption>Illustrative demo — a fictional business, not client work.</figcaption></figure>')
+    """Hero illustration: a wide composition from 600 px up, a stacked phone version below (legible text at 360–430 px)."""
+    src, alt, caption = HERO_VISUALS[args.get("variant", "india")]
+    mobile = src.replace(".svg", "-mobile.svg")
+    return ('<figure class="hero-visual"><picture><source media="(max-width: 599px)" srcset="{m}" width="360" height="400">'
+            '<img src="{src}" width="640" height="540" alt="{alt}" fetchpriority="high" decoding="async"></picture>'
+            '<figcaption>{cap}</figcaption></figure>').format(m=mobile, src=src, alt=e(alt), cap=e(caption))
 
 
 def c_who_we_help(args, ctx):
