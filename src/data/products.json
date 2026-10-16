@@ -16,11 +16,13 @@
     "regular_price": "14.99",
     "currency": "USD",
     "checkout_url": "https://aiwithsaurabh.lemonsqueezy.com/checkout/buy/3108cb76-ba59-47d5-92e4-52a74cb974bd",
-    "ls_store": "aiwithsaurabh"
+    "ls_store": "aiwithsaurabh",
+    "schema": {"name": "Practical AI for Everyday Life & Work — Global Edition", "description": "A plain-English guide to using AI safely in everyday life and work: 25 real workflows, 30 copy-ready prompts, a $0 free-tool stack and a scam-safety system. Instant PDF download.", "inLanguage": "en", "numberOfPages": 41, "url": "https://moodily.in/store/practical-ai-life-work-global/", "author": "AI with Saurabh Kr"}
   },
   "india_edition": {
     "_readme": "Display tiers for the India Edition (@buy-india). The amount charged is resolved server-side by the payments Worker from assets/data/digital-catalog.json, never from the browser; keep these strings in step with it. Buttons go live only when site.json payments.api_base is set and mode is 'live'; otherwise a waitlist button. A tier with \"hidden\": true is not shown (add it to digital-catalog.json as well once its file is ready).",
     "product_id": "ai-parents-india",
+    "schema": {"name": "AI for Parents & Senior Citizens in India (Hindi-English)", "description": "बुज़ुर्गों और parents के लिए practical AI guide: रोज़मर्रा के 25 workflows, 30 copy-paste Hindi prompts, ₹0 free-tool stack और scam-safety। Voice-first, smartphone पर।", "inLanguage": "hi", "numberOfPages": 98, "url": "https://moodily.in/store/ai-for-parents-senior-citizens-india/", "author": "AI with Saurabh Kr"},
     "currency": "INR",
     "tiers": [
       {"edition": "full", "license": "founding", "price": "99", "label": "Full Guide — Founding launch", "note": "पूरी 98-पेज guide · single-user personal licence", "featured": true},
