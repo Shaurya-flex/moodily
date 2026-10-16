@@ -16,6 +16,7 @@ See _project/05-content-editing.md for the full list.
 import collections
 import hashlib
 import html
+import html as html_mod
 import json
 import os
 import re
@@ -3378,6 +3379,46 @@ def render_tokens(body, ctx):
     return VAR_RE.sub(var, body)
 
 
+# ---------------------------------------------------------------- responsive tables
+TABLE_RE = re.compile(r'<table([^>]*)>(.*?)</table>', re.S)
+CELL_RE = re.compile(r'<(td|th)(\s[^>]*)?>', re.S)
+
+
+def stack_tables(html):
+    """Every table with a header row can stack on phones (CSS .stack-sm): each body cell gets its column name as
+    data-label, and explicit ARIA table roles keep the table readable to screen readers when CSS changes the display."""
+    def one(m):
+        attrs, inner = m.group(1), m.group(2)
+        head = re.search(r'<thead>(.*?)</thead>', inner, re.S)
+        if not head or "stack-sm" in attrs:
+            return m.group(0)
+        labels = [html_mod.unescape(re.sub(r"<[^>]+>", "", c)).strip() for c in re.findall(r'<th[^>]*>(.*?)</th>', head.group(1), re.S)]
+
+        def row(rm):
+            col = [0]
+
+            def cell(cm):
+                tag, a = cm.group(1), cm.group(2) or ""
+                span = int((re.search(r'colspan="(\d+)"', a) or [0, 1])[1])
+                i = col[0]
+                col[0] += span
+                role = "rowheader" if ('scope="row"' in a or 'scope="rowgroup"' in a) else ("columnheader" if tag == "th" and span == 1 and in_head[0] else "cell")
+                extra = ' role="{}"'.format(role) if "role=" not in a else ""
+                if tag == "td" and "data-label" not in a and span == 1 and i < len(labels) and labels[i]:
+                    extra += ' data-label="{}"'.format(e(labels[i]))
+                return "<{}{}{}>".format(tag, a, extra)
+            return '<tr role="row"{}>'.format(rm.group(1)) + CELL_RE.sub(cell, rm.group(2))
+        in_head = [True]
+        head_html = re.sub(r'<tr([^>]*)>(.*?)(?=</tr>)', row, head.group(1), flags=re.S)
+        in_head[0] = False
+        body_html = re.sub(r'<tr([^>]*)>(.*?)(?=</tr>)', row, inner[head.end():], flags=re.S)
+        body_html = body_html.replace("<tbody>", '<tbody role="rowgroup">', 1)
+        cls = re.search(r'class="([^"]*)"', attrs)
+        attrs = attrs.replace(cls.group(0), 'class="{} stack-sm"'.format(cls.group(1))) if cls else attrs + ' class="stack-sm"'
+        return '<table{} role="table">{}<thead role="rowgroup">{}</thead>{}</table>'.format(attrs, inner[:head.start()], head_html, body_html)
+    return TABLE_RE.sub(one, html)
+
+
 # ---------------------------------------------------------------- schema
 # One entity definition, reused by Organization and WebSite schema (keep in step with the homepage hero, About and footer).
 ORG_DESCRIPTION = "Moodily is a digital-services platform that helps businesses, professionals, creators, educators, students and individuals get practical digital work done — Google Business Profile, WhatsApp Business, websites and landing pages, presentations, brochures and catalogues, invitations and design, educational material, research and AI-assisted workflows. Hindi + English. It also runs Moodily Learn, an optional free AI learning path."
@@ -3976,7 +4017,7 @@ def main():
         for sid in meta.get("schema_services", []):
             if sid in SERVICES and SERVICES[sid] not in ctx["services"]:
                 ctx["services"].append(SERVICES[sid])
-        html_out = layout(meta, render_tokens(body, ctx), route, ctx)
+        html_out = stack_tables(layout(meta, render_tokens(body, ctx), route, ctx))
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html_out, encoding="utf-8")
         written.append(str(out.relative_to(ROOT)))
