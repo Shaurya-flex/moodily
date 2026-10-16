@@ -7,7 +7,7 @@
       "title": "Local businesses in India",
       "lead": "Get found on Google, show what you sell and receive enquiries on WhatsApp.",
       "points": ["Google Business Profile and WhatsApp Business", "Websites, catalogues and brochures", "Fixed prices in rupees and a written scope"],
-      "cta": ["See India packages", "/#packages"],
+      "cta": ["See India packages", "/#popular"],
       "more": ["All services", "/services/"],
       "icon": "shop"
     },
@@ -52,7 +52,7 @@
       "alt_before": "Before: a cluttered page for a fictional hardware shop with no opening hours, no clear buttons and a phone number hidden inside a banner image.",
       "alt_after": "After: the same fictional shop with today's opening hours, WhatsApp, call and directions buttons, a four-part catalogue and a note on how to ask for prices.",
       "shows": ["Opening hours and location at the top", "One-tap WhatsApp, call and directions", "A short catalogue instead of a wall of text"],
-      "link": ["Packages for local businesses", "/#packages"]
+      "link": ["Packages for local businesses", "/#popular"]
     },
     {
       "id": "dental",
@@ -81,5 +81,180 @@
     {"title": "Build", "text": "Work happens in agreed stages, in your own accounts through delegated access. We never ask for passwords."},
     {"title": "Review", "text": "You review at agreed points. Consolidated feedback goes into the revision rounds in your scope."},
     {"title": "Handover", "text": "Final files and accounts stay in your name. Exactly what you receive is listed in your scope."}
+  ],
+  "need_cards": [
+    {
+      "id": "google",
+      "icon": "pin",
+      "title": "Google पर दिखना है",
+      "sub": "Google Business Profile ठीक करवाइए — सही category, समय, photos और reviews माँगने का तरीका।",
+      "links": [
+        [
+          "Google Business Quick Fix",
+          "/services/google-business-profile/#google-business-fix"
+        ],
+        [
+          "Local business setup",
+          "/services/local-business-digitalization/"
+        ]
+      ],
+      "price_services": [
+        "google-business-fix"
+      ],
+      "href": "/services/google-business-profile/"
+    },
+    {
+      "id": "website",
+      "icon": "web",
+      "title": "Website या landing page",
+      "sub": "एक साफ़ page जहाँ ग्राहक services, price और contact देख सकें।",
+      "links": [
+        [
+          "Landing page",
+          "/services/business-website/#landing-page"
+        ],
+        [
+          "Business website",
+          "/services/business-website/#business-website"
+        ]
+      ],
+      "price_services": [
+        "landing-page",
+        "business-website"
+      ],
+      "href": "/services/business-website/"
+    },
+    {
+      "id": "whatsapp",
+      "icon": "chat",
+      "title": "WhatsApp पर enquiry",
+      "sub": "WhatsApp Business profile, catalogue, quick replies और QR code।",
+      "links": [
+        [
+          "WhatsApp Business Basic",
+          "/services/whatsapp-business/#whatsapp-business-setup"
+        ],
+        [
+          "Digital Starter",
+          "/services/local-business-digitalization/#digital-business-starter"
+        ]
+      ],
+      "price_services": [
+        "whatsapp-business-setup"
+      ],
+      "href": "/services/whatsapp-business/"
+    },
+    {
+      "id": "design",
+      "icon": "design",
+      "title": "Design और business material",
+      "sub": "Brochure, catalogue, visiting card, poster और digital invitation।",
+      "links": [
+        [
+          "Brochure / catalogue",
+          "/services/brochure-catalogue/"
+        ],
+        [
+          "Visiting card, poster",
+          "/services/design/"
+        ],
+        [
+          "Invitation",
+          "/services/digital-invitation/"
+        ]
+      ],
+      "price_services": [
+        "digital-visiting-card",
+        "business-brochure",
+        "invitation-digital"
+      ],
+      "href": "/services/design/"
+    },
+    {
+      "id": "content",
+      "icon": "slides",
+      "title": "PPT और content",
+      "sub": "Presentation, social media posts और पढ़ाई का material।",
+      "links": [
+        [
+          "PPT design",
+          "/services/presentation-design/"
+        ],
+        [
+          "Social media",
+          "/services/social-media-design/"
+        ],
+        [
+          "Education content",
+          "/services/education-content/"
+        ]
+      ],
+      "price_services": [
+        "presentation-design-only",
+        "social-creative-single"
+      ],
+      "href": "/services/presentation-design/"
+    },
+    {
+      "id": "research-ai",
+      "icon": "spark",
+      "title": "Research या AI workflow",
+      "sub": "Market research, reports और AI से रोज़ का काम आसान करने वाले workflows।",
+      "links": [
+        [
+          "Research",
+          "/services/research-intelligence/"
+        ],
+        [
+          "AI workflows",
+          "/services/ai-workflows/"
+        ]
+      ],
+      "price_services": [
+        "research-intelligence-sprint",
+        "ai-automation-starter"
+      ],
+      "href": "/services/research-intelligence/"
+    }
+  ],
+  "need_unsure": {
+    "title": "पता नहीं क्या चाहिए?",
+    "sub": "Free Digital Audit लीजिए — हम आपका Google, WhatsApp और website देखकर बताएँगे कि पहले क्या करना चाहिए।",
+    "cta": "Free Audit लें",
+    "href": "/contact/?service=free-digital-audit"
+  },
+  "flow": [
+    {
+      "title": "ज़रूरत बताइए",
+      "text": "Form, WhatsApp या call — क्या चाहिए और कब तक।"
+    },
+    {
+      "title": "सही service",
+      "text": "हम बताते हैं कौन-सा package या service ठीक रहेगा।"
+    },
+    {
+      "title": "Sample देखें",
+      "text": "मिलता-जुलता sample, ताकि साफ़ हो क्या मिलेगा।"
+    },
+    {
+      "title": "Requirement भेजें",
+      "text": "Business की जानकारी, photos और reference।"
+    },
+    {
+      "title": "Quote या payment",
+      "text": "Fixed price वाले काम में सीधा payment; बाकी में लिखित quote।"
+    },
+    {
+      "title": "Delivery",
+      "text": "तय समय में files और links; accounts आपके नाम पर।"
+    }
+  ],
+  "popular": [
+    "free-digital-audit",
+    "digital-action-blueprint",
+    "google-business-fix",
+    "whatsapp-business-setup",
+    "digital-business-starter",
+    "landing-page"
   ]
 }

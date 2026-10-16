@@ -1217,3 +1217,85 @@ body.intl section.intl-tight{padding-block:clamp(28px,3.6vw,48px)}
 .steps-plain{padding-left:1.3em;margin:1em 0 1.2em}
 .steps-plain li{margin-bottom:1em}
 .steps-plain .btn-row{margin:.6em 0 0}
+
+/* =====================================================================================
+   Phase 2 — India homepage: need cards, popular services, samples strip, flow, founder strip
+   ===================================================================================== */
+/* header: International sits apart from the India links (different context, same brand) */
+.nav-intl-item{margin-left:4px;padding-left:clamp(10px,1.2vw,18px);border-left:1px solid var(--border)}
+.nav-intl-item a{color:var(--primary)!important}
+
+/* मुझे चाहिए… */
+.need2-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:960px){.need2-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.need2-grid{grid-template-columns:1fr;gap:10px}}
+.need2{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;transition:box-shadow .18s ease,border-color .18s ease}
+.need2:hover{box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--primary) 35%,var(--border))}
+.need2-icon{flex:none;display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--primary-soft);color:var(--primary)}
+.need2-body{min-width:0}
+.need2 h3{font-size:1.08rem;margin:2px 0 .25em}
+.need2 h3 a{color:var(--ink);text-decoration:none}
+.need2 h3 a:hover{color:var(--primary);text-decoration:underline}
+.need2-sub{font-size:.92rem;color:var(--ink-2);margin:0 0 .5em}
+.need2-links{list-style:none;margin:0 0 .4em;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.need2-links a{display:inline-block;font-size:.84rem;font-weight:600;padding:3px 10px;border-radius:var(--r-pill);background:var(--paper-2);border:1px solid var(--border);text-decoration:none;color:var(--ink)}
+.need2-links a:hover{border-color:var(--primary);color:var(--primary)}
+.need2-price{margin:0 0 .35em;font-size:.86rem;font-weight:700;color:var(--secondary)}
+@media (max-width:640px){.need2{padding:12px 14px}.need2-sub{display:none}.need2-icon{width:36px;height:36px}}
+.need2-unsure{margin-top:var(--space-gap);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;background:var(--panel);color:#fff;border-radius:var(--r-lg);padding:18px 22px}
+.need2-unsure h3{color:#fff;margin:0 0 .2em}
+.need2-unsure p{margin:0;color:#d9d6f2;max-width:62ch}
+
+/* popular services (service-card standard) */
+.pop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-gap)}
+@media (max-width:960px){.pop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pop-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;display:flex;flex-direction:column;transition:box-shadow .18s ease}
+.pop-card:hover{box-shadow:var(--shadow)}
+.pop-card h3{font-size:1.12rem;margin:0 0 .25em}
+.pop-card h3 a{color:var(--ink);text-decoration:none}
+.pop-card h3 a:hover{color:var(--primary);text-decoration:underline}
+.pop-result{font-size:.92rem;color:var(--ink-2);margin:0 0 .5em}
+.pop-card .price{margin:.1em 0 .2em}
+.pop-meta{font-size:.84rem;color:var(--ink-2);margin:0 0 .8em}
+.pop-actions{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.pop-more{font-size:.88rem;font-weight:600}
+.pop-all{margin:var(--space-gap) 0 0}
+#popular .pay-note,#popular .pay-next{margin-top:.6em}
+
+/* phones: popular services and home samples become a swipeable row (each card shows the next one peeking in) */
+@media (max-width:640px){
+  .pop-grid,#samples .sample-grid,.work-swipe{display:grid;grid-auto-flow:column;grid-auto-columns:82%;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+    gap:12px;padding:4px 2px 12px;margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);overscroll-behavior-x:contain}
+  .pop-grid>*,#samples .sample-grid>*,.work-swipe>*{scroll-snap-align:start}
+  .pop-result{display:none}
+}
+
+/* published work list under the samples */
+.work-strip{margin-top:var(--space-gap);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px}
+.work-strip-h{font-size:.74rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);margin:0 0 .5em}
+.work-strip ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.work-strip li{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.work-strip .label-chip{margin:0}
+.work-strip a{font-weight:600}
+.work-strip-type{font-size:.84rem;color:var(--ink-2)}
+
+/* how it works: need → service → sample → requirement → quote/payment → delivery */
+.flow6{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-gap)}
+.flow6 li{position:relative}
+.flow6-n{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;font-family:var(--font-display);font-weight:700;margin-bottom:8px;position:relative;z-index:1}
+[data-theme="dark"] .flow6-n{color:#101220}
+.flow6 li:not(:last-child)::after{content:"";position:absolute;top:18px;left:44px;right:-8px;height:2px;background:repeating-linear-gradient(90deg,var(--border-strong) 0 6px,transparent 6px 12px)}
+.flow6 h3{font-size:1rem;margin:0 0 .2em}
+.flow6 p{font-size:.9rem;color:var(--ink-2);margin:0}
+@media (max-width:960px){.flow6{grid-template-columns:repeat(3,minmax(0,1fr))}.flow6 li::after{display:none}}
+@media (max-width:640px){.flow6{grid-template-columns:1fr;gap:12px}.flow6 li{display:grid;grid-template-columns:36px 1fr;column-gap:12px}.flow6-n{grid-row:1/3;margin:0}.flow6 h3{margin-top:6px}}
+
+/* founder strip in the quality section */
+.founder-strip{display:flex;align-items:center;gap:14px;margin-top:var(--space-gap);background:var(--paper-2);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 16px}
+.founder-strip .founder-photo{width:56px;height:56px;max-width:none;border-radius:50%;flex:none}
+.founder-strip p{margin:0;font-size:.95rem}
+.who-intl{margin-top:14px}
+.need2-chip-price{font-weight:600;color:var(--ink-2)}
+#quality .quality{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:960px){#quality .quality{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){#quality .quality{grid-template-columns:1fr}}
