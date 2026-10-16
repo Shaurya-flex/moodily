@@ -115,11 +115,11 @@
   "local-business": [
     {
       "q": "Google Business Profile बनाने की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है। Moodily setup, optimization, design, management और support के लिए charge करता है — Digital Starter {{price:digital-business-starter}} (fixed price)।"
+      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: सिर्फ़ Google listing ठीक करनी हो तो Google Business Quick Fix {{price:google-business-fix}} (fixed price); Google और WhatsApp दोनों का पूरा setup चाहिए तो Digital Starter {{price:digital-business-starter}} (fixed price)।"
     },
     {
       "q": "Verification कौन करेगा?",
-      "a": "Verification Google आपके business के नाम/नंबर/पते पर करता है, इसलिए वह step आप करते हैं। हम पहले से सब तैयार रखते हैं और हर step पर guide करते हैं।"
+      "a": "Verification Google business owner से करवाता है (video, call या Google जो तरीका दे), इसलिए वह step आप करते हैं। हम पहले से सारी जानकारी तैयार रखते हैं और हर step पर guide करते हैं। Verification में Google की ओर से देरी हो सकती है, जो हमारे नियंत्रण में नहीं।"
     },
     {
       "q": "Listing मेरे नाम पर रहेगी या आपके?",
@@ -127,7 +127,7 @@
     },
     {
       "q": "Reviews खरीदकर या लिखकर देंगे?",
-      "a": "नहीं। Fake या incentivized reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का आसान system (QR + message) बनाते हैं।"
+      "a": "कभी नहीं। Fake या पैसे/offer देकर लिए गए reviews Google की policy के विरुद्ध हैं और listing को नुकसान पहुँचा सकते हैं। हम असली ग्राहकों से review माँगने का QR और message बनाते हैं।"
     }
   ],
   "medical-store": [
@@ -367,7 +367,7 @@
   "google-whatsapp": [
     {
       "q": "Google Business Profile की fees कितनी है?",
-      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: Google Business Quick Fix {{price:google-business-fix}} (fixed price)।"
+      "a": "Google Business Profile Google की ओर से free है — कोई listing या verification fee नहीं होती। Moodily setup, optimization, design और management के लिए charge करता है: सिर्फ़ Google listing ठीक करनी हो तो Google Business Quick Fix {{price:google-business-fix}} (fixed price); Google और WhatsApp दोनों का पूरा setup चाहिए तो Digital Starter {{price:digital-business-starter}} (fixed price)।"
     },
     {
       "q": "Verification कौन करेगा?",

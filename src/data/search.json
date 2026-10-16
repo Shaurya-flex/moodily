@@ -1,0 +1,31 @@
+{
+  "_readme": "Service and sample search. When a card's own text contains a key, the listed words are added to its hidden search text, so Hindi words, common misspellings and short forms find the same services. Add words here, not in page copy.",
+  "synonyms": {
+    "website": ["वेबसाइट", "वेबसाईट", "साइट", "site", "wesbite", "webiste", "websit", "web site", "webpage"],
+    "landing page": ["लैंडिंग पेज", "one page website"],
+    "google": ["गूगल", "googel", "gogle", "maps", "मैप", "मैप्स", "map"],
+    "google business": ["gmb", "gbp", "google my business", "बिज़नेस प्रोफाइल", "business profile"],
+    "whatsapp": ["व्हाट्सएप", "व्हाट्सऐप", "वॉट्सऐप", "वाट्सएप", "watsapp", "whatsap", "whatsaap", "watsap", "whats app", "wa"],
+    "local business": ["दुकान", "dukan", "shop", "store", "shopkeeper", "दुकानदार", "local"],
+    "catalogue": ["catalog", "catlog", "catalouge", "कैटलॉग", "कैटलॉग", "product list", "प्रोडक्ट"],
+    "presentation": ["ppt", "powerpoint", "power point", "प्रेजेंटेशन", "पीपीटी", "slides", "deck"],
+    "logo": ["लोगो", "logo design"],
+    "visiting card": ["विजिटिंग कार्ड", "business card", "vcard"],
+    "brochure": ["ब्रोशर", "brosher", "broucher", "pamphlet", "पैम्फलेट", "flyer"],
+    "poster": ["पोस्टर", "banner", "बैनर"],
+    "invitation": ["निमंत्रण", "इनविटेशन", "invite", "card", "कार्ड", "shaadi", "शादी", "wedding", "वेडिंग"],
+    "social media": ["सोशल मीडिया", "instagram", "इंस्टाग्राम", "insta", "facebook", "फेसबुक", "post", "पोस्ट"],
+    "reel": ["रील", "रील्स", "short", "shorts", "video"],
+    "youtube": ["यूट्यूब", "you tube", "thumbnail", "थंबनेल"],
+    "invoice": ["बिल", "bill", "इनवॉइस", "receipt", "रसीद", "quotation", "कोटेशन"],
+    "research": ["रिसर्च", "शोध", "report", "रिपोर्ट"],
+    "automation": ["ऑटोमेशन", "automate", "ai", "एआई", "workflow"],
+    "coaching": ["कोचिंग", "tuition", "ट्यूशन", "institute", "इंस्टिट्यूट", "teacher", "टीचर"],
+    "study material": ["notes", "नोट्स", "पढ़ाई", "test", "टेस्ट", "quiz", "pdf"],
+    "medical store": ["मेडिकल", "दवा", "दवाई", "chemist", "pharmacy", "फार्मेसी"],
+    "doctor": ["डॉक्टर", "clinic", "क्लिनिक"],
+    "consultant": ["professional", "ca", "lawyer", "वकील", "advisor"],
+    "audit": ["ऑडिट", "check", "जाँच", "free", "मुफ़्त", "फ्री"]
+  },
+  "suggestions": ["website", "Google", "WhatsApp", "PPT", "logo", "catalogue", "invitation"]
+}
