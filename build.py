@@ -1327,7 +1327,7 @@ def c_intake(args, ctx):
            "services": services}
     cfg_json = json.dumps(cfg, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     context = ('<div class="card intake-context" id="intakeContext" hidden><p class="eyebrow">आपने चुना</p>'
-               '<h2 class="intake-service" id="intakeService"></h2><p class="muted small" id="intakeCategory"></p>'
+               '<h2 class="intake-service" id="intakeService">आपकी चुनी हुई service</h2><p class="muted small" id="intakeCategory"></p>'
                '<p class="price" id="intakePrice"></p><p class="notice small" id="intakeSample" hidden></p>'
                '<p class="notice small" id="intakeOffer" hidden></p><p class="notice small" id="intakeEstimate" hidden></p>'
                '<p class="small"><a id="intakeDetails" href="/services/">Package details</a> · <a href="/services/#finder">दूसरी service चुनें</a></p></div>')
@@ -1349,10 +1349,10 @@ def c_intake(args, ctx):
                    cls="btn btn-wa btn-lg btn-block", track_label="intake").replace("<a class=", '<a id="intakeWa" class=', 1)
     return ('<div class="intake" id="intake" data-mode="{mode}"><script type="application/json" id="intakeConfig">{cfg}</script>'
             '<div class="intake-grid"><div class="intake-main">{context}{main}</div>'
-            '<aside class="intake-side"><div class="card"><h2 class="side-h">WhatsApp पर बात करें</h2><p class="small muted">सवाल पूछना है या जल्दी बात करनी है? WhatsApp कीजिए — voice note भी चलेगा। {wa_note}</p>{wa}'
+            '<div class="intake-side"><div class="card"><h2 class="side-h">WhatsApp पर बात करें</h2><p class="small muted">सवाल पूछना है या जल्दी बात करनी है? WhatsApp कीजिए — voice note भी चलेगा। {wa_note}</p>{wa}'
             '<p class="small muted">या email: <a href="mailto:{email}">{email}</a></p></div>'
             '<div class="card"><h2 class="side-h">आगे क्या होगा</h2><ol class="steps-list small"><li>हम आपकी requirement पढ़ते हैं और ज़रूरत हो तो 1–2 सवाल पूछते हैं।</li>'
-            '<li>लिखित scope, timeline, revisions, third-party खर्च और quote भेजते हैं।</li><li>आप हाँ कहें, तभी काम शुरू होता है।</li></ol></div></aside></div></div>').format(
+            '<li>लिखित scope, timeline, revisions, third-party खर्च और quote भेजते हैं।</li><li>आप हाँ कहें, तभी काम शुरू होता है।</li></ol></div></div></div></div>').format(
         mode="google-form" if form_url else "fallback", cfg=cfg_json, context=context, main=main, wa=wa, email=e(SITE["email"]),
         wa_note=("यह बातचीत के लिए है — requirement record करने के लिए ऊपर वाला Form भरिए।" if form_url else
                  "आपका message भेजते ही Moodily तक पहुँच जाता है।"))
@@ -3567,7 +3567,7 @@ def footer(route=""):
 
 
 STICKY_CTA = """
-<a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a>
+<aside class="fab-region" aria-label="WhatsApp"><a class="fab-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="floating" aria-label="WhatsApp पर Moodily से बात करें">{icon}<span>WhatsApp</span></a></aside>
 <nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="mobile-bar">Free Audit लें</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
 
 
@@ -3628,6 +3628,8 @@ def ls_affiliate():
             '<script src="https://lmsqueezy.com/affiliate.js" defer></script>').format(e(slug))
 
 
+MUKTA_400_DEVANAGARI = "https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnArXyw023e1Ik.woff2"
+MUKTA_400_LATIN = "https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnBrXyw023e.woff2"  # keep in step with the @font-face rules at the top of site.css
 OG_ALT = {"/assets/img/og-india.png": "Moodily — website, Google Business और WhatsApp setup, साफ़ price के साथ",
           "/assets/img/og-services.png": "Moodily services — हर service पर साफ़ price type",
           "/assets/img/og-samples.png": "Moodily samples — साफ़ label वाले project और concept demos",
@@ -3645,6 +3647,7 @@ def layout(meta, body, route, ctx):
     intl = is_intl(route)
     canonical = BASE + route
     robots = '<meta name="robots" content="noindex, follow">' if meta.get("noindex") else '<meta name="robots" content="index, follow, max-image-preview:large">'
+    font_preload = MUKTA_400_LATIN if lang == "en" else MUKTA_400_DEVANAGARI
     og_img = BASE + meta.get("og_image", "/assets/img/og-moodily-international.png" if intl else og_default(route))
     analytics = not meta.get("no_analytics")
     view = meta.get("track_view")
@@ -3675,9 +3678,8 @@ def layout(meta, body, route, ctx):
 <link rel="apple-touch-icon" href="/assets/img/moodily-logo-512.png">
 <script>(function(){{try{{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}}catch(e){{}}var oe=document.documentElement.getAttribute('data-offer-ends');if(oe&&Date.now()>Date.parse(oe))document.documentElement.classList.add('offer-ended');document.documentElement.classList.add('js');}})();</script>
 {gtm}
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Mukta:wght@300;400;600;700&display=swap"></noscript>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="{font_preload}" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css?v={ver}">{intl_css}
 {schema}
 <script src="/assets/js/site.js?v={ver}" defer></script>{intl_js}
@@ -3700,7 +3702,7 @@ def layout(meta, body, route, ctx):
            footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
-           og_alt="Moodily International — digital journey and customer education studio" if intl else OG_ALT[og_default(route)],
+           og_alt="Moodily International — digital journey and customer education studio" if intl else OG_ALT[og_default(route)], font_preload=font_preload,
            body_cls=' class="intl"' if intl else "",
            offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE and not intl else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
