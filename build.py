@@ -210,7 +210,10 @@ def starter_ctas(key, where):
             + PAY_NOTE)
 
 
-PAY_NOTE = '<p class="small muted pay-note">Razorpay secure checkout · नई tab में खुलेगा · UPI, card, netbanking</p>'
+PAY_NOTE = ('<p class="small muted pay-note">Razorpay secure checkout · नई tab में खुलेगा · UPI, card, netbanking</p>'
+            '<p class="small pay-next"><strong>Payment के बाद:</strong> Razorpay receipt का Payment ID '
+            '<a href="/payment/received/" data-track="payment_next_steps" data-label="pay-note">यहाँ बताए तरीके से भेजें</a> — '
+            'हम 1 working day में जवाब देंगे।</p>')
 
 
 def quote_cta(svc_id, cls="btn btn-primary", label="लिखित Quote लें", where="", event="growth_quote_requested"):
@@ -625,6 +628,43 @@ def c_faq(args, ctx):
         '<details class="faq"><summary>{}</summary><p>{}</p></details>'.format(e(i["q"]), e(i["a"])) for i in items))
 
 
+def global_checkout_url():
+    """The Global Edition is purchasable only with a Lemon Squeezy /checkout/buy/ link AND the store switch on."""
+    url = ((PRODUCT_DATA.get("global_edition") or {}).get("checkout_url") or "").strip()
+    return url if url.startswith("https://") and "lemonsqueezy.com" in url and PAYMENT_FLAGS.get("lemon_squeezy_store_enabled") else ""
+
+
+def india_checkout_api():
+    """The India Edition is purchasable only when the payments Worker is configured and live (or a local test build)."""
+    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
+    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
+    return api if api and allowed and PAYMENT_FLAGS.get("razorpay_india_enabled", True) else ""
+
+
+def c_product_schema(args, ctx):
+    """Store JSON-LD. A Product with an Offer is published only while the product can actually be bought; until then
+    the page describes the guide as a Book with no offer, price or availability (no "PreOrder" for a closed checkout)."""
+    ed = args["edition"]
+    cfg = PRODUCT_DATA.get(ed + "_edition") or {}
+    sch = cfg["schema"]
+    data = {"@context": "https://schema.org", "@type": "Book", "name": sch["name"], "description": sch["description"],
+            "image": BASE + "/assets/img/og-moodily.png", "author": {"@type": "Person", "name": sch["author"]},
+            "publisher": {"@id": ORG_ID}, "inLanguage": sch["inLanguage"], "bookFormat": "https://schema.org/EBook",
+            "numberOfPages": sch["numberOfPages"], "url": sch["url"]}
+    if ed == "global" and global_checkout_url():
+        data["@type"] = ["Product", "Book"]
+        data["brand"] = {"@type": "Brand", "name": "Moodily"}
+        data["offers"] = {"@type": "Offer", "price": cfg["price"], "priceCurrency": cfg["currency"],
+                          "availability": "https://schema.org/InStock", "url": sch["url"]}
+    elif ed == "india" and india_checkout_api():
+        prices = [int(t["price"]) for t in cfg.get("tiers", []) if not t.get("hidden")]
+        data["@type"] = ["Product", "Book"]
+        data["brand"] = {"@type": "Brand", "name": "Moodily"}
+        data["offers"] = {"@type": "AggregateOffer", "lowPrice": str(min(prices)), "highPrice": str(max(prices)), "priceCurrency": "INR",
+                          "offerCount": len(prices), "availability": "https://schema.org/InStock", "url": sch["url"]}
+    return '<script type="application/ld+json">{}</script>'.format(json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))
+
+
 def c_buy_global(args, ctx):
     """Buy CTA for the Global Edition. Goes live only when BOTH a Lemon Squeezy /checkout/buy/ link is set in
     products.json -> "global_edition"."checkout_url" AND site.json payment_flags.lemon_squeezy_store_enabled is true
@@ -632,8 +672,8 @@ def c_buy_global(args, ctx):
     g = PRODUCT_DATA.get("global_edition", {})
     price = g.get("price", "9.99")
     sym = {"USD": "$", "GBP": "£", "EUR": "€", "AUD": "A$", "CAD": "C$"}.get(g.get("currency", "USD"), "$")
-    url = (g.get("checkout_url") or "").strip()
-    if url.startswith("https://") and "lemonsqueezy.com" in url and PAYMENT_FLAGS.get("lemon_squeezy_store_enabled"):
+    url = global_checkout_url()
+    if url:
         return ('<a class="btn btn-primary" href="{url}" rel="noopener" target="_blank" '
                 'data-track="checkout_click" data-label="practical-ai-global">Get the Global Guide — {sym}{price}</a>'
                 '<p class="small muted">One-time purchase · secure checkout · instant digital access after payment.</p>').format(
@@ -649,9 +689,8 @@ def c_buy_india(args, ctx):
     Worker is deployed with R2/KV provisioned). Otherwise a waitlist CTA, so nothing broken ships."""
     cfg = PRODUCT_DATA.get("india_edition", {})
     pid = cfg.get("product_id", "ai-parents-india")
-    allowed = PAYMENTS.get("mode") == "live" or os.environ.get("MOODILY_SHOW_TEST_PAYMENTS") == "1"
-    api = os.environ.get("MOODILY_CHECKOUT_API") or PAYMENTS.get("api_base") or ""
-    live = bool(api and allowed and PAYMENT_FLAGS.get("razorpay_india_enabled", True))
+    api = india_checkout_api()
+    live = bool(api)
     test = ' <span class="badge">TEST MODE</span>' if live and PAYMENTS.get("mode") != "live" else ""
     cards = []
     tiers = [t for t in cfg.get("tiers", []) if not t.get("hidden")]
@@ -2318,7 +2357,7 @@ def c_resources_teaser(args, ctx):
         '<span class="res-teaser-emoji" aria-hidden="true">{em}</span><strong>{t}</strong>'
         '<span class="small muted">{s}</span></a>'.format(em=em, t=e(t), s=e(sub), who=who)
         for em, t, sub, who in cards)
-    yt = yt_link("AI with SaurabhKr देखें", "small")
+    yt = yt_link("AI with Saurabh Kr देखें", "small")
     return ('<div class="res-teaser">{tiles}</div>'
             '<p class="btn-row"><a class="btn btn-outline" href="/resources/" data-track="resources_view" '
             'data-label="home-teaser">Free AI Resources देखें →</a>{yt}</p>').format(
@@ -2530,7 +2569,7 @@ def c_intl_founder(args, ctx):
     initials = "".join(w[0] for w in f["name"].split()[:2])
     photo = ('<img class="intl-founder-photo" src="{}" alt="{}" width="120" height="120" loading="lazy">'.format(e(f["photo"]), e(f["name"]))
              if f.get("photo") else '<span class="intl-founder-photo is-initials" aria-hidden="true">{}</span>'.format(e(initials)))
-    links = ['<a href="{}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-founder">AI with Saurabh on YouTube ↗</a>'.format(e(f["youtube"]))]
+    links = ['<a href="{}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-founder">AI with Saurabh Kr on YouTube ↗</a>'.format(e(f["youtube"]))]
     if f.get("linkedin"):
         links.append('<a href="{}" target="_blank" rel="noopener">LinkedIn ↗</a>'.format(e(f["linkedin"])))
     note = '<p class="small muted">{}</p>'.format(e(f["channel_note"])) if f.get("channel_note") else ""
@@ -2659,7 +2698,7 @@ def intl_footer(route):
     <div><h2 class="footer-h">Moodily International</h2><ul>{links}</ul></div>
     <div><h2 class="footer-h">Policies</h2><ul>{pol}</ul></div>
     <div><h2 class="footer-h">Moodily</h2><ul><li><a href="/" data-track="main_site_click" data-label="intl-footer">Main site — services in India, in rupees</a></li>
-      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-footer">Learn AI: AI with Saurabh ↗</a></li></ul></div>
+      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="intl-footer">Learn AI: AI with Saurabh Kr ↗</a></li></ul></div>
   </div>
   <p class="footer-bottom small muted">© {year} {entity} · We don't guarantee rankings, leads or revenue — we commit to the scope we agree in writing.</p>
 </div></footer>
@@ -2966,7 +3005,7 @@ def c_founder_feature(args, ctx):
     tele = next((it for it in intl_portfolio_items() if it["id"] == "teleprompter-review"), None)
     proof = ['<li><strong>Founder-led.</strong> You talk to Saurabh from the first message to handover.</li>',
              '<li><strong>Based in India.</strong> Works in Hindi and English; replies within 24 hours on working days.</li>',
-             '<li><strong>AI with Saurabh.</strong> {}</li>'.format(e(f.get("channel_note", "")))]
+             '<li><strong>AI with Saurabh Kr.</strong> {}</li>'.format(e(f.get("channel_note", "")))]
     if tele:
         proof.append('<li><strong>Published paid work.</strong> A paid software review for Teleprompter.com — screen demonstration, narration and editing. '
                      '<a href="{}#work-teleprompter-review">See it</a></li>'.format(e(args.get("work_href", "/"))))
@@ -2974,7 +3013,7 @@ def c_founder_feature(args, ctx):
     return ('<div class="founder-feature" data-reveal><div class="founder-media">{media}</div><div class="founder-copy">'
             '<p class="eyebrow">Who you\'ll work with</p><h2 id="{hid}">{name}, founder of Moodily</h2><p class="lead">{bio}</p>'
             '<ul class="proof-list">{proof}</ul>'
-            '<p class="small"><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="founder-{where}">AI with Saurabh on YouTube ↗</a>'
+            '<p class="small"><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="founder-{where}">AI with Saurabh Kr on YouTube ↗</a>'
             ' · <a href="{about}">{about_label}</a></p></div></div>').format(about_label=e(args.get("about_label", "About Moodily")),
         media=founder_media(f), hid=e(args.get("id", "founder-h")), name=e(f["name"]), bio=e(f["bio"]), proof="".join(proof),
         yt=e(f["youtube"]), where=e(args.get("where", "home")), about=e(args.get("about", "/about/")))
@@ -3053,7 +3092,7 @@ FEATURE_GATES = {"amazon_associates": amazon_public}
 COMPONENTS = {
     "services": c_services, "price-table": c_price_table, "payg": c_payg,
     "cases": c_cases, "products": c_products, "product-categories": c_product_categories,
-    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "buy-india": c_buy_india,
+    "products-by-category": c_products_by_category, "tools": c_tools, "faq": c_faq, "buy-global": c_buy_global, "product-schema": c_product_schema, "buy-india": c_buy_india,
     "quality-workflow": c_quality_workflow, "final-cta": c_final_cta, "wa": c_wa,
     "learn-curriculum": c_learn_curriculum, "lead-form": c_lead_form, "journey": c_journey, "primary-offers": c_primary_offers, "quick-offers": c_quick_offers, "saathi-offer": c_saathi_offer, "start-here": c_start_here, "pricing-terms": c_pricing_terms, "founder": c_founder,
     "hero-visual": c_hero_visual, "who-we-help": c_who_we_help, "need-selector": c_need_selector, "work-showcase": c_work_showcase,
@@ -3251,7 +3290,7 @@ def header(route, meta):
         <ul class="nav-links">{main}<li><a href="/contact/"{contact}>Contact</a></li></ul>
         <p class="menu-heading">Popular</p><ul class="nav-sub">{popular}</ul>
         <p class="menu-heading">Services</p><ul class="nav-sub">{svc}</ul>
-        <p class="menu-heading">Learn &amp; resources</p><ul class="nav-sub">{learn}<li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="menu">AI with Saurabh (YouTube) ↗</a></li></ul>
+        <p class="menu-heading">Learn &amp; resources</p><ul class="nav-sub">{learn}<li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="menu">AI with Saurabh Kr (YouTube) ↗</a></li></ul>
         <div class="menu-cta"><a class="btn btn-primary btn-sm" href="/contact/" data-track="quote_start" data-label="menu-requirement">Discuss your project</a>{menuwa}</div>
       </div>
     </details>
@@ -3277,7 +3316,7 @@ def footer(route=""):
       <li><a href="/digital-saathi/">Moodily Digital Saathi</a></li><li><a href="/learn/">Moodily Learn</a></li><li><a href="/resources/">Practical AI Resources</a></li>
       <li><a href="/services/research-intelligence/">Moodily Intelligence Studio</a></li><li><a href="/store/">Moodily Store</a></li>
       <li><a href="/case-studies/">Work samples</a></li><li><a href="/insights/">Insights</a></li><li><a href="/guides/">Hindi guides</a></li><li><a href="/tools/">Tools</a></li>
-      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="footer">Learn AI: AI with Saurabh ↗</a></li></ul></div>
+      <li><a href="{yt}" target="_blank" rel="noopener" data-track="youtube_click" data-label="footer">Learn AI: AI with Saurabh Kr ↗</a></li></ul></div>
     <div><h2 class="footer-h">Services</h2><ul>{svc}</ul></div>
     <div><h2 class="footer-h">Company</h2><ul>
       <li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/services/">Pricing</a></li>
@@ -3297,13 +3336,18 @@ STICKY_CTA = """
 <nav class="mobile-cta" aria-label="Quick actions"><a class="btn btn-primary" href="/contact/" data-track="quote_start" data-label="mobile-bar">Discuss your project</a><a class="btn btn-wa" href="{wa_href}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="mobile-bar">{icon} WhatsApp</a></nav>"""
 
 
+PRODUCTION_HOST = BASE.split("://", 1)[1].rstrip("/")
+
+
 def gtm_head():
     gid = SITE.get("gtm_id")
     if not gid:
         return ""
-    return ("<script>window.dataLayer=window.dataLayer||[];(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});"
+    # Production only: previews, local builds and tests never load GTM, so they can't send events into the live
+    # GA property (the source of "localhost" hits). dataLayer still exists everywhere, so site.js works the same.
+    return ("<script>window.dataLayer=window.dataLayer||[];if(location.hostname==='{host}')(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});"
             "var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;"
-            "f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{}');</script>").format(gid)
+            "f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{gid}');</script>").format(gid=gid, host=PRODUCTION_HOST)
 
 
 def gtm_body():

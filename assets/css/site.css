@@ -310,7 +310,8 @@ details.not-included ul{margin-top:10px}
 .case-link{font-size:.92rem}
 
 /* tables */
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card)}
+.table-wrap{position:relative;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card)}
+/* position:relative keeps absolutely positioned .sr-only labels inside the scroller (they were widening the page on phones) */
 .price-table{width:100%;border-collapse:collapse;min-width:620px}
 .price-table caption{text-align:left;padding:14px 16px;color:var(--ink-2);font-size:.9rem}
 .price-table th,.price-table td{padding:12px 16px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
@@ -1202,3 +1203,13 @@ body.intl section.intl-tight{padding-block:clamp(28px,3.6vw,48px)}
 .founder-card{flex-direction:row;gap:20px;align-items:flex-start}
 .founder-card .founder-photo{width:120px;flex:none;border-radius:18px}
 @media (max-width:520px){.founder-card{flex-direction:column}}
+
+/* 320–359 px phones: the header can't fit logo + International + Menu + theme button; the theme button gives way
+   (International stays visible, and the saved theme still applies). */
+@media (max-width:359px){#themeToggle{display:none}}
+
+/* payment next steps */
+.pay-next{margin:.2em 0 0;color:var(--ink-2)}
+.steps-plain{padding-left:1.3em;margin:1em 0 1.2em}
+.steps-plain li{margin-bottom:1em}
+.steps-plain .btn-row{margin:.6em 0 0}
