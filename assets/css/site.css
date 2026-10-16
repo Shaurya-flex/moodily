@@ -330,7 +330,7 @@ details.not-included ul{margin-top:10px}
 /* tables */
 .table-wrap{position:relative;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card)}
 /* position:relative keeps absolutely positioned .sr-only labels inside the scroller (they were widening the page on phones) */
-.price-table{width:100%;border-collapse:collapse;min-width:620px}
+.price-table{width:100%;border-collapse:collapse}
 .price-table caption{text-align:left;padding:14px 16px;color:var(--ink-2);font-size:.9rem}
 .price-table th,.price-table td{padding:12px 16px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
 .price-table thead th{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)}
@@ -1437,3 +1437,26 @@ h1,h2,.head-v2 h2{text-wrap:balance}
 /* stand-alone small links inside cards get a comfortable tap height (inline links inside sentences are untouched) */
 figcaption>a.small,.card>a.small,.card-actions a.small,.btn-row>a.small,.pop-more,.work-link,.finder-scope{display:inline-flex;align-items:center;min-height:32px}
 .prose h2{font-size:clamp(1.5rem,1.3rem + .8vw,1.875rem)}
+
+/* tables fit their container at every width (no fixed minimum); on phones a table with a header row stacks into
+   labelled rows (build.py stack_tables adds data-label + ARIA roles), so nothing scrolls sideways */
+.price-table th,.price-table td{overflow-wrap:break-word}
+@media (max-width:640px){
+  .table-wrap:has(>.stack-sm){border:0;background:none;overflow:visible;border-radius:0}
+  table.stack-sm,.stack-sm>tbody,.stack-sm>tbody>tr,.stack-sm>tbody>tr>td,.stack-sm>tbody>tr>th{display:block;width:100%}
+  .stack-sm>caption{display:block;text-align:left;padding:0 0 8px}
+  .stack-sm>thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .stack-sm>tbody>tr{border:1px solid var(--line);border-radius:var(--r-input);background:var(--card);padding:10px 14px;margin:0 0 10px}
+  .stack-sm>tbody>tr>td,.stack-sm>tbody>tr>th{border:0;padding:5px 0;text-align:left}
+  .stack-sm>tbody>tr>th[scope=row]{font-weight:700;font-size:1.0625rem;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+  .stack-sm>tbody>tr>td[data-label]::before{content:attr(data-label);display:block;font-size:var(--fs-xs);font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
+  .stack-sm>tbody>tr:has(>th[colspan]){background:none;border:0;padding:8px 0 0;margin:6px 0 4px}
+  .stack-sm>tbody>tr>th[colspan]{border:0;font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted)}
+}
+/* long words (e.g. "Instagram/Facebook/LinkedIn/WhatsApp") break instead of pushing a card past the screen edge */
+body{overflow-wrap:break-word}
+main li,main dd,main dt,main p,main h1,main h2,main h3,main h4,main figcaption,main .btn{overflow-wrap:anywhere}
+.svc-list{grid-template-columns:minmax(0,1fr)}
+/* single concept card: its column may shrink below the label's width, and long labels wrap on narrow screens */
+@media (max-width:860px){.concepts-single .concept{grid-template-columns:minmax(0,1fr)}}
+.label-chip{white-space:normal;max-width:100%}
