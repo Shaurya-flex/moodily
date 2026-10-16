@@ -1299,3 +1299,48 @@ body.intl section.intl-tight{padding-block:clamp(28px,3.6vw,48px)}
 #quality .quality{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:960px){#quality .quality{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){#quality .quality{grid-template-columns:1fr}}
+
+/* ---------- Phase 3: services hub + service pages (compact, one action per card) */
+.need-tiles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.need-tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;height:100%;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);color:var(--ink);text-decoration:none;transition:border-color .18s ease,box-shadow .18s ease}
+.need-tile:hover{border-color:color-mix(in srgb,var(--primary) 40%,var(--border));box-shadow:var(--shadow)}
+.need-tile svg{grid-row:1/3;width:40px;height:40px;padding:8px;border-radius:12px;background:var(--primary-soft);color:var(--primary)}
+.need-tile-t{font-weight:700;line-height:1.3}
+.need-tile-p{font-size:.88rem;color:var(--ink-2)}
+@media (max-width:900px){.need-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.need-tiles{gap:8px}.need-tile{grid-template-columns:1fr;padding:12px}.need-tile svg{grid-row:auto;width:34px;height:34px;padding:6px;margin-bottom:6px}.need-tile-t{font-size:.95rem}}
+.finder-price{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px}
+.finder-price .price{margin:0}
+.finder-price p.small{margin:0}
+.finder-card .card-actions{align-items:center}
+.finder-scope{font-size:.9rem;font-weight:600}
+.finder-all{text-align:center;margin:18px 0 0}
+.finder-all:has(> [hidden]){display:none}
+.finder-empty .chip-row{margin:8px 0}
+.finder-empty p{margin:0}
+.svc-more{flex-basis:100%;margin:2px 0 0;color:var(--ink-2)}
+.svc-more a{font-weight:600}
+details.svc-terms-d,details.more-d,details.price-list-d{margin:12px 0;border:1px solid var(--border);border-radius:var(--r-input);padding:10px 14px;background:var(--surface)}
+details.svc-terms-d>summary,details.more-d>summary,details.price-list-d>summary{cursor:pointer;font-weight:600;min-height:28px}
+details.price-list-d[open]>summary,details.more-d[open]>summary{margin-bottom:10px}
+details.svc-terms-d .svc-terms{margin:10px 0 0}
+@media (max-width:640px){.finder-card .muted.small{margin-bottom:.4em}.finder-card .eyebrow{margin-bottom:.3em}.finder-card .card-actions{padding-top:10px}}
+@media (max-width:640px){.how-steps{gap:0;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);padding:4px 16px}
+  .how-steps li{background:none;border:0;border-radius:0;padding:12px 0}.how-steps li+li{border-top:1px solid var(--line)}
+  .how-steps .step-num{width:28px;height:28px;font-size:.9rem}}
+.sample-all{text-align:center;margin:18px 0 0}
+.sample-all:has(> [hidden]){display:none}
+@media (max-width:640px){
+  .sample-grid.is-short>[data-more]{display:none}
+  .concepts-swipe{display:grid;grid-auto-flow:column;grid-auto-columns:86%;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+    gap:12px;padding:4px 2px 12px;margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);overscroll-behavior-x:contain}
+  .concepts-swipe>.concept{scroll-snap-align:start;grid-column:auto}
+}
+@media (max-width:640px){
+  .tiers,.samples-grid{display:grid;grid-auto-flow:column;grid-auto-columns:84%;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+    gap:12px;padding:4px 2px 12px;margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);overscroll-behavior-x:contain}
+  .tiers>*,.samples-grid>*{scroll-snap-align:start}
+  .samples-grid:has(> :only-child){grid-auto-columns:100%}
+}
+@media (max-width:640px){.tiers{padding-top:16px}}
+.finder-grid>.cat-custom{order:2}

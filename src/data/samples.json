@@ -153,17 +153,17 @@
         "professional"
       ],
       "slug": "creator-content-pack",
-      "catalogue_title": "Creator Content Pack — channel identity",
-      "service": "creator-content-sprint",
-      "who": "Creator या expert जो YouTube/Instagram पर एक जैसी पहचान चाहता है।",
-      "solves": "हर video का thumbnail अलग दिखता है, channel एक brand जैसा नहीं लगता। एक तय visual system इसे ठीक करता है।",
+      "catalogue_title": "Channel banner — single social creative",
+      "service": "social-creative-single",
+      "who": "Creator, expert या business जिसे channel या page के लिए साफ़ banner चाहिए।",
+      "solves": "पहली नज़र में साफ़ पता चले कि आप कौन हैं और किस बारे में बात करते हैं — नाम, विषय और एक साफ़ design।",
       "customises": [
-        "आपका channel नाम और niche",
-        "Colour और type system",
-        "Thumbnail templates",
-        "Banner और profile assets"
+        "आपका channel या page नाम",
+        "Colour और font",
+        "Platform size",
+        "Tagline"
       ],
-      "case_study": "ayurveda-channel-strategy",
+      "case_study": "",
       "featured": false
     },
     {
@@ -192,17 +192,17 @@
         "coaching-library"
       ],
       "slug": "exam-study-system",
-      "catalogue_title": "Study Material System — one chapter, five tools",
-      "service": "education-content-pack",
-      "who": "Coaching centre, library या educator जिसे पूरा study kit चाहिए, सिर्फ़ notes नहीं।",
-      "solves": "एक chapter से notes, mind map, flashcards, quiz और revision sheet — पढ़ाने और दोहराने दोनों के लिए।",
+      "catalogue_title": "Educational YouTube Short — one book, five study tools",
+      "service": "content-growth-retainer",
+      "who": "Educator, coach या creator जो पढ़ाई या अपनी expertise को short videos में समझाना चाहता है।",
+      "solves": "एक topic को एक minute में साफ़ समझाना — script, captions और edit एक तय तरीके से, हर महीने।",
       "customises": [
-        "आपका syllabus और exam",
-        "Tools की संख्या और तरह",
-        "Batch-wise branding",
-        "Print या digital delivery"
+        "आपका topic और audience",
+        "Hindi, Hinglish या English",
+        "Captions और on-screen text",
+        "आपकी footage से edit"
       ],
-      "case_study": "uppcs-intelligence-brief",
+      "case_study": "",
       "featured": true
     },
     {

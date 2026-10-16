@@ -187,13 +187,25 @@
     var countEl = document.querySelector('[data-sample-count]');
     var emptyEl = document.querySelector('[data-sample-empty]');
     var state = { cat: '', type: '', q: '' };
+    var allBtn = document.querySelector('[data-sample-all]');
+    var phone = window.matchMedia('(max-width: 640px)');
+    // phones: first six samples until a filter, a search or "show all" (CSS hides [data-more] only while .is-short)
+    if (allBtn && phone.matches) {
+      grid.classList.add('is-short'); allBtn.hidden = false;
+      allBtn.addEventListener('click', function () {
+        grid.classList.remove('is-short'); allBtn.hidden = true; track('sample_filter', { label: 'show-all' });
+        var next = grid.querySelector('.sample-tile[data-more] a'); if (next) next.focus();
+      });
+    }
 
     function apply() {
       var shown = 0;
+      if (state.cat || state.type || state.q) { grid.classList.remove('is-short'); if (allBtn) allBtn.hidden = true; }
       tiles.forEach(function (t) {
         var okCat = !state.cat || t.getAttribute('data-cat') === state.cat;
         var okType = !state.type || (' ' + t.getAttribute('data-types') + ' ').indexOf(' ' + state.type + ' ') > -1;
-        var okQ = !state.q || t.getAttribute('data-search').indexOf(state.q) > -1;
+        var hay = t.getAttribute('data-search');
+        var okQ = state.q.split(/\s+/).every(function (w) { return !w || hay.indexOf(w) > -1; });
         var show = okCat && okType && okQ;
         t.hidden = !show;
         if (show) shown++;
@@ -708,19 +720,23 @@
     });
   });
 
-  // ---------- service finder: filter chips, customer type and search (all cards visible without JS)
+  // ---------- service finder: filter chips, customer type and search (all cards visible without JS).
+  // With no search/filter only the default cards show, plus a "show all" button; any search or filter searches every card.
   var finder = document.querySelector('[data-finder]');
   if (finder) {
     var fcards = document.querySelectorAll('.finder-card');
     var fq = new URLSearchParams(location.search);
-    var fs = { tag: fq.get('filter') || '', text: fq.get('q') || '', type: fq.get('type') || '' };
+    var fs = { tag: fq.get('filter') || '', text: fq.get('q') || '', type: fq.get('type') || '', all: false };
     var fInput = document.getElementById('finderSearch');
     var fType = document.getElementById('finderType');
+    var fAll = document.querySelector('[data-finder-all]');
+    var fTotal = document.querySelectorAll('.finder-card:not([data-always])').length;
     fInput.value = fs.text;
     if (fs.type && fType.querySelector('option[value="' + CSS.escape(fs.type) + '"]')) fType.value = fs.type; else fs.type = '';
     var applyFinder = function () {
       var shown = 0;
       var words = fs.text.toLowerCase().split(/\s+/).filter(Boolean);
+      var short = !fs.all && !fs.tag && !fs.type && !words.length;
       fcards.forEach(function (c) {
         if (c.hasAttribute('data-always')) return;
         var tags = ' ' + (c.getAttribute('data-tags') || '') + ' ';
@@ -728,11 +744,15 @@
         var hay = c.getAttribute('data-search') || '';
         var ok = (!fs.tag || tags.indexOf(' ' + fs.tag + ' ') !== -1) && (!fs.type || types.indexOf(' ' + fs.type + ' ') !== -1) &&
           words.every(function (w) { return hay.indexOf(w) !== -1; });
-        c.hidden = !ok;
-        if (ok) shown++;
+        c.hidden = !ok || (short && c.hasAttribute('data-more'));
+        if (!c.hidden) shown++;
+        // cards whose name or keywords match come first; the rest only mention the word somewhere
+        var key = c.getAttribute('data-key') || '';
+        c.style.order = words.length && !words.every(function (w) { return key.indexOf(w) !== -1; }) ? '1' : '';
       });
       finder.querySelectorAll('[data-filter]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filter') === fs.tag ? 'true' : 'false'); });
-      finder.querySelector('[data-finder-count]').textContent = shown + ' packages';
+      finder.querySelector('[data-finder-count]').textContent = short ? fTotal + ' में से ' + shown + ' services दिख रहे हैं' : shown + ' services';
+      if (fAll) fAll.hidden = !short;
       document.querySelector('[data-finder-empty]').hidden = shown > 0;
       return shown;
     };
@@ -744,6 +764,17 @@
       searchTimer = setTimeout(function () { if (fs.text.trim()) track('service_search', { label: shown ? 'has-results' : 'no-results' }); }, 900);
     });
     fType.addEventListener('change', function () { fs.type = fType.value; applyFinder(); track('service_filter', { label: 'type:' + (fs.type || 'all') }); });
+    if (fAll) fAll.addEventListener('click', function () {
+      fs.all = true; applyFinder(); track('service_filter', { label: 'show-all' });
+      var next = document.querySelector('.finder-card[data-more]:not([hidden]) a');
+      if (next) next.focus();
+    });
+    document.querySelectorAll('[data-q]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        fs.text = fInput.value = b.getAttribute('data-q'); applyFinder(); fInput.focus();
+        track('service_search', { label: 'suggestion:' + fs.text });
+      });
+    });
     finder.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-filter]');
       if (!b) return;

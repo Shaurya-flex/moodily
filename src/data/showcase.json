@@ -256,5 +256,6 @@
     "whatsapp-business-setup",
     "digital-business-starter",
     "landing-page"
-  ]
+  ],
+  "finder_default": ["business-website", "landing-page", "product-catalogue", "business-brochure", "presentation-design-only", "digital-visiting-card", "invitation-digital", "research-intelligence-sprint", "ai-automation-starter"]
 }
