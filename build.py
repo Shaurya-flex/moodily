@@ -3743,7 +3743,7 @@ def layout(meta, body, route, ctx):
            footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
-           og_alt="Moodily International — digital journey and customer education studio" if intl else OG_ALT[og_default(route)], font_preload=font_preload,
+           og_alt=meta.get("og_image_alt") or ("Moodily International — digital journey and customer education studio" if intl else OG_ALT[og_default(route)]), font_preload=font_preload,
            body_cls=' class="intl"' if intl else "",
            offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE and not intl else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
