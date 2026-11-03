@@ -1,0 +1,65 @@
+<!--meta {
+  "title": "Seat Desk — a Hindi/English front-desk enquiry assistant (Moodily project)",
+  "description": "Seat Desk answers front-desk questions for a small study library in Hindi and English — seat availability, fees, timings — with the model understanding and deterministic code deciding. Built by Moodily for the Meta Global AI Developer Hackathon 2026.",
+  "lang": "en",
+  "breadcrumbs": [["Seat Desk", "/seat-desk/"]],
+  "priority": "0.7"
+} -->
+<section class="hero" aria-labelledby="sd-h">
+  <div class="container">
+    <p class="eyebrow">Moodily project · Meta Global AI Developer Hackathon 2026 (Indie track)</p>
+    <h1 id="sd-h">Seat Desk — a front desk that answers in Hindi and English, <span>and refuses to guess.</span></h1>
+    <p class="lead">A small study library's front desk answers the same questions all day: क्या कल दोपहर सीट खाली है? What is the monthly fee? When do you open? Seat Desk answers them — spoken or typed, Hindi or English — demonstrated with Rasra Library &amp; Study Point as the first business.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary btn-lg" href="https://github.com/Shaurya-flex/Seat-desk" rel="noopener">View the open-source code →</a>
+    </div>
+    <p class="muted">Status: a working local demo with genuine live-model evidence. It is not a hosted public app yet — see "Run it yourself" below.</p>
+  </div>
+</section>
+
+<section aria-labelledby="sd-how-h">
+  <div class="container">
+    <div class="section-head"><h2 id="sd-how-h">The design rule: the model understands, the code decides</h2><p class="muted">AI assistants fail front desks when they invent facts. Seat Desk splits the job so that cannot happen silently.</p></div>
+    <div class="grid grid-4">
+      <div class="card"><h3>🧠 Understanding</h3><p class="muted">Meta's <b>Muse Spark 1.3</b> turns a sentence — "28 अक्टूबर को दोपहर में कौन सी सीटें खाली हैं?" — into a validated, structured query (date, time slot, intent). It never generates a fact.</p></div>
+      <div class="card"><h3>🎙 Spoken Hindi</h3><p class="muted"><b>Muse Voice Transcribe 1.0</b> turns speech into a transcript. The transcript is never used until the speaker confirms or corrects it on screen.</p></div>
+      <div class="card"><h3>🧮 Facts</h3><p class="muted">Seat availability, hours and fees come from deterministic code over an approved knowledge pack — with the source cited on every policy answer.</p></div>
+      <div class="card"><h3>🤝 Honest limits</h3><p class="muted">Unknown or consequential requests (refunds, bookings) produce a handoff summary for a human — explicitly <b>not sent</b>. Nothing is ever booked or messaged automatically.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" aria-labelledby="sd-wk-h">
+  <div class="container">
+    <div class="section-head"><h2 id="sd-wk-h">Working today vs planned</h2></div>
+    <div class="grid grid-2">
+      <div class="card"><h3>✅ Working now</h3><p class="muted">Typed and spoken Hindi/English enquiries · validated live extraction on Muse Spark 1.3 (genuine billed call recorded as evidence in the repository) · deterministic seat availability with overlap handling · cited policy answers · clarification questions · multi-turn follow-ups · explicitly unsent human handoff · a local web desk with per-visitor sessions and layered spending caps · 169 automated tests, including adversarial acceptance where a completed answer with a wrong date, interval or seat count is recorded as a failure.</p></div>
+      <div class="card"><h3>🔜 Planned, not built</h3><p class="muted">A hosted public demo · connection to a real library's live records (the demo runs on labelled synthetic fixture data) · booking or message delivery (deliberately out of scope today) · a multi-business "approved pack" version for other local businesses — the broader Moodily direction this project points toward.</p></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="sd-vid-h">
+  <div class="container">
+    <div class="section-head"><h2 id="sd-vid-h">Three-minute demonstration</h2></div>
+    <!-- When the demo video is published, replace the paragraph below with:
+         <p class="btn-row"><a class="btn btn-primary btn-lg" href="YOUTUBE_URL" rel="noopener">Watch the 3-minute demo →</a></p> -->
+    <p class="muted">The demonstration video is being published as part of the hackathon submission (due 4 November 2026). Until it is linked here, the repository's README shows how to reproduce every behaviour locally in about two minutes.</p>
+  </div>
+</section>
+
+<section class="alt" aria-labelledby="sd-arch-h">
+  <div class="container">
+    <div class="section-head"><h2 id="sd-arch-h">Architecture in one paragraph</h2></div>
+    <p>Voice or text enters a local web desk (plain Python, no frameworks). Audio goes to Muse Voice Transcribe over Meta Model API; the transcript must be confirmed by the speaker. Confirmed text goes to Muse Spark 1.3 with a strict JSON schema, minimal reasoning effort, bounded output tokens, zero retries and one outstanding request; the typed, validated extraction (language, intent, date, interval, slot, seat) drives a deterministic availability engine and an approved-policy retrieval layer with citation checks. An independent verifier recomputes every availability answer from the stated query, so a tampered count, interval or seat set is caught. Every response carries its provenance: live or mock understanding, transport, token usage, and a persistent synthetic-data label.</p>
+    <p class="muted">Demonstration data is historical and synthetic (fixture clock 27 October 2026 IST). No real member records exist anywhere in the project, and the real library's membership system is not connected.</p>
+  </div>
+</section>
+
+<section aria-labelledby="sd-run-h">
+  <div class="container">
+    <div class="section-head"><h2 id="sd-run-h">Run it yourself</h2><p class="muted">Offline and free in mock mode; live mode needs your own Meta Model API key.</p></div>
+    <p><a class="btn btn-outline" href="https://github.com/Shaurya-flex/Seat-desk#reproduce-the-core-typed-workflow-for-judges" rel="noopener">Setup instructions in the README →</a></p>
+    <p class="muted">Built by Saurabh Kumar (Moodily) during the hackathon building period, 27 October – 4 November 2026. Open source under the MIT licence.</p>
+  </div>
+</section>
