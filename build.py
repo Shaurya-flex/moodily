@@ -118,7 +118,7 @@ OFFER_STATE = _offer_state()
 # Legal / transparency routes. These carry no promotional banner, no sticky conversion bar and no
 # floating WhatsApp button: a compliance page should read as clarity, not as a sales surface.
 LEGAL_ROUTES = {"/privacy/", "/terms/", "/refund/", "/affiliate-disclosure/"}
-NO_BANNER = LEGAL_ROUTES | {"/contact/thanks/", "/payment/success/", "/404.html", "/offers/{}/".format(OFFER.get("id"))}
+NO_BANNER = LEGAL_ROUTES | {"/contact/thanks/", "/payment/success/", "/404.html", "/seat-desk/", "/offers/{}/".format(OFFER.get("id"))}
 
 
 def in_offer(svc):

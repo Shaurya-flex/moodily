@@ -26,9 +26,9 @@
 <script>window.dataLayer=window.dataLayer||[];if(location.hostname==='moodily.in')(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-MRNHLVC9');</script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnBrXyw023e.woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/site.css?v=72610999b1">
+<link rel="stylesheet" href="/assets/css/site.css?v=0578cbf18e">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://moodily.in/"},{"@type":"ListItem","position":2,"name":"Seat Desk","item":"https://moodily.in/seat-desk/"}]}]}</script>
-<script src="/assets/js/site.js?v=72610999b1" defer></script>
+<script src="/assets/js/site.js?v=0578cbf18e" defer></script>
 </head>
 <body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MRNHLVC9" height="0" width="0" style="display:none;visibility:hidden" title="GTM"></iframe></noscript>
@@ -52,7 +52,7 @@
   <div class="nav-actions"><button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
     <a class="btn btn-primary btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="nav">Free Digital Audit</a></div>
 </div></header>
-<aside class="offer-banner offer-only" aria-label="Founding 10 offer"><div class="container offer-inner"><p><strong>Founding 10 introductory offer:</strong> Google + WhatsApp Starter ₹1,499 — पहले 10 founding clients के लिए</p><p class="offer-meta"><a href="/offers/founding-10/">पूरी शर्तें</a></p><a class="btn btn-sm offer-btn" href="/offers/founding-10/" data-track="offer_cta_click" data-label="banner">Offer देखें →</a></div></aside>
+
 <nav class="container breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><span aria-current="page">Seat Desk</span></li></ol></nav>
 <main id="main">
 
@@ -60,54 +60,68 @@
   <div class="container">
     <p class="eyebrow">Moodily project · Meta Global AI Developer Hackathon 2026 (Indie track)</p>
     <h1 id="sd-h">Seat Desk — a front desk that answers in Hindi and English, <span>and refuses to guess.</span></h1>
-    <p class="lead">A small study library's front desk answers the same questions all day: क्या कल दोपहर सीट खाली है? What is the monthly fee? When do you open? Seat Desk answers them — spoken or typed, Hindi or English — demonstrated with Rasra Library &amp; Study Point as the first business.</p>
+    <p class="lead">A small study library's front desk answers the same questions all day: क्या कल दोपहर सीट खाली है? What is the monthly fee? When do you open? Seat Desk answers them in Hindi or English. The demo runs on synthetic data modelled on Rasra Library &amp; Study Point.</p>
+    <!-- When the demo video is published, make it the main action and keep the code link:
+         <a class="btn btn-primary btn-lg" href="VIDEO_URL" rel="noopener">Watch the 3-minute demo →</a>
+         <a class="btn btn-outline btn-lg" href="https://github.com/Shaurya-flex/Seat-desk" rel="noopener">View the open-source code →</a> -->
     <div class="btn-row">
       <a class="btn btn-primary btn-lg" href="https://github.com/Shaurya-flex/Seat-desk" rel="noopener">View the open-source code →</a>
     </div>
-    <p class="muted">Status: a working local demo with genuine live-model evidence. It is not a hosted public app yet — see "Run it yourself" below.</p>
+    <p class="muted">Status: runs locally on synthetic data. One genuine live Muse Spark call is on record (3 November 2026). Not a hosted public app yet — see "Run it yourself" below.</p>
   </div>
 </section>
 
-<section aria-labelledby="sd-how-h">
+<section aria-labelledby="sd-shot-h">
   <div class="container">
-    <div class="section-head"><h2 id="sd-how-h">The design rule: the model understands, the code decides</h2><p class="muted">AI assistants fail front desks when they invent facts. Seat Desk splits the job so that cannot happen silently.</p></div>
+    <h2 id="sd-shot-h" class="sr-only">The desk answering a seat question</h2>
+    <figure class="sd-shot">
+      <a href="/assets/img/work/seat-desk-availability-2026-11.webp"><img src="/assets/img/work/seat-desk-availability-2026-11.webp" srcset="/assets/img/work/seat-desk-availability-2026-11-640.webp 640w, /assets/img/work/seat-desk-availability-2026-11.webp 1200w" sizes="(max-width: 700px) 92vw, 960px" width="1200" height="694" alt="Seat Desk answering the Hindi question 'आज सुबह कौन सी सीटें खाली हैं?': 5 of 6 seats free for 27 October 2026, 06:00–12:00. A seat grid shows Seat 1 occupied (two overlapping reservations) and Seats 2–6 free. Footer label: Synthetic data, Mock model, no Meta call." loading="lazy" decoding="async"></a>
+      <figcaption>The local desk in offline mock mode (no Meta call), 3 November 2026. Seat states come from deterministic code over synthetic fixtures; Seat 1 shows as occupied because two overlapping synthetic records cover the morning.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="alt" aria-labelledby="sd-how-h">
+  <div class="container">
+    <div class="section-head"><h2 id="sd-how-h">The design rule: the model understands, the code decides</h2><p class="muted">AI assistants fail front desks when they invent facts. Seat Desk splits the job: the model reads the question, and code supplies every fact.</p></div>
     <div class="grid grid-4">
-      <div class="card"><h3>🧠 Understanding</h3><p class="muted">Meta's <b>Muse Spark 1.3</b> turns a sentence — "28 अक्टूबर को दोपहर में कौन सी सीटें खाली हैं?" — into a validated, structured query (date, time slot, intent). It never generates a fact.</p></div>
-      <div class="card"><h3>🎙 Spoken Hindi</h3><p class="muted"><b>Muse Voice Transcribe 1.0</b> turns speech into a transcript. The transcript is never used until the speaker confirms or corrects it on screen.</p></div>
-      <div class="card"><h3>🧮 Facts</h3><p class="muted">Seat availability, hours and fees come from deterministic code over an approved knowledge pack — with the source cited on every policy answer.</p></div>
-      <div class="card"><h3>🤝 Honest limits</h3><p class="muted">Unknown or consequential requests (refunds, bookings) produce a handoff summary for a human — explicitly <b>not sent</b>. Nothing is ever booked or messaged automatically.</p></div>
+      <div class="card"><h3>🧠 Understanding</h3><p class="muted">Meta's <b>Muse Spark 1.3</b> turns a sentence — "28 अक्टूबर को दोपहर में कौन सी सीटें खाली हैं?" — into a validated, structured query (date, time slot, intent). It does not write the answer.</p></div>
+      <div class="card"><h3>🎙 Spoken Hindi</h3><p class="muted"><b>Muse Voice Transcribe 1.0</b> turns a recording into a transcript, which is used only after the speaker confirms or corrects it. Built into the local desk; a successful live transcription is not yet on record.</p></div>
+      <div class="card"><h3>🧮 Facts</h3><p class="muted">Seat availability, hours and fees come from deterministic code and an approved knowledge pack (synthetic in the demo). A policy answer must cite an approved entry, or it goes to a person.</p></div>
+      <div class="card"><h3>🤝 Honest limits</h3><p class="muted">Refunds, bookings and anything outside the approved pack produce a handoff summary for a person, marked <b>not sent</b>. Nothing is booked or messaged automatically.</p></div>
     </div>
   </div>
 </section>
 
-<section class="alt" aria-labelledby="sd-wk-h">
+<section aria-labelledby="sd-wk-h">
   <div class="container">
-    <div class="section-head"><h2 id="sd-wk-h">Working today vs planned</h2></div>
-    <div class="grid grid-2">
-      <div class="card"><h3>✅ Working now</h3><p class="muted">Typed and spoken Hindi/English enquiries · validated live extraction on Muse Spark 1.3 (genuine billed call recorded as evidence in the repository) · deterministic seat availability with overlap handling · cited policy answers · clarification questions · multi-turn follow-ups · explicitly unsent human handoff · a local web desk with per-visitor sessions and layered spending caps · 169 automated tests, including adversarial acceptance where a completed answer with a wrong date, interval or seat count is recorded as a failure.</p></div>
-      <div class="card"><h3>🔜 Planned, not built</h3><p class="muted">A hosted public demo · connection to a real library's live records (the demo runs on labelled synthetic fixture data) · booking or message delivery (deliberately out of scope today) · a multi-business "approved pack" version for other local businesses — the broader Moodily direction this project points toward.</p></div>
+    <div class="section-head"><h2 id="sd-wk-h">Live-tested, built, and planned</h2></div>
+    <div class="grid grid-3">
+      <div class="card"><h3>✅ Live-tested with Meta's API</h3><ul class="ticks"><li>One Muse Spark 1.3 call (3 November 2026): a typed Hindi seat question became a validated query, and the code-computed answer passed every acceptance check.</li><li>Evidence is in the repository: <code>evidence/live_run.json</code>.</li></ul></div>
+      <div class="card"><h3>🧪 Built and tested offline</h3><p class="small muted">169 automated tests, mock model, synthetic data.</p><ul class="ticks"><li>Seat availability, including overlapping records</li><li>Policy answers that must cite an approved entry</li><li>Clarifying questions and multi-turn follow-ups</li><li>Human-handoff summary, never sent</li><li>Voice recording with transcript confirmation</li><li>Local web desk with per-visitor sessions and app-level spending counters</li></ul></div>
+      <div class="card"><h3>🔜 Planned, not built</h3><ul class="plain"><li>A hosted public demo</li><li>Connection to a real library's records</li><li>Booking or message delivery (out of scope by design)</li><li>Spotting conflicting figures inside one question</li><li>Wider live evaluation (one live call so far)</li><li>Approved packs for other local businesses — the broader Moodily direction</li></ul></div>
     </div>
   </div>
 </section>
 
-<section aria-labelledby="sd-vid-h">
+<section class="alt" aria-labelledby="sd-vid-h">
   <div class="container">
     <div class="section-head"><h2 id="sd-vid-h">Three-minute demonstration</h2></div>
     <!-- When the demo video is published, replace the paragraph below with:
-         <p class="btn-row"><a class="btn btn-primary btn-lg" href="YOUTUBE_URL" rel="noopener">Watch the 3-minute demo →</a></p> -->
-    <p class="muted">The demonstration video is being published as part of the hackathon submission (due 4 November 2026). Until it is linked here, the repository's README shows how to reproduce every behaviour locally in about two minutes.</p>
+         <p class="btn-row"><a class="btn btn-primary btn-lg" href="VIDEO_URL" rel="noopener">Watch the 3-minute demo →</a></p> -->
+    <p class="muted">The demonstration video will be linked here once it is published with the hackathon submission (due 4 November 2026). Until then, the repository's README shows how to run the core typed workflow offline, without an API key.</p>
   </div>
 </section>
 
-<section class="alt" aria-labelledby="sd-arch-h">
+<section aria-labelledby="sd-arch-h">
   <div class="container">
     <div class="section-head"><h2 id="sd-arch-h">Architecture in one paragraph</h2></div>
-    <p>Voice or text enters a local web desk (plain Python, no frameworks). Audio goes to Muse Voice Transcribe over Meta Model API; the transcript must be confirmed by the speaker. Confirmed text goes to Muse Spark 1.3 with a strict JSON schema, minimal reasoning effort, bounded output tokens, zero retries and one outstanding request; the typed, validated extraction (language, intent, date, interval, slot, seat) drives a deterministic availability engine and an approved-policy retrieval layer with citation checks. An independent verifier recomputes every availability answer from the stated query, so a tampered count, interval or seat set is caught. Every response carries its provenance: live or mock understanding, transport, token usage, and a persistent synthetic-data label.</p>
+    <p>Voice or text enters a local web desk (plain Python, no frameworks). Audio goes to Muse Voice Transcribe over Meta Model API; the transcript must be confirmed by the speaker. Confirmed text goes to Muse Spark 1.3 with a strict JSON schema, minimal reasoning effort, bounded output tokens, zero retries and one outstanding request. The typed, validated extraction (language, intent, date, interval, slot, seat) drives a deterministic availability engine and an approved-policy retrieval layer with citation checks, and code writes the answer. In the test suite and the one-shot live harness, an independent checker re-derives the expected interval, counts and free seats from the raw fixtures, so a wrong count, interval or seat set is recorded as a failure. Every response is labelled with its provenance: synthetic data, live or mock understanding, transport, and token usage in live mode.</p>
     <p class="muted">Demonstration data is historical and synthetic (fixture clock 27 October 2026 IST). No real member records exist anywhere in the project, and the real library's membership system is not connected.</p>
   </div>
 </section>
 
-<section aria-labelledby="sd-run-h">
+<section class="alt" aria-labelledby="sd-run-h">
   <div class="container">
     <div class="section-head"><h2 id="sd-run-h">Run it yourself</h2><p class="muted">Offline and free in mock mode; live mode needs your own Meta Model API key.</p></div>
     <p><a class="btn btn-outline" href="https://github.com/Shaurya-flex/Seat-desk#reproduce-the-core-typed-workflow-for-judges" rel="noopener">Setup instructions in the README →</a></p>
