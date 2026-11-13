@@ -284,16 +284,25 @@ ROLE_LABELS = {
 
 
 # -------------------------------------------------------------- whatsapp
-def wa_text(role="[role]", service="[service]"):
-    return (
-        "Namaste Moodily,\n"
-        "Main {role} hoon.\n"
-        "Mujhe {service} chahiye.\n"
-        "Mera business/profession [type] hai.\n"
-        "City [city] hai.\n"
-        "Budget approx [budget] hai.\n"
-        "Current website/social link [URL] hai."
-    ).format(role=role, service=service)
+def wa_text(role="", service="", detail="", ask_details=True):
+    """A complete, send-ready message — never a fill-in-the-blanks template.
+
+    The old version shipped literal [type]/[city]/[budget]/[URL] placeholders into WhatsApp.
+    On a phone the text lands in the input box already typed, so visitors tapped send without
+    editing and enquiries arrived with no name, shop type or city (real case: 2026-11-13).
+    Those fields are now collected by the requirement sheet in assets/js/site.js BEFORE WhatsApp
+    opens. This remains the no-JS fallback, so it only states what the page already knows.
+    """
+    lines = ["Namaste Moodily,"]
+    if role and "[" not in role:
+        lines.append("Main {} hoon.".format(role))
+    lines.append("Mujhe {} chahiye.".format(service) if service and "[" not in service
+                 else "Mujhe apne business ke liye digital help chahiye.")
+    if detail:
+        lines.append(detail)
+    if ask_details:
+        lines.append("(Mera naam, business ka type aur city agle message mein bhej raha/rahi hoon.)")
+    return "\n".join(lines)
 
 
 def wa_href(text):
@@ -306,9 +315,21 @@ def wa_href(text):
 WA_ICON = ('<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>')
 
 
-def wa_button(label, role="[role]", service="[service]", cls="btn btn-wa", track_label="generic"):
-    return '<a class="{}" href="{}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="{}">{} {}</a>'.format(
-        cls, e(wa_href(wa_text(role, service))), e(track_label), WA_ICON, e(label))
+def wa_button(label, role="[role]", service="[service]", cls="btn btn-wa", track_label="generic", service_id="", form=True):
+    """data-wa-* lets the requirement sheet pre-fill service/role, so the visitor types only
+    what Moodily cannot already know (name, business type, city).
+
+    form=False is for the site chrome (header, footer, floating button, bottom bar). Those are
+    "quick question" taps rather than enquiries, so they open WhatsApp directly — still with a
+    complete sentence, never a blank template. Buttons tied to actual work keep the sheet,
+    because that is where a missing name/city costs a round-trip.
+    """
+    role = "" if "[" in str(role) else role
+    service = "" if "[" in str(service) else service
+    return ('<a class="{cls}" href="{href}" target="_blank" rel="noopener" data-track="whatsapp_click" '
+            'data-label="{track}" data-wa-role="{role}" data-wa-service="{svc}" data-wa-service-id="{sid}"{form}>{icon} {label}</a>').format(
+        cls=cls, href=e(wa_href(wa_text(role, service, ask_details=form))), track=e(track_label), role=e(role),
+        svc=e(service), sid=e(service_id), form=' data-wa-form="1"' if form else "", icon=WA_ICON, label=e(label))
 
 
 # ------------------------------------------------------------ components
@@ -416,7 +437,7 @@ def service_wa(svc, label, cls, track):
         return '<a class="{}" href="{}" target="_blank" rel="noopener" data-track="whatsapp_click" data-label="{}">{} {}</a>'.format(
             cls, e(wa_href(svc["whatsapp_message"])), e(track), WA_ICON, e(label))
     name = "{} offer — {} (₹{})".format(OFFER["name"], svc["name"], inr(offer_price(svc))) if in_offer(svc) else svc["name"]
-    return wa_button(label, ROLE_LABELS.get(svc["category"], "[role]"), name, cls, track)
+    return wa_button(label, ROLE_LABELS.get(svc["category"], "[role]"), name, cls, track, service_id=svc["id"])
 
 
 def primary_service_cta(svc):
@@ -3573,7 +3594,7 @@ def header(route, meta):
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
     <a class="btn btn-primary btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="nav">Free Digital Audit</a></div>
 </div></header>""".format(main=main, svc=svc, top=top, lang=lang_btn, contact=cur("/contact/"), popular=li(NAV_POPULAR, True), learn=li(NAV_LEARN),
-               yt=AI_WITH_SAURABH, menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
+               yt=AI_WITH_SAURABH, menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu", form=False))
 
 
 def footer(route=""):
@@ -3601,10 +3622,10 @@ def footer(route=""):
   <p class="footer-note small muted">{note}</p>
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
 </div></footer>
-{sticky}""".format(note=footer_note(route), 
-        email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm"),
+{sticky}{sheet}""".format(note=footer_note(route), sheet=requirement_sheet(), 
+        email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm", form=False),
         affiliate='<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>' if amazon_public() else "",
-        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text())), icon=WA_ICON), yt=AI_WITH_SAURABH)
+        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text(ask_details=False))), icon=WA_ICON), yt=AI_WITH_SAURABH)
 
 
 STICKY_CTA = """
@@ -3613,6 +3634,74 @@ STICKY_CTA = """
 
 
 PRODUCTION_HOST = BASE.split("://", 1)[1].rstrip("/")
+
+
+# ------------------------------------------------- WhatsApp requirement sheet
+# Why this exists: a WhatsApp deep link pre-fills the message box, so a template with blanks
+# gets sent unedited. This sheet collects the 3 things Moodily cannot infer (name, business
+# type, city), pre-fills the rest from the page, and only then opens WhatsApp with a complete
+# message. Progressive enhancement: without JS the link still sends a complete short message.
+def wa_service_options():
+    """Short, ordered list — the revenue path first, then everything else, then 'not sure'."""
+    opts, seen = [], set()
+    for key in ("digitalAudit", "googleQuickFix", "whatsappBasic", "digitalStarter",
+                "localBusinessGrowth", "digitalBlueprint", "digitalSaathi"):
+        sid = PRODUCTS[key].get("service_id")
+        if not sid or sid in seen:
+            continue
+        seen.add(sid)
+        svc = SERVICES[sid]
+        opts.append((sid, "{} — {}".format(svc["name"], price_label(svc))))
+    if OFFER_STATE:
+        fs = PRODUCTS["foundingStarter"]
+        opts.insert(1, ("founding-starter", "Founding 10 — Google + WhatsApp Starter — ₹{}".format(inr(fs["price"]))))
+    for sid in ("business-website", "landing-page", "product-catalogue", "presentation-design-only",
+                "invitation-digital", "business-identity-kit", "education-content-pack",
+                "research-intelligence-sprint", "ai-automation-starter"):
+        svc = SERVICES.get(sid)
+        if svc and sid not in seen and svc.get("active", True):
+            seen.add(sid)
+            opts.append((sid, "{} — {}".format(svc["name"], price_label(svc))))
+    html = "".join('<option value="{}">{}</option>'.format(e(i), e(t)) for i, t in opts)
+    return html + '<option value="not-sure">अभी तय नहीं — आप सलाह दीजिए</option>'
+
+
+REQUIREMENT_SHEET = """
+<div class="wr-backdrop" id="wrSheet" hidden>
+  <div class="wr-panel" role="dialog" aria-modal="true" aria-labelledby="wr-h" tabindex="-1">
+    <div class="wr-head">
+      <div><p class="eyebrow">WhatsApp पर भेजने से पहले</p><h2 id="wr-h">अपनी जानकारी भरिए</h2></div>
+      <button type="button" class="wr-x" id="wrClose" aria-label="बंद करें">&times;</button>
+    </div>
+    <p class="small muted">सिर्फ़ 3 ज़रूरी जानकारी — ताकि Moodily पहले ही message में समझ जाए कि आपको क्या चाहिए और दोबारा पूछना न पड़े।</p>
+    <form id="wrForm" novalidate>
+      <div class="field"><label for="wrName">आपका नाम *</label>
+        <input id="wrName" name="name" autocomplete="name" maxlength="60" required placeholder="जैसे: Ajitesh Kumar"></div>
+      <div class="field"><label for="wrBiz">आपका business / shop किस तरह का है? *</label>
+        <input id="wrBiz" name="biz" maxlength="60" required placeholder="जैसे: किराना दुकान, salon, coaching, clinic"></div>
+      <div class="field"><label for="wrCity">City *</label>
+        <input id="wrCity" name="city" autocomplete="address-level2" maxlength="40" required placeholder="जैसे: Ara, Bihar"></div>
+      <div class="field"><label for="wrService">कौन सी service चाहिए?</label>
+        <select id="wrService" name="service">{options}</select></div>
+      <div class="field"><label for="wrNeed">अभी क्या दिक्कत है / क्या करवाना है?</label>
+        <textarea id="wrNeed" name="need" rows="2" maxlength="300" placeholder="जैसे: दुकान Google Maps पर नहीं दिखती, customers को location नहीं मिलती"></textarea></div>
+      <details class="wr-more"><summary>और जानकारी (optional)</summary>
+        <div class="field"><label for="wrLink">Google listing / website / Instagram link</label>
+          <input id="wrLink" name="link" type="url" inputmode="url" maxlength="200" placeholder="https://"></div>
+        <div class="field"><label for="wrBudget">Budget (approx)</label>
+          <select id="wrBudget" name="budget"><option value="">बताना ज़रूरी नहीं</option><option>₹500 – ₹2,000</option><option>₹2,000 – ₹5,000</option><option>₹5,000 – ₹15,000</option><option>₹15,000+</option><option>अभी पता नहीं</option></select></div>
+      </details>
+      <p class="form-error" id="wrError" role="alert" hidden></p>
+      <button class="btn btn-wa btn-lg btn-block" id="wrSend" type="submit">{icon} WhatsApp पर भेजें →</button>
+      <p class="small muted">यह message आपके अपने WhatsApp से जाएगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।</p>
+      <p class="wr-skip small"><button type="button" class="linklike" id="wrSkip">details के बिना सीधे chat करें</button></p>
+    </form>
+  </div>
+</div>"""
+
+
+def requirement_sheet():
+    return REQUIREMENT_SHEET.format(options=wa_service_options(), icon=WA_ICON)
 
 
 def gtm_head():

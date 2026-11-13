@@ -1464,3 +1464,22 @@ main li,main dd,main dt,main p,main h1,main h2,main h3,main h4,main figcaption,m
 /* single concept card: its column may shrink below the label's width, and long labels wrap on narrow screens */
 @media (max-width:860px){.concepts-single .concept{grid-template-columns:minmax(0,1fr)}}
 .label-chip{white-space:normal;max-width:100%}
+/* ---------- WhatsApp requirement sheet (collects details before the chat opens) */
+.wr-backdrop{position:fixed;inset:0;z-index:120;background:rgba(8,13,28,.62);display:flex;align-items:flex-end;justify-content:center;padding:0}
+.wr-backdrop[hidden]{display:none!important}
+.wr-panel{width:min(520px,100%);max-height:92vh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:20px clamp(16px,4vw,24px) calc(20px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+.wr-panel:focus{outline:none}
+.wr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.wr-head h2{margin:2px 0 0;font-size:1.3rem}
+.wr-x{flex:none;width:38px;height:38px;font-size:1.5rem;line-height:1;border:1px solid var(--line-2);border-radius:50%;background:var(--card);color:var(--ink);cursor:pointer}
+.wr-x:hover{border-color:var(--indigo)}
+#wrForm{display:grid;gap:12px;margin-top:14px}
+#wrForm .field{margin:0}
+.wr-more summary{cursor:pointer;font-weight:600;padding:6px 0}
+.wr-more .field{margin-top:10px}
+.wr-skip{text-align:center;margin:2px 0 0}
+.linklike{background:none;border:0;padding:0;font:inherit;color:var(--ink-2);text-decoration:underline;cursor:pointer}
+.linklike:hover{color:var(--indigo)}
+html.wr-open,html.wr-open body{overflow:hidden}
+html.wr-open .mobile-cta,html.wr-open .fab-wa{display:none}
+@media (min-width:560px){.wr-backdrop{align-items:center;padding:20px}.wr-panel{border-radius:var(--r-lg)}}

@@ -507,6 +507,146 @@
     }
   }
 
+  // ---------- WhatsApp requirement sheet
+  // A wa.me link pre-fills the chat box, so any blank in the template gets sent unedited —
+  // that is how a real enquiry arrived with no name, shop type or city (2026-11-13).
+  // Every WhatsApp button now opens this sheet first and leaves with a COMPLETE message.
+  var wrSheet = document.getElementById('wrSheet');
+  if (wrSheet) {
+    var wrForm = document.getElementById('wrForm');
+    var wrError = document.getElementById('wrError');
+    var wrServiceSel = document.getElementById('wrService');
+    var wrFields = { name: 'wrName', biz: 'wrBiz', city: 'wrCity', need: 'wrNeed', link: 'wrLink', budget: 'wrBudget' };
+    var wrEl = function (k) { return document.getElementById(wrFields[k]); };
+    var wrCtx = { label: '', role: '', service: '', serviceId: '' };
+    var wrLastFocus = null;
+    var STORE = 'moodily_wr';
+
+    var wrRemember = function () {
+      try {
+        var keep = {};
+        ['name', 'biz', 'city', 'link'].forEach(function (k) { keep[k] = wrEl(k).value.trim(); });
+        localStorage.setItem(STORE, JSON.stringify(keep));
+      } catch (e) {}
+    };
+    var wrRestore = function () {
+      try {
+        var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+        if (saved) ['name', 'biz', 'city', 'link'].forEach(function (k) { if (saved[k] && !wrEl(k).value) wrEl(k).value = saved[k]; });
+      } catch (e) {}
+    };
+
+    var wrClose = function () {
+      wrSheet.hidden = true;
+      root.classList.remove('wr-open');
+      if (wrLastFocus) wrLastFocus.focus();
+    };
+    var wrOpen = function (trigger) {
+      wrLastFocus = trigger;
+      wrCtx = {
+        label: trigger.getAttribute('data-label') || '',
+        role: trigger.getAttribute('data-wa-role') || '',
+        service: trigger.getAttribute('data-wa-service') || '',
+        serviceId: trigger.getAttribute('data-wa-service-id') || ''
+      };
+      wrError.hidden = true;
+      wrRestore();
+      // Pre-select the service from the page the visitor tapped from, so they rarely touch the list.
+      // A generic button (header, footer, floating) carries no service, so fall back to what the
+      // page itself is about before giving up and asking.
+      var sid = wrCtx.serviceId;
+      if (!sid) {
+        var onPage = document.querySelector('[data-service-id]');
+        if (onPage) sid = onPage.getAttribute('data-service-id');
+      }
+      var has = function (v) { return v && wrServiceSel.querySelector('option[value="' + String(v).replace(/[^\w-]/g, '') + '"]'); };
+      if (has(sid)) wrServiceSel.value = sid;
+      else if (/founding/i.test(wrCtx.label) || /founding/i.test(wrCtx.service)) wrServiceSel.value = 'founding-starter';
+      else wrServiceSel.value = 'not-sure';
+      wrSheet.hidden = false;
+      root.classList.add('wr-open');
+      wrSheet.querySelector('.wr-panel').focus();
+      var firstEmpty = ['name', 'biz', 'city'].map(wrEl).filter(function (el) { return !el.value.trim(); })[0];
+      if (firstEmpty) firstEmpty.focus();
+      track('wa_requirement_opened', { label: wrCtx.label, service: wrServiceSel.value || wrCtx.serviceId || '' });
+    };
+
+    // Build the message the owner actually receives. Only filled lines are included —
+    // a blank never becomes a "[placeholder]" again.
+    var wrMessage = function (ref) {
+      var serviceText = wrServiceSel.value === 'not-sure'
+        ? 'अभी तय नहीं — सलाह चाहिए'
+        : (wrServiceSel.options[wrServiceSel.selectedIndex] || {}).text || wrCtx.service;
+      var lines = ['Namaste Moodily 👋', 'Naya enquiry — ' + ref, ''];
+      var add = function (k, v) { if (v) lines.push(k + ': ' + v); };
+      add('Naam', wrEl('name').value.trim());
+      add('Business', wrEl('biz').value.trim());
+      add('City', wrEl('city').value.trim());
+      add('Service', serviceText);
+      add('Kya chahiye', wrEl('need').value.trim().replace(/\s*\n\s*/g, ' '));
+      add('Current link', wrEl('link').value.trim());
+      add('Budget', wrEl('budget').value);
+      lines.push('', 'moodily.in se bheja gaya · ' + location.pathname);
+      return lines.join('\n').replace(/\[[a-z]+\]/gi, '').trim();  // guard: no placeholder can survive
+    };
+
+    var wrRef = function () {
+      var d = new Date(), p2 = function (n) { return String(n).padStart(2, '0'); };
+      var abc = '23456789ABCDEFGHJKMNPQRSTUVWXYZ', id = '';
+      for (var i = 0; i < 4; i++) id += abc[Math.floor(Math.random() * abc.length)];
+      return 'MW-' + String(d.getFullYear()).slice(2) + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + id;
+    };
+
+    var wrGo = function (text) {
+      var num = (wrLastFocus && wrLastFocus.getAttribute('href') || '').match(/wa\.me\/(\d+)/);
+      var url = 'https://wa.me/' + (num ? num[1] : '') + '?text=' + encodeURIComponent(text);
+      window.open(url, '_blank', 'noopener');
+    };
+
+    wrForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var bad = null;
+      ['name', 'biz', 'city'].forEach(function (k) {
+        var el = wrEl(k), ok = el.value.trim().length >= 2;
+        el.setAttribute('aria-invalid', ok ? 'false' : 'true');
+        if (!ok && !bad) bad = el;
+      });
+      if (bad) {
+        wrError.textContent = 'कृपया नाम, business का type और city भरें — इन्हीं से हम आपकी सही मदद कर पाते हैं।';
+        wrError.hidden = false;
+        bad.focus();
+        return;
+      }
+      wrError.hidden = true;
+      wrRemember();
+      var ref = wrRef();
+      track('wa_requirement_sent', { label: wrCtx.label, service: wrServiceSel.value || '', ref: ref });
+      wrGo(wrMessage(ref));
+      wrClose();
+    });
+
+    document.getElementById('wrSkip').addEventListener('click', function () {
+      // Escape hatch for "I just want to ask something" — still a complete sentence, never a blank.
+      var svcText = wrCtx.service || 'digital help';
+      track('wa_requirement_skipped', { label: wrCtx.label });
+      wrGo('Namaste Moodily, mujhe ' + svcText + ' ke baare mein ek sawaal poochhna hai.');
+      wrClose();
+    });
+
+    document.getElementById('wrClose').addEventListener('click', wrClose);
+    wrSheet.addEventListener('click', function (ev) { if (ev.target === wrSheet) wrClose(); });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !wrSheet.hidden) wrClose(); });
+
+    // Only enquiry buttons open the sheet. Site chrome (header, footer, floating button,
+    // bottom bar) has no data-wa-form and goes straight to chat for a quick question.
+    document.addEventListener('click', function (ev) {
+      var a = ev.target.closest('a[data-wa-form]');
+      if (!a || !/wa\.me\//.test(a.getAttribute('href') || '')) return;
+      ev.preventDefault();
+      wrOpen(a);
+    });
+  }
+
   // ---------- learn: expand/collapse + private star rating (kept from original site)
   document.querySelectorAll('[data-stages]').forEach(function (btn) {
     btn.addEventListener('click', function () {
