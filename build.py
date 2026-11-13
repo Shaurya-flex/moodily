@@ -284,7 +284,7 @@ ROLE_LABELS = {
 
 
 # -------------------------------------------------------------- whatsapp
-def wa_text(role="", service="", detail=""):
+def wa_text(role="", service="", detail="", ask_details=True):
     """A complete, send-ready message — never a fill-in-the-blanks template.
 
     The old version shipped literal [type]/[city]/[budget]/[URL] placeholders into WhatsApp.
@@ -300,7 +300,8 @@ def wa_text(role="", service="", detail=""):
                  else "Mujhe apne business ke liye digital help chahiye.")
     if detail:
         lines.append(detail)
-    lines.append("(Mera naam, business ka type aur city agle message mein bhej raha/rahi hoon.)")
+    if ask_details:
+        lines.append("(Mera naam, business ka type aur city agle message mein bhej raha/rahi hoon.)")
     return "\n".join(lines)
 
 
@@ -314,15 +315,21 @@ def wa_href(text):
 WA_ICON = ('<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z"/></svg>')
 
 
-def wa_button(label, role="[role]", service="[service]", cls="btn btn-wa", track_label="generic", service_id=""):
+def wa_button(label, role="[role]", service="[service]", cls="btn btn-wa", track_label="generic", service_id="", form=True):
     """data-wa-* lets the requirement sheet pre-fill service/role, so the visitor types only
-    what Moodily cannot already know (name, business type, city)."""
+    what Moodily cannot already know (name, business type, city).
+
+    form=False is for the site chrome (header, footer, floating button, bottom bar). Those are
+    "quick question" taps rather than enquiries, so they open WhatsApp directly — still with a
+    complete sentence, never a blank template. Buttons tied to actual work keep the sheet,
+    because that is where a missing name/city costs a round-trip.
+    """
     role = "" if "[" in str(role) else role
     service = "" if "[" in str(service) else service
     return ('<a class="{cls}" href="{href}" target="_blank" rel="noopener" data-track="whatsapp_click" '
-            'data-label="{track}" data-wa-role="{role}" data-wa-service="{svc}" data-wa-service-id="{sid}">{icon} {label}</a>').format(
-        cls=cls, href=e(wa_href(wa_text(role, service))), track=e(track_label), role=e(role),
-        svc=e(service), sid=e(service_id), icon=WA_ICON, label=e(label))
+            'data-label="{track}" data-wa-role="{role}" data-wa-service="{svc}" data-wa-service-id="{sid}"{form}>{icon} {label}</a>').format(
+        cls=cls, href=e(wa_href(wa_text(role, service, ask_details=form))), track=e(track_label), role=e(role),
+        svc=e(service), sid=e(service_id), form=' data-wa-form="1"' if form else "", icon=WA_ICON, label=e(label))
 
 
 # ------------------------------------------------------------ components
@@ -3587,7 +3594,7 @@ def header(route, meta):
   <div class="nav-actions">{lang}<button class="icon-btn" type="button" id="themeToggle" aria-label="Toggle dark/light theme">◐</button>
     <a class="btn btn-primary btn-sm nav-cta" href="/contact/?service=free-digital-audit" data-track="free_audit_click" data-label="nav">Free Digital Audit</a></div>
 </div></header>""".format(main=main, svc=svc, top=top, lang=lang_btn, contact=cur("/contact/"), popular=li(NAV_POPULAR, True), learn=li(NAV_LEARN),
-               yt=AI_WITH_SAURABH, menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu"))
+               yt=AI_WITH_SAURABH, menuwa=wa_button("WhatsApp", "customer", "digital help", track_label="menu", form=False))
 
 
 def footer(route=""):
@@ -3616,9 +3623,9 @@ def footer(route=""):
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
 </div></footer>
 {sticky}{sheet}""".format(note=footer_note(route), sheet=requirement_sheet(), 
-        email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm"),
+        email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm", form=False),
         affiliate='<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>' if amazon_public() else "",
-        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text())), icon=WA_ICON), yt=AI_WITH_SAURABH)
+        sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text(ask_details=False))), icon=WA_ICON), yt=AI_WITH_SAURABH)
 
 
 STICKY_CTA = """
@@ -3663,7 +3670,7 @@ REQUIREMENT_SHEET = """
 <div class="wr-backdrop" id="wrSheet" hidden>
   <div class="wr-panel" role="dialog" aria-modal="true" aria-labelledby="wr-h" tabindex="-1">
     <div class="wr-head">
-      <div><p class="eyebrow">WhatsApp पर भेजने से पहले</p><h2 id="wr-h">अपनी details भरिए</h2></div>
+      <div><p class="eyebrow">WhatsApp पर भेजने से पहले</p><h2 id="wr-h">अपनी जानकारी भरिए</h2></div>
       <button type="button" class="wr-x" id="wrClose" aria-label="बंद करें">&times;</button>
     </div>
     <p class="small muted">सिर्फ़ 3 ज़रूरी जानकारी — ताकि Moodily पहले ही message में समझ जाए कि आपको क्या चाहिए और दोबारा पूछना न पड़े।</p>

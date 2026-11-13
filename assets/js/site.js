@@ -637,8 +637,10 @@
     wrSheet.addEventListener('click', function (ev) { if (ev.target === wrSheet) wrClose(); });
     document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !wrSheet.hidden) wrClose(); });
 
+    // Only enquiry buttons open the sheet. Site chrome (header, footer, floating button,
+    // bottom bar) has no data-wa-form and goes straight to chat for a quick question.
     document.addEventListener('click', function (ev) {
-      var a = ev.target.closest('a[data-track="whatsapp_click"]');
+      var a = ev.target.closest('a[data-wa-form]');
       if (!a || !/wa\.me\//.test(a.getAttribute('href') || '')) return;
       ev.preventDefault();
       wrOpen(a);
