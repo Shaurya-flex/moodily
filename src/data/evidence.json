@@ -1,68 +1,120 @@
 {
-  "_readme": "Every number Moodily publishes lives here with its source, year and link. A card with no verifiable primary or named-publisher source does NOT get added — build.py refuses to render one without source/year/url. Re-verify each entry at review_due and update or retire it; do not let a stale number sit on the site. India-specific only: never show a figure from another country as if it described India.",
-  "last_reviewed": "2026-09-17",
-  "review_due": "2027-03-31",
-  "cards": [
-    {
-      "id": "internet-subscribers",
-      "number": "109 करोड़",
-      "claim": "भारत में internet subscribers — आपका ग्राहक पहले से online है, गाँव में भी।",
-      "source": "TRAI, Indian Telecom Services Performance Indicator Report (Jan–Mar 2026), PIB",
-      "year": "2026",
-      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2276780",
-      "context": "31 मार्च 2026 तक 1,092.79 million subscribers।"
-    },
-    {
-      "id": "rural-share",
-      "number": "57%",
-      "claim": "active internet users गाँव और छोटे शहरों में — करीब 54.8 करोड़ लोग।",
-      "source": "IAMAI–Kantar, Internet in India Report 2025",
-      "year": "2025",
-      "url": "https://www.iamai.in/",
-      "context": "958 million active users में से 57% rural।"
-    },
-    {
-      "id": "short-video",
-      "number": "61%",
-      "claim": "internet users short video देखते हैं — खोज अब video से भी होती है।",
-      "source": "IAMAI–Kantar, Internet in India Report 2025",
-      "year": "2025",
-      "url": "https://www.iamai.in/",
-      "context": "2025 में 588 million लोगों ने short video देखा।"
-    }
-  ],
-  "means": [
-    {
-      "trend": "ग्राहक अब पहले Google, Maps और WhatsApp पर देखता है, फिर दुकान तक आता है।",
-      "implication": "आपकी सही जानकारी ढूँढना आसान होना चाहिए — नाम, समय, नंबर, रास्ता, दाम।",
-      "solution": "अपनी सही जानकारी Google पर डालिए — नाम, समय, नंबर, रास्ता, दाम।",
-      "services": [
-        "google-business-fix",
-        "whatsapp-business-setup",
-        "landing-page"
-      ],
-      "card": "internet-subscribers"
-    },
-    {
-      "trend": "Internet की सबसे तेज़ बढ़त गाँव और छोटे शहरों में है।",
-      "implication": "आपका ग्राहक हिंदी में खोजता है और phone पर देखता है — English-only, भारी website काम नहीं करती।",
-      "solution": "Hindi में और phone पर खुलने लायक page रखिए, भारी website नहीं।",
-      "services": [
-        "landing-page",
-        "product-catalogue",
-        "whatsapp-business-setup"
-      ],
-      "card": "rural-share"
-    },
-    {
-      "trend": "Short video अब खोज और भरोसे दोनों का रास्ता है।",
-      "implication": "एक बार का photo shoot काफ़ी नहीं — लगातार दिखने लायक content चाहिए।",
-      "solution": "एक बार का shoot नहीं — लगातार दिखने लायक content चाहिए।",
-      "services": [
-        "social-campaign-kit",
-        "content-growth-retainer"
-      ],
-      "card": "short-video"
-    }
-  ]
+ "_readme": "Every number Moodily publishes lives here with its source, year and link. A card with no verifiable primary or named-publisher source does NOT get added — build.py refuses to render one without source/year/url. Re-verify each entry at review_due and update or retire it; do not let a stale number sit on the site. India-specific only: never show a figure from another country as if it described India.",
+ "last_reviewed": "2026-11-14",
+ "review_due": "2027-05-31",
+ "cards": [
+  {
+   "id": "internet-subscribers",
+   "number": "109 करोड़",
+   "claim": "भारत में internet subscribers — आपका ग्राहक पहले से online है, गाँव में भी।",
+   "source": "TRAI, Indian Telecom Services Performance Indicator Report (Jan–Mar 2026), PIB",
+   "year": "2026",
+   "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2276780",
+   "context": "31 मार्च 2026 तक 1,092.79 million subscribers।"
+  },
+  {
+   "id": "rural-share",
+   "number": "57%",
+   "claim": "active internet users गाँव और छोटे शहरों में — करीब 54.8 करोड़ लोग।",
+   "source": "IAMAI–Kantar, Internet in India Report 2025",
+   "year": "2025",
+   "url": "https://www.iamai.in/",
+   "context": "958 million active users में से 57% rural।"
+  },
+  {
+   "id": "short-video",
+   "number": "61%",
+   "claim": "internet users short video देखते हैं — खोज अब video से भी होती है।",
+   "source": "IAMAI–Kantar, Internet in India Report 2025",
+   "year": "2025",
+   "url": "https://www.iamai.in/",
+   "context": "2025 में 588 million लोगों ने short video देखा।"
+  },
+  {
+   "id": "google-connections",
+   "number": "90 करोड़+",
+   "claim": "हर महीने भारत में Google Search और Maps के ज़रिए लोग businesses तक पहुँचते हैं।",
+   "source": "Google India (official blog), Google for India 2024",
+   "year": "2024",
+   "url": "https://blog.google/intl/en-in/company-news/outreach-initiatives/google-for-india-2024-bringing-ai-to-every-indian-across-our-products/",
+   "context": "Google के अपने आँकड़े: “over 35 million Indian businesses online across products like Search and Maps” — यानी 3.5 करोड़ से ज़्यादा businesses पहले से वहाँ हैं।"
+  },
+  {
+   "id": "review-habit",
+   "number": "34%",
+   "claim": "जो लोग Google पर किसी दुकान का पता या नंबर देखते हैं, उनमें इतने हमेशा या ज़्यादातर बार reviews भी पढ़ते हैं।",
+   "source": "LocalCircles, Google reviews survey",
+   "year": "2022",
+   "url": "https://www.localcircles.com/a/press/page/google-reviews-survey",
+   "context": "12% “हमेशा” + 22% “ज़्यादातर बार”। कभी-न-कभी पढ़ने वाले 88% हैं। 56,000+ जवाब, 357 ज़िले (20% tier 3/4 और ग्रामीण)।"
+  },
+  {
+   "id": "health-reviews",
+   "number": "36%",
+   "claim": "भारतीय doctor, dentist या clinic चुनते समय reviews देखते हैं — 17 देशों में सबसे ज़्यादा।",
+   "source": "YouGov, Do consumer reviews guide healthcare choice?",
+   "year": "2022",
+   "url": "https://yougov.com/articles/44679-do-consumer-reviews-guide-healthcare-choice",
+   "context": "17 markets का औसत सिर्फ़ 20% है। 18,000+ लोग, fieldwork अक्टूबर 2022; भारत का sample urban representative।"
+  }
+ ],
+ "means": [
+  {
+   "trend": "ग्राहक अब पहले Google, Maps और WhatsApp पर देखता है, फिर दुकान तक आता है।",
+   "implication": "आपकी सही जानकारी ढूँढना आसान होना चाहिए — नाम, समय, नंबर, रास्ता, दाम।",
+   "solution": "अपनी सही जानकारी Google पर डालिए — नाम, समय, नंबर, रास्ता, दाम।",
+   "services": [
+    "google-business-fix",
+    "whatsapp-business-setup",
+    "landing-page"
+   ],
+   "card": "internet-subscribers"
+  },
+  {
+   "trend": "Internet की सबसे तेज़ बढ़त गाँव और छोटे शहरों में है।",
+   "implication": "आपका ग्राहक हिंदी में खोजता है और phone पर देखता है — English-only, भारी website काम नहीं करती।",
+   "solution": "Hindi में और phone पर खुलने लायक page रखिए, भारी website नहीं।",
+   "services": [
+    "landing-page",
+    "product-catalogue",
+    "whatsapp-business-setup"
+   ],
+   "card": "rural-share"
+  },
+  {
+   "trend": "Short video अब खोज और भरोसे दोनों का रास्ता है।",
+   "implication": "एक बार का photo shoot काफ़ी नहीं — लगातार दिखने लायक content चाहिए।",
+   "solution": "एक बार का shoot नहीं — लगातार दिखने लायक content चाहिए।",
+   "services": [
+    "social-campaign-kit",
+    "content-growth-retainer"
+   ],
+   "card": "short-video"
+  }
+ ],
+ "meters_title": "कितने internet users सचमुच online ख़रीदते हैं (e-retail penetration)",
+ "meters": [
+  {
+   "id": "metro-penetration",
+   "label": "Metro और Tier 1 शहर",
+   "low": 45,
+   "high": 50,
+   "figure": "45–50%",
+   "source": "Bain & Company with Flipkart, How India Shops Online 2026",
+   "year": "2026",
+   "url": "https://www.bain.com/insights/how-india-shops-online-2026/"
+  },
+  {
+   "id": "tier2-penetration",
+   "label": "Tier 2 और उससे छोटे शहर",
+   "low": 25,
+   "high": 30,
+   "figure": "25–30%",
+   "source": "Bain & Company with Flipkart, How India Shops Online 2026",
+   "year": "2026",
+   "url": "https://www.bain.com/insights/how-india-shops-online-2026/"
+  }
+ ],
+ "meters_note": "इसका मतलब सीधा है: आपके शहर में ज़्यादातर internet users अब भी online ख़रीदते नहीं — वे online <strong>देखते</strong> हैं और ख़रीदने <strong>आपकी दुकान</strong> पर आते हैं। इसलिए आपको e-commerce नहीं, सही online पहचान चाहिए। (उसी report में: नए online shoppers का लगभग 65% हिस्सा Tier 2+ शहरों से आया।)",
+ "honesty": "ये भी सच है — और इसी से हमारा काम तय होता है: सिर्फ़ <strong>3%</strong> भारतीयों को Google reviews पर ऊँचा भरोसा है, 45% को लगता है कि reviews सही नहीं होतीं और 37% को लगता है कि वे positively biased हैं (LocalCircles, 2022)। इसलिए नकली review का कोई फ़ायदा नहीं। असली, पूरी और अपडेटेड जानकारी ही भरोसा बनाती है — Moodily कभी fake या paid review नहीं लिखता और न ख़रीदता है।"
 }

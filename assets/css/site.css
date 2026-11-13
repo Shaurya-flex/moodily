@@ -42,13 +42,13 @@
   --font:'Mukta',system-ui,-apple-system,'Segoe UI',sans-serif;
   --font-display:'Baloo 2','Mukta',system-ui,sans-serif;
   --font-hi:'Mukta','Noto Sans Devanagari',system-ui,sans-serif;
-  --fs-xs:clamp(.8125rem,.79rem + .1vw,.875rem);--fs-eyebrow:var(--fs-xs);--fs-small:clamp(.875rem,.85rem + .12vw,.9375rem);
+  --fs-xs:clamp(.875rem,.85rem + .1vw,.9375rem);--fs-eyebrow:var(--fs-xs);--fs-small:clamp(.9375rem,.92rem + .12vw,1rem);
   --fs-body:clamp(1rem,.95rem + .22vw,1.125rem);--fs-lead:clamp(1.0625rem,.98rem + .42vw,1.3125rem);
   --fs-h3:clamp(1.1875rem,1.06rem + .45vw,1.5rem);--fs-h2:clamp(1.75rem,1.25rem + 2.1vw,2.75rem);--fs-h1:clamp(2.125rem,1.55rem + 2.5vw,3.625rem);
   --fs-price:clamp(1.5rem,2.4vw,1.75rem);
   /* rhythm */
   --space-section:clamp(32px,3vw,48px);--space-gap:clamp(14px,1.4vw,18px);
-  --wrap:1440px;--gutter:clamp(16px,4vw,72px);--reading:70ch;--head-measure:46ch;--fs-card-title:clamp(1.125rem,1.02rem + .38vw,1.375rem);--fs-card:clamp(.9375rem,.9rem + .18vw,1.0625rem);
+  --wrap:1440px;--gutter:clamp(16px,4vw,72px);--reading:70ch;--head-measure:46ch;--fs-card-title:clamp(1.125rem,1.02rem + .38vw,1.375rem);--fs-card:clamp(1rem,.96rem + .18vw,1.0625rem);
   --tap:44px;
   /* hero (shared by the India and International heroes) */
   --hero-pad-top:clamp(28px,4vw,64px);--hero-pad-bottom:clamp(32px,4vw,56px);--hero-gap:clamp(28px,4.2vw,80px);
@@ -213,6 +213,11 @@ section+section{border-top:1px solid var(--line)}
   /* a head with no description must not sit in half a grid — it reads as lopsided */
   .section-head:not(:has(p)){display:block}
   .section-head:not(:has(p))>h2{max-width:34ch}
+  /* .stack: a head carrying more than one paragraph. The two-column grid fills col1/col2/col1/col2,
+     which scrambles the reading order once there are 3+ children — so keep those stacked. */
+  .section-head.stack{display:block}
+  .section-head.stack>h2{max-width:30ch;margin-bottom:.3em}
+  .section-head.stack>.lead{max-width:68ch}
 }
 /* centred heads: FAQ and the closing blocks */
 .section-head.center{display:block;text-align:center}
@@ -748,7 +753,7 @@ details.more summary{cursor:pointer;font-size:var(--fs-small);color:var(--ink-2)
 .sample-tile h3{font-size:1.08rem;margin:0 0 6px}
 .sample-tile h3 a{color:var(--text);text-decoration:none}
 .sample-tile:hover h3 a{color:var(--primary)}
-.sample-who{font-size:.9rem;margin:0 0 6px;font-weight:600}
+.sample-who{font-size:var(--fs-small);margin:0 0 6px;font-weight:600}
 .sample-solves{margin:0 0 10px;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .sample-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:auto 0 2px}
 .sample-price{font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--primary)}
@@ -1005,7 +1010,7 @@ details.evidence-note p{margin:10px 0 0}
 .nav-intl-mobile{display:none;font-weight:700;font-size:var(--fs-small);color:var(--primary)!important;text-decoration:none;padding:6px 12px;border:1px solid color-mix(in srgb,var(--primary) 35%,transparent);border-radius:var(--r-pill);white-space:nowrap}
 .nav-intl-mobile:hover{background:var(--primary-soft)}
 @media (max-width:1023px){.nav-intl-mobile{display:inline-flex;align-items:center;min-height:36px}}
-@media (max-width:340px){.nav-intl-mobile{padding:6px 9px;font-size:var(--fs-xs)}}
+@media (max-width:400px){.nav-intl-mobile{padding:6px 9px;font-size:var(--fs-xs)}}
 /* bilingual pages carry the हिं/EN toggle in the header; on phones International stays in the menu there */
 @media (max-width:480px){.nav:has(.lang-toggle) .nav-intl-mobile{display:none}}
 .nav-intl>a{font-weight:700}
@@ -1483,3 +1488,43 @@ main li,main dd,main dt,main p,main h1,main h2,main h3,main h4,main figcaption,m
 html.wr-open,html.wr-open body{overflow:hidden}
 html.wr-open .mobile-cta,html.wr-open .fab-wa{display:none}
 @media (min-width:560px){.wr-backdrop{align-items:center;padding:20px}.wr-panel{border-radius:var(--r-lg)}}
+/* ---------- "your customer is already online": KPI tiles + meter list
+   One hue (sequential = magnitude). Figures and labels wear text tokens, never the mark colour.
+   No combined chart: these numbers come from different studies and different denominators. */
+.shift{display:grid;gap:clamp(18px,2.2vw,28px)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--space-gap)}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:6px}
+.kpi-fig{font-family:var(--font-display);font-size:clamp(2.5rem,1.9rem + 2.4vw,3.25rem);line-height:1.05;font-weight:800;color:var(--primary);margin:0;letter-spacing:-.02em}
+.kpi-label{margin:0;font-weight:600;color:var(--text);font-size:var(--fs-card)}
+.kpi-ctx{margin:0}
+.kpi-src{margin:auto 0 0;font-size:var(--fs-xs)}
+.kpi-src a{color:var(--text-muted);text-decoration-thickness:1px;text-underline-offset:2px}
+.kpi-src a:hover{color:var(--primary)}
+.meter-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:clamp(16px,1.8vw,24px)}
+.meter-head{margin:0 0 14px;font-weight:700;color:var(--text);font-size:var(--fs-card-title)}
+.meter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,30%) auto;align-items:center;gap:6px 14px;padding:12px 0;border-top:1px solid var(--border)}
+.meter-row:first-of-type{border-top:0}
+.meter-name{margin:0;color:var(--text);font-size:var(--fs-card)}
+.meter-track{height:10px;border-radius:999px;background:var(--surface-sunken);overflow:hidden}
+.meter-fill{display:block;height:100%;background:var(--primary);border-radius:0 4px 4px 0}
+.meter-fig{margin:0;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.meter-src{grid-column:1/-1;margin:0}
+.meter-src a{color:var(--text-muted)}
+.meter-src a:hover{color:var(--primary)}
+.evidence-note{margin:0}
+.evidence-note summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:var(--fs-small)}
+@media (max-width:640px){
+  .meter-row{grid-template-columns:1fr auto;gap:4px 10px}
+  .meter-track{grid-column:1/-1;order:3}
+  .meter-src{order:4}
+}
+.meter-track{position:relative;display:flex}
+.meter-tip{display:block;height:100%;background:var(--primary);opacity:.32;border-radius:0 4px 4px 0}
+.meter-fill{border-radius:0}
+.meter-row:has(.meter-tip) .meter-fill{border-radius:0}
+.meter-note{grid-column:1/-1;margin:14px 0 0;padding-top:14px;border-top:1px solid var(--border);color:var(--text)}
+.honesty{background:var(--warning-soft);border:1px solid color-mix(in srgb,var(--warning) 35%,transparent);border-radius:var(--r-card);padding:clamp(14px,1.6vw,20px)}
+.honesty-h{margin:0 0 6px;font-weight:700;color:var(--text)}
+.honesty p:last-child{margin:0;color:var(--text)}
+.why-close{margin-top:clamp(18px,2.2vw,28px);max-width:var(--reading)}
+.why-close .btn-row{margin:14px 0 8px}

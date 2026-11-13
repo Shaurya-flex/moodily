@@ -2120,6 +2120,70 @@ def c_sample_grid(args, ctx):
         chips=chips, tchips=tchips, cards=cards, n=len(items))
 
 
+# ------------------------------------------------- "your customer is already online"
+# Form choice: these are independent headline numbers from different studies with different
+# denominators, so they are NOT forced into one chart (that would compare unlike things).
+# A handful of headline numbers -> KPI row of stat tiles. Several shares that DO share a
+# source/denominator -> meter list (name, bar, figure per row, one hue, bars aligned).
+def _require(entry, keys, where):
+    for k in keys:
+        if not entry.get(k):
+            raise SystemExit("evidence.json: {} '{}' is missing {} — a number without a checkable "
+                             "source is not published".format(where, entry.get("id", "?"), k))
+
+
+def c_digital_shift(args, ctx):
+    ids = split_ids(args.get("ids")) or [c["id"] for c in EVIDENCE["cards"]]
+    by_id = {c["id"]: c for c in EVIDENCE["cards"]}
+    tiles = []
+    for cid in ids:
+        cd = by_id.get(cid)
+        if not cd:
+            raise SystemExit("digital-shift: unknown evidence card '{}'".format(cid))
+        _require(cd, ("number", "claim", "source", "year", "url", "context"), "card")
+        tiles.append(
+            '<article class="kpi" data-view="evidence_card_view|{id}">'
+            '<p class="kpi-fig">{num}</p><p class="kpi-label">{claim}</p>'
+            '<p class="kpi-ctx small muted">{ctx}</p>'
+            '<p class="kpi-src"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year} · देखें</a></p>'
+            '</article>'.format(id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=cd["context"],
+                                url=e(cd["url"]), src=e(cd["source"].split(",")[0]), year=e(cd["year"])))
+
+    meters = ""
+    rows = EVIDENCE.get("meters") or []
+    if rows:
+        out = []
+        for m in rows:
+            _require(m, ("label", "figure", "source", "year", "url"), "meter")
+            low = float(m.get("low", m.get("percent", 0)))
+            high = float(m.get("high", m.get("percent", low)))
+            if not 0 < low <= high <= 100:
+                raise SystemExit("evidence.json: meter '{}' needs 0 < low <= high <= 100".format(m.get("id")))
+            # Solid bar to the LOWER bound, lighter tip up to the upper bound: a published range is
+            # drawn as a range, never as a single invented midpoint.
+            tip = ('<span class="meter-tip" style="width:{:.4g}%"></span>'.format(high - low)) if high > low else ""
+            out.append(
+                '<div class="meter-row"><p class="meter-name">{label}</p>'
+                '<div class="meter-track"><span class="meter-fill" style="width:{low:.4g}%"></span>{tip}</div>'
+                '<p class="meter-fig">{fig}</p>'
+                '<p class="meter-src small"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year}</a></p>'
+                '</div>'.format(label=e(m["label"]), low=low, tip=tip, fig=e(m["figure"]),
+                                url=e(m["url"]), src=e(m["source"].split(",")[0]), year=e(m["year"])))
+        note = '<p class="meter-note">{}</p>'.format(EVIDENCE["meters_note"]) if EVIDENCE.get("meters_note") else ""
+        meters = ('<div class="meter-list"><p class="meter-head">{t}</p>{rows}{note}</div>').format(
+            t=e(EVIDENCE.get("meters_title", "आँकड़े")), rows="".join(out), note=note)
+
+    honesty = ('<aside class="honesty"><p class="honesty-h">हम आपको आधी तस्वीर नहीं दिखाएँगे</p><p>{}</p></aside>'.format(
+        EVIDENCE["honesty"])) if EVIDENCE.get("honesty") else ""
+    note = ('<details class="evidence-note"><summary>ये आँकड़े कहाँ से आए?</summary>'
+            '<p class="small muted">हर आँकड़े के साथ source, साल और link दिया है — आप ख़ुद जाँच सकते हैं। '
+            'जहाँ भारत का आँकड़ा मिला, वही दिया है; किसी दूसरे देश का आँकड़ा भारत के नाम पर नहीं दिखाया जाता। '
+            'जो आँकड़े इंटरनेट पर आम हैं पर जिनका असली source नहीं मिला, उन्हें हमने जानबूझकर नहीं लिखा। '
+            'ये बाज़ार के आँकड़े हैं — किसी एक दुकान के नतीजे की guarantee नहीं। पिछली जाँच: {}।</p></details>').format(
+        e(EVIDENCE["last_reviewed"]))
+    return '<div class="shift"><div class="kpi-row">{}</div>{}{}{}</div>'.format("".join(tiles), meters, honesty, note)
+
+
 def c_evidence(args, ctx):
     """Verified India-only numbers, each paired with the action it implies.
 
@@ -3356,7 +3420,7 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
+    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "digital-shift": c_digital_shift, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
     "workflow": c_workflow, "flow-diagram": c_flow_diagram, "ai-ladder": c_ai_ladder,
     "task-matrix": c_task_matrix, "checklist": c_checklist, "resource-index": c_resource_index,
     "resources-teaser": c_resources_teaser, "intl-services": c_intl_services, "intl-pricing": c_intl_pricing, "intl-price-note": c_intl_price_note, "intl-notice": c_intl_notice, "intl-process": c_intl_process, "intl-portfolio": c_intl_portfolio, "intl-labels": c_intl_labels, "intl-payments": c_intl_payments, "intl-founder": c_intl_founder, "intl-faq": c_intl_faq, "intl-cta": c_intl_cta, "intl-contact-line": c_intl_contact_line, "intl-intake": c_intl_intake, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
