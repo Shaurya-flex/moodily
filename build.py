@@ -2120,6 +2120,57 @@ def c_sample_grid(args, ctx):
         chips=chips, tchips=tchips, cards=cards, n=len(items))
 
 
+# ------------------------------------------------- "your customer is already online"
+# Form choice: these are independent headline numbers from different studies with different
+# denominators, so they are NOT forced into one chart (that would compare unlike things).
+# A handful of headline numbers -> KPI row of stat tiles. Several shares that DO share a
+# source/denominator -> meter list (name, bar, figure per row, one hue, bars aligned).
+def _require(entry, keys, where):
+    for k in keys:
+        if not entry.get(k):
+            raise SystemExit("evidence.json: {} '{}' is missing {} — a number without a checkable "
+                             "source is not published".format(where, entry.get("id", "?"), k))
+
+
+def c_digital_shift(args, ctx):
+    tiles = []
+    for cd in EVIDENCE["cards"]:
+        _require(cd, ("number", "claim", "source", "year", "url", "context"), "card")
+        tiles.append(
+            '<article class="kpi" data-view="evidence_card_view|{id}">'
+            '<p class="kpi-fig">{num}</p><p class="kpi-label">{claim}</p>'
+            '<p class="kpi-ctx small muted">{ctx}</p>'
+            '<p class="kpi-src"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year}</a></p>'
+            '</article>'.format(id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=e(cd["context"]),
+                                url=e(cd["url"]), src=e(cd["source"].split(",")[0]), year=e(cd["year"])))
+
+    meters = ""
+    rows = EVIDENCE.get("meters") or []
+    if rows:
+        out = []
+        for m in rows:
+            _require(m, ("label", "percent", "figure", "source", "year", "url"), "meter")
+            pct = float(m["percent"])
+            if not 0 < pct <= 100:
+                raise SystemExit("evidence.json: meter '{}' percent must be 0-100".format(m.get("id")))
+            out.append(
+                '<div class="meter-row"><p class="meter-name">{label}</p>'
+                '<div class="meter-track"><span class="meter-fill" style="width:{pct}%"></span></div>'
+                '<p class="meter-fig">{fig}</p>'
+                '<p class="meter-src small"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year}</a></p>'
+                '</div>'.format(label=e(m["label"]), pct=("%.4g" % pct), fig=e(m["figure"]),
+                                url=e(m["url"]), src=e(m["source"].split(",")[0]), year=e(m["year"])))
+        meters = ('<div class="meter-list" role="group" aria-label="{t}"><p class="meter-head">{t}</p>{rows}</div>').format(
+            t=e(EVIDENCE.get("meters_title", "आँकड़े")), rows="".join(out))
+
+    note = ('<details class="evidence-note"><summary>ये आँकड़े कहाँ से आए?</summary>'
+            '<p class="small muted">हर आँकड़े के साथ source, साल और link दिया है — आप ख़ुद जाँच सकते हैं। '
+            'जहाँ भारत का आँकड़ा मिला, वही दिया है; किसी दूसरे देश का आँकड़ा भारत के नाम पर नहीं दिखाया जाता। '
+            'ये बाज़ार के आँकड़े हैं — किसी एक दुकान के नतीजे की guarantee नहीं। पिछली जाँच: {}।</p></details>').format(
+        e(EVIDENCE["last_reviewed"]))
+    return '<div class="shift"><div class="kpi-row">{}</div>{}{}</div>'.format("".join(tiles), meters, note)
+
+
 def c_evidence(args, ctx):
     """Verified India-only numbers, each paired with the action it implies.
 
@@ -3356,7 +3407,7 @@ COMPONENTS = {
     "hero-ctas": c_hero_ctas, "samples": c_samples, "before-after": c_before_after, "tiers": c_tiers,
     "third-party-note": c_third_party_note, "how-it-works": c_how_it_works, "paths": c_paths, "answer-box": c_answer_box,
     "price-snapshot": c_price_snapshot, "price-guide": c_price_guide,
-    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
+    "packages": c_packages, "sample-grid": c_sample_grid, "evidence": c_evidence, "digital-shift": c_digital_shift, "prompt-framework": c_prompt_framework, "prompt-pack": c_prompt_pack,
     "workflow": c_workflow, "flow-diagram": c_flow_diagram, "ai-ladder": c_ai_ladder,
     "task-matrix": c_task_matrix, "checklist": c_checklist, "resource-index": c_resource_index,
     "resources-teaser": c_resources_teaser, "intl-services": c_intl_services, "intl-pricing": c_intl_pricing, "intl-price-note": c_intl_price_note, "intl-notice": c_intl_notice, "intl-process": c_intl_process, "intl-portfolio": c_intl_portfolio, "intl-labels": c_intl_labels, "intl-payments": c_intl_payments, "intl-founder": c_intl_founder, "intl-faq": c_intl_faq, "intl-cta": c_intl_cta, "intl-contact-line": c_intl_contact_line, "intl-intake": c_intl_intake, "affiliate-disclosure": c_affiliate_disclosure, "amazon-link": c_amazon_link, "before-after-saathi": c_before_after_saathi, "creates": c_creates, "categories": c_categories, "scorecard": c_scorecard, "promises": c_promises,
