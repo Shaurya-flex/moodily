@@ -25,6 +25,9 @@ RAW_BANNED = [
     (r"<!--@", "unrendered component token"), (r"_todo", "TODO field leaked into page"),
     # retired 2026-08 positioning — Moodily is a digital-services platform; these must not return in copy, metadata or schema
     (r"(?i)AI Seekho|Kamai Karo|कमाई करो|Future Bano|AI skilling", "retired Moodily slogan/positioning"),
+    # A wa.me link pre-fills the visitor's chat box, so a blank in the template gets sent unedited.
+    # Real incident 2026-11-13: an enquiry arrived with [type]/[city]/[budget]/[URL] still in it.
+    (r"%5B(?:type|city|budget|URL|role|service)%5D", "fill-in-the-blank placeholder in a prefilled message"),
 ]
 
 
