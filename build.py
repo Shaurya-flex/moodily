@@ -2133,15 +2133,20 @@ def _require(entry, keys, where):
 
 
 def c_digital_shift(args, ctx):
+    ids = split_ids(args.get("ids")) or [c["id"] for c in EVIDENCE["cards"]]
+    by_id = {c["id"]: c for c in EVIDENCE["cards"]}
     tiles = []
-    for cd in EVIDENCE["cards"]:
+    for cid in ids:
+        cd = by_id.get(cid)
+        if not cd:
+            raise SystemExit("digital-shift: unknown evidence card '{}'".format(cid))
         _require(cd, ("number", "claim", "source", "year", "url", "context"), "card")
         tiles.append(
             '<article class="kpi" data-view="evidence_card_view|{id}">'
             '<p class="kpi-fig">{num}</p><p class="kpi-label">{claim}</p>'
             '<p class="kpi-ctx small muted">{ctx}</p>'
-            '<p class="kpi-src"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year}</a></p>'
-            '</article>'.format(id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=e(cd["context"]),
+            '<p class="kpi-src"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year} · देखें</a></p>'
+            '</article>'.format(id=cd["id"], num=e(cd["number"]), claim=e(cd["claim"]), ctx=cd["context"],
                                 url=e(cd["url"]), src=e(cd["source"].split(",")[0]), year=e(cd["year"])))
 
     meters = ""
@@ -2149,26 +2154,34 @@ def c_digital_shift(args, ctx):
     if rows:
         out = []
         for m in rows:
-            _require(m, ("label", "percent", "figure", "source", "year", "url"), "meter")
-            pct = float(m["percent"])
-            if not 0 < pct <= 100:
-                raise SystemExit("evidence.json: meter '{}' percent must be 0-100".format(m.get("id")))
+            _require(m, ("label", "figure", "source", "year", "url"), "meter")
+            low = float(m.get("low", m.get("percent", 0)))
+            high = float(m.get("high", m.get("percent", low)))
+            if not 0 < low <= high <= 100:
+                raise SystemExit("evidence.json: meter '{}' needs 0 < low <= high <= 100".format(m.get("id")))
+            # Solid bar to the LOWER bound, lighter tip up to the upper bound: a published range is
+            # drawn as a range, never as a single invented midpoint.
+            tip = ('<span class="meter-tip" style="width:{:.4g}%"></span>'.format(high - low)) if high > low else ""
             out.append(
                 '<div class="meter-row"><p class="meter-name">{label}</p>'
-                '<div class="meter-track"><span class="meter-fill" style="width:{pct}%"></span></div>'
+                '<div class="meter-track"><span class="meter-fill" style="width:{low:.4g}%"></span>{tip}</div>'
                 '<p class="meter-fig">{fig}</p>'
                 '<p class="meter-src small"><a href="{url}" rel="nofollow noopener" target="_blank">{src} · {year}</a></p>'
-                '</div>'.format(label=e(m["label"]), pct=("%.4g" % pct), fig=e(m["figure"]),
+                '</div>'.format(label=e(m["label"]), low=low, tip=tip, fig=e(m["figure"]),
                                 url=e(m["url"]), src=e(m["source"].split(",")[0]), year=e(m["year"])))
-        meters = ('<div class="meter-list" role="group" aria-label="{t}"><p class="meter-head">{t}</p>{rows}</div>').format(
-            t=e(EVIDENCE.get("meters_title", "आँकड़े")), rows="".join(out))
+        note = '<p class="meter-note">{}</p>'.format(EVIDENCE["meters_note"]) if EVIDENCE.get("meters_note") else ""
+        meters = ('<div class="meter-list"><p class="meter-head">{t}</p>{rows}{note}</div>').format(
+            t=e(EVIDENCE.get("meters_title", "आँकड़े")), rows="".join(out), note=note)
 
+    honesty = ('<aside class="honesty"><p class="honesty-h">हम आपको आधी तस्वीर नहीं दिखाएँगे</p><p>{}</p></aside>'.format(
+        EVIDENCE["honesty"])) if EVIDENCE.get("honesty") else ""
     note = ('<details class="evidence-note"><summary>ये आँकड़े कहाँ से आए?</summary>'
             '<p class="small muted">हर आँकड़े के साथ source, साल और link दिया है — आप ख़ुद जाँच सकते हैं। '
             'जहाँ भारत का आँकड़ा मिला, वही दिया है; किसी दूसरे देश का आँकड़ा भारत के नाम पर नहीं दिखाया जाता। '
+            'जो आँकड़े इंटरनेट पर आम हैं पर जिनका असली source नहीं मिला, उन्हें हमने जानबूझकर नहीं लिखा। '
             'ये बाज़ार के आँकड़े हैं — किसी एक दुकान के नतीजे की guarantee नहीं। पिछली जाँच: {}।</p></details>').format(
         e(EVIDENCE["last_reviewed"]))
-    return '<div class="shift"><div class="kpi-row">{}</div>{}{}</div>'.format("".join(tiles), meters, note)
+    return '<div class="shift"><div class="kpi-row">{}</div>{}{}{}</div>'.format("".join(tiles), meters, honesty, note)
 
 
 def c_evidence(args, ctx):

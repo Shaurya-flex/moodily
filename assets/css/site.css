@@ -213,6 +213,11 @@ section+section{border-top:1px solid var(--line)}
   /* a head with no description must not sit in half a grid — it reads as lopsided */
   .section-head:not(:has(p)){display:block}
   .section-head:not(:has(p))>h2{max-width:34ch}
+  /* .stack: a head carrying more than one paragraph. The two-column grid fills col1/col2/col1/col2,
+     which scrambles the reading order once there are 3+ children — so keep those stacked. */
+  .section-head.stack{display:block}
+  .section-head.stack>h2{max-width:30ch;margin-bottom:.3em}
+  .section-head.stack>.lead{max-width:68ch}
 }
 /* centred heads: FAQ and the closing blocks */
 .section-head.center{display:block;text-align:center}
@@ -1513,3 +1518,13 @@ html.wr-open .mobile-cta,html.wr-open .fab-wa{display:none}
   .meter-track{grid-column:1/-1;order:3}
   .meter-src{order:4}
 }
+.meter-track{position:relative;display:flex}
+.meter-tip{display:block;height:100%;background:var(--primary);opacity:.32;border-radius:0 4px 4px 0}
+.meter-fill{border-radius:0}
+.meter-row:has(.meter-tip) .meter-fill{border-radius:0}
+.meter-note{grid-column:1/-1;margin:14px 0 0;padding-top:14px;border-top:1px solid var(--border);color:var(--text)}
+.honesty{background:var(--warning-soft);border:1px solid color-mix(in srgb,var(--warning) 35%,transparent);border-radius:var(--r-card);padding:clamp(14px,1.6vw,20px)}
+.honesty-h{margin:0 0 6px;font-weight:700;color:var(--text)}
+.honesty p:last-child{margin:0;color:var(--text)}
+.why-close{margin-top:clamp(18px,2.2vw,28px);max-width:var(--reading)}
+.why-close .btn-row{margin:14px 0 8px}
