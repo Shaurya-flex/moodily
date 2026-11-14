@@ -1125,7 +1125,7 @@ def c_founder(args, ctx):
     if not f.get("name"):
         WARNINGS.append("founder details missing — /about/ shows team statement only")
         return ('<p>Moodily एक founder-led, India-based team है। हर project में आपसे सीधे वही लोग बात करते हैं जो काम करते हैं। '
-                'सवाल हों तो <a href="mailto:{0}">{0}</a> पर लिखें।</p>').format(e(SITE["email"]))
+                'सवाल हों तो {0} पर लिखें।</p>').format(mailto("enquiry", "founder-note"))
     li = ' · <a href="{}" rel="noopener" target="_blank">LinkedIn</a>'.format(e(f["linkedin"])) if f.get("linkedin") else ""
     photo = founder_media(INTL["founder"], 160) if INTL["founder"].get("photo") else ""
     return '<div class="card founder-card">{}<div><h3>{}</h3><p class="muted">{}{}</p><p>{}</p></div></div>'.format(
@@ -1372,10 +1372,11 @@ def c_intake(args, ctx):
     return ('<div class="intake" id="intake" data-mode="{mode}"><script type="application/json" id="intakeConfig">{cfg}</script>'
             '<div class="intake-grid"><div class="intake-main">{context}{main}</div>'
             '<div class="intake-side"><div class="card"><h2 class="side-h">WhatsApp पर बात करें</h2><p class="small muted">सवाल पूछना है या जल्दी बात करनी है? WhatsApp कीजिए — voice note भी चलेगा। {wa_note}</p>{wa}'
-            '<p class="small muted">या email: <a href="mailto:{email}">{email}</a></p></div>'
+            '<p class="small muted">या email: {mail}</p></div>'
             '<div class="card"><h2 class="side-h">आगे क्या होगा</h2><ol class="steps-list small"><li>हम आपकी requirement पढ़ते हैं और ज़रूरत हो तो 1–2 सवाल पूछते हैं।</li>'
             '<li>लिखित scope, timeline, revisions, third-party खर्च और quote भेजते हैं।</li><li>आप हाँ कहें, तभी काम शुरू होता है।</li></ol></div></div></div></div>').format(
         mode="google-form" if form_url else "fallback", cfg=cfg_json, context=context, main=main, wa=wa, email=e(SITE["email"]),
+        mail=mailto("enquiry", "contact-side"),
         wa_note=("यह बातचीत के लिए है — requirement record करने के लिए ऊपर वाला Form भरिए।" if form_url else
                  "आपका message भेजते ही Moodily तक पहुँच जाता है।"))
 
@@ -2786,10 +2787,45 @@ def c_intl_cta(args, ctx):
         s=e(args.get("sub", "Describe your business and what you need. You'll get questions or a written scope back, usually within 24 hours on working days.")))
 
 
+MAIL_SUBJECTS = {
+    "enquiry": "Moodily — enquiry",
+    "privacy": "Privacy request — Moodily",
+    "refund": "Refund or cancellation — Moodily",
+    "terms": "Terms question — Moodily",
+    "payment": "Payment question — Moodily",
+}
+
+
+def mailto(kind="enquiry", where="", label=None, email=None):
+    """Never open a blank email. The subject is a finished sentence, not a template with blanks:
+    a prefilled body invites the visitor to send it unedited (see wa_text)."""
+    addr = email or SITE["email"]
+    track = ' data-track="email_click" data-label="{}"'.format(e(where)) if where else ""
+    return '<a href="mailto:{0}?subject={1}"{2}>{3}</a>'.format(
+        e(addr), quote(MAIL_SUBJECTS[kind]), track, e(label or addr))
+
+
+INTL_MAIL_SUBJECT = "Project enquiry — Moodily International"
+
+
+def intl_mailto(where):
+    """A bare mailto: opens a blank message, so the enquiry lands with no business name, no service
+    and nothing to quote on. The address stays visible — overseas buyers look for a real one before
+    trusting a remote provider — but it carries a complete subject, and the structured form is the
+    primary path. The subject is a finished sentence, never a fill-in-the-blanks template."""
+    return '<a href="mailto:{0}?subject={1}" data-track="email_click" data-label="{2}">{0}</a>'.format(
+        e(intl_email()), quote(INTL_MAIL_SUBJECT), e(where))
+
+
 def c_intl_contact_line(args, ctx):
     c = INTL["contact"]
-    return '<p class="intl-contact-line">Email <a href="mailto:{0}" data-track="email_click" data-label="{2}">{0}</a> · We reply {1} ({3}).</p>'.format(
-        e(intl_email()), e(c["reply"]), e(args.get("where", "page")), e(c["timezone"]))
+    where = args.get("where", "page")
+    # On the contact page the form is already on screen, so pointing at it again would be a self-link.
+    cta = ("" if args.get("cta") == "no" else
+           '<a class="intl-contact-cta" href="/international/contact/" data-track="contact_clicked" '
+           'data-label="{}">Start your enquiry →</a> · '.format(e(where)))
+    return '<p class="intl-contact-line">{cta}Email {mail} · We reply {reply} ({tz}).</p>'.format(
+        cta=cta, mail=intl_mailto(where), reply=e(c["reply"]), tz=e(c["timezone"]))
 
 
 INTL_BUDGETS = ["Under USD 500", "USD 500–1,500", "USD 1,500–3,500", "Over USD 3,500", "Not sure yet"]
@@ -2826,11 +2862,11 @@ def c_intl_intake(args, ctx):
             '<button type="button" class="btn btn-outline" id="intlWa">Send via WhatsApp instead</button></p>'
             '<p class="small muted">Nothing is sent from this page. Your email app opens with your answers, ready to send to {email}.</p>'
             '<div class="intl-result" id="intlResult" hidden tabindex="-1"><p><strong>Your email should now be open, ready to send.</strong> Nothing has been sent yet — '
-            'press send in your email app. If it didn\'t open, copy your request and send it to <a href="mailto:{email}">{email}</a>. '
+            'press send in your email app. If it didn\'t open, copy your request and send it to <a href="mailto:{email}?subject={subj}">{email}</a>. '
             'After you send it, we reply within 24 hours on working days with questions or a written scope.</p>'
             '<p><button type="button" class="btn btn-outline btn-sm" id="intlCopy">Copy my request</button> <span class="small muted" id="intlCopied" role="status"></span></p></div>'
-            '</form><noscript><p class="notice">Email your request to <a href="mailto:{email}">{email}</a>.</p></noscript>').format(
-        email=e(intl_email()), wa=e(SITE["whatsapp"]["number"]), fields=fields)
+            '</form><noscript><p class="notice">Email your request to <a href="mailto:{email}?subject={subj}">{email}</a>.</p></noscript>').format(
+        email=e(intl_email()), wa=e(SITE["whatsapp"]["number"]), fields=fields, subj=quote(INTL_MAIL_SUBJECT))
 
 
 def intl_service_schema(s):
@@ -2889,7 +2925,7 @@ def intl_footer(route):
   <div class="footer-grid">
     <div><a class="logo" href="/international/">Moodily<span class="logo-sub">International</span></a>
       <p class="muted small">Digital journey and customer education studio. Based in {loc}, working remotely in English. AI-assisted, human-reviewed.</p>
-      <p class="small"><a href="mailto:{email}" data-track="email_click" data-label="footer">{email}</a></p>
+      <p class="small">{mail}</p>
       <p class="small muted">We reply {reply} ({tz}).</p>
     </div>
     <div><h2 class="footer-h">Moodily International</h2><ul>{links}</ul></div>
@@ -2899,7 +2935,7 @@ def intl_footer(route):
   </div>
   <p class="footer-bottom small muted">© {year} {entity} · We don't guarantee rankings, leads or revenue — we commit to the scope we agree in writing.</p>
 </div></footer>
-{mobile}""".format(loc=e(INTL["entity"]["location"]), email=e(intl_email()), reply=e(INTL["contact"]["reply"]), tz=e(INTL["contact"]["timezone"]),
+{mobile}""".format(loc=e(INTL["entity"]["location"]), email=e(intl_email()), mail=intl_mailto("footer"), reply=e(INTL["contact"]["reply"]), tz=e(INTL["contact"]["timezone"]),
                    links=links, pol=pol, year=date.today().year, entity=e(INTL["entity"]["name"]), mobile=mobile, yt=AI_WITH_SAURABH)
 
 
@@ -3249,10 +3285,10 @@ def c_enquiry_panel(args, ctx):
             '<p class="small muted">Please don\'t send passwords, bank details, or patient or medical information.</p></div>'
             '<div class="enquiry-actions"><a class="btn btn-primary btn-lg btn-block" href="/contact/" data-track="quote_start" data-label="home-enquiry">Discuss your project</a>'
             '<p class="small muted">Opens a short project form. Answers go to Moodily\'s enquiry sheet.</p>'
-            '{wa}<p class="small"><a href="mailto:{email}" data-track="email_click" data-label="home-enquiry">{email}</a></p>'
+            '{wa}<p class="small">{mail}</p>'
             '<div class="enquiry-intl"><p class="small"><strong>Outside India?</strong> Use the English enquiry form with USD budget ranges.</p>'
             '<a class="btn btn-outline btn-sm" href="/international/contact/" data-track="contact_clicked" data-label="home-intl">International enquiry →</a></div>'
-            '</div></div>').format(wa=wa_button("WhatsApp instead", "business owner", "a project", "btn btn-wa btn-block", "home-enquiry"), email=e(SITE["email"]))
+            '</div></div>').format(wa=wa_button("WhatsApp instead", "business owner", "a project", "btn btn-wa btn-block", "home-enquiry"), email=e(SITE["email"]), mail=mailto("enquiry", "home-enquiry"))
 
 
 def c_intl_examples(args, ctx):
@@ -3669,7 +3705,7 @@ def footer(route=""):
   <div class="footer-grid">
     <div><a class="logo" href="/">Moodily<span class="dot" aria-hidden="true"></span></a>
       <p class="muted small">Moodily — businesses, professionals, creators, educators और रोज़मर्रा की ज़रूरतों के लिए practical digital services.</p>
-      <p class="small"><a href="mailto:{email}">{email}</a></p>
+      <p class="small">{mail}</p>
       {wa}
     </div>
     <div><h2 class="footer-h">Moodily</h2><ul>
@@ -3687,7 +3723,7 @@ def footer(route=""):
   <p class="footer-bottom small muted">© {year} Moodily · moodily.in</p>
 </div></footer>
 {sticky}{sheet}""".format(note=footer_note(route), sheet=requirement_sheet(), 
-        email=e(SITE["email"]), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm", form=False),
+        email=e(SITE["email"]), mail=mailto("enquiry", "footer"), svc=svc, year=date.today().year, wa=wa_button("WhatsApp", track_label="footer", cls="btn btn-wa btn-sm", form=False),
         affiliate='<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>' if amazon_public() else "",
         sticky="" if plain else STICKY_CTA.format(wa_href=e(wa_href(wa_text(ask_details=False))), icon=WA_ICON), yt=AI_WITH_SAURABH)
 
