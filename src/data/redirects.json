@@ -11,5 +11,6 @@
   "/services/b2b/": "/services/b2b-digital-sales/",
   "/services/invitation-design/": "/services/digital-invitation/",
   "/services/business-documents/": "/services/design/",
-  "/services/education/": "/services/education-content/"
+  "/services/education/": "/services/education-content/",
+  "/international/customer-education/": "/international/product-tutorials/"
 }

@@ -22,7 +22,11 @@
   };
 
   // Preselect the service from ?type=<service-id> (a fixed category, never personal data).
+  // services renamed 2026-11: an older ?type= link must still preselect the right option
+  var TYPE_ALIASES = { 'customer-education-studio': 'product-tutorial-walkthrough',
+                       'customer-education-pack': 'onboarding-video-pack' };
   var wanted = new URLSearchParams(location.search).get('type');
+  if (wanted && TYPE_ALIASES[wanted]) wanted = TYPE_ALIASES[wanted];
   if (wanted) {
     var sel = $('in-type');
     for (var i = 0; i < sel.options.length; i++) if (sel.options[i].value === wanted) sel.value = wanted;

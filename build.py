@@ -2566,19 +2566,19 @@ INTL_LABEL_EXPLAIN = {"commissioned": "Paid work commissioned by a client, shown
                       "paid_review": "A software company paid for an honest, disclosed review. Not a commissioned onboarding tutorial.",
                       "concept": "A demonstration of method using a fictional example. Not client work."}
 INTL_NAV = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
-            ("/international/customer-education/", "Customer Education"), ("/international/work/", "Work"),
+            ("/international/product-tutorials/", "Product Tutorials"), ("/international/work/", "Work"),
             ("/international/process/", "Process"), ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
 # Top-level header: the four places most visitors need. Everything else stays one tap away in the menu and footer.
 INTL_NAV_PRIMARY = [("/international/services/", "Services"), ("/international/work/", "Work"),
                     ("/international/pricing/", "Pricing"), ("/international/about/", "About")]
 INTL_FOOTER_LINKS = [("/international/services/", "Services"), ("/international/industries/", "Industries"),
-                     ("/international/customer-education/", "Customer education"), ("/international/work/", "Work"),
+                     ("/international/product-tutorials/", "Product tutorials"), ("/international/work/", "Work"),
                      ("/international/process/", "Process"), ("/international/pricing/", "Pricing"),
                      ("/international/about/", "About"), ("/international/contact/", "Contact")]
 INTL_POLICY_LINKS = [("/international/privacy/", "Privacy"), ("/international/terms/", "Terms"),
                      ("/international/refund/", "Refund & cancellation"), ("/international/payments/", "Payment information")]
 INTL_AUDIT_URL = "/international/contact/?type=journey-audit"
-INTL_REQUIRED_PAGES = ["index", "services", "pricing", "process", "industries", "customer-education", "work", "about", "contact",
+INTL_REQUIRED_PAGES = ["index", "services", "pricing", "process", "industries", "product-tutorials", "work", "about", "contact",
                        "privacy", "terms", "refund", "payments"]
 INTL_WARNINGS = []
 
@@ -2619,7 +2619,8 @@ def intl_price(p):
 
 def intl_services(tier=None, ids=None):
     """Services shown on the site. In a public build an unapproved price hides the whole service."""
-    out = [s for s in INTL["services"] if s["price"].get("approved") or intl_preview()]
+    # active=False retires a service: it stays in the file with the reason, but leaves the site.
+    out = [s for s in INTL["services"] if s.get("active", True) and (s["price"].get("approved") or intl_preview())]
     if tier:
         out = [s for s in out if s["tier"] == tier]
     if ids:
@@ -2924,7 +2925,7 @@ def intl_footer(route):
     return """<footer class="site-footer intl-footer"><div class="container">
   <div class="footer-grid">
     <div><a class="logo" href="/international/">Moodily<span class="logo-sub">International</span></a>
-      <p class="muted small">Digital journey and customer education studio. Based in {loc}, working remotely in English. AI-assisted, human-reviewed.</p>
+      <p class="muted small">Digital journey work, product tutorials and onboarding videos. Based in {loc}, working remotely in English. AI-assisted, human-reviewed.</p>
       <p class="small">{mail}</p>
       <p class="small muted">We reply {reply} ({tz}).</p>
     </div>
@@ -3232,7 +3233,7 @@ def c_home_packages(args, ctx):
         offer = ('<p class="pkg-offer"><strong>Founding 10 introductory offer:</strong> Google + WhatsApp Starter for ₹{} for the first {} founding clients. '
                  '<a href="/offers/{}/" data-track="offer_cta_click" data-label="home-packages">Scope and terms</a></p>').format(inr(fs["price"]), OFFER["slots_total"], OFFER["id"])
     intl = "".join('<li><a href="{}">{}</a> <span>{}</span></li>'.format(s.get("page") or "/international/services/#svc-" + s["id"], e(s["name"]), e(intl_price_text(s["price"])))
-                   for s in intl_services(ids=["journey-audit", "local-presence-launch", "customer-education-studio", "digital-journey-build"]))
+                   for s in intl_services(ids=["journey-audit", "booking-no-show-rescue", "product-tutorial-walkthrough", "digital-journey-build"]))
     return ('{offer}<div class="pkg2-grid">{cards}</div>'
             '<div class="pkg-intl" data-reveal><div><p class="eyebrow">Outside India · USD</p><h3>International packages</h3>'
             '<p class="small muted">Written in English, priced in US dollars, scoped in writing before any payment.</p></div>'
@@ -3305,7 +3306,7 @@ def c_intl_examples(args, ctx):
         ("software", "Software businesses", "/assets/img/illustrations/demo-software.svg", 640, 440,
          "A storyboard for a fictional app's getting-started tutorial with highlighted steps, captions, narration and chapters.",
          ["Onboarding tutorials", "Feature demonstrations", "Customer-education videos", "Optional short clips cut from approved footage"],
-         "", ("Customer education", "/international/customer-education/")),
+         "", ("Product tutorials", "/international/product-tutorials/")),
     ]
     out = []
     for i, (bid, title, img, w, h, alt, points, note, link) in enumerate(blocks):
@@ -3932,7 +3933,7 @@ def layout(meta, body, route, ctx):
            footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
-           og_alt=meta.get("og_image_alt") or ("Moodily International — digital journey and customer education studio" if intl else OG_ALT[og_default(route)]), font_preload=font_preload,
+           og_alt=meta.get("og_image_alt") or ("Moodily International — digital journey work and product tutorials" if intl else OG_ALT[og_default(route)]), font_preload=font_preload,
            body_cls=' class="intl"' if intl else "",
            offer_attr=' data-offer-id="{}"'.format(OFFER["id"]) if OFFER_STATE and not intl else "").replace(
         '<html lang="{}" data-lang'.format(lang), '<html lang="{}"{} data-lang'.format(lang, " data-bilingual" if meta.get("bilingual") else ""), 1)
@@ -4137,19 +4138,19 @@ def validate_offer():
 
 
 REDIRECT_TEMPLATE = """<!DOCTYPE html>
-<html lang="hi">
+<html lang="{lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moved: {old} → {path} | Moodily</title>
-<meta name="description" content="यह Moodily page अब नए पते पर है: {path}। Page अपने-आप खुल जाएगा; न खुले तो link पर click करें।">
+<meta name="description" content="{desc}">
 <link rel="canonical" href="{url}">
 <meta name="robots" content="noindex, follow">
 <meta name="moodily-redirect" content="{path}">
 <meta http-equiv="refresh" content="0; url={path}">
 <script>location.replace("{path}" + location.search + location.hash);</script>
 </head>
-<body><h1>यह page अब <a href="{path}">{path}</a> पर है</h1></body>
+<body><h1>{heading} <a href="{path}">{path}</a></h1></body>
 </html>
 """
 
@@ -4221,7 +4222,14 @@ def main():
     for old_route, new_route in REDIRECTS.items():
         target = ROOT.joinpath(*old_route.strip("/").split("/"), "index.html")
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(REDIRECT_TEMPLATE.format(old=e(old_route), path=e(new_route), url=e(BASE + new_route)), encoding="utf-8")
+        intl_route = new_route.startswith("/international/") or old_route.startswith("/international/")
+        target.write_text(REDIRECT_TEMPLATE.format(
+            old=e(old_route), path=e(new_route), url=e(BASE + new_route),
+            lang="en" if intl_route else "hi",
+            desc=("This Moodily page has moved to {}. You should be redirected automatically; if not, follow the link.".format(e(new_route))
+                  if intl_route else
+                  "यह Moodily page अब नए पते पर है: {}। Page अपने-आप खुल जाएगा; न खुले तो link पर click करें।".format(e(new_route))),
+            heading="This page has moved to" if intl_route else "यह page अब इस पते पर है:"), encoding="utf-8")
         written.append(str(target.relative_to(ROOT)))
 
     for stale in sorted(old - set(written)):
