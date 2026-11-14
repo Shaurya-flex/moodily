@@ -28,6 +28,10 @@ RAW_BANNED = [
     # A wa.me link pre-fills the visitor's chat box, so a blank in the template gets sent unedited.
     # Real incident 2026-11-13: an enquiry arrived with [type]/[city]/[budget]/[URL] still in it.
     (r"%5B(?:type|city|budget|URL|role|service)%5D", "fill-in-the-blank placeholder in a prefilled message"),
+    # A bare mailto: opens an empty message, so the enquiry arrives with no business name, no
+    # service and nothing to quote on — the email twin of the blank WhatsApp template.
+    # Every address must carry a complete subject (build.py -> mailto() / intl_mailto()).
+    (r'href="mailto:[^"?]*"', "email link with no subject — it opens a blank message"),
 ]
 
 
