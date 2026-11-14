@@ -306,6 +306,8 @@ def check_international(pages):
                 fail(rel, "project payment page must be noindex")
             if "googletagmanager.com" in text:
                 fail(rel, "project payment page must not load analytics")
+        elif 'name="moodily-redirect"' in text:
+            pass  # a redirect stub is noindex by design, on every route
         elif preview and not noindex:
             fail(rel, "International preview page must be noindex")
         elif not preview and noindex:

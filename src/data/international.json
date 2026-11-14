@@ -119,17 +119,17 @@
       "retired_note": "Map/profile presence is near-free and the vendors do it; folded into booking work where it is still needed."
     },
     {
-      "id": "customer-education-studio",
+      "id": "product-tutorial-walkthrough",
       "tier": "primary",
-      "name": "Customer Education Studio",
+      "name": "Product Tutorial & Walkthrough",
       "price": {
         "type": "from",
         "amount": 499,
         "currency": "USD",
         "approved": true
       },
-      "summary": "Tutorials, onboarding videos, quick-start guides and knowledge assets that help customers understand and use what you offer.",
-      "for": "Software teams, educators, consultants and service businesses",
+      "summary": "One product tutorial done properly — a screen-recorded walkthrough with narration, or a written quick-start guide, checked against your actual product.",
+      "for": "SaaS and software teams, educators and consultants who need a product explained clearly",
       "includes": [
         "Starting scope: one short tutorial video or one quick-start guide",
         "Script or outline approved by your team before production",
@@ -142,7 +142,7 @@
       ],
       "timeline": "Confirmed in your written scope",
       "revisions": "2 rounds",
-      "page": "/international/customer-education/"
+      "page": "/international/product-tutorials/"
     },
     {
       "id": "digital-journey-build",
@@ -183,7 +183,7 @@
         "unit": "month",
         "approved": true
       },
-      "summary": "Ongoing upkeep of your profiles, pages and customer-education assets within a defined monthly scope.",
+      "summary": "Ongoing upkeep of your profiles, pages and tutorial and guide assets within a defined monthly scope.",
       "for": "Businesses that want steady improvements without hiring",
       "includes": [
         "A defined monthly task list agreed in writing",
@@ -320,17 +320,17 @@
       "revisions": "2 rounds"
     },
     {
-      "id": "customer-education-pack",
+      "id": "onboarding-video-pack",
       "tier": "secondary",
-      "name": "Customer Education Pack",
+      "name": "Onboarding Video Pack",
       "price": {
         "type": "fixed",
         "amount": 900,
         "currency": "USD",
         "approved": true
       },
-      "summary": "A small, complete set of learning assets for one product area or onboarding step.",
-      "for": "Teams that need their first tutorials and guide done properly",
+      "summary": "A complete onboarding set for one product area: three short tutorial videos and a quick-start guide your customers can follow on their own.",
+      "for": "Teams putting together their first proper set of onboarding tutorials",
       "includes": [
         "Up to 3 short tutorial videos (up to 5 minutes each) from a test or sandbox account",
         "One quick-start guide (PDF, up to 8 pages)",
@@ -343,7 +343,7 @@
       ],
       "timeline": "10–15 working days after access and review times are agreed",
       "revisions": "2 rounds",
-      "page": "/international/customer-education/"
+      "page": "/international/product-tutorials/"
     },
     {
       "id": "clinic-digital-growth-foundation",
@@ -443,7 +443,7 @@
       "status": "published",
       "approved": true,
       "categories": [
-        "customer-education"
+        "product-tutorials"
       ],
       "type": "Paid software review — screen demonstration, narration and editing",
       "problem": "A software company wanted its app shown in real use to a creator audience.",
@@ -461,7 +461,7 @@
       "status": "published",
       "approved": true,
       "categories": [
-        "customer-education",
+        "product-tutorials",
         "educators"
       ],
       "type": "Software walkthrough + short cut-downs",
@@ -481,7 +481,7 @@
       "status": "published",
       "approved": true,
       "categories": [
-        "customer-education"
+        "product-tutorials"
       ],
       "type": "Product tutorial",
       "problem": "People waste time trying tools that don't fit their work.",
@@ -602,24 +602,6 @@
         "a": "Usually missing content or access, approvals that take longer than agreed, or platform verification. We'll flag anything that affects the timeline early."
       }
     ],
-    "customer-education": [
-      {
-        "q": "Do you need access to our product?",
-        "a": "A test or sandbox account is ideal. We don't need production customer data, and we avoid showing real customer information on screen."
-      },
-      {
-        "q": "Who checks that tutorials are accurate?",
-        "a": "We check each step against the product before recording, and your subject-matter expert approves scripts at an agreed checkpoint. Nothing is published without your approval."
-      },
-      {
-        "q": "Can you update tutorials when the product changes?",
-        "a": "Yes, as a small follow-up project or within a Digital Care plan with a defined monthly scope."
-      },
-      {
-        "q": "Can you show our work in your portfolio?",
-        "a": "Only with your written permission. Some deliverables can't be shared because of ownership or confidentiality, and that's fine."
-      }
-    ],
     "educators": [
       {
         "q": "I already have content. Do you start from scratch?",
@@ -646,6 +628,24 @@
       {
         "q": "Have you worked with clinics outside India?",
         "a": "Not yet. The examples on this page are clearly labelled concept demonstrations."
+      }
+    ],
+    "product-tutorials": [
+      {
+        "q": "Do you need access to our product?",
+        "a": "A test or sandbox account is ideal. We don't need production customer data, and we avoid showing real customer information on screen."
+      },
+      {
+        "q": "Who checks that tutorials are accurate?",
+        "a": "We check each step against the product before recording, and your subject-matter expert approves scripts at an agreed checkpoint. Nothing is published without your approval."
+      },
+      {
+        "q": "Can you update tutorials when the product changes?",
+        "a": "Yes, as a small follow-up project or within a Digital Care plan with a defined monthly scope."
+      },
+      {
+        "q": "Can you show our work in your portfolio?",
+        "a": "Only with your written permission. Some deliverables can't be shared because of ownership or confidentiality, and that's fine."
       }
     ]
   }
