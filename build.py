@@ -2619,7 +2619,8 @@ def intl_price(p):
 
 def intl_services(tier=None, ids=None):
     """Services shown on the site. In a public build an unapproved price hides the whole service."""
-    out = [s for s in INTL["services"] if s["price"].get("approved") or intl_preview()]
+    # active=False retires a service: it stays in the file with the reason, but leaves the site.
+    out = [s for s in INTL["services"] if s.get("active", True) and (s["price"].get("approved") or intl_preview())]
     if tier:
         out = [s for s in out if s["tier"] == tier]
     if ids:
@@ -3232,7 +3233,7 @@ def c_home_packages(args, ctx):
         offer = ('<p class="pkg-offer"><strong>Founding 10 introductory offer:</strong> Google + WhatsApp Starter for ₹{} for the first {} founding clients. '
                  '<a href="/offers/{}/" data-track="offer_cta_click" data-label="home-packages">Scope and terms</a></p>').format(inr(fs["price"]), OFFER["slots_total"], OFFER["id"])
     intl = "".join('<li><a href="{}">{}</a> <span>{}</span></li>'.format(s.get("page") or "/international/services/#svc-" + s["id"], e(s["name"]), e(intl_price_text(s["price"])))
-                   for s in intl_services(ids=["journey-audit", "local-presence-launch", "customer-education-studio", "digital-journey-build"]))
+                   for s in intl_services(ids=["journey-audit", "booking-no-show-rescue", "customer-education-studio", "digital-journey-build"]))
     return ('{offer}<div class="pkg2-grid">{cards}</div>'
             '<div class="pkg-intl" data-reveal><div><p class="eyebrow">Outside India · USD</p><h3>International packages</h3>'
             '<p class="small muted">Written in English, priced in US dollars, scoped in writing before any payment.</p></div>'
