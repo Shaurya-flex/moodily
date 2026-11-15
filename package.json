@@ -1,0 +1,12 @@
+{
+  "name": "moodily-site",
+  "private": true,
+  "type": "module",
+  "description": "Dev-only tooling for the Moodily site. The site itself is static and ships no JavaScript dependencies.",
+  "scripts": {
+    "test:layout": "node --test tests/layout.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.49.1"
+  }
+}

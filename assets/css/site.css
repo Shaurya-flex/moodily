@@ -1392,6 +1392,11 @@ details.svc-terms-d .svc-terms{margin:10px 0 0}
 .prose{max-width:760px}
 .prose p,.prose li{text-wrap:pretty}
 h1,h2,.head-v2 h2{text-wrap:balance}
+/* Card titles and kickers were stranding their last word on a line of its own, which reads as a
+   gap in the card rather than as a heading. 'balance' evens short headings; 'pretty' keeps a lone
+   word off the last line of running text. Browsers without either simply wrap as before. */
+h3,h4,.eyebrow,.sample-tile h3,.pop-card h3,.card h3{text-wrap:balance}
+p,li,dd,figcaption,.lead,.muted,.small{text-wrap:pretty}
 
 /* section intros: the heading gets heading width, the paragraph a reading width */
 .section-head>*{max-width:var(--reading)}
