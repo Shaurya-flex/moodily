@@ -35,3 +35,11 @@ jobs:
         run: python tests/test_payments.py
       - name: Payments API tests (Cloudflare Worker)
         run: node --test tests/worker.test.mjs tests/delivery.test.mjs
+      - name: Install layout-test browser
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          # Devanagari faces, so Hindi text is measured rather than rendered as boxes
+          sudo apt-get install -y --no-install-recommends fonts-indic >/dev/null
+      - name: Layout guard (nothing may overflow the viewport)
+        run: node --test tests/layout.test.mjs

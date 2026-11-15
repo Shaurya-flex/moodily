@@ -10,6 +10,15 @@ body.intl .eyebrow { color: var(--text-muted); letter-spacing: .09em; }
 .logo .logo-sub { font-family: var(--font); font-weight: 600; font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase;
   color: var(--text-muted); margin-left: .5em; padding-left: .5em; border-left: 1px solid var(--border-strong); }
 
+/* The sub-label inherits --fs-xs, which is sized for body copy rather than for a lock-up that has
+   to share a 320px header with the menu button. At that width the logo reached 254px and pushed
+   the button 6px off-screen. Below 420px it takes its own size, and the logo may shrink so the
+   button can never be forced out of the viewport again. */
+@media (max-width: 420px) {
+  .logo .logo-sub { font-size: .6875rem; letter-spacing: .04em; margin-left: .35em; padding-left: .35em; }
+  body.intl .nav > .logo { flex: 0 1 auto; min-width: 0; }
+}
+
 /* hero */
 .intl-hero { padding: clamp(40px, 6vw, 88px) 0 clamp(32px, 4vw, 56px); border-top: 0; }
 .intl-hero .lead { font-size: clamp(1.05rem, 1.6vw, 1.22rem); margin-bottom: 1.6em; }
