@@ -1288,7 +1288,7 @@ body.intl section.intl-tight{padding-block:clamp(28px,3.6vw,48px)}
 
 /* phones: popular services and home samples become a swipeable row (each card shows the next one peeking in) */
 @media (max-width:640px){
-  .pop-grid,#samples .sample-grid,.work-swipe{display:grid;grid-auto-flow:column;grid-auto-columns:82%;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
+  .pop-grid,#samples .sample-grid,.work-swipe{display:grid;grid-auto-flow:column;grid-auto-columns:90%;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;
     gap:12px;padding:4px 2px 12px;margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);overscroll-behavior-x:contain}
   .pop-grid>*,#samples .sample-grid>*,.work-swipe>*{scroll-snap-align:start}
   .pop-result{display:none}
