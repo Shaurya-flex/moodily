@@ -1952,53 +1952,179 @@ def c_creates(args, ctx):
 # Concept previews are inline SVG: they theme with the design tokens, cost no request and
 # add no binary file to the repo. A concept preview is ALWAYS labelled as a concept.
 def _sample_preview(key, title):
-    P, A, G, S = "var(--primary)", "var(--accent)", "var(--success)", "var(--secondary)"
-    MUT, LINE, CARD = "var(--border-strong)", "var(--border)", "var(--surface)"
+    """Concrete concept mockups for samples that have no photograph yet.
 
-    def r(x, y, w, h, c=MUT, rad=3):
-        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"/>'.format(x, y, w, h, rad, c)
+    These replaced abstract grey wireframes, which showed a visitor nothing: a card that reads as a
+    loading state is worse than no card, because the reader concludes the site is unfinished and leaves.
+    Each one now shows the actual thing Moodily hands over, with readable text, in the same visual
+    language as assets/img/illustrations/demo-shop-after.svg.
 
-    def c(cx, cy, rr, col):
-        return '<circle cx="{}" cy="{}" r="{}" fill="{}"/>'.format(cx, cy, rr, col)
+    Type sizes have a floor of 10.5 units. The art is 320 units wide and renders ~300px on a 360px
+    phone, so anything below that floor lands under 10px on screen and cannot be read.
+
+    Every business, name, number and price here is invented, and the card around this art always
+    carries the "Concept sample" label (SAMPLE_TYPE). Never put a real client's details in here.
+    Prices inside an <svg> are excluded from the price registry checks on purpose — they are drawings
+    of a shop's own rate list, not a Moodily price.
+    """
+    P, A, G = "var(--primary)", "var(--accent)", "var(--success)"
+    TX, MU, LN, CD, SK = "var(--text)", "var(--text-muted)", "var(--border)", "var(--surface)", "var(--surface-sunken)"
+    WA, PN = "var(--wa)", "var(--panel)"
+
+    def r(x, y, w, h, c=LN, rad=3, stroke=None):
+        st = ' stroke="{}"'.format(stroke) if stroke else ""
+        return '<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="{}"{}/>'.format(x, y, w, h, rad, c, st)
+
+    def t(x, y, txt, size=11, c=TX, w=400, anchor="start"):
+        return '<text x="{}" y="{}" font-size="{}" fill="{}" font-weight="{}" text-anchor="{}">{}</text>'.format(
+            x, y, size, c, w, anchor, e(txt))
+
+    def pill(x, y, w_, label, fill, fg, size=10.5):
+        return r(x, y, w_, 22, fill, 11) + t(x + w_ / 2, y + 15, label, size, fg, 700, "middle")
+
+    def dot(cx, cy, rr=3, c=G):
+        return '<circle cx="{}" cy="{}" r="{}" fill="{}"/>'.format(cx, cy, rr, c)
+
+    def card(x, y, w, h, rad=8):
+        return r(x, y, w, h, CD, rad, LN)
+
     art = {
-        "gbp": r(14, 14, 84, 62, P, 8) + r(108, 16, 118, 10, "var(--text)") + r(108, 32, 84, 8) + r(108, 46, 140, 8)
-               + c(114, 66, 5, A) + c(128, 66, 5, A) + c(142, 66, 5, A) + c(156, 66, 5, A) + c(170, 66, 5, LINE)
-               + r(14, 88, 110, 22, G, 11) + r(134, 88, 110, 22, P, 11) + r(14, 120, 230, 8),
-        "whatsapp": r(14, 12, 236, 30, CARD, 8) + r(24, 20, 96, 12, "var(--text)") + r(24, 52, 150, 26, LINE, 13)
-                    + r(100, 86, 150, 26, G, 13) + r(14, 120, 120, 10) + r(212, 118, 38, 16, A, 8),
-        "starter": r(14, 14, 74, 54, P, 8) + r(96, 14, 74, 54, G, 8) + r(178, 14, 74, 54, A, 8)
-                   + r(14, 80, 238, 9, "var(--text)") + r(14, 96, 180, 8) + r(14, 112, 120, 22, P, 11),
-        "catalogue": r(14, 14, 70, 56, LINE, 6) + r(96, 14, 70, 56, LINE, 6) + r(178, 14, 70, 56, LINE, 6)
-                     + r(14, 76, 50, 8) + r(96, 76, 50, 8) + r(178, 76, 50, 8)
-                     + r(14, 90, 34, 12, A, 6) + r(96, 90, 34, 12, A, 6) + r(178, 90, 34, 12, A, 6)
-                     + r(14, 116, 238, 10, P, 5),
-        "brochure": r(14, 12, 74, 122, CARD, 4) + r(92, 12, 74, 122, CARD, 4) + r(170, 12, 74, 122, P, 4)
-                    + r(22, 20, 56, 30, LINE, 3) + r(22, 56, 56, 7) + r(22, 68, 40, 7)
-                    + r(100, 20, 58, 8, "var(--text)") + r(100, 34, 58, 6) + r(100, 46, 44, 6) + r(100, 62, 40, 12, A, 6),
-        "vcard": r(30, 26, 206, 96, P, 12) + r(46, 44, 62, 10, "#fff") + r(46, 62, 96, 7, "#ffffffaa")
-                 + r(46, 90, 44, 16, A, 8) + r(98, 90, 44, 16, "#ffffff44", 8) + c(206, 74, 18, "#ffffff33"),
-        "landing": r(14, 12, 238, 18, CARD, 6) + r(22, 18, 40, 6, "var(--text)") + r(200, 17, 44, 9, A, 5)
-                   + r(14, 38, 140, 12, "var(--text)") + r(14, 56, 110, 8) + r(14, 70, 96, 20, P, 10)
-                   + r(166, 38, 86, 52, LINE, 6) + r(14, 102, 74, 32, CARD, 6) + r(96, 102, 74, 32, CARD, 6) + r(178, 102, 74, 32, CARD, 6),
-        "social": r(14, 14, 70, 70, P, 6) + r(96, 14, 70, 70, A, 6) + r(178, 14, 70, 70, G, 6)
-                  + r(14, 94, 70, 8) + r(96, 94, 56, 8) + r(178, 94, 64, 8) + r(14, 112, 100, 18, P, 9),
-        "ppt": r(14, 12, 238, 94, CARD, 6) + r(28, 24, 104, 12, "var(--text)") + r(28, 44, 84, 7) + r(28, 58, 96, 7)
-               + r(28, 76, 52, 14, A, 7) + r(148, 24, 90, 66, P, 6)
-               + r(14, 116, 52, 14, LINE, 4) + r(72, 116, 52, 14, LINE, 4) + r(130, 116, 52, 14, P, 4),
-        "invite": r(58, 10, 150, 124, CARD, 8) + r(72, 26, 122, 1.5, A) + r(86, 42, 94, 12, "var(--text)")
-                  + r(100, 62, 66, 8) + c(133, 90, 13, A) + r(86, 110, 94, 8) + r(72, 124, 122, 1.5, A),
-        "research": r(14, 12, 116, 122, CARD, 6) + r(26, 24, 84, 10, "var(--text)") + r(26, 42, 92, 6) + r(26, 54, 70, 6)
-                    + r(26, 70, 92, 6) + r(26, 82, 56, 6) + r(26, 102, 60, 14, G, 7)
-                    + r(140, 12, 112, 58, P, 6) + r(140, 78, 112, 26, LINE, 6) + r(140, 112, 112, 22, A, 6),
-        "knowledge": c(133, 44, 20, P) + c(58, 96, 14, A) + c(133, 104, 14, G) + c(208, 96, 14, S)
-                     + '<path d="M133 64 L58 82 M133 64 L133 90 M133 64 L208 82" stroke="{}" stroke-width="2" fill="none"/>'.format(MUT)
-                     + r(20, 120, 64, 7) + r(101, 120, 64, 7) + r(182, 120, 64, 7),
-        "workflow": r(10, 52, 52, 34, LINE, 6) + r(76, 52, 52, 34, P, 6) + r(142, 52, 52, 34, A, 6) + r(208, 52, 48, 34, G, 6)
-                    + '<path d="M62 69 h14 M128 69 h14 M194 69 h14" stroke="{}" stroke-width="2"/>'.format(MUT)
-                    + r(76, 100, 118, 14, CARD, 7) + r(86, 104, 98, 6, G) + r(10, 22, 246, 8),
+        "gbp": (card(10, 10, 300, 160, 10)
+                + r(22, 24, 86, 60, SK, 6) + t(65, 58, "shop photo", 10.5, MU, 500, "middle")
+                + t(120, 40, "Sharma Dental Care", 14.5, TX, 700)
+                + t(120, 58, "Dental clinic · Rasra", 11, MU)
+                + dot(124, 72) + t(133, 76, "Open · 9 am – 8 pm", 11, TX, 600)
+                + pill(22, 96, 78, "Call", P, "#fff") + pill(106, 96, 96, "Directions", CD, P)
+                + pill(208, 96, 90, "WhatsApp", WA, "#fff")
+                + t(22, 138, "Photos, hours, services and reviews", 11, MU)
+                + t(22, 156, "all filled in — it answers before you call", 11, MU)),
+        "whatsapp": (card(10, 10, 300, 160, 10)
+                     + r(10, 10, 300, 38, PN, 10) + r(10, 36, 300, 12, PN, 0)
+                     + dot(30, 29, 10, A) + t(30, 33, "N", 11, "#fff", 700, "middle")
+                     + t(48, 26, "Nisha Beauty Studio", 12.5, "#fff", 700)
+                     + t(48, 41, "Business account", 10.5, "#cfcaf0")
+                     + r(22, 58, 188, 36, SK, 8)
+                     + t(32, 73, "Namaste! Rate list ya booking", 11, TX)
+                     + t(32, 88, "ke liye niche tap kijiye.", 11, TX)
+                     + pill(22, 102, 70, "Rate list", CD, P) + pill(98, 102, 62, "Timing", CD, P)
+                     + pill(166, 102, 72, "Location", CD, P)
+                     + r(22, 132, 276, 30, SK, 8) + r(32, 139, 20, 16, A, 4)
+                     + t(60, 146, "Hair spa · 60 min", 11, TX, 700) + t(60, 159, "Rs 799 · book on chat", 10.5, MU)),
+        "starter": (t(14, 26, "What a shop gets on day one", 12.5, TX, 700)
+                    + card(10, 36, 94, 98) + r(22, 48, 70, 30, SK, 4) + t(57, 68, "Google", 11, MU, 600, "middle")
+                    + t(22, 98, "Profile live", 11, TX, 700) + t(22, 113, "hours, photos", 10.5, MU)
+                    + t(22, 127, "directions", 10.5, MU)
+                    + card(113, 36, 94, 98) + r(125, 48, 70, 30, WA, 4) + t(160, 68, "WhatsApp", 11, "#fff", 700, "middle")
+                    + t(125, 98, "Catalogue set", 11, TX, 700) + t(125, 113, "quick replies", 10.5, MU)
+                    + t(125, 127, "greeting", 10.5, MU)
+                    + card(216, 36, 94, 98) + r(242, 48, 42, 30, TX, 4) + t(263, 68, "QR", 11, CD, 700, "middle")
+                    + t(228, 98, "Review QR", 11, TX, 700) + t(228, 113, "print and keep", 10.5, MU)
+                    + t(228, 127, "at the counter", 10.5, MU)
+                    + t(14, 156, "One handover · all accounts in your own name", 11, MU)),
+        "catalogue": (card(10, 10, 300, 160, 10)
+                      + t(22, 34, "Anand Hardware · rate list", 13.5, TX, 700)
+                      + t(298, 34, "Nov 2026", 10.5, MU, 400, "end")
+                      + r(22, 44, 276, 1, LN, 0)
+                      + r(22, 56, 40, 30, SK, 4) + t(70, 70, "Wall paint · 1 L", 11.5, TX, 600)
+                      + t(70, 84, "interior matt", 10.5, MU) + t(298, 76, "Rs 320", 12, P, 700, "end")
+                      + r(22, 96, 40, 30, SK, 4) + t(70, 110, "PVC pipe · 1 inch", 11.5, TX, 600)
+                      + t(70, 124, "per foot", 10.5, MU) + t(298, 116, "Rs 85", 12, P, 700, "end")
+                      + r(22, 136, 40, 26, SK, 4) + t(70, 150, "LED bulb · 9 W", 11.5, TX, 600)
+                      + t(70, 163, "pack of 2", 10.5, MU) + t(298, 155, "Rs 120", 12, P, 700, "end")),
+        "brochure": (r(14, 14, 92, 152, CD, 4, LN) + r(26, 26, 68, 40, P, 3)
+                     + t(60, 52, "Sunrise", 12.5, "#fff", 700, "middle")
+                     + t(26, 86, "Public School", 11.5, TX, 700) + t(26, 102, "Rasra · since 2009", 10.5, MU)
+                     + t(26, 128, "Admissions open", 11, A, 700) + t(26, 144, "Classes 1 to 8", 10.5, MU)
+                     + r(114, 14, 92, 152, CD, 4, LN) + t(126, 38, "Why parents", 11.5, TX, 700)
+                     + t(126, 53, "choose us", 11.5, TX, 700)
+                     + t(126, 76, "Small classes", 10.5, MU) + t(126, 92, "Science lab", 10.5, MU)
+                     + t(126, 108, "Library, sports", 10.5, MU) + t(126, 124, "Bus on 6 routes", 10.5, MU)
+                     + pill(126, 136, 70, "Visit us", P, "#fff")
+                     + r(214, 14, 92, 152, CD, 4, LN) + r(226, 26, 68, 44, SK, 3)
+                     + t(260, 52, "campus photo", 10.5, MU, 500, "middle")
+                     + t(226, 92, "Fees and dates", 11.5, TX, 700) + t(226, 112, "inside the fold,", 10.5, MU)
+                     + t(226, 128, "ready to print", 10.5, MU) + t(226, 152, "A4 · fold in 3", 10.5, A, 700)),
+        "vcard": (r(26, 22, 268, 136, PN, 12)
+                  + dot(58, 58, 19, A) + t(58, 64, "MJ", 14.5, "#fff", 700, "middle")
+                  + t(90, 52, "Dr. Meera Joshi", 14.5, "#fff", 700)
+                  + t(90, 70, "Physiotherapist · Varanasi", 11, "#cfcaf0")
+                  + t(90, 88, "Back, knee and sports pain", 11, "#cfcaf0")
+                  + pill(42, 104, 74, "Call", "#ffffff", PN)
+                  + pill(124, 104, 96, "WhatsApp", WA, "#fff")
+                  + pill(228, 104, 56, "Save", "#ffffff33", "#fff")
+                  + t(42, 146, "One link, opens on any phone", 10.5, "#cfcaf0")),
+        "social": (t(14, 26, "A month of posts, ready to publish", 12.5, TX, 700)
+                   + card(10, 36, 94, 94) + r(10, 36, 94, 50, P, 8)
+                   + t(57, 66, "Diwali offer", 11, "#fff", 700, "middle")
+                   + t(22, 104, "Festival post", 11, TX, 700) + t(22, 120, "Hindi + English", 10.5, MU)
+                   + card(113, 36, 94, 94) + r(113, 36, 94, 50, A, 8)
+                   + t(160, 66, "New arrival", 11, "#fff", 700, "middle")
+                   + t(125, 104, "Product post", 11, TX, 700) + t(125, 120, "price + photo", 10.5, MU)
+                   + card(216, 36, 94, 94) + r(216, 36, 94, 50, G, 8)
+                   + t(263, 66, "Happy customer", 10.5, "#fff", 700, "middle")
+                   + t(228, 104, "Review post", 11, TX, 700) + t(228, 120, "with permission", 10.5, MU)
+                   + t(14, 152, "Captions, hashtags and a posting calendar", 11, MU)),
+        "ppt": (card(10, 10, 300, 128, 8)
+                + t(24, 38, "Quarterly review · 2026-27", 13.5, TX, 700)
+                + t(24, 56, "Sales, stock and what we fix next", 11, MU)
+                + t(24, 82, "Revenue up in 3 of 4 districts", 11, TX)
+                + t(24, 100, "Stock-outs down from 11 to 4", 11, TX)
+                + t(24, 118, "Next: reorder alerts on WhatsApp", 11, TX)
+                + r(234, 76, 14, 42, LN, 2) + r(252, 62, 14, 56, P, 2)
+                + r(270, 86, 14, 32, LN, 2) + r(288, 50, 14, 68, A, 2)
+                + t(24, 160, "14 slides · your data · editable file", 11, MU)),
+        "invite": (r(68, 12, 184, 156, CD, 10, LN)
+                   + r(84, 28, 152, 1.5, A, 0)
+                   + t(160, 58, "Aarav  &  Priya", 15, TX, 700, "middle")
+                   + t(160, 78, "invite you to their wedding", 11, MU, 400, "middle")
+                   + dot(160, 96, 11, A) + t(160, 101, "12", 11, "#fff", 700, "middle")
+                   + t(160, 126, "12 December 2026 · 7 pm", 11.5, TX, 600, "middle")
+                   + t(160, 142, "Shanti Lawn, Rasra", 11, MU, 400, "middle")
+                   + r(84, 152, 152, 1.5, A, 0)
+                   + t(14, 168, "WhatsApp + PDF for print", 10.5, MU)),
+        "research": (card(10, 10, 176, 160, 8)
+                     + t(24, 36, "Market brief", 13.5, TX, 700)
+                     + t(24, 54, "EV charging, tier-2 UP", 11, MU)
+                     + r(24, 64, 148, 1, LN, 0)
+                     + t(24, 84, "FACT", 10.5, G, 700) + t(66, 84, "14 of 20 sites", 11, TX)
+                     + t(24, 106, "INFERENCE", 10.5, A, 700) + t(94, 106, "follows highways", 11, TX)
+                     + t(24, 128, "UNVERIFIED", 10.5, MU, 700) + t(100, 128, "2027 subsidy", 11, TX)
+                     + t(24, 156, "Every claim carries its source", 10.5, MU)
+                     + card(194, 10, 116, 160, 8)
+                     + t(206, 36, "Demand by district", 11, TX, 700)
+                     + r(208, 92, 16, 46, LN, 2) + r(230, 70, 16, 68, P, 2)
+                     + r(252, 104, 16, 34, LN, 2) + r(274, 54, 16, 84, A, 2)
+                     + t(206, 158, "Sources on page 2", 10.5, MU)),
+        "knowledge": (t(14, 28, "Your notes, turned into something sellable", 12.5, TX, 700)
+                      + r(14, 40, 88, 120, SK, 6) + t(26, 60, "What you have", 11, MU, 700)
+                      + t(26, 82, "Class recordings", 10.5, TX) + t(26, 102, "PDF notes", 10.5, TX)
+                      + t(26, 122, "Question banks", 10.5, TX) + t(26, 142, "Years of answers", 10.5, TX)
+                      + '<path d="M108 100 h16 m-5 -5 l5 5 l-5 5" stroke="{}" stroke-width="1.8" fill="none"/>'.format(MU)
+                      + card(132, 40, 178, 120)
+                      + t(146, 64, "Module 1 · Foundations", 11, TX, 600) + r(146, 72, 150, 1, LN, 0)
+                      + t(146, 94, "Module 2 · Practice sets", 11, TX, 600) + r(146, 102, 150, 1, LN, 0)
+                      + t(146, 124, "Module 3 · Mock tests", 11, TX, 600)
+                      + pill(146, 132, 84, "Sell as course", P, "#fff")
+                      + pill(238, 132, 60, "or PDF", CD, P)),
+        "workflow": (t(14, 28, "After a customer messages you", 12.5, TX, 700)
+                     + card(10, 40, 68, 58) + t(44, 64, "Enquiry", 11, TX, 700, "middle")
+                     + t(44, 80, "WhatsApp", 10.5, MU, 400, "middle")
+                     + '<path d="M82 70 h16 m-5 -4 l5 4 l-5 4" stroke="{}" stroke-width="1.8" fill="none"/>'.format(MU)
+                     + card(102, 40, 68, 58) + t(136, 64, "Saved", 11, TX, 700, "middle")
+                     + t(136, 80, "to a sheet", 10.5, MU, 400, "middle")
+                     + '<path d="M174 70 h16 m-5 -4 l5 4 l-5 4" stroke="{}" stroke-width="1.8" fill="none"/>'.format(MU)
+                     + card(194, 40, 68, 58) + t(228, 64, "Reply", 11, TX, 700, "middle")
+                     + t(228, 80, "ready", 10.5, MU, 400, "middle")
+                     + '<path d="M266 70 h14 m-5 -4 l5 4 l-5 4" stroke="{}" stroke-width="1.8" fill="none"/>'.format(MU)
+                     + r(284, 40, 26, 58, G, 8) + t(297, 74, "Sent", 10.5, "#fff", 700, "middle")
+                     + r(10, 110, 300, 48, SK, 8)
+                     + t(24, 132, "Nothing goes out without your approval.", 11, TX, 600)
+                     + t(24, 150, "You keep the sheet, number and templates.", 11, MU)),
     }.get(key, "")
-    return ('<svg class="sample-art" viewBox="0 0 266 148" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet">'
-            '<rect width="266" height="148" fill="var(--surface-sunken)"/>{}</svg>').format(e(title + " — concept preview"), art)
+    return ('<svg class="sample-art" viewBox="0 0 320 180" role="img" aria-label="{}" preserveAspectRatio="xMidYMid meet" '
+            'font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">'
+            '<rect width="320" height="180" fill="{}"/>{}</svg>').format(
+        e(title + " — concept preview, invented business"), SK, art)
 
 
 SAMPLE_TYPE = {
