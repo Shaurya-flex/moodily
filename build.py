@@ -3985,16 +3985,20 @@ FEEDBACK_HELPFUL = ("/guides/", "/insights/", "/learn/", "/resources/", "/update
                     "/international/product-tutorials/")
 FEEDBACK_FOUND = ("/services/", "/samples/", "/store/", "/tools/",
                   "/international/services/", "/international/work/")
+# Written the way a shopkeeper speaks, not the way a form asks. Every word that could come out without
+# changing the meaning has: "क्या यह जानकारी काम आई?" loses its क्या, "आपको जो चाहिए था, वो यहाँ मिला?"
+# loses both आपको and यहाँ. The follow-up on a service page names the thing being asked about — service,
+# in Latin script, because that is how the rest of the site writes it and how the customer says it.
 FEEDBACK_COPY = {
-    ("helpful", "hi"): ("क्या यह जानकारी काम आई?", "हाँ", "नहीं", "क्या बेहतर हो सकता है?"),
-    ("helpful", "en"): ("Was this useful?", "Yes", "No", "What would make it better?"),
-    ("found", "hi"): ("आपको जो चाहिए था, वो यहाँ मिला?", "हाँ", "नहीं", "आप क्या ढूँढ रहे थे?"),
-    ("found", "en"): ("Did you find what you needed?", "Yes", "No", "What were you looking for?"),
+    ("helpful", "hi"): ("यह जानकारी काम आई?", "हाँ", "नहीं", "क्या बेहतर करें?"),
+    ("helpful", "en"): ("Was this useful?", "Yes", "No", "What's missing?"),
+    ("found", "hi"): ("जो चाहिए था, वो मिला?", "हाँ", "नहीं", "किस service की तलाश थी?"),
+    ("found", "en"): ("Found what you needed?", "Yes", "No", "What did you need?"),
 }
-FEEDBACK_SEND = {"hi": ("WhatsApp पर भेजें", "Message WhatsApp में खुलेगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।",
-                        "धन्यवाद — आपकी बात पहुँच गई।"),
-                 "en": ("Send on WhatsApp", "The message opens in WhatsApp — you can read and edit it before sending.",
-                        "Thank you — that is noted.")}
+FEEDBACK_SEND = {"hi": ("WhatsApp पर भेजें", "WhatsApp में खुलेगा — भेजने से पहले बदल सकते हैं।",
+                        "शुक्रिया — नोट कर लिया।"),
+                 "en": ("Send on WhatsApp", "Opens in WhatsApp — edit it before you send.",
+                        "Thanks — noted.")}
 
 
 def feedback_kind(route, meta):
