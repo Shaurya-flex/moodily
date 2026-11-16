@@ -200,22 +200,99 @@
     }, { passive: true });
   }
 
-  // ---------- page feedback
-  // One tap opens everything at once: the rating, the share row, and — only after a "no" — the box whose
-  // text goes to WhatsApp rather than to us. The votes and the rating are already reported by the shared
-  // data-track handler, with page_path, so the owner sees which page failed and not a global score.
-  var fb = document.querySelector('.fb');
+  // ---------- page feedback (floating, draggable)
+  // "Yes" is the end of it. "No" opens one optional line whose text goes to WhatsApp rather than to
+  // us: the visitor presses send, can edit first, and the site stores nothing. The vote and rating
+  // are reported by the shared data-track handler, with page_path, so the owner sees which page
+  // failed rather than a global score.
+  var fb = document.getElementById('fbw');
   if (fb) {
-    var fbRow = fb.querySelector('.fb-row'), fbStep = fb.querySelector('.fb-step'),
+    var fbTab = document.getElementById('fbwTab'), fbPanel = document.getElementById('fbwPanel'),
+        fbRow = fb.querySelector('.fb-row'), fbStep = fb.querySelector('.fb-step'),
         fbMore = fb.querySelector('.fb-more'), fbText = fb.querySelector('.fb-text'),
         fbSend = fb.querySelector('[data-fb-send]'), fbShare = fb.querySelector('[data-fb-share]'),
-        fbCopy = fb.querySelector('[data-fb-copy]'), fbBars = fb.querySelectorAll('.fb-bar');
+        fbCopy = fb.querySelector('[data-fb-copy]'), fbBars = fb.querySelectorAll('.fb-bar'),
+        FB_POS = 'moodily_fbw';
 
-    // A shared page should be able to say where it came from, but never carry the visitor's own query.
-    function fbLink(medium) {
+    // Shipped hidden so a visitor without JavaScript never meets a control that cannot work.
+    fb.hidden = false;
+
+    // ---- where it sits. Remembered per visitor, because a fixed widget always covers something on
+    // somebody's screen and the person it bothers is the one who should be able to move it.
+    var place = function (side, topPct) {
+      fb.setAttribute('data-side', side === 'left' ? 'left' : 'right');
+      fb.style.setProperty('--fbw-top', Math.min(88, Math.max(12, topPct)) + '%');
+    };
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(FB_POS) || 'null'); } catch (e) {}
+    place(saved && saved.side, saved && typeof saved.top === 'number' ? saved.top : 55);
+
+    var drag = null;
+    fbTab.addEventListener('pointerdown', function (ev) {
+      if (ev.button) return;
+      drag = { x: ev.clientX, y: ev.clientY, moved: false };
+      fbTab.setPointerCapture(ev.pointerId);
+    });
+    fbTab.addEventListener('pointermove', function (ev) {
+      if (!drag) return;
+      // A few pixels of slop, so a tap with a shaky thumb still counts as a tap and opens the panel.
+      if (!drag.moved && Math.abs(ev.clientX - drag.x) + Math.abs(ev.clientY - drag.y) < 7) return;
+      drag.moved = true;
+      fb.classList.add('is-dragging');
+      place(ev.clientX < window.innerWidth / 2 ? 'left' : 'right',
+            (ev.clientY / window.innerHeight) * 100);
+    });
+    var endDrag = function (ev) {
+      if (!drag) return;
+      var moved = drag.moved;
+      drag = null;
+      fb.classList.remove('is-dragging');
+      if (!moved) return;
+      try {
+        localStorage.setItem(FB_POS, JSON.stringify({
+          side: fb.getAttribute('data-side'),
+          top: parseFloat(fb.style.getPropertyValue('--fbw-top')) || 55
+        }));
+      } catch (e) {}
+      // Swallow the click the browser fires after a drag, or the panel opens on every drop.
+      fbTab.addEventListener('click', function (c) { c.stopPropagation(); c.preventDefault(); },
+                             { capture: true, once: true });
+    };
+    fbTab.addEventListener('pointerup', endDrag);
+    fbTab.addEventListener('pointercancel', endDrag);
+
+    // ---- open / close
+    // Clamp into view. The tab can be dragged to the very top or bottom and the panel cannot follow
+    // it there without hanging off the screen — and it has to run again whenever the panel grows,
+    // because answering "no" adds a text box and the rating, which is taller than what opened.
+    var fbClamp = function () {
+      if (fbPanel.hidden) return;
+      var h = fbPanel.offsetHeight, tab = fbTab.getBoundingClientRect();
+      var bottomKeepOut = window.innerWidth < 720 ? 84 : 16;   // the mobile action bar lives there
+      var top = Math.min(Math.max(12, tab.top), window.innerHeight - h - bottomKeepOut);
+      fb.style.setProperty('--fbw-panel-top', Math.max(12, top) + 'px');
+    };
+    var fbSetOpen = function (open) {
+      fbPanel.hidden = !open;
+      fbTab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!open) return;
+      fbClamp();
+      track('feedback_opened', { label: fb.getAttribute('data-fb') || '' });
+    };
+    addEventListener('resize', fbClamp, { passive: true });
+    fbTab.addEventListener('click', function () { fbSetOpen(fbPanel.hidden); });
+    document.getElementById('fbwClose').addEventListener('click', function () {
+      fbSetOpen(false); fbTab.focus();
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && !fbPanel.hidden) { fbSetOpen(false); fbTab.focus(); }
+    });
+
+    // ---- the three signals
+    var fbLink = function (medium) {
+      // A shared page should say where it came from, never carry the sharer's own query string.
       return location.origin + location.pathname + '?utm_source=share&utm_medium=' + medium;
-    }
-
+    };
     fb.addEventListener('click', function (ev) {
       var vote = ev.target.closest('[data-fb-vote]');
       if (!vote) return;
@@ -225,44 +302,39 @@
         fbMore.hidden = false;
         if (fbText) fbText.focus();
       }
+      fbClamp();
     });
-
-    // Fill the bars up to the chosen one. CSS cannot style earlier siblings, and a :has() chain for five
-    // values is worse to read than one loop, so the script owns the paint and the stylesheet stays dumb.
+    // Fill the bars up to the chosen one. CSS cannot style earlier siblings and a :has() chain for
+    // five values reads worse than one loop, so script owns the paint and the stylesheet stays dumb.
     fb.addEventListener('change', function (ev) {
       var hit = ev.target.closest('[data-fb-rate]');
       if (!hit) return;
       var picked = Number(hit.getAttribute('data-fb-rate'));
       for (var i = 0; i < fbBars.length; i++) fbBars[i].classList.toggle('is-on', i < picked);
     });
-
     if (fbSend) {
       fbSend.addEventListener('click', function () {
         var num = fb.getAttribute('data-wa');
-        if (!num) return;                                  // no number configured: the link stays /contact/
+        if (!num) return;                                  // no number configured: link stays /contact/
         // location.pathname only — a query string or fragment can carry the visitor's own details.
         var lines = ['Moodily — website feedback', location.origin + location.pathname];
         var said = fbText && fbText.value.trim();
         if (said) lines.push('', said);
         fbSend.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(lines.join('\n'));
         fbMore.hidden = true;
+        fbClamp();
       });
     }
-
     if (fbShare) {
       fbShare.addEventListener('click', function () {
         var pitch = fb.getAttribute('data-share') || '';
         // The OS sheet reaches groups, contacts and every other app, so prefer it where it exists.
-        if (navigator.share) {
-          navigator.share({ text: pitch, url: fbLink('share') }).catch(function () {});
-          return;
-        }
+        if (navigator.share) { navigator.share({ text: pitch, url: fbLink('share') }).catch(function () {}); return; }
         // wa.me with no number opens WhatsApp's own picker — friends and groups both.
         window.open('https://wa.me/?text=' + encodeURIComponent(pitch + '\n' + fbLink('whatsapp')),
                     '_blank', 'noopener');
       });
     }
-
     if (fbCopy) {
       fbCopy.addEventListener('click', function () {
         var text = (fb.getAttribute('data-share') || '') + '\n' + fbLink('copy');
@@ -271,7 +343,6 @@
           navigator.clipboard.writeText(text).then(done, function () {});
           return;
         }
-        // No clipboard (http, or an older browser): fall back to the share sheet rather than failing quietly.
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
       });
     }
@@ -596,7 +667,15 @@
     var wrForm = document.getElementById('wrForm');
     var wrError = document.getElementById('wrError');
     var wrServiceSel = document.getElementById('wrService');
-    var wrFields = { name: 'wrName', biz: 'wrBiz', city: 'wrCity', need: 'wrNeed', link: 'wrLink', budget: 'wrBudget' };
+    var wrFields = { name: 'wrName', biz: 'wrBiz', city: 'wrCity', need: 'wrNeed', link: 'wrLink', budget: 'wrBudget', payid: 'wrPayId' };
+    var wrEnquiry = document.getElementById('wrEnquiry');
+    var wrPayField = document.getElementById('wrPayField');
+    var wrHead = document.getElementById('wr-h');
+    var wrSub = document.getElementById('wrSub');
+    var WR_ASK = { head: wrHead.textContent, sub: wrSub.textContent };
+    var WR_PAY = { head: 'Payment ID भेजिए',
+                   sub: 'बस Payment ID चाहिए — बाकी जानकारी Razorpay से हमें मिल जाती है। दोबारा सब भरने की ज़रूरत नहीं।' };
+    var wrMode = '1';
     var wrEl = function (k) { return document.getElementById(wrFields[k]); };
     var wrCtx = { label: '', role: '', service: '', serviceId: '' };
     var wrLastFocus = null;
@@ -631,6 +710,16 @@
       };
       wrError.hidden = true;
       wrRestore();
+      // Someone who has just paid has already given Razorpay their details. Asking for them again
+      // is the worst possible moment to make a customer retype anything, so this mode asks for the
+      // Payment ID alone — that is what identifies the order — and quietly reuses a name we already
+      // remember from an earlier enquiry rather than asking for it a second time.
+      wrMode = trigger.getAttribute('data-wa-form') || '1';
+      var pay = wrMode === 'payment';
+      wrEnquiry.hidden = pay;
+      wrPayField.hidden = !pay;
+      wrHead.textContent = pay ? WR_PAY.head : WR_ASK.head;
+      wrSub.textContent = pay ? WR_PAY.sub : WR_ASK.sub;
       // Pre-select the service from the page the visitor tapped from, so they rarely touch the list.
       // A generic button (header, footer, floating) carries no service, so fall back to what the
       // page itself is about before giving up and asking.
@@ -646,13 +735,23 @@
       wrSheet.hidden = false;
       root.classList.add('wr-open');
       wrSheet.querySelector('.wr-panel').focus();
-      var firstEmpty = ['name', 'biz', 'city'].map(wrEl).filter(function (el) { return !el.value.trim(); })[0];
+      var firstEmpty = pay ? wrEl('payid')
+        : ['name', 'biz', 'city'].map(wrEl).filter(function (el) { return !el.value.trim(); })[0];
       if (firstEmpty) firstEmpty.focus();
       track('wa_requirement_opened', { label: wrCtx.label, service: wrServiceSel.value || wrCtx.serviceId || '' });
     };
 
     // Build the message the owner actually receives. Only filled lines are included —
     // a blank never becomes a "[placeholder]" again.
+    var wrPayMessage = function () {
+      var lines = ['Namaste Moodily 👋', 'Payment ho gaya.', ''];
+      lines.push('Payment ID: ' + wrEl('payid').value.trim());
+      var known = wrEl('name').value.trim();          // carried over from an earlier enquiry, if any
+      if (known) lines.push('Naam: ' + known);
+      lines.push('', 'moodily.in se bheja gaya · ' + location.pathname);
+      return lines.join('\n');
+    };
+
     var wrMessage = function (ref) {
       var serviceText = wrServiceSel.value === 'not-sure'
         ? 'अभी तय नहीं — सलाह चाहिए'
@@ -686,6 +785,21 @@
     wrForm.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var bad = null;
+      if (wrMode === 'payment') {
+        var pid = wrEl('payid'), pok = pid.value.trim().length >= 6;
+        pid.setAttribute('aria-invalid', pok ? 'false' : 'true');
+        if (!pok) {
+          wrError.textContent = 'Payment ID भरिए — Razorpay की receipt में pay_ से शुरू होती है। Bank reference भी चलेगा।';
+          wrError.hidden = false;
+          pid.focus();
+          return;
+        }
+        wrError.hidden = true;
+        track('wa_payment_id_sent', { label: wrCtx.label });
+        wrGo(wrPayMessage());
+        wrClose();
+        return;
+      }
       ['name', 'biz', 'city'].forEach(function (k) {
         var el = wrEl(k), ok = el.value.trim().length >= 2;
         el.setAttribute('aria-invalid', ok ? 'false' : 'true');
