@@ -190,8 +190,11 @@
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(function () {
-        fab.classList.toggle('is-compact', window.scrollY > 320 && window.scrollY > lastY);
-        lastY = window.scrollY;
+        // Read the scroll position once, before touching classList. Reading it again afterwards
+        // forces the browser to re-run layout it has just invalidated, on every scroll frame.
+        var y = window.scrollY;
+        fab.classList.toggle('is-compact', y > 320 && y > lastY);
+        lastY = y;
         ticking = false;
       });
     }, { passive: true });
