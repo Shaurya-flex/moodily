@@ -3937,9 +3937,18 @@ def gtm_head():
         return ""
     # Production only: previews, local builds and tests never load GTM, so they can't send events into the live
     # GA property (the source of "localhost" hits). dataLayer still exists everywhere, so site.js works the same.
-    return ("<script>window.dataLayer=window.dataLayer||[];if(location.hostname==='{host}')(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});"
+    #
+    # The container itself is 113 KB and competes with the fonts for bandwidth on a slow 4G first paint, so it is
+    # fetched once the page is idle (2.5 s at the latest) or the moment the visitor first touches the page,
+    # whichever comes first. Nothing is lost by waiting: dataLayer is created synchronously here, so every event
+    # site.js pushes before the container arrives sits in the queue and is processed when it initialises. The one
+    # real cost is that a visitor who leaves within ~2.5 s without touching anything is not counted.
+    return ("<script>window.dataLayer=window.dataLayer||[];if(location.hostname==='{host}'){{var L=function(){{if(L.d)return;L.d=1;"
+            "(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});"
             "var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;"
-            "f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{gid}');</script>").format(gid=gid, host=PRODUCTION_HOST)
+            "f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{gid}');}};"
+            "['pointerdown','keydown','touchstart'].forEach(function(t){{addEventListener(t,L,{{once:true,passive:true}})}});"
+            "if(window.requestIdleCallback)requestIdleCallback(L,{{timeout:2500}});else setTimeout(L,2500);}}</script>").format(gid=gid, host=PRODUCTION_HOST)
 
 
 def gtm_body():
@@ -4337,8 +4346,11 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html_out, encoding="utf-8")
         written.append(str(out.relative_to(ROOT)))
-        # sitemap lastmod changes only when the page content changes (asset hashes, countdown numbers and year ignored)
+        # sitemap lastmod changes only when the page content changes (asset hashes, countdown numbers, year and
+        # the analytics loader ignored). Rewiring how GTM is fetched is not an edit to the page a reader sees, and
+        # telling Google that all 86 URLs changed today because a script moved costs us the credibility of lastmod.
         stable = re.sub(r"\?v=[0-9a-f]+|<strong>\d+/\d+</strong>|© \d{4}|data-offer-ends=\"[^\"]*\"", "", html_out)
+        stable = re.sub(r"<script>window\.dataLayer=.*?</script>", "", stable)
         digest = hashlib.sha1(stable.encode("utf-8")).hexdigest()[:16]
         prev = lastmods.get(route)
         new_lastmods[route] = [digest, prev[1] if prev and prev[0] == digest else TODAY]
