@@ -3972,33 +3972,48 @@ def breadcrumbs_html(meta):
 
 
 # -------------------------------------------------------------- page feedback
-# One question at the foot of the pages where the answer is actionable. The tap is the data: it becomes a
-# GA4 event carrying the route, so the owner can see *which page* failed rather than a global score. Anything
-# the visitor types goes to WhatsApp instead of a database — they press send themselves, they can edit it
-# first, and the site stores nothing, which keeps this out of scope for data-protection obligations entirely.
+# One question at the foot of the pages where the answer is actionable, then a rating and a way to pass the
+# page on. Three signals, one tap each, no page to visit and nothing stored: the vote and the rating become
+# GA4 events carrying the route, and anything typed goes to WhatsApp, where the visitor presses send and can
+# edit it first. No database means no breach surface and no consent notice.
 #
-# No counters are shown. A visible tally on a site this new would advertise how few people are here, and a
-# number nobody can audit is worth less than the owner reading the message.
+# The rating is drawn as five signal bars, not stars. Stars are everywhere and read as decoration; a rising
+# signal is something every shopkeeper reads off their phone a dozen times a day, so the scale explains
+# itself without a word of instruction and in either language.
+#
+# No totals are shown anywhere. A visible score on a site this new would advertise how few people are here.
 FEEDBACK_SKIP = ("/contact", "/payment", "/privacy", "/terms", "/refund", "/404",
                  "/offers/", "/international/pay", "/international/payments")
 FEEDBACK_HELPFUL = ("/guides/", "/insights/", "/learn/", "/resources/", "/updates/",
                     "/international/product-tutorials/")
 FEEDBACK_FOUND = ("/services/", "/samples/", "/store/", "/tools/",
                   "/international/services/", "/international/work/")
-# Written the way a shopkeeper speaks, not the way a form asks. Every word that could come out without
-# changing the meaning has: "क्या यह जानकारी काम आई?" loses its क्या, "आपको जो चाहिए था, वो यहाँ मिला?"
-# loses both आपको and यहाँ. The follow-up on a service page names the thing being asked about — service,
-# in Latin script, because that is how the rest of the site writes it and how the customer says it.
 FEEDBACK_COPY = {
-    ("helpful", "hi"): ("यह जानकारी काम आई?", "हाँ", "नहीं", "क्या बेहतर करें?"),
-    ("helpful", "en"): ("Was this useful?", "Yes", "No", "What's missing?"),
-    ("found", "hi"): ("जो चाहिए था, वो मिला?", "हाँ", "नहीं", "किस service की तलाश थी?"),
-    ("found", "en"): ("Found what you needed?", "Yes", "No", "What did you need?"),
+    ("helpful", "hi"): ("क्या यह जानकारी काम आई?", "हाँ", "नहीं", "क्या बेहतर हो सकता है?"),
+    ("helpful", "en"): ("Was this useful?", "Yes", "No", "What would make it better?"),
+    ("found", "hi"): ("आपको जो digital service/help चाहिए था, वो यहाँ मिला?", "हाँ", "नहीं",
+                      "किस digital service/help की तलाश थी?"),
+    ("found", "en"): ("Did you find the digital service or help you needed?", "Yes", "No",
+                      "Which digital service or help were you looking for?"),
 }
-FEEDBACK_SEND = {"hi": ("WhatsApp पर भेजें", "WhatsApp में खुलेगा — भेजने से पहले बदल सकते हैं।",
-                        "शुक्रिया — नोट कर लिया।"),
-                 "en": ("Send on WhatsApp", "Opens in WhatsApp — edit it before you send.",
-                        "Thanks — noted.")}
+FEEDBACK_SEND = {
+    "hi": ("WhatsApp पर भेजें", "Message WhatsApp में खुलेगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।",
+           "धन्यवाद — आपकी बात पहुँच गई।"),
+    "en": ("Send on WhatsApp", "The message opens in WhatsApp — you can read and edit it before sending.",
+           "Thank you — that is noted."),
+}
+FEEDBACK_RATE = {
+    "hi": ("इस page को 5 में से कितना?", "कम", "बढ़िया", "5 में से {}"),
+    "en": ("Rate this page out of 5", "Poor", "Great", "{} out of 5"),
+}
+FEEDBACK_SHARE = {
+    "hi": ("दोस्त या group को भेजें", "Link copy करें", "Link copy हो गया",
+           "Moodily — अपने business के लिए Google Business Profile, WhatsApp Business, website और catalogue। "
+           "साफ़ price, लिखित scope, accounts आपके नाम पर।"),
+    "en": ("Send to a friend or group", "Copy link", "Link copied",
+           "Moodily — Google Business Profile, WhatsApp Business, websites and catalogues for small businesses. "
+           "Clear prices, written scope, accounts in your own name."),
+}
 
 
 def feedback_kind(route, meta):
@@ -4016,31 +4031,56 @@ def feedback_kind(route, meta):
 
 def feedback_block(route, meta):
     kind = feedback_kind(route, meta)
-    if not kind:
+    number = SITE["whatsapp"].get("number", "")
+    if not kind or not number:
         return ""
     lang = "en" if meta.get("lang", "hi").startswith("en") else "hi"
     q, yes, no, prompt = FEEDBACK_COPY[(kind, lang)]
     send, note, thanks = FEEDBACK_SEND[lang]
-    number = SITE["whatsapp"].get("number", "")
-    if not number:
-        return ""
-    return ('\n<section class="fb" data-fb="{kind}" data-wa="{num}" aria-labelledby="fb-q">'
+    rate_q, low, high, rate_label = FEEDBACK_RATE[lang]
+    share_label, copy_label, copied_label, pitch = FEEDBACK_SHARE[lang]
+    # Five bars of rising height. The radio is the control — real inputs, so arrow keys and screen
+    # readers work without a line of script; the label is only its paint.
+    bars = "".join(
+        '<input class="sr-only fb-radio" type="radio" name="fb-rate" id="fb-r{n}" value="{n}" '
+        'data-fb-rate="{n}" data-track="page_rating" data-label="{n}">'
+        '<label class="fb-bar" for="fb-r{n}"><span class="fb-bar-fill"></span>'
+        '<span class="sr-only">{lab}</span></label>'.format(n=n, lab=e(rate_label.format(n)))
+        for n in range(1, 6))
+    return ('\n<section class="fb" data-fb="{kind}" data-wa="{num}" data-share="{pitch}" '
+            'data-copied="{copied}" aria-labelledby="fb-q">'
             '<div class="container narrow">'
             '<p class="fb-q" id="fb-q">{q}</p>'
             '<p class="fb-row">'
-            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="up" data-track="page_feedback" data-label="up">{yes}</button>'
-            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="down" data-track="page_feedback" data-label="down">{no}</button>'
+            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="up" '
+            'data-track="page_feedback" data-label="up">{yes}</button>'
+            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="down" '
+            'data-track="page_feedback" data-label="down">{no}</button>'
             '</p>'
+            '<div class="fb-step" hidden>'
             '<div class="fb-more" hidden>'
             '<label class="fb-label" for="fb-text">{prompt}</label>'
             '<textarea id="fb-text" class="fb-text" rows="3" maxlength="400"></textarea>'
-            '<p class="fb-send"><a class="btn btn-wa btn-sm" href="/contact/" data-fb-send data-track="feedback_whatsapp" '
-            'data-label="{kind}" target="_blank" rel="noopener">{wa}{send}</a></p>'
+            '<p class="fb-send"><a class="btn btn-wa btn-sm" href="/contact/" data-fb-send '
+            'data-track="feedback_whatsapp" data-label="{kind}" target="_blank" rel="noopener">{wa}{send}</a></p>'
             '<p class="small muted">{note}</p>'
             '</div>'
-            '<p class="fb-thanks" hidden role="status">{thanks}</p>'
-            '</div></section>').format(kind=kind, num=e(number), q=e(q), yes=e(yes), no=e(no), prompt=e(prompt),
-                                       send=e(send), note=e(note), thanks=e(thanks), wa=WA_ICON)
+            '<fieldset class="fb-rate"><legend class="fb-label">{rate_q}</legend>'
+            '<div class="fb-bars">{bars}</div>'
+            '<p class="fb-scale small muted"><span>{low}</span><span>{high}</span></p>'
+            '</fieldset>'
+            '<p class="fb-thanks" role="status">{thanks}</p>'
+            '<p class="fb-share">'
+            '<button type="button" class="btn btn-outline btn-sm" data-fb-share '
+            'data-track="page_share" data-label="whatsapp">{wa}{share}</button>'
+            '<button type="button" class="btn btn-outline btn-sm" data-fb-copy '
+            'data-track="page_share" data-label="copy">{copy}</button>'
+            '</p>'
+            '</div>'
+            '</div></section>').format(
+        kind=kind, num=e(number), pitch=e(pitch), copied=e(copied_label), q=e(q), yes=e(yes), no=e(no),
+        prompt=e(prompt), send=e(send), note=e(note), thanks=e(thanks), rate_q=e(rate_q),
+        low=e(low), high=e(high), bars=bars, share=e(share_label), copy=e(copy_label), wa=WA_ICON)
 
 
 def byline_html(meta):
