@@ -323,13 +323,18 @@ def wa_button(label, role="[role]", service="[service]", cls="btn btn-wa", track
     "quick question" taps rather than enquiries, so they open WhatsApp directly — still with a
     complete sentence, never a blank template. Buttons tied to actual work keep the sheet,
     because that is where a missing name/city costs a round-trip.
+
+    form="payment" is for someone who has already paid. They have given their details to Razorpay
+    already; asking for them again is the worst moment to make a customer retype anything. The
+    sheet then asks for the Payment ID alone, which is what identifies the order.
     """
     role = "" if "[" in str(role) else role
     service = "" if "[" in str(service) else service
     return ('<a class="{cls}" href="{href}" target="_blank" rel="noopener" data-track="whatsapp_click" '
             'data-label="{track}" data-wa-role="{role}" data-wa-service="{svc}" data-wa-service-id="{sid}"{form}>{icon} {label}</a>').format(
-        cls=cls, href=e(wa_href(wa_text(role, service, ask_details=form))), track=e(track_label), role=e(role),
-        svc=e(service), sid=e(service_id), form=' data-wa-form="1"' if form else "", icon=WA_ICON, label=e(label))
+        cls=cls, href=e(wa_href(wa_text(role, service, ask_details=(form is True or form == "1")))), track=e(track_label), role=e(role),
+        svc=e(service), sid=e(service_id), icon=WA_ICON, label=e(label),
+        form=' data-wa-form="{}"'.format(e(form if isinstance(form, str) else "1")) if form else "")
 
 
 # ------------------------------------------------------------ components
@@ -819,8 +824,10 @@ def c_final_cta(args, ctx):
 
 
 def c_wa(args, ctx):
+    # form="payment" switches the sheet to asking for a Razorpay Payment ID and nothing else.
+    form = args.get("form", "1")
     return wa_button(args.get("label", "WhatsApp करें"), args.get("role", "[role]"), args.get("service", "[service]"),
-                     args.get("class", "btn btn-wa"), args.get("track", "inline"))
+                     args.get("class", "btn btn-wa"), args.get("track", "inline"), form=form)
 
 
 def c_learn_curriculum(args, ctx):
@@ -3900,8 +3907,12 @@ REQUIREMENT_SHEET = """
       <div><p class="eyebrow">WhatsApp पर भेजने से पहले</p><h2 id="wr-h">अपनी जानकारी भरिए</h2></div>
       <button type="button" class="wr-x" id="wrClose" aria-label="बंद करें">&times;</button>
     </div>
-    <p class="small muted">सिर्फ़ 3 ज़रूरी जानकारी — ताकि Moodily पहले ही message में समझ जाए कि आपको क्या चाहिए और दोबारा पूछना न पड़े।</p>
+    <p class="small muted" id="wrSub">सिर्फ़ 3 ज़रूरी जानकारी — ताकि Moodily पहले ही message में समझ जाए कि आपको क्या चाहिए और दोबारा पूछना न पड़े।</p>
     <form id="wrForm" novalidate>
+      <div class="field" id="wrPayField" hidden><label for="wrPayId">Payment ID *</label>
+        <input id="wrPayId" name="payid" maxlength="40" autocomplete="off" spellcheck="false" placeholder="जैसे: pay_RxxxxxxxxxxxxX">
+        <p class="small muted">Razorpay की receipt (email/SMS) में मिलती है। न मिले तो bank reference भी चलेगा।</p></div>
+      <div id="wrEnquiry">
       <div class="field"><label for="wrName">आपका नाम *</label>
         <input id="wrName" name="name" autocomplete="name" maxlength="60" required placeholder="जैसे: Ajitesh Kumar"></div>
       <div class="field"><label for="wrBiz">आपका business / shop किस तरह का है? *</label>
@@ -3918,6 +3929,7 @@ REQUIREMENT_SHEET = """
         <div class="field"><label for="wrBudget">Budget (approx)</label>
           <select id="wrBudget" name="budget"><option value="">बताना ज़रूरी नहीं</option><option>₹500 – ₹2,000</option><option>₹2,000 – ₹5,000</option><option>₹5,000 – ₹15,000</option><option>₹15,000+</option><option>अभी पता नहीं</option></select></div>
       </details>
+      </div>
       <p class="form-error" id="wrError" role="alert" hidden></p>
       <button class="btn btn-wa btn-lg btn-block" id="wrSend" type="submit">{icon} WhatsApp पर भेजें →</button>
       <p class="small muted">यह message आपके अपने WhatsApp से जाएगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।</p>
@@ -3972,18 +3984,16 @@ def breadcrumbs_html(meta):
 
 
 # -------------------------------------------------------------- page feedback
-# One question at the foot of the pages where the answer is actionable, then a rating and a way to pass the
-# page on. Three signals, one tap each, no page to visit and nothing stored: the vote and the rating become
-# GA4 events carrying the route, and anything typed goes to WhatsApp, where the visitor presses send and can
-# edit it first. No database means no breach surface and no consent notice.
+# A floating tab on every page rather than a block at the foot of some of them. One tap opens a
+# small panel with the three signals: was this useful, how would you rate it, and pass it on.
 #
-# The rating is drawn as five signal bars, not stars. Stars are everywhere and read as decoration; a rising
-# signal is something every shopkeeper reads off their phone a dozen times a day, so the scale explains
-# itself without a word of instruction and in either language.
+# It can be dragged up and down and snapped to either edge, because a fixed widget always covers
+# something on somebody's screen, and the person it bothers is the one who should be able to move
+# it. Where it was put is remembered per visitor.
 #
-# No totals are shown anywhere. A visible score on a site this new would advertise how few people are here.
-FEEDBACK_SKIP = ("/contact", "/payment", "/privacy", "/terms", "/refund", "/404",
-                 "/offers/", "/international/pay", "/international/payments")
+# Nothing is stored by us: the vote and rating become GA4 events carrying the route, and anything
+# typed goes to WhatsApp, where the visitor presses send and can edit first. No counters are shown
+# anywhere — a visible score on a site this new advertises how few people are here.
 FEEDBACK_HELPFUL = ("/guides/", "/insights/", "/learn/", "/resources/", "/updates/",
                     "/international/product-tutorials/")
 FEEDBACK_FOUND = ("/services/", "/samples/", "/store/", "/tools/",
@@ -3995,11 +4005,15 @@ FEEDBACK_COPY = {
                       "किस digital service/help की तलाश थी?"),
     ("found", "en"): ("Did you find the digital service or help you needed?", "Yes", "No",
                       "Which digital service or help were you looking for?"),
+    ("page", "hi"): ("यह page आपके काम का रहा?", "हाँ", "नहीं", "क्या बेहतर हो सकता है?"),
+    ("page", "en"): ("Was this page useful?", "Yes", "No", "What would make it better?"),
 }
 FEEDBACK_SEND = {
-    "hi": ("WhatsApp पर भेजें", "Message WhatsApp में खुलेगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।",
+    # The note has to make two points — where the message goes, and that the visitor controls it.
+    # In a 320px panel the long form takes two lines and pushes the share row past the fold.
+    "hi": ("WhatsApp पर भेजें", "WhatsApp में खुलेगा — भेजने से पहले बदल सकते हैं।",
            "धन्यवाद — आपकी बात पहुँच गई।"),
-    "en": ("Send on WhatsApp", "The message opens in WhatsApp — you can read and edit it before sending.",
+    "en": ("Send on WhatsApp", "Opens in WhatsApp — edit it before you send.",
            "Thank you — that is noted."),
 }
 FEEDBACK_RATE = {
@@ -4014,43 +4028,51 @@ FEEDBACK_SHARE = {
            "Moodily — Google Business Profile, WhatsApp Business, websites and catalogues for small businesses. "
            "Clear prices, written scope, accounts in your own name."),
 }
+FEEDBACK_UI = {
+    "hi": ("Feedback दें", "बंद करें", "Feedback — खींचकर किसी भी किनारे पर ले जाइए"),
+    "en": ("Give feedback", "Close", "Feedback — drag it to either edge"),
+}
+FB_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="20" height="20">'
+           '<path fill="currentColor" d="M12 3c4.97 0 9 3.36 9 7.5 0 4.14-4.03 7.5-9 7.5-.9 0-1.77-.11-2.58-.32L5 20.5'
+           'l.9-3.2C4.1 15.93 3 13.84 3 11.5 3 7.36 7.03 3 12 3Zm-3.2 6.1a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3Z'
+           'm3.2 0a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3Zm3.2 0a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3Z"/></svg>')
 
 
-def feedback_kind(route, meta):
-    """Which feedback question this route gets, or None. Pages mid-transaction never ask."""
-    if meta.get("no_feedback") or meta.get("noindex") or route.startswith(FEEDBACK_SKIP):
-        return None
-    if route.rstrip("/") in ("", "/international"):   # the homepages sell; they do not survey
-        return None
+def feedback_kind(route):
+    """Which question this route gets. Every page asks something; only the wording changes."""
     if route.startswith(FEEDBACK_HELPFUL):
         return "helpful"
     if route.startswith(FEEDBACK_FOUND):
         return "found"
-    return None
+    return "page"
 
 
-def feedback_block(route, meta):
-    kind = feedback_kind(route, meta)
-    number = SITE["whatsapp"].get("number", "")
-    if not kind or not number:
+def feedback_widget(route, meta):
+    if meta.get("no_feedback"):
         return ""
+    number = SITE["whatsapp"].get("number", "")
+    if not number:
+        return ""
+    kind = feedback_kind(route)
     lang = "en" if meta.get("lang", "hi").startswith("en") else "hi"
     q, yes, no, prompt = FEEDBACK_COPY[(kind, lang)]
     send, note, thanks = FEEDBACK_SEND[lang]
     rate_q, low, high, rate_label = FEEDBACK_RATE[lang]
     share_label, copy_label, copied_label, pitch = FEEDBACK_SHARE[lang]
-    # Five bars of rising height. The radio is the control — real inputs, so arrow keys and screen
-    # readers work without a line of script; the label is only its paint.
+    open_label, close_label, drag_hint = FEEDBACK_UI[lang]
     bars = "".join(
         '<input class="sr-only fb-radio" type="radio" name="fb-rate" id="fb-r{n}" value="{n}" '
         'data-fb-rate="{n}" data-track="page_rating" data-label="{n}">'
         '<label class="fb-bar" for="fb-r{n}"><span class="fb-bar-fill"></span>'
         '<span class="sr-only">{lab}</span></label>'.format(n=n, lab=e(rate_label.format(n)))
         for n in range(1, 6))
-    return ('\n<section class="fb" data-fb="{kind}" data-wa="{num}" data-share="{pitch}" '
-            'data-copied="{copied}" aria-labelledby="fb-q">'
-            '<div class="container narrow">'
-            '<p class="fb-q" id="fb-q">{q}</p>'
+    return ('\n<aside class="fbw" id="fbw" data-fb="{kind}" data-wa="{num}" data-share="{pitch}" '
+            'data-copied="{copied}" hidden>'
+            '<button type="button" class="fbw-tab" id="fbwTab" aria-expanded="false" aria-controls="fbwPanel" '
+            'title="{drag}">{ico}<span class="sr-only">{open}</span></button>'
+            '<div class="fbw-panel" id="fbwPanel" role="dialog" aria-label="{open}" hidden>'
+            '<div class="fbw-head"><p class="fb-q" id="fbwQ">{q}</p>'
+            '<button type="button" class="wr-x" id="fbwClose" aria-label="{close}">&times;</button></div>'
             '<p class="fb-row">'
             '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="up" '
             'data-track="page_feedback" data-label="up">{yes}</button>'
@@ -4060,7 +4082,7 @@ def feedback_block(route, meta):
             '<div class="fb-step" hidden>'
             '<div class="fb-more" hidden>'
             '<label class="fb-label" for="fb-text">{prompt}</label>'
-            '<textarea id="fb-text" class="fb-text" rows="3" maxlength="400"></textarea>'
+            '<textarea id="fb-text" class="fb-text" rows="2" maxlength="400"></textarea>'
             '<p class="fb-send"><a class="btn btn-wa btn-sm" href="/contact/" data-fb-send '
             'data-track="feedback_whatsapp" data-label="{kind}" target="_blank" rel="noopener">{wa}{send}</a></p>'
             '<p class="small muted">{note}</p>'
@@ -4076,11 +4098,11 @@ def feedback_block(route, meta):
             '<button type="button" class="btn btn-outline btn-sm" data-fb-copy '
             'data-track="page_share" data-label="copy">{copy}</button>'
             '</p>'
-            '</div>'
-            '</div></section>').format(
+            '</div></div></aside>').format(
         kind=kind, num=e(number), pitch=e(pitch), copied=e(copied_label), q=e(q), yes=e(yes), no=e(no),
-        prompt=e(prompt), send=e(send), note=e(note), thanks=e(thanks), rate_q=e(rate_q),
-        low=e(low), high=e(high), bars=bars, share=e(share_label), copy=e(copy_label), wa=WA_ICON)
+        prompt=e(prompt), send=e(send), note=e(note), thanks=e(thanks), rate_q=e(rate_q), low=e(low),
+        high=e(high), bars=bars, share=e(share_label), copy=e(copy_label), wa=WA_ICON, ico=FB_ICON,
+        open=e(open_label), close=e(close_label), drag=e(drag_hint))
 
 
 def byline_html(meta):
@@ -4168,16 +4190,16 @@ def layout(meta, body, route, ctx):
 {banner}
 {crumbs}
 <main id="main">
-{byline}{body}{feedback}
+{byline}{body}
 </main>
-{footer}{ls_aff}
+{footer}{feedback}{ls_aff}
 </body>
 </html>
 """.format(lang=lang, dlang="en" if lang.startswith("en") else "hi", title=e(meta["title"]), desc=e(meta["description"]), canonical=canonical, ls_aff=ls_affiliate() if analytics and not intl else "",
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_US" if intl else ("en_IN" if lang.startswith("en") else "hi_IN"),
            og_img=og_img, gtm=gtm_head() if analytics else "", ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body() if analytics else "",
            header=intl_header(route) if intl else header(route, meta), crumbs=intl_breadcrumbs_html(meta) if intl else breadcrumbs_html(meta), body=body,
-           footer=intl_footer(route) if intl else footer(route), feedback=feedback_block(route, meta), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
+           footer=intl_footer(route) if intl else footer(route), feedback=feedback_widget(route, meta), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
            og_alt=meta.get("og_image_alt") or ("Moodily International — digital journey work and product tutorials" if intl else OG_ALT[og_default(route)]), font_preload=font_preload,
