@@ -139,6 +139,11 @@ ul,ol{padding-left:1.2em}
 .logo{flex:none}
 .logo{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--text)!important;text-decoration:none;letter-spacing:-.01em}
 .logo .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:-3px}
+/* The brand mark is a self-contained tile with its own deep-violet ground, so it reads on both
+   themes without a variant. On the dark surface that ground sits close to the page, so a hairline
+   of the tile's own violet lifts its edge off the background instead of inventing a border. */
+.logo-mark{border-radius:7px;flex:none}
+[data-theme="dark"] .logo-mark{box-shadow:0 0 0 1px rgba(139,112,255,.45)}
 .nav-main{margin-left:auto;display:flex;align-items:center;gap:clamp(10px,1.4vw,18px);flex:none}
 /* Menu — a compact popover on desktop, a right drawer on phones. Never a full-page takeover. */
 .menu{position:relative}

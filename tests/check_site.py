@@ -41,6 +41,7 @@ class Page(HTMLParser):
         self.title, self.h1, self.ids, self.links, self.ld = [], 0, set(), [], []
         self.meta, self.canonical, self.imgs_no_alt, self.labels_for, self.controls = {}, None, 0, set(), []
         self.blank_no_rel = 0
+        self.assets = []
         self._in_title = self._in_ld = False
         self._buf = ""
 
@@ -62,6 +63,10 @@ class Page(HTMLParser):
                 self.blank_no_rel += 1
         elif tag == "img" and "alt" not in a:
             self.imgs_no_alt += 1
+        if tag in ("img", "script", "source") and (a.get("src") or "").startswith("/"):
+            self.assets.append(a["src"])
+        elif tag == "link" and (a.get("href") or "").startswith("/assets/"):
+            self.assets.append(a["href"])
         elif tag == "label" and a.get("for"):
             self.labels_for.add(a["for"])
         elif tag in ("input", "select", "textarea") and a.get("type") not in ("hidden", "submit"):
@@ -381,6 +386,13 @@ def main():
                 trel = str(target.relative_to(ROOT))
                 if anchor and trel in pages and anchor not in pages[trel][0].ids:
                     fail(rel, "anchor #{} not found on {}".format(anchor, trel))
+
+    # Links were checked above; the files the browser is *told to fetch* were not. A deleted favicon,
+    # logo or script is invisible in the HTML and ships as a broken image on every page, so check them.
+    for rel, (p, _) in pages.items():
+        for src in p.assets:
+            if not (ROOT / src.split("?")[0].lstrip("/")).exists():
+                fail(rel, "missing asset: " + src)
 
     sm = ET.parse(ROOT / "sitemap.xml").getroot()
     ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
