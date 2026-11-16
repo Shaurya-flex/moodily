@@ -43,3 +43,5 @@ jobs:
           sudo apt-get install -y --no-install-recommends fonts-indic >/dev/null
       - name: Layout guard (nothing may overflow the viewport)
         run: node --test tests/layout.test.mjs
+      - name: Page feedback (placement, and nothing leaks to WhatsApp or analytics)
+        run: node --test tests/feedback.test.mjs

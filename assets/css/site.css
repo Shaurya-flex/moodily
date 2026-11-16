@@ -1533,3 +1533,38 @@ html.wr-open .mobile-cta,html.wr-open .fab-wa{display:none}
 .honesty p:last-child{margin:0;color:var(--text)}
 .why-close{margin-top:clamp(18px,2.2vw,28px);max-width:var(--reading)}
 .why-close .btn-row{margin:14px 0 8px}
+/* ---------------------------------------------------------------- page feedback
+   A quiet rule-off block at the foot of guides, services and samples. Deliberately plain: it must not
+   compete with the real call to action a few hundred pixels above it.
+   [hidden] is a user-agent rule, so any author display wins over it — .fb-row and .fb-share both set one.
+   State this first, or the attribute stops meaning what the script thinks it means. */
+.fb{border-top:1px solid var(--border);margin-top:var(--space-section);padding:clamp(20px,2.4vw,28px) 0 clamp(24px,3vw,36px)}
+.fb [hidden]{display:none}
+.fb-q{margin:0 0 12px;font-weight:600;color:var(--text)}
+.fb-row,.fb-share{display:flex;flex-wrap:wrap;gap:10px;margin:0}
+.fb-btn{min-width:88px}
+.fb-more{margin:0 0 20px;max-width:var(--reading)}
+.fb-label{display:block;font-size:var(--fs-small);color:var(--text-muted);margin-bottom:6px;padding:0}
+.fb-text{width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:var(--r-input);
+  background:var(--surface);color:var(--text);font:inherit;font-size:var(--fs-small);resize:vertical}
+.fb-text:focus-visible{outline:none;border-color:var(--primary);box-shadow:var(--ring)}
+.fb-send{margin:12px 0 6px}
+/* Rating: five rising bars, read like mobile signal. The label is 48px tall whatever the bar inside it
+   does, so even "1" is a full-size tap target. */
+.fb-rate{border:0;padding:0;margin:0 0 18px;min-width:0}
+.fb-bars{display:flex;align-items:flex-end;gap:8px}
+/* The label is the 44px tap target; the bar drawn inside it is narrower and squarer, or the short
+   values round off into pills and the row stops reading as a rising signal. */
+.fb-bar{display:flex;align-items:flex-end;justify-content:center;width:44px;height:52px;cursor:pointer}
+.fb-bar-fill{display:block;width:28px;border:1px solid var(--border-strong);border-radius:4px;
+  background:var(--surface);transition:background .15s ease,border-color .15s ease}
+.fb-bar:nth-of-type(1) .fb-bar-fill{height:30%}
+.fb-bar:nth-of-type(2) .fb-bar-fill{height:47%}
+.fb-bar:nth-of-type(3) .fb-bar-fill{height:65%}
+.fb-bar:nth-of-type(4) .fb-bar-fill{height:82%}
+.fb-bar:nth-of-type(5) .fb-bar-fill{height:100%}
+.fb-bar:hover .fb-bar-fill{border-color:var(--primary)}
+.fb-bar.is-on .fb-bar-fill{background:var(--primary);border-color:var(--primary)}
+.fb-radio:focus-visible+.fb-bar .fb-bar-fill{outline:2px solid var(--primary);outline-offset:2px}
+.fb-scale{display:flex;justify-content:space-between;max-width:252px;margin:6px 0 0}
+.fb-thanks{margin:0 0 12px;color:var(--success);font-weight:600}

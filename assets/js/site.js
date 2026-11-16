@@ -200,6 +200,83 @@
     }, { passive: true });
   }
 
+  // ---------- page feedback
+  // One tap opens everything at once: the rating, the share row, and — only after a "no" — the box whose
+  // text goes to WhatsApp rather than to us. The votes and the rating are already reported by the shared
+  // data-track handler, with page_path, so the owner sees which page failed and not a global score.
+  var fb = document.querySelector('.fb');
+  if (fb) {
+    var fbRow = fb.querySelector('.fb-row'), fbStep = fb.querySelector('.fb-step'),
+        fbMore = fb.querySelector('.fb-more'), fbText = fb.querySelector('.fb-text'),
+        fbSend = fb.querySelector('[data-fb-send]'), fbShare = fb.querySelector('[data-fb-share]'),
+        fbCopy = fb.querySelector('[data-fb-copy]'), fbBars = fb.querySelectorAll('.fb-bar');
+
+    // A shared page should be able to say where it came from, but never carry the visitor's own query.
+    function fbLink(medium) {
+      return location.origin + location.pathname + '?utm_source=share&utm_medium=' + medium;
+    }
+
+    fb.addEventListener('click', function (ev) {
+      var vote = ev.target.closest('[data-fb-vote]');
+      if (!vote) return;
+      fbRow.hidden = true;
+      fbStep.hidden = false;
+      if (vote.getAttribute('data-fb-vote') === 'down') {
+        fbMore.hidden = false;
+        if (fbText) fbText.focus();
+      }
+    });
+
+    // Fill the bars up to the chosen one. CSS cannot style earlier siblings, and a :has() chain for five
+    // values is worse to read than one loop, so the script owns the paint and the stylesheet stays dumb.
+    fb.addEventListener('change', function (ev) {
+      var hit = ev.target.closest('[data-fb-rate]');
+      if (!hit) return;
+      var picked = Number(hit.getAttribute('data-fb-rate'));
+      for (var i = 0; i < fbBars.length; i++) fbBars[i].classList.toggle('is-on', i < picked);
+    });
+
+    if (fbSend) {
+      fbSend.addEventListener('click', function () {
+        var num = fb.getAttribute('data-wa');
+        if (!num) return;                                  // no number configured: the link stays /contact/
+        // location.pathname only — a query string or fragment can carry the visitor's own details.
+        var lines = ['Moodily — website feedback', location.origin + location.pathname];
+        var said = fbText && fbText.value.trim();
+        if (said) lines.push('', said);
+        fbSend.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(lines.join('\n'));
+        fbMore.hidden = true;
+      });
+    }
+
+    if (fbShare) {
+      fbShare.addEventListener('click', function () {
+        var pitch = fb.getAttribute('data-share') || '';
+        // The OS sheet reaches groups, contacts and every other app, so prefer it where it exists.
+        if (navigator.share) {
+          navigator.share({ text: pitch, url: fbLink('share') }).catch(function () {});
+          return;
+        }
+        // wa.me with no number opens WhatsApp's own picker — friends and groups both.
+        window.open('https://wa.me/?text=' + encodeURIComponent(pitch + '\n' + fbLink('whatsapp')),
+                    '_blank', 'noopener');
+      });
+    }
+
+    if (fbCopy) {
+      fbCopy.addEventListener('click', function () {
+        var text = (fb.getAttribute('data-share') || '') + '\n' + fbLink('copy');
+        var done = function () { fbCopy.textContent = fb.getAttribute('data-copied') || fbCopy.textContent; };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () {});
+          return;
+        }
+        // No clipboard (http, or an older browser): fall back to the share sheet rather than failing quietly.
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+      });
+    }
+  }
+
   // ---------- language (only on bilingual pages)
   var langBtn = document.getElementById('langToggle');
   if (langBtn) langBtn.addEventListener('click', function () {

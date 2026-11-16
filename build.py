@@ -3971,6 +3971,118 @@ def breadcrumbs_html(meta):
     return '<nav class="container breadcrumbs" aria-label="Breadcrumb"><ol>{}</ol></nav>'.format("".join(parts))
 
 
+# -------------------------------------------------------------- page feedback
+# One question at the foot of the pages where the answer is actionable, then a rating and a way to pass the
+# page on. Three signals, one tap each, no page to visit and nothing stored: the vote and the rating become
+# GA4 events carrying the route, and anything typed goes to WhatsApp, where the visitor presses send and can
+# edit it first. No database means no breach surface and no consent notice.
+#
+# The rating is drawn as five signal bars, not stars. Stars are everywhere and read as decoration; a rising
+# signal is something every shopkeeper reads off their phone a dozen times a day, so the scale explains
+# itself without a word of instruction and in either language.
+#
+# No totals are shown anywhere. A visible score on a site this new would advertise how few people are here.
+FEEDBACK_SKIP = ("/contact", "/payment", "/privacy", "/terms", "/refund", "/404",
+                 "/offers/", "/international/pay", "/international/payments")
+FEEDBACK_HELPFUL = ("/guides/", "/insights/", "/learn/", "/resources/", "/updates/",
+                    "/international/product-tutorials/")
+FEEDBACK_FOUND = ("/services/", "/samples/", "/store/", "/tools/",
+                  "/international/services/", "/international/work/")
+FEEDBACK_COPY = {
+    ("helpful", "hi"): ("क्या यह जानकारी काम आई?", "हाँ", "नहीं", "क्या बेहतर हो सकता है?"),
+    ("helpful", "en"): ("Was this useful?", "Yes", "No", "What would make it better?"),
+    ("found", "hi"): ("आपको जो digital service/help चाहिए था, वो यहाँ मिला?", "हाँ", "नहीं",
+                      "किस digital service/help की तलाश थी?"),
+    ("found", "en"): ("Did you find the digital service or help you needed?", "Yes", "No",
+                      "Which digital service or help were you looking for?"),
+}
+FEEDBACK_SEND = {
+    "hi": ("WhatsApp पर भेजें", "Message WhatsApp में खुलेगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।",
+           "धन्यवाद — आपकी बात पहुँच गई।"),
+    "en": ("Send on WhatsApp", "The message opens in WhatsApp — you can read and edit it before sending.",
+           "Thank you — that is noted."),
+}
+FEEDBACK_RATE = {
+    "hi": ("इस page को 5 में से कितना?", "कम", "बढ़िया", "5 में से {}"),
+    "en": ("Rate this page out of 5", "Poor", "Great", "{} out of 5"),
+}
+FEEDBACK_SHARE = {
+    "hi": ("दोस्त या group को भेजें", "Link copy करें", "Link copy हो गया",
+           "Moodily — अपने business के लिए Google Business Profile, WhatsApp Business, website और catalogue। "
+           "साफ़ price, लिखित scope, accounts आपके नाम पर।"),
+    "en": ("Send to a friend or group", "Copy link", "Link copied",
+           "Moodily — Google Business Profile, WhatsApp Business, websites and catalogues for small businesses. "
+           "Clear prices, written scope, accounts in your own name."),
+}
+
+
+def feedback_kind(route, meta):
+    """Which feedback question this route gets, or None. Pages mid-transaction never ask."""
+    if meta.get("no_feedback") or meta.get("noindex") or route.startswith(FEEDBACK_SKIP):
+        return None
+    if route.rstrip("/") in ("", "/international"):   # the homepages sell; they do not survey
+        return None
+    if route.startswith(FEEDBACK_HELPFUL):
+        return "helpful"
+    if route.startswith(FEEDBACK_FOUND):
+        return "found"
+    return None
+
+
+def feedback_block(route, meta):
+    kind = feedback_kind(route, meta)
+    number = SITE["whatsapp"].get("number", "")
+    if not kind or not number:
+        return ""
+    lang = "en" if meta.get("lang", "hi").startswith("en") else "hi"
+    q, yes, no, prompt = FEEDBACK_COPY[(kind, lang)]
+    send, note, thanks = FEEDBACK_SEND[lang]
+    rate_q, low, high, rate_label = FEEDBACK_RATE[lang]
+    share_label, copy_label, copied_label, pitch = FEEDBACK_SHARE[lang]
+    # Five bars of rising height. The radio is the control — real inputs, so arrow keys and screen
+    # readers work without a line of script; the label is only its paint.
+    bars = "".join(
+        '<input class="sr-only fb-radio" type="radio" name="fb-rate" id="fb-r{n}" value="{n}" '
+        'data-fb-rate="{n}" data-track="page_rating" data-label="{n}">'
+        '<label class="fb-bar" for="fb-r{n}"><span class="fb-bar-fill"></span>'
+        '<span class="sr-only">{lab}</span></label>'.format(n=n, lab=e(rate_label.format(n)))
+        for n in range(1, 6))
+    return ('\n<section class="fb" data-fb="{kind}" data-wa="{num}" data-share="{pitch}" '
+            'data-copied="{copied}" aria-labelledby="fb-q">'
+            '<div class="container narrow">'
+            '<p class="fb-q" id="fb-q">{q}</p>'
+            '<p class="fb-row">'
+            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="up" '
+            'data-track="page_feedback" data-label="up">{yes}</button>'
+            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="down" '
+            'data-track="page_feedback" data-label="down">{no}</button>'
+            '</p>'
+            '<div class="fb-step" hidden>'
+            '<div class="fb-more" hidden>'
+            '<label class="fb-label" for="fb-text">{prompt}</label>'
+            '<textarea id="fb-text" class="fb-text" rows="3" maxlength="400"></textarea>'
+            '<p class="fb-send"><a class="btn btn-wa btn-sm" href="/contact/" data-fb-send '
+            'data-track="feedback_whatsapp" data-label="{kind}" target="_blank" rel="noopener">{wa}{send}</a></p>'
+            '<p class="small muted">{note}</p>'
+            '</div>'
+            '<fieldset class="fb-rate"><legend class="fb-label">{rate_q}</legend>'
+            '<div class="fb-bars">{bars}</div>'
+            '<p class="fb-scale small muted"><span>{low}</span><span>{high}</span></p>'
+            '</fieldset>'
+            '<p class="fb-thanks" role="status">{thanks}</p>'
+            '<p class="fb-share">'
+            '<button type="button" class="btn btn-outline btn-sm" data-fb-share '
+            'data-track="page_share" data-label="whatsapp">{wa}{share}</button>'
+            '<button type="button" class="btn btn-outline btn-sm" data-fb-copy '
+            'data-track="page_share" data-label="copy">{copy}</button>'
+            '</p>'
+            '</div>'
+            '</div></section>').format(
+        kind=kind, num=e(number), pitch=e(pitch), copied=e(copied_label), q=e(q), yes=e(yes), no=e(no),
+        prompt=e(prompt), send=e(send), note=e(note), thanks=e(thanks), rate_q=e(rate_q),
+        low=e(low), high=e(high), bars=bars, share=e(share_label), copy=e(copy_label), wa=WA_ICON)
+
+
 def byline_html(meta):
     art = meta.get("article")
     if not art:
@@ -4056,7 +4168,7 @@ def layout(meta, body, route, ctx):
 {banner}
 {crumbs}
 <main id="main">
-{byline}{body}
+{byline}{body}{feedback}
 </main>
 {footer}{ls_aff}
 </body>
@@ -4065,7 +4177,7 @@ def layout(meta, body, route, ctx):
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_US" if intl else ("en_IN" if lang.startswith("en") else "hi_IN"),
            og_img=og_img, gtm=gtm_head() if analytics else "", ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body() if analytics else "",
            header=intl_header(route) if intl else header(route, meta), crumbs=intl_breadcrumbs_html(meta) if intl else breadcrumbs_html(meta), body=body,
-           footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
+           footer=intl_footer(route) if intl else footer(route), feedback=feedback_block(route, meta), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
            og_alt=meta.get("og_image_alt") or ("Moodily International — digital journey work and product tutorials" if intl else OG_ALT[og_default(route)]), font_preload=font_preload,
