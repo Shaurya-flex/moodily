@@ -3023,7 +3023,7 @@ def intl_header(route):
     menu = "".join('<li><a href="{0}"{1}>{2}</a></li>'.format(h, cur(h), e(t)) for h, t in INTL_NAV)
     return """<a class="skip" href="#main">Skip to content</a>
 <header class="site-header intl-header"><div class="container nav">
-  <a class="logo" href="/international/" aria-label="Moodily International home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="logo-sub">International</span></a>
+  <a class="logo" href="/international/" aria-label="Moodily International home"><img class="logo-mark" src="/assets/img/moodily-mark.webp" alt="" width="30" height="30" decoding="async">Moodily<span class="logo-sub">International</span></a>
   <nav aria-label="Primary" class="nav-main">
     <ul class="nav-desktop intl-nav-desktop">{top}</ul>
     <details class="menu" id="siteMenu"><summary aria-haspopup="menu"><span class="burger" aria-hidden="true"></span><span class="menu-label">Menu</span></summary>
@@ -3675,7 +3675,7 @@ ORG_DESCRIPTION = "Moodily is a digital-services platform that helps businesses,
 def org_schema():
     org = {
         "@type": "Organization", "@id": ORG_ID, "name": SITE["name"], "alternateName": SITE["alternate_names"],
-        "url": BASE + "/", "logo": {"@type": "ImageObject", "url": BASE + "/assets/img/moodily-logo-512.png", "width": 512, "height": 512},
+        "url": BASE + "/", "logo": {"@type": "ImageObject", "url": BASE + "/assets/img/moodily-icon-192.png", "width": 192, "height": 192},
         "description": ORG_DESCRIPTION,
         "disambiguatingDescription": SITE["disambiguation"], "email": SITE["email"], "areaServed": ["IN", "Worldwide"],
         "knowsLanguage": ["hi", "en"],
@@ -3803,7 +3803,7 @@ def header(route, meta):
                 if meta.get("bilingual") else "")
     return """<a class="skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="container nav">
-  <a class="logo" href="/" aria-label="Moodily home"><img src="/assets/img/moodily-mark.svg" alt="" width="28" height="28">Moodily<span class="dot" aria-hidden="true"></span></a>
+  <a class="logo" href="/" aria-label="Moodily home"><img class="logo-mark" src="/assets/img/moodily-mark.webp" alt="" width="30" height="30" decoding="async">Moodily<span class="dot" aria-hidden="true"></span></a>
   <nav aria-label="Primary" class="nav-main">
     <ul class="nav-desktop">{top}</ul>
     <a class="nav-intl-mobile" href="/international/" data-track="international_nav_click" data-label="header-mobile">International</a>
@@ -4152,8 +4152,8 @@ def layout(meta, body, route, ctx):
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">
-<link rel="icon" href="/assets/img/moodily-mark.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/assets/img/moodily-logo-512.png">
+<link rel="icon" href="/assets/img/moodily-icon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/img/moodily-icon-192.png">
 <script>(function(){{try{{var t=localStorage.getItem('moodily_theme');if(t)document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('moodily_lang');if(l&&document.documentElement.getAttribute('data-bilingual')!==null)document.documentElement.setAttribute('data-lang',l);}}catch(e){{}}var oe=document.documentElement.getAttribute('data-offer-ends');if(oe&&Date.now()>Date.parse(oe))document.documentElement.classList.add('offer-ended');document.documentElement.classList.add('js');}})();</script>
 {gtm}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
