@@ -200,6 +200,38 @@
     }, { passive: true });
   }
 
+  // ---------- page feedback
+  // "Yes" is the end of it — thank them and stop. "No" is the useful answer, so it opens one optional line
+  // and hands the text to WhatsApp rather than storing it: the visitor presses send, can edit first, and the
+  // site keeps nothing. The vote itself is already reported by the shared data-track handler, with page_path.
+  var fb = document.querySelector('.fb');
+  if (fb) {
+    var fbRow = fb.querySelector('.fb-row'), fbMore = fb.querySelector('.fb-more'),
+        fbThanks = fb.querySelector('.fb-thanks'), fbText = fb.querySelector('.fb-text'),
+        fbSend = fb.querySelector('[data-fb-send]');
+    fb.addEventListener('click', function (ev) {
+      var vote = ev.target.closest('[data-fb-vote]');
+      if (!vote) return;
+      fbRow.hidden = true;
+      if (vote.getAttribute('data-fb-vote') === 'up') { fbThanks.hidden = false; return; }
+      fbMore.hidden = false;
+      if (fbText) fbText.focus();
+    });
+    if (fbSend) {
+      fbSend.addEventListener('click', function () {
+        var num = fb.getAttribute('data-wa');
+        if (!num) return;                                  // no number configured: the link stays /contact/
+        // location.pathname only — a query string or fragment can carry the visitor's own details.
+        var lines = ['Moodily — website feedback', location.origin + location.pathname];
+        var said = fbText && fbText.value.trim();
+        if (said) lines.push('', said);
+        fbSend.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(lines.join('\n'));
+        fbMore.hidden = true;
+        fbThanks.hidden = false;
+      });
+    }
+  }
+
   // ---------- language (only on bilingual pages)
   var langBtn = document.getElementById('langToggle');
   if (langBtn) langBtn.addEventListener('click', function () {

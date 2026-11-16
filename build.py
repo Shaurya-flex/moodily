@@ -3971,6 +3971,74 @@ def breadcrumbs_html(meta):
     return '<nav class="container breadcrumbs" aria-label="Breadcrumb"><ol>{}</ol></nav>'.format("".join(parts))
 
 
+# -------------------------------------------------------------- page feedback
+# One question at the foot of the pages where the answer is actionable. The tap is the data: it becomes a
+# GA4 event carrying the route, so the owner can see *which page* failed rather than a global score. Anything
+# the visitor types goes to WhatsApp instead of a database — they press send themselves, they can edit it
+# first, and the site stores nothing, which keeps this out of scope for data-protection obligations entirely.
+#
+# No counters are shown. A visible tally on a site this new would advertise how few people are here, and a
+# number nobody can audit is worth less than the owner reading the message.
+FEEDBACK_SKIP = ("/contact", "/payment", "/privacy", "/terms", "/refund", "/404",
+                 "/offers/", "/international/pay", "/international/payments")
+FEEDBACK_HELPFUL = ("/guides/", "/insights/", "/learn/", "/resources/", "/updates/",
+                    "/international/product-tutorials/")
+FEEDBACK_FOUND = ("/services/", "/samples/", "/store/", "/tools/",
+                  "/international/services/", "/international/work/")
+FEEDBACK_COPY = {
+    ("helpful", "hi"): ("क्या यह जानकारी काम आई?", "हाँ", "नहीं", "क्या बेहतर हो सकता है?"),
+    ("helpful", "en"): ("Was this useful?", "Yes", "No", "What would make it better?"),
+    ("found", "hi"): ("आपको जो चाहिए था, वो यहाँ मिला?", "हाँ", "नहीं", "आप क्या ढूँढ रहे थे?"),
+    ("found", "en"): ("Did you find what you needed?", "Yes", "No", "What were you looking for?"),
+}
+FEEDBACK_SEND = {"hi": ("WhatsApp पर भेजें", "Message WhatsApp में खुलेगा — भेजने से पहले आप उसे पढ़ और बदल सकते हैं।",
+                        "धन्यवाद — आपकी बात पहुँच गई।"),
+                 "en": ("Send on WhatsApp", "The message opens in WhatsApp — you can read and edit it before sending.",
+                        "Thank you — that is noted.")}
+
+
+def feedback_kind(route, meta):
+    """Which feedback question this route gets, or None. Pages mid-transaction never ask."""
+    if meta.get("no_feedback") or meta.get("noindex") or route.startswith(FEEDBACK_SKIP):
+        return None
+    if route.rstrip("/") in ("", "/international"):   # the homepages sell; they do not survey
+        return None
+    if route.startswith(FEEDBACK_HELPFUL):
+        return "helpful"
+    if route.startswith(FEEDBACK_FOUND):
+        return "found"
+    return None
+
+
+def feedback_block(route, meta):
+    kind = feedback_kind(route, meta)
+    if not kind:
+        return ""
+    lang = "en" if meta.get("lang", "hi").startswith("en") else "hi"
+    q, yes, no, prompt = FEEDBACK_COPY[(kind, lang)]
+    send, note, thanks = FEEDBACK_SEND[lang]
+    number = SITE["whatsapp"].get("number", "")
+    if not number:
+        return ""
+    return ('\n<section class="fb" data-fb="{kind}" data-wa="{num}" aria-labelledby="fb-q">'
+            '<div class="container narrow">'
+            '<p class="fb-q" id="fb-q">{q}</p>'
+            '<p class="fb-row">'
+            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="up" data-track="page_feedback" data-label="up">{yes}</button>'
+            '<button type="button" class="btn btn-outline btn-sm fb-btn" data-fb-vote="down" data-track="page_feedback" data-label="down">{no}</button>'
+            '</p>'
+            '<div class="fb-more" hidden>'
+            '<label class="fb-label" for="fb-text">{prompt}</label>'
+            '<textarea id="fb-text" class="fb-text" rows="3" maxlength="400"></textarea>'
+            '<p class="fb-send"><a class="btn btn-wa btn-sm" href="/contact/" data-fb-send data-track="feedback_whatsapp" '
+            'data-label="{kind}" target="_blank" rel="noopener">{wa}{send}</a></p>'
+            '<p class="small muted">{note}</p>'
+            '</div>'
+            '<p class="fb-thanks" hidden role="status">{thanks}</p>'
+            '</div></section>').format(kind=kind, num=e(number), q=e(q), yes=e(yes), no=e(no), prompt=e(prompt),
+                                       send=e(send), note=e(note), thanks=e(thanks), wa=WA_ICON)
+
+
 def byline_html(meta):
     art = meta.get("article")
     if not art:
@@ -4056,7 +4124,7 @@ def layout(meta, body, route, ctx):
 {banner}
 {crumbs}
 <main id="main">
-{byline}{body}
+{byline}{body}{feedback}
 </main>
 {footer}{ls_aff}
 </body>
@@ -4065,7 +4133,7 @@ def layout(meta, body, route, ctx):
            robots=robots, ogtype="article" if meta.get("article") else "website", locale="en_US" if intl else ("en_IN" if lang.startswith("en") else "hi_IN"),
            og_img=og_img, gtm=gtm_head() if analytics else "", ver=ASSET_VERSION, schema=page_schema(meta, route, ctx), view=view_attr, gtm_body=gtm_body() if analytics else "",
            header=intl_header(route) if intl else header(route, meta), crumbs=intl_breadcrumbs_html(meta) if intl else breadcrumbs_html(meta), body=body,
-           footer=intl_footer(route) if intl else footer(route), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
+           footer=intl_footer(route) if intl else footer(route), feedback=feedback_block(route, meta), banner=intl_banner() if intl else offer_banner(route), byline=byline_html(meta),
            intl_css='\n<link rel="stylesheet" href="/assets/css/intl.css?v={}">'.format(INTL_CSS_VERSION) if intl else "",
            intl_js='\n<script src="/assets/js/intl.js?v={}" defer></script>'.format(INTL_CSS_VERSION) if intl else "",
            og_alt=meta.get("og_image_alt") or ("Moodily International — digital journey work and product tutorials" if intl else OG_ALT[og_default(route)]), font_preload=font_preload,

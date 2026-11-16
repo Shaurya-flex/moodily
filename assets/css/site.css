@@ -1533,3 +1533,20 @@ html.wr-open .mobile-cta,html.wr-open .fab-wa{display:none}
 .honesty p:last-child{margin:0;color:var(--text)}
 .why-close{margin-top:clamp(18px,2.2vw,28px);max-width:var(--reading)}
 .why-close .btn-row{margin:14px 0 8px}
+/* ---------------------------------------------------------------- page feedback
+   A quiet rule-off question at the foot of guides, services and samples. It is deliberately
+   plain: it must not compete with the real call to action a few hundred pixels above it. */
+.fb{border-top:1px solid var(--border);margin-top:var(--space-section);padding:clamp(20px,2.4vw,28px) 0 clamp(24px,3vw,36px)}
+.fb-q{margin:0 0 12px;font-weight:600;color:var(--text)}
+/* [hidden] is a UA rule, so any author display wins over it. .fb-row sets display:flex and would stay
+   on screen after the visitor answers; state this first so the attribute means what the script thinks. */
+.fb [hidden]{display:none}
+.fb-row{display:flex;flex-wrap:wrap;gap:10px;margin:0}
+.fb-btn{min-width:88px}
+.fb-more{margin-top:14px;max-width:var(--reading)}
+.fb-label{display:block;font-size:var(--fs-small);color:var(--text-muted);margin-bottom:6px}
+.fb-text{width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:var(--r-input);
+  background:var(--surface);color:var(--text);font:inherit;font-size:var(--fs-small);resize:vertical}
+.fb-text:focus-visible{outline:none;border-color:var(--primary);box-shadow:var(--ring)}
+.fb-send{margin:12px 0 6px}
+.fb-thanks{margin:0;color:var(--success);font-weight:600}
